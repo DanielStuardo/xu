@@ -1,0 +1,2146 @@
+    ____  ___    
+    |    |   \   /|  \  / |  |
+    |__  |   |  / |   \/  |  |
+    |    |   | /__|_  /\  |  |
+    |___ |___/    |  /  \ \__/
+$$END INTRO
+
+__________________________________________
+========= AYUDA RAPIDA DE ED4XU ==========
+
+Edit4XU, el editor de Linux para Linux... que tenga instalado XU ;)
+
+Este editor se entrega "AS IS", porque no gano un solo peso por él. Al respecto, lea la introducción, luego de esta ayuda rápida.
+
+Los siguientes comandos pueden ser usados en ED4XU, editor de XU Programming language virtual machine.
+Los detalles de funcionamiento y otros parámetros de algunos de estos comandos, pueden ser leídos en la sección "AYUDA EXPANDIDA".
+Existen otros comandos que solo se explican en esta sección, porque no necesitan más explicación.
+
+/* Definiciones preliminares:
+   BOL  = Begin Of Line, principio de línea.
+   EOL  = End Of Line, final de línea. 
+   CTRL = Tecla Control; CTRL-T significa: presiona CTRL y sin soltar: T */
+
+$$BEGIN Uso del BUFFER
+
+
+USO DEL BUFFER
+
+El BUFFER contiene los elementos que han sido copiados o borrados desde
+el texto. Si no ha usado las opciones de CTRL-L, todos los elementos
+persistirán.
+
+Sus opciones son las siguientes:
+
+  ENTER     Inserta la línea seleccionada, de acuerdo al método con que esta
+            fue añadida al BUFFER (con o sin salto de línea).
+
+  CTRL-V    Inserta un grupo de líneas, marcando inicio y fin, sin importar
+            el orden, es decir, se respetará el orden en que estas están en
+            el BUFFER. Si marca una misma línea, dicha marca desaparecerá y
+            quedará como hueón delante de sus amigos.
+
+  CTRL-S    Selecciona líneas del BUFFER para ser insertadas. A diferencia de
+            CTRL-V, puede seleccionar las líneas que quiera.
+            Se respetará el orden de selección en la inserción.
+            Para insertar las líneas seleccionadas, use CTRL-V.
+
+  <<IMPORTANTE>
+            Si la selección incluye líneas completas, estas serán insertadas
+            con un salto de línea. Las líneas incluídas como parte de un
+            bloque, serán insertadas con un espacio en blanco al final de cada
+            una de ellas. Se pueden producir combinaciones interesantes y
+            caóticas: si las primeras líneas a insertar son con salto de línea,
+            y el resto son bloques, todo se insertará con un salto de línea;
+            asimismo, si las primeras son bloques, y el resto tienen saltos de
+            líneas, todo se insertará como un bloque, alterando el texto de
+            la edición.
+            Al final, tú tienes el control: si queda la cagá, es tu culpa.
+  
+  CTRL-J    Salta a la línea del texto indicada por la línea del BUFFER. Si el
+            número es positivo y está dentro del rango de líneas del texto,
+            saltará; de lo contrario, no hará nada.
+
+  BACKSPC   Elimina la línea inmediatamente anterior a la línea donde está
+            parado el cursor.
+
+  SUPR      Elimina la línea donde está parado el cursor.
+  
+  <<CUIDADO>>
+            Si ya ha borrado todas las líneas del BUFFER por medio de BACKSPC o
+            SUPR, y se le pegó el dedo en esas teclas, continuará borrando en el
+            texto.
+
+
+$$END Uso del BUFFER
+$$BEGIN Menu ^O (ayuda y archivos)
+
+
+CTRL-O      MENU de ayuda y archivos. Estas son sus opciones:
+
+ O / F1     Muestra esta ayuda.
+
+ X          Muestra la ayuda del lenguaje de programación XU.
+
+ F / F2     Carga un archivo desde el disco. Si no existe, le pregunta si
+            quiere crearlo.
+
+ N          Crea un archivo nuevo, pero no existirá de verdad si no usa
+            el comando CTRL-W.
+
+ A          Abre la ventana del "Acerca de...", con información sobre el
+            compilador activo por defecto, y otras cosas.
+            El compilador activo es determinado por la extensión del 
+            programa, y si es que existe en la lista de compiladores de
+            ED4XU.COMPILER.
+
+ P          Repite el último comando ejecutado con la opción OPE,
+            si existe.
+
+ L          Abre un archivo, si existe en el actual directorio, desde la
+            palabra donde está parado el cursor.
+            La extensión del archivo será, por defecto, la misma extensión
+            del archivo abierto en ese momento. Si la palabra tiene un punto
+            y una extensión, asumirá la palabra completa como el archivo a
+            buscar.
+
+ S          Ejecuta un comando del sistema. No ejecute programas XU ni Harbour
+            bajo este comando, porque no podrá usar el ratón después. Tampoco
+            ejecute un shell directamente, como "Bash", no sea huevón.
+            Estas son sus opciones:
+
+   *           Lista los comando ejecutados.
+
+   !           Lista la salida del último comando.
+
+   '<comando>  Edita la salida del comando en una ventana nueva.
+
+   $<comando>  Inserta la salida del comando en la edición activa. Puede usar
+               CTRL-Z para deshacer.
+
+   @<comando>  Reemplaza la edición actual por la salida del comando. Es
+               ideal para aquellos que les gusta usar AWK y otros comandos
+               del sistema para modificar texto.
+               REQUERIDO es que el archivo esté guardado al momento de
+               llamar este comando.
+               El buffer de Undo se pierde con esta acción.
+
+=========== ALGUNOS DETALLES DE CTRL-O ============
+
+CTRL-O + F / F2
+
+Carga un archivo desde el disco, y lo dejará en una nueva "pestaña".
+Si desea editar un archivo "XU", solo debe escribir su nombre, sin ruta; no obstante, si desea buscarlo entre la lista de archivos, deberá añadir la ruta con "^IS", o "^II", como por ejemplo:
+   
+   (^IS)--> /home/xu/source/*.xu
+   (^II)--> /home/xu/include/*.def
+
+Opciones de este comando:
+ * Si escribe un comodín, como por ejemplo, "/home/xu/source/*.xu", se abrirá una ventana de navegación, que le permitirá navegar por directorios.
+ * ^IH = insertará el path HOME.
+ * ^IP = insertará el path donde se invocó ED4XU.
+ * ^IR = insertará el path relativo al archivo que tiene editado en ese momento.
+ * ^IS = insertará el path de los archivos fuentes XU.
+ * ^II = insertará el path de los archivos INCLUDE de XU.
+ * RETURN = selecciona el archivo.
+*NOTA*
+Si desea eliminar un archivo desde la lista de "pestañas", basta con que presione la tecla SUPR o ^G sobre el archivo que quiera eliminar.
+
+
+
+$$END Menu ^O (ayuda y archivos)
+$$BEGIN Edicion basica
+
+
+CTRL-Z / CTRL-FLECHA IZQUIERDA(LINUX)
+            Deshace las modificaciones en el texto.
+            Solo funciona para texto escrito, texto eliminado con ALT-Z,
+            Texto pegado con CTRL-KU (ALT-U), texto borrado con SUPR o BKSPACE,
+            líneas insertadas con RETURN (CTRL-M), y texto modificado dentro
+            del modo de líneas marcadas con ALT-0 (CTRL-K4). También funciona
+            con los comandos CTRL-KJ, CTRL-KR, CTRL-KF, CTRL-NR, CTRL-NA,
+            CTRL-KS, CTRL-KD, cTRL-KP,CTRL-KB,CTRL-KE, CTRL-K1, CTRL-K2, CTRL-KX,
+            CTRL-KM, CTRL-KK, CTRL-KH y ALT-(punto) y ALT-(guión), tanto para
+            líneas simples como bloques.
+            A decir verdad, funciona para todo.
+            CTRL-KZ elimina el buffer de deshacer, así como cambiarse de
+            ventana.
+
+CTRL-U      Lista los archivos editados. Puede seleccionarlos.
+
+CTRL-Q      Sale del editor. Si no ha guardado alguna edición, le preguntará.
+
+CTRL-W      Guarda el archivo en el disco. Puede cambiar el nombre y la
+            ruta, si lo desea, anteponiendo al nombre de archivo "*/". Por
+            Ejemplo: */mi-archivo.c, abrirá una ventana donde podrá elegir
+            el directorio. Una vez que llegue a él, solo presione ESC y
+            la nueva ruta será elegida.
+            No cambia el archivo en edición cuando lo guarda con otro nombre.
+
+CTRL-Y      Agrega o quita comentario de línea. Comando útil cuando programa en
+            un lenguaje que está registrado en ED4XU.COMPILER.
+
+CTRL-I / TAB
+            Insertará "n" espacios en el editor. "n" es definido
+            por el tag "tab" del archivo ED4XU.COMPILER.
+
+CTRL-M / RETURN / ENTER
+            Inserta una nueva línea.
+            Este comando elimina el stack de búsqueda.
+
+CTRL-G / SUPR / Fn+Backspace en el caso de "mierdApple"
+            Borra el caracter donde está el cursor. Experimenta
+            un retardo de 100 milisegundos cuando se acerca al
+            final de la línea.
+
+CTRL-H / BACKSPACE
+            Borra el caracter ubicado a la izquierda del cursor.
+            Experimenta un retardo de 100 milisegundos cuando se
+            acerca al principio de la línea.
+
+
+
+$$END Edicion basica
+$$BEGIN Comandos de movimiento de cursor
+
+
+CTRL-D / FLECHA DERECHA
+            Moverá el cursor hacia la derecha.
+
+CTRL-X / FLECHA ABAJO
+            Moverá el cursor a la línea siguiente, si existe.
+
+CTRL-S / FLECHA IZQUIERDA
+            Moverá el cursor hacia la izquierda.
+
+CTRL-E / FLECHA ARRIBA
+            Moverá el cursor a la línea anterior, si existe. 
+
+CTRL-C / AvPag (En LINUX: ALT - FLECHA ABAJO)
+            Avanza una página.
+
+CTRL-R / RePag (En LINUX: ALT - FLECHA ARRIBA)
+            Retrocede una página.
+
+CTRL-T / CTRL-FLECHA ARRIBA(LINUX)
+            Salta a la primera línea, al TOP del archivo.
+
+CTRL-B / CTRL-FLECHA ABAJO(LINUX)
+            Salta a la última línea, al BOTTOM del archivo.
+            
+CTRL-A / Inicio
+            Salta al BOL de la línea, y alternadamente, salta
+            al inicio de la línea escrita (idem a CTRL-KI).
+
+CTRL-F / Fin
+            Salta al EOL de la línea.
+            En una edición hexadecimal, el fin de línea será el
+            último caracter de la línea, mientras que en una
+            edición normal, será la posición del último caracter
+            más uno, dado que el archivo puede ser modificado
+            normalmente.
+
+
+
+$$END Comandos de movimiento de cursor
+$$BEGIN Ayuda ^P (Compilacion y vista)
+
+CTRL-P      MENU de opciones de ejecución y configración.
+            Estas son sus opciones:
+            
+ P / F5     Compila y ejecuta un programa. Si es un script,
+            solo ejecuta.
+
+ L          Compila una librería XU.
+
+ S          Lista los lenguajes disponibles. El lenguaje
+            seleccionado determina el highliting.
+
+ X          Ingreso de parámetros y variables de entorno para
+            la ejecución actual. Un ejemplo sencillo:
+            
+              "nombre y apellido" 100 200
+              *.txt 0 0 1
+              
+              A=100
+              RUTA=/home/pinche/app
+              
+            Las líneas en blanco son opcionales. los parámetros
+            serán considerados como una sola línea, aunque los
+            ponga en líneas separadas.
+            Lo que diferencia a un parámetro de una variable de
+            entorno, es el sígno "=". Por tanto, no use este
+            símbolo dentro de un parámetro.
+            
+ C          Carga Archivo de configuración del editor.
+            Use este comando cada vez que realice cambios.
+
+ H          Habilita/deshabilita el highliting.
+
+ M          Cambia el mapa de colores de la edición.
+
+ O          Refresca la pantalla. Uselo cuando modifique las
+            dimensiones del terminal.
+
+=========== ALGUNOS DETALLES DE CTRL-P ============
+
+CTRL-P + P / F5
+
+Compila y ejecuta un programa XU. Puede compilar programas de otros lenguajes, solo debe incluir la línea de compilación en el archivo ED4XU.COMPILER.
+Las compilaciones incluídas por defecto son "XU" y "C".
+
+En el archivo ED4XU.COMPILER deberá agregar una línea de compilación como la siguiente:
+   
+   c=e,gcc %name%.c -o %name%, %name%, GCC - Ejecutable,//
+
+donde:
+
+-"c" es la extensión del archivo fuente.
+-"e" indica que es "ejecutable".
+     La otra opción es "ne", "no ejecutable", y la puede usar para archivos interpretados, como BASH, Python, etcétera.
+-"gcc %name%.c -o %name%" indica una línea de compilación. "%name" es un tag que será reemplazado por el nombre de archivo en edición.
+-"%name%" es un tag que será reemplazado por el archivo compilado ejecutable.
+-"GCC - Ejecutable" es una descripción que aparecerá en la parte superior de la ventana de edición.
+-"//" es el símbolo o conjunto de símbolos que se usan como comentario de líneas.
+
+El tag "<none>" le dirá a ED4XU que no haga nada. Si está en la parte del compilador, no compilará, y si está en la parte de la ejecución, no ejecutará.
+
+Otros ejemplos:
+   
+   ; Python
+   py=ne,<none>,python %name%.py,PYTHON - script,#
+
+   ; Bash Shell
+   sh=ne,chmod 777 %name%.sh, sh %name%.sh, BASH - script,#
+
+   ; latex
+   tex=e,pdflatex -file-line-error %name%.tex, open %name%.pdf, LATEX - PDFLATEX MAC,%
+   tex=e,pdflatex -file-line-error %name%.tex, evince %name%.pdf, LATEX - PDFLATEX LINUX,%
+
+Si la compilación fue orgásmica, el programa ejecutará de inmediato.
+
+**IMPORTANTE**
+Todo esto debe ser puesto antes del tag "end_compiler_definition".
+
+
+CTRL-P + M
+
+Cambia el mapa de colores del editor. Se pueden añadir más mapas en el archivo ED4XU.COMPILER, con el tag "MAP".
+Ejemplo de definición de mapa de colores:
+
+   map=Carretera Austral,14,7,15,11,108,27,14,87,10,11
+
+donde:
+   "map" es el tag que identifica que es un mapa de colores.
+   "Carretera Austral" es una descripción o nombre del mapa. Aparecerá en el menú de ^PM.
+   "14"  es el color (amarillo sobre fondo negro) de las ventanas de ayuda.
+   "7"   es el color del texto en edición (blanco sobre fondo negro).
+   "15"  es el color de las cadenas string. en este caso, serán destacadas con un color blanco brillante.
+   "11"  es el color del menú inferior y del encabezado de la ventana (celeste sobre negro).
+   "108" es el color que indicará que el documento ha sido modificado (letra roja sobre fondo amarillo).
+   "27"  es el color de las palabras declaradas en el tag "sections" (celeste sobre fondo azul).
+   "14"  es el color de las palabras declaradas en el tag "keywords" (amarillo sobre fondo negro).
+   "87"  es el color de las palabras declaradas en el tag "preprocs" (blanco sobre fondo rosado).
+   "10"  es el color de los comentarios (verde brillante sobre fondo negro).
+   "11"  es el color de la línea en edición, donde está el cursor (celeste sobre fondo negro).
+
+**IMPORTANTE**   
+Los colores pueden ser obtenidos ejecutando el archivo "colores.xu".
+Si no quiere destacar la línea de edición, ponga "0".
+La declaración de los colores (highlighting), se realiza según se muestra a continuación:
+
+   ; Highlighting para lenguaje C:
+   colours=c,h
+   preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef,?,:,&,|
+   sections=main,return
+   keywords=NULL,auto,break,case,char,const,continue,default,do,double,else,enum,extern,float,for
+   keywords=goto,if,int,long,register,return,short,signed,sizeof,static,struct,switch,typedef,union,do
+   keywords=unsigned,void,volatile,while,uint8_t,uint16_t,uint32_t,uint64_t
+   keywords={,},(,),[,],int16_t,int32_t,int64_t
+   keywords=\
+   
+donde:
+   "colours" es el tag que indica las extensiones de los archivos que serán coloreados.
+   "preprocs" es un tag que indica "preprocesamiento". Vale madre.
+   "sections" indica palabras muy importantes, oiga.
+   "keywords" indica el perraje, la palabras reservadas y otras cosas.
+
+**IMPORTANTE**
+La declaración de un segmento "colours" debe terminar con "keywords=\".
+
+
+$$END Ayuda ^P (Compilacion y vista)
+$$BEGIN Menu ^V (Insercion de codigo)
+
+
+CTRL-V      MENU de inserción de código. Sus opciones son las
+            siguientes:
+            
+ C, A, F    Inserta código de lenguaje XU/C/C++/LaTex, según dicho
+            contexto. Estos comandos eliminan el stack de búsqueda.
+            
+ D          Inserta la fecha y la hora actual donde está el cursor.
+ 
+ Y          Inserta un bloque de comentario: "/*  */", y posiciona 
+            el cursor en su interior. Solo sirve para programas XU
+            C y C++.
+            
+ E          Inserta el nombre de una variable de entorno del sistema.
+ 
+ V          Inserta el contenido de una variable de entorno del sistema.
+ 
+ I          Habilita/inhabilita modo sobreescritura.
+
+
+$$END Menu ^V (Insercion de codigo)
+$$BEGIN Menu ^K (Edicion avanzada)
+
+
+CTRL-K      MENU de edición de texto.
+            Este comando limpia el stack de búsqueda.
+            <<IMPORTANTE>>
+            Los comandos que marcan líneas o bloques solo marca la
+            posición inicial. Cuando el comando se completa, recién lee
+            las líneas y las carga en el BUFFER. Esto significa que 
+            cualquier modificación del texto en el intertanto, verá 
+            afectado el propósito.
+            Por lo anterior, usted puede marcar los bloques o las líneas,
+            o las secciones de líneas, sin importar el orden, si marca
+            primero el final del bloque o línea, y luego marca el inicio,
+            de manera automática, ED4XU ordenará las marcas y procederá.
+            
+            Sus opciones son las siguientes:
+
+ K / F3     Borra una línea y la guardará en un BUFFER. El salto de 
+            línea es incluido.
+            El texto es añadido al BUFFER.
+
+ X          Borra un grupo de líneas, y las guarda en el BUFFER. El
+            salto de línea es incluido, porque es una generalización
+            de CTRL-KK.
+            El texto es añadido al BUFFER.
+
+ U / F4     Inserta el contenido del BUFFER en el editor.
+            << CUIDADO! >> 
+            No inserta líneas nuevas si el texto fue obtenido con los
+            comandos CTRL-KC y CTRL-KM, pero sí lo hace con los
+            comandos CTRL-KK y CTRL-KX.
+
+ P / F10    Alinea el inicio escrito de la línea donde está el cursor.
+
+ CTRL-P     Idem al anterior, pero alinea un grupo de líneas.         
+
+ M          Corta un bloque rectangular o una línea de texto. Este 
+            comando no incluye saltos de línea.
+
+ C          Copia un bloque rectangular o una línea de texto. No incluye
+            saltos de línea.
+
+ Q          Borra todas las marcas de CTRL-KC, CTRL-KM, CTRL-KX, CTRL-KD,
+            CTRL-KS, CTRL-K+CTRL-P, CTRL-KH, CTRL-KA y CTRL-KW.
+
+ L          Limpia el BUFFER.
+
+ V          Mostrará el contenido del BUFFER.
+
+ G          Corta una sección de líneas.
+
+  >>NOTA>>  ^KG usar directamente el buffer de teclado para proceder. Esto
+            lo vuelve pintoresco. Dicho buffer está seteado para contener
+            solo algunas pocas líneas de caracteres (en Ubuntu 18.04 con
+            ram de 8GB, son 2.000 caracteres). Este comando es el único que
+            tiene límites en su uso.
+            Recuerde ese límite cuando desee hacer cortes grandes.
+
+ E          Borra desde la posición del cursor hasta el final de la línea,
+            y guarda lo borrado en el BUFFER.
+
+ B          Borra desde la posición del cursor hasta el principio de la
+            línea, y guarda lo borrado en el BUFFER.
+   
+ S          Inserta una sangría delante de las líneas seleccionadas. El
+            número de espacio será el que hay entre la posición 1 y la
+            posición del cursor.
+
+ D          Elimina espacios delante de un grupo de líneas, entre el cursor
+            y el inicio de la primera linea escrita.
+
+ I          Ubica el cursor en el inicio de la línea escrita.
+
+ N          Habilita/inhabilita Autocompletar.
+ 
+ Opciones de CTRL-K que no están en el menú:
+
+ H          Es como el comando CTRL-KX, solo que deja el espacio que
+            ocupaban las líneas cortadas, en vez de contraer el texto.
+            El objetivo de esto es mantener el espacio, por si a dichas
+            líneas las usa como argumentos de alguna operación OPE, pues,
+            el resultado de dicha operación es pegada en el texto sin
+            incluir saltos de línea.
+            El texto se añade al BUFFER.
+
+ A          Copia un grupo de líneas, sin cortarlas del texto, y las
+            guarda en el BUFFER. El salto de línea es incluido.
+            El texto se añade al BUFFER.
+
+ W          Marca un número de líneas, inicio y final, para que sean 
+            movidas en grupo, hacia arriba con SHIFT-CTRL-FLECHA IZQUIERDA,
+            o hacia abajo con SHIFT-CTRL-FLECHA DERECHA.
+            Este comando solo funciona en LINUX.
+
+ T          Copia la palabra (o número entero/decimal positivo) a un buffer
+            especial. La palabra puede ser una variable que incluya "_" y ".".
+            Si ejecuta este comando en otra cosa que no sea una palabra,
+            su contenido será borrado.
+            Este comando es complementario a CTRL-K+R.
+
+ R          Reemplaza la palabra donde está el cursor por la palabra en el
+            buffer. Si el buffer está limpio, la palabra es eliminada.
+            Una palabra puede contener letras, dígitos y los símbolos
+            "_" y ".", es decir, puede ser un número, una variable o un
+            nombre de función o de clase con método, o campo de "struct",
+            en "C".
+            Este comando es complementario a CTRL-K+T.
+
+   <<IMPORTANTE>>
+            Este comando es una alternativa a CTRL-NN + CTRL-NR, pero
+            está separado. Usar ambos comandos en combinación, digo, los 
+            mencionados y este, podría traer consecuencias desastrozas para
+            el universo.
+
+ F          Convierte el número DECIMAL donde está el cursor, en Binario, 
+            Hexadecimal u Octal. El número debe ser ENTERO, y el resultado
+            incluye el prefijo "0x" y el sufijo "b","h" u "o", si está en
+            un programa XU. Si está en "C", solo entrega el prefijo "0x"
+            para un número hexadecimal. En otras circunstancias, solo se
+            entrega el número.
+            Además, convierte de Binario, Hexadecimal y Octal, a Decimal.
+            
+            También puede devolver el caracter ASCII, si el numero elegido
+            es un número entero entre 32 y 254.
+            
+   <<IMPORTANTE>>
+            El algoritmo de conversión podría fallar si el número es muy
+            grande. Cualquier bug relacionado con esto, hágamelo saber.
+
+ J          Intercambia dos líneas. Se debe ejecutar este comando sobre
+            cada línea.
+
+ Z          UNDO EXTREMO! Recarga el archivo original, pisando la actual
+            edición. El archivo original es el archivo temporal creado en
+            el momento de iniciar la edición del archivo. Si este archivo
+            tenporal no pudo ser creado, NO USE ESTA OPCION.
+            
+ 0 (cero)   Llama a una versión de CTRL-LO (Macros, visto más adelante), que
+            corresponde a una calculadora de expresiones, la cual deja los
+            resultados en una ventana superior, sin alterar el texto (OPE
+            altera el texto con cada resultado).
+            Sus principales opciones son las siguientes:
+            
+    *+^W    Permite seleccionar y pegar una expresión previamente usada.
+            Esta opción ("*") se puede usar dentro del texto, y será
+            reemplazada por la expresión elegida.
+            Ejemplo:
+                100**
+                (*=elige "log(2)")
+                100*log(2)
+
+    !+^W    Pega el último resultado en la ventana de cálculo. El signo "!"
+            será reemplazado por el resultado elegido.
+            Ejemplo:
+                log(2)+!
+                (!=elige "0.26")
+                log(2)+0.26
+
+            Se pueden hacer cálculos y probar todas las funciones que OPE
+            tiene a disposición en modo macro. Bueno, casi todas.
+            El último resultado de las operaciones queda registrado en el
+            BUFFER.
+            
+ 1          Elimina todas las líneas, desde la línea actual hasta el final
+            del archivo. El contenido se guarda en el BUFFER.
+
+ 2          Elimina todas las líneas, desde la actual, hasta el inicio del
+            archivo.  El contenido se guarda en el BUFFER.
+
+ 4          Marca inicio y fin de bloque de líneas. Una vez hecho
+            esto, cualquier trabajo realizado con expresiones OPE, se hará
+            directamente sobre el texto editado, y no en el BUFFER. El
+            BUFFER solo puede ser usado como complemento, o para almacenar
+            líneas del texto mediante la instrucción COPY.
+
+   <<IMPORTANTE>>
+            Además, bajo este método es posible hacer CTRL-Z, o sea, se
+            puede DESHACER cualquier cambio. Esta posobilidad acaba cuando
+            se cambia de ventana.
+            
+            Las líneas seleccionadas quedan marcadas, porque
+            no son copiadas al BUFFER.
+            Este es el único comando que marca líneas.
+            Esta marca será borrada con cualquier modificación que se realice
+            antes de la última marca, y que incluya eliminar o insertar
+            líneas.
+
+
+
+$$END Menu ^K (Edicion avanzada)
+$$BEGIN Menu ^N (Busqueda y reemplazo)
+
+
+CTRL-N      MENU de búsqueda y reemplazo de texto. 
+            El texto buscado será limpiado de espacios en blanco y caracter
+            salto de línea. 
+
+   Comandos de edición:
+   
+   CTRL-W   Finaliza la edición. 
+            * Si la entrada está en blanco, finaliza sin hacer nada.
+            * Si encuentra una palabra, intenta la búsqueda.
+
+   CTRL-Y   Borra una línea. Consecutivamente, borra todas las líneas.
+
+   CTRL-V   Habilita/inhabilita el modo de inserción (local).
+
+   CTRL-T   Borra la palabra ubicada hacia la derecha.
+
+   RETURN   Inserta una línea.
+
+   ESC      Cancela la edición, tenga algo escrito o no.
+
+   *        Ejecutando ^W, lista las palbras escritas hasta ese
+            momento.
+            Pueden ser seleccionadas para su uso.
+            
+  >>NOTA>>  El uso de CTRL-Z (Undo) elimina la lista de búsqueda.      
+            
+            Sus opciones son las siguientes:
+            
+ N / F6     Busca un texto, con opción case-sensitive/insensitive. Llena
+            Un BUFFER con las posiciones encontradas.
+
+   Importante:
+            Los espacios en blanco laterales son eliminados. Si deseas
+            buscar con espacios en blanco laterales, usa los caracteres
+            especiales. Ejemplo:
+              Si quieres buscar "ETAPA  ", debes escribir:
+              ETAPA#32;#32;
+            
+ Q          Limpia el BUFFER de posiciones. Es necesario si desea usar
+            CTRL-JJ, porque esta rutina se vale de esa opción.
+
+ O / F8     Busca el siguiente match, hacia adelante. Si llega al último,
+            salta al primero.
+
+ B / F7     Busca el match anterior. Si llega al primero, salta al
+            último.
+
+ V          Muestra la lista de matches.
+
+ R          Reemplaza un match. Si deseas reemplazar con espacios en
+            blanco laterales, usa los caracteres especiales. Ejemplo:
+              Si quieres reemplazar por "ETAPA  ", debes escribir:
+              ETAPA#32;#32;
+
+ A          Reemplaza todos los matches. Misma recomendación anteror.
+
+=========== ALGUNOS DETALLES DE CTRL-N ============
+
+Buscará un texto en el documento, y llenará un BUFFER con las posiciones encontradas. La búsqueda sin opciones será case sensitive.
+Ubicará el cursor en la palabra donde encuentre la primera ocurrencia.
+Al usar este comando, el BUFFER se limpia y se vuelve a llenar con nuevas posiciones. Para ir a las posiciones de las ocurrencias encontradas, use CTRL-NO (Other), y CTRL-NB (Before).
+Si se arrepiente de usar este comando, puede anularlo con la tecla Escape.
+Opciones:
+  ! = Hará una búsqueda case insensitive. Por ejemplo, si busca "!Sonrisa":
+      "la sonrisa de María" será un match.
+      "el SonrisaL" será otro match.
+  * = Buscará solo la palabra completa. Una palabra completa será aquella que no tendrá letras ni números en sus extremos. Por ejemplo, si busca "Sonrisa":
+      "la Sonrisa pep" será un match.
+      "el Sonrisal" no será un match.
+  
+*NOTA*
+Puede combinar las opciones. Por ejemplo, la siguiente cadena es permitida: "*!METADATA".
+
+Además, puede buscar caracteres ASCII anteponiendo "#" al número ASCII del caracter, seguido SIEMPRE de ";". Ejemplo:
+
+   SEARCH? #13;
+   
+buscará el caracter de salto de línea.
+
+Se puede usar este comando en una secuencia de caracteres. Por ejemplo, si quiere buscar "<-", use:
+
+   SEARCH? #60;#45;
+   
+Esto último es MUY UTIL cuando desea reemplazar caracteres raros en archivos que no son UTF-8 ni US-ASCII. 
+
+Como es natural, no puede buscar directamente los caracteres "*" ni "!", porque son comandos internos de CTRL-NN.Para buscarlos directamente, debe usar #42; para "*", y #33; para "!". 
+Además, debe tener cuidado si busca "#" y/o ";": ED4XU intentará ver en ellos una secuencia ASCII si acaso encuentra el mismo número de "#" que de ";".
+
+EDICION HEXADECIMAL
+
+Existen formas de búsqueda que solo sirven en una edición hexadecimal. Busque el tópico en el menú de ayuda.
+
+
+
+$$END Menu ^N (Busqueda y reemplazo)
+$$BEGIN Menu ^J (Saltos a lineas)
+
+
+CTRL-J      MENU de saltos en el texto. Estas son sus opciones:
+
+ J / F9     Salta al número de línea indicado.
+
+ F, V, A    Salta a la posición donde se encuentran las secciones 
+            "FUNCTIONS:", "VARS:" y "ALGORITHM:", de XU. Usted podría
+            poner estas palabras en sus programas no-XU, comentadas, y 
+            tendría el mismo efecto.
+
+ B          Regresa a la posición original luego de usar los comandos
+            anteriores. Su función es errática y no es recomendable por
+            el momento.
+
+
+$$END Menu ^J (Saltos a lineas)
+$$BEGIN Menu ^L (Procesamiento avanzado de texto)
+
+
+CTRL-L      Procesa texto almacenado en el BUFFER, con funciones de
+            texto y matemáticas. El resultado es insertado en el editor,
+            donde está el cursor.
+            Este comando elimina el stack de búsqueda.
+            
+            Las opciones son las siguientes:
+
+ SUM        Obtiene la suma.
+
+ MEAN       Obtiene el promedio.
+
+ STD        Obtiene la desviación estándar.
+
+ VAR        Obtiene la varianza.
+
+ SQRT       Obtiene la raíz cuadrada.
+
+ SQR        Obtiene el cuadrado.
+
+ LOG y LN   Obtiene logaritmo en base 10, y el logaritmo natural.
+
+ ABS        Obtiene el valor absoluto.
+
+ LINSPC     Crea una lista vertical de números.
+
+ SEQ        Crea otra lista vertical de números.
+
+ DEFTOK     Define un separador de token, usado cuando se guarda en el
+            BUFFER una matriz de datos. Por defecto es coma ",".
+
+ DEFROUND   Define la posición decimal de redondeo para las operaciones
+            anteriormente descritas. Para las operaciones de OPE, usar
+            la función dada (ROUND).
+
+ HEADER     Pone un encabezado al programa en edición, usando el caracter
+            o caracteres de comentario del lenguaje editado.
+
+   <<IMPORTANTE>>
+            TODAS ESTAS OPCIONES USAN EL BUFFER, Y LO LIMPIAN PARA PONER
+            RESULTADOS NUEVOS EN ALGUNOS DE ESOS CASOS.
+            LA OPCION "OPE" TAMBIÉN USA RIGUROSAMENTE EL BUFFER.
+            Cualquier otro dato que no sea lo que usted quiere procesar,
+            redundará en resultados erróneos o errores en la ejecución de
+            las expresiones.
+            Téngalo presente.
+
+
+=========== ALGUNOS DETALLES DE CTRL-L ============
+
+Al ejecutar este comando, aparecerá un menú con las siguientes opciones:
+
+   SUM  MEAN STD VAR | SQRT SQR LOG LN ABS OPE DEFTOK DEFROUND (13) | LINSPC SEQ HEADER
+
+----------------------------
+El primer grupo de opciones:
+
+   SUM  MEAN STD VAR
+
+requiere de la existencia de una lista de números, y el conjunto completo debe ser marcado con ^KC. Esta lista puede ser un vector (vertical u horizontal), o una matriz.
+Los números pueden estar escritos en notación científica.
+La matriz debe ser bien formada.
+Con estas opciones, podrá calcular la suma, el promedio, la desviación típica y la varianza, y pondrá el resultado donde está el cursor.
+Si el rango a calcular es una matriz, ED4XU le preguntará si quiere los resultados calculando por columnas, por filas, o el total.
+
+** IMPORTANTE **
+El BUFFER siempre contendrá el set de datos original.
+
+Para comprobar el contenido del BUFFER en todo momento, hágalo con ^KV.
+
+Otra cosa importante es que, si el resultado es un número, se añadirá una nueva línea para insertarlo. Pero, si el resultado es una lista:
+1) si es horizontal, añadirá una nueva línea.
+2) si es vertical, insertará el resultado entremedio del texto existente. En este caso, se ha pensado en resultados que sean colocados a continuación de una matriz de datos, como una nueva columna.
+
+----------------------------
+El segundo grupo de opciones:
+
+   SQRT SQR LOG LN ABS OPE DEFTOK DEFROUND (13)
+
+requiere de la existencia de una lista vertical de números, y el conjunto completo debe ser marcado con ^KC, o cortado con ^KM.
+
+Lo que hará será iterar la selección, aplicando la función elegida a cada número. De ese modo, si tiene una columna de números cagones, y elige SQRT, desde donde está el cursor imprimirá la raíz cuadrada de cada número de la lista, hacia abajo.
+
+No calculará bien si el rango es una lista horizontal, o una matriz. Sin embargo, don Dalien ha pensado en eso, y le ha puesto la función TK() para obtener el token (la columna de la matriz o de la lista horizontal) que desea calcular. Por lo mismo, se incluyó la opción DEFTOK, que permite declarar el separador de token a usar. Por default, es coma ",".
+
+Calculará la raíz cuadrada, el cuadrado, logaritmos y valor absoluto de la lista seleccionada, y pondrá el resultado donde está el cursor.
+En este caso, no añadirá nuevas líneas, sino que insertará el resultado entremedio del texto, así que OJO!, que puede quedar la zorra, con datos metidos entre otros datos. No obstante, si esto último ocurre, puede deshacer el entuerto, cortando la columna anómala con ^KM, y aquí no ha pasado nada.
+En este caso, el resultado es una lista del tamaño de la lista original.
+
+DEFROUND es una opción que define el decimal que será redondeado en las operaciones de cálculo. El máximo es 13, y es el default. El nuevo redondeo debe ser mayor o igual a 0, y menor o igual a 13.
+
+----------------------------
+El tercer grupo de opciones:
+
+   LINSPC SEQ HEADER
+
+generará una secuencia de números donde está el cursor, y lo hará hacia abajo (lista vertical). No requiere de la existencia de una lista previa.
+
+Puede cancelar con CTRL-C.
+
+LINSPC generará una lista con valores equidistantes, y deberá indicar sus parámetros a continuación:
+   FROM:           TO:           #ELEMENTS:        PAD:
+donde:
+   FROM:      indica el valor de inicio de la lista
+   TO:        indica el valor final de la lista
+   #ELEMENTS: indica cuántos elementos desea generar.
+   PAD:       indica cómo se formatearán los números.
+              formato:
+                 L|R|C<caracter de relleno><espacio>
+              Ejemplo:
+                 L.10  Añadirá puntos hacia la izquierda y dejará los números a la derecha, en un espacio de 10 caracteres.
+
+Ejemplo:
+   
+   FROM: -1        TO: 1         #ELEMENTS: 10
+   -1.000000
+   -0.777778
+   -0.555556
+   -0.333333
+   -0.111111
+    0.111111
+    0.333333
+    0.555556
+    0.777778
+    1.000000
+
+Por otro lado, SEQ generará una lista de valores con incremento, indicando los parámetros a continuación:
+   FROM:          INC:          #ELEMENTS:          PAD:
+donde:
+   FROM:      indica el valor inicial de la lista
+   INC:       indica el incremento que usará para generar la lista
+   #ELEMENTS: indica cuántos elementos desea generar.
+   PAD:       idem al anterior.
+ 
+Ejemplo:
+    FROM: 1         INC: 0.5       #ELEMENTS: 5
+    1.000000
+    1.500000
+    2.000000
+    2.500000
+    3.000000
+
+Puede cancelar con CTRL-C.
+
+OPCION HEADER.
+
+Inserta un encabezado para un programa, donde está el cursor. La idea es que el cursor esté al principio del programa. 
+El encabezado respetará el símbolo de comentario del programa, según si se trata de uno de los siguientes archivos fuentes:
+
+ C, C++, Header C, XU, Header XU, Python, Shell, Korn Shell, Matlab, Latex.
+
+Si edita un archivo que no está en la lista, bueno, usted deberá poner los comentarios.
+
+
+$$END Menu ^L (Procesamiento avanzado de texto)
+$$BEGIN Introduccion a las macros ED4XU - OPE
+
+
+ OPE        Llama a una calculadora de expresiones.
+            Las operaciones pueden ser efectuadas con registros de memoria,
+            o sobre la pila de resutados directamente. La fuente de datos
+            puede ser el BUFFER, o texto marcado con CTRL-K4.
+            Si se opera sobre texto marcado, las líneas del texto pueden ser
+            alteradas por el proceso. Si opera sobre el contenido del BUFFER,
+            este será pegado en el texto, en el lugar donde está el cursor,
+            una vez finalizada la ejecución.
+            Se puede trabajar sin existir datos en el BUFFER, por si se desea
+            efectuar un cálculo aritmético, para lo cual OPE actuará como una
+            calculadora, dejando el resultado donde está el cursor dentro de
+            la edición. 
+            Cualquier referencia a los datos del BUFFER, o al texto marcado,
+            se hace a través del caracter "#".
+   
+   ¿Qué hace?
+            Iterará cada línea encontrada en el BUFFER, o en el texto marcado,
+            y será usada como argumento de la expresión.
+   
+   Importante
+            Un resultado válido será extraído de la pila de operaciones. Si la pila
+            está vacía, no devolverá nada, pero si tiene más de un elemento, OPE
+            arrojará error. Un ejemplo de esto último es el siguiente:
+            @1(5)
+            (#+@1)   ==> deja un resultado en la pila
+            (#-@1)   ==> no toma el elemento de la pila, sino que deja otro.
+            En este caso, OPE arroja un error de "Expresión mal formada".
+            
+            Además, el analizador sintáctico de OPE no es "Turing-decidible", por
+            la existencia de registros de memoria, y un par de funciones que no
+            dejan nada en la pila de operaciones. Sin embargo, una expresión sí
+            puede ser "Turing-decidible" si es una expresión bien formada.
+
+   Expresión bien formada
+            Una expresión "bien formada" es aquella que termina con un único
+            resultado en la pila de proceso.
+   
+   Ejemplo de expresión bien formada:
+            if(match{"código\;santiago"},up(tri(#)),nop)
+            
+            Si en la línea procesada existen las palabras "código" y "santiago",
+            quitará los espacios en blanco de la línea, y la convertirá en
+            mayúsculas; luego, la dejará en la pila. De lo contrario, dejará un
+            caracter nulo. OPE detecta si en la pila no hay nada, y no altera
+            la fuente.
+   
+   Ejemplo de expresión no válida:
+            @1(5)
+
+            "5" es guardado en registro 1, pero no deja nada en la pila. 
+            Un resultado válido sería el siguiente:
+            @1(5)
+            @1    ==> esto, aunque parezca huevón, deja un resultado en la pila.
+            
+   Detalles del editor de expresiones:
+   
+         1) No permite escribir directamente las vocales tildadas (á, é,
+            etc), pero no se preocupe: al ejecutar el comando, ED4XU podrá
+            interpretar correctamente la hueá que sea que haya puesto en
+            su lugar. Tampoco me preocupo mucho por eso, porque un buen
+            informático, uno que se precie de tal, por default escribe 
+            como el 3.14+cobalto.
+         2) Para añadir un símbolo comilla ("), dentro de un string, debe
+            usar el caracter de escape (\) antes de la comilla. Ejemplo:
+               "funcion(\"x\")"
+            el string considerado será: "funcion("x")".
+   
+   Comandos de edición:
+   
+   CTRL-W   Finaliza la edición. 
+            * Si la entrada está en blanco, finaliza sin hacer nada.
+            * Si encuentra una operación, o algo, intenta ejecutarla.
+   CTRL-Y   Borra una línea. Consecutivamente, borra todas las líneas.
+   CTRL-V   Habilita/inhabilita el modo de inserción (local).
+   CTRL-T   Borra la palabra ubicada hacia la derecha.
+   CTRL-C   Copia el contenido de la ventana al BUFFER.
+   CTRL-P   Pega el contenido del BUFFER en la ventana.
+   CTRL-L   Carga el archivo de macros indicado en la ventana. Ejemplo:
+            si escribe "macros.txt" (sin comillas), y ejecuta CTRL-L,
+            carga el archivo, si lo encuentra.
+            Idem a LOAD.
+   CTRL-K   Guarda la lista de expresiones en un archivo cuyo nombre es
+            indicado en la ventana. Idem a SAVE.
+   RETURN   Inserta una línea.
+   ESC      Cancela la edición, tenga algo escrito o no.
+   *        Ejecutando ^W, lista las expresiones escritas hasta ese
+            momento, y que hayan sido exitosas. No guarda cualquier hueá. 
+            Pueden ser seleccionadas para su uso.
+
+   Operadores aritméticos: 
+   
+   +, -, *, /, \(div. entera), %(resto modulo), ^(potencia).
+
+   Números negativos:
+   
+            Deben ser escritos entre paréntesis.
+
+   NOTA: todas las funciones y atajos deben ser escritas con
+         minúsculas. Aquí las escribo con mayúscula porque soy
+         choro.
+
+   Comentarios:
+                     Acepta comentarios de bloque /* ... */
+
+
+$$END Introduccion a las macros ED4XU - OPE
+$$BEGIN Sentencias del encabezado
+
+
+   Sentencias de operación y configuración:
+   
+   NULL              Puesta al principio de la expresión, provoca que
+                     la iteración termine cuando encuentre una línea
+                     vacía.
+                     La línea vacía es útil cuando se intenta usar valores
+                     fuera del rango de los datos a operar, como si
+                     fuesen constantes. Sin embargo, cuando se procesan
+                     líneas de texto, no tiene sentido que la iteración
+                     termine ahí. Para eso sirve NULL. Ejemplo:
+                        null $1/tk(#(10),3)
+                     Dividirá los datos de la columna 1 por el tercer dato
+                     de la línea 10. La línea 10 debe estar después de una
+                     línea vacía.
+                     
+   KEEP              Por regla general, el contenido original del BUFFER
+                     se mantiene después de realizada una operación.
+                     Con este FLAG, el contenido original del BUFFER
+                     será reemplazado por el resultado de la operación.
+                     Solo tiene vigencia en la operación actual.
+                     Ejemplo:
+                        keep $1/log($2)
+
+   I                 Variable que contiene el número de la línea que se
+                     está procesando.
+   
+   NT                Número total de tokens de la línea procesada. Su valor
+                     depende de DEFTOK o de la función DEFT(), descrita más
+                     adelante.
+
+   VOID              Indica a OPE que si un resultado es vacío, lo añada a
+                     la pila de resultados. Sin este flag, los resultados
+                     vacíos no son considerados.
+   
+   NOP               Instrucción pedorra cuyo único objetivo es dejar un
+                     caracter nulo en la pila de resultados. Es muy útil
+                     para usarlo con IFxx(), porque, a veces, no se necesita
+                     un "ELSE". 
+
+   NOBUFF            OPE considera si existen datos en el BUFFER para operar.
+                     Si no hay datos, devolverá el resultado de una operación.
+                     Si hay datos, pero no usa el BUFFER, devolverá tantos
+                     resultados como datos hay en el BUFFER. Si no va a usar
+                     el BUFFER en sus cálculos u operaciones, y no puede 
+                     prescindir de lo que hay en el BUFFER, use esta opción
+                     para que solo devuelva un resultado.
+
+
+
+$$END Sentencias del encabezado
+$$BEGIN Registros de memoria
+
+   
+                     Son variables. Existen 10 registros de memoria que
+                     pueden ser usados en una expresión, y creo que es
+                     mucho.
+                     Dichas memorias son inicializadas en cada ejecución,
+                     y pueden contener valores de distinto tipo en su
+                     ciclo de vida.
+
+   MOV(n,valor)      Mueve un valor al registro "n". Ejemplo:
+                     mov(2,100)
+                     mueve el valor 100 al registro 2
+
+      @n(valor)      Idem. Es más corto y elegante. Ejemplo:
+                     @2(100)
+
+   VAR(n)            Obtiene un valor de un registro "n". Ejemplo:
+                     var(2)
+                     obtiene el valor guardado en el registro 2.
+
+      @n             Idem.
+      
+      Importante     Los registros de memoria fueron incluido para solventar
+                     procesos complejos de edición; sin embargo, pueden ser
+                     mal usados, como por ejemplo, @n(v) no deja ningún 
+                     valor en la pila, y eso está mal. Se resuelve si se
+                     escribe: @n(v) @n.
+                     Los registros son solo temporales, no globales, se
+                     resetean con cada iteración.
+      
+      RECORDAR
+                     OPE no procesa un grupo de expresiones: procesa una sola
+                     expresión, que puede tener "saltos" (como una función
+                     discontinua reparable), pero no debe indefinirse.
+                     OPE puede aceptar saltos de línea para ordenar el código
+                     y para ayudar a la comprensión del mismo, pero al final
+                     procesará dicho código como una sola línea.
+
+
+
+$$END Registros de memoria
+$$BEGIN Estructura de Ciclo
+
+   
+                     POOL/LOOP es una estructura de iteración. Pueden haber
+                     "pozos" anidados, aunque no se me ocurre para qué.
+
+   POOL              Entra al "pozo", al ciclo iterativo.
+
+   LOOP(n)           Vuelve al principio del ciclo, si "n" es distinto de 0.
+                     si "n" es 0, sale. Ejemplo:
+                     
+                     Se tiene en BUFFER:
+                     
+                     mensaje es total  <-- inicio de seleccion
+                     mensaje es total
+                     mensaje es total
+                     
+                     0                 <-- fin de seleccion
+                     
+                     Pruebe el siguiente código:
+                     
+                null                     /* termina en linea en blanco */
+                deft(" ")                /* define un tokenizer local */
+                @1(tri(#))               /* asigno tri(#) a registro 1 */
+                pool                     /* entra al pozo */
+                   let(5,(#5+1))         /* incremento de valor línea 5 */ 
+                   @2(tk(@1,#5))         /* dejo token #5 en registro 2 */ 
+                   @3( {{@3,"..."},@2} ) /* operacion generica, dejo en 3 */
+                loop(nt-#5)              /* total - token actual != 0 ? */
+                @3                       /* dejo registro 3 en pila */
+                let(5,0)                 /* dejo valor de línea 5 en 0 */
+                     
+                     Muestra:
+                     mensaje...es...total
+                     mensaje...es...total
+                     mensaje...es...total
+                
+                     NOTA: el recurso de la línea 5 como variable de proceso
+                     estaba antes de la inclusión de los registros de memoria.
+
+
+$$END Estructura de Ciclo
+$$BEGIN Sobrecarga de operadores
+
+   
+                     Algunos operadores aritméticos están sobrecargados con
+                     funciones especiales de proceso de cadenas. Estas son
+                     esas funciones:
+
+        Sean S, S1, S2 cadenas, y N un número.
+        
+        S1+S2        Idem a CAT(S1,S2), pero no es CAT.
+
+        S+N, N+S     Iden a PTRP(S,N)
+
+        S-N, N-S     Idem a PTRM(S,N). Ejemplo:
+                     #-(len(#)-rat{"//"})
+                     borra los comentarios de línea "//".
+                     
+        S1-S2        Elimina exactamente S2 desde S1. Ejemplo:
+                     "María tenía un corderito"-"tenía"
+                 ==> "María  un corderito"
+                     Funciona como la búsqueda de CTRL-NN con la opción
+                     "full", y reemplazo por nada.
+
+        S*N, N*S     Idem a CP(S,N)
+
+        S1*S2        Mezcla S1 con S2. Ejemplo:
+                     "Hola!"*" " ==> "H o l a ! "
+
+        S1/S2        Filtra desde S1 los caracteres que no son los indicados
+                     en S2. Es complementario a DC(). Ejemplo:
+                     "20.356.019-5" / "0123456789"  ==> "203560195"
+
+        S1/N         Devuelve un substring de S1, desde la posición N en adelante.
+                     Ejemplo:
+                     "Este es un ejemplo. No otro"/at{"."}
+                 ==> ". No otro"
+                  
+        N/S1         Devuelve un substring de S1, desde la primera posición hasta
+                     la posición N. Ejemplo:
+                     at{"."}/"Este es un ejemplo. No otro"
+                 ==> "Este es un ejemplo."
+                     
+        S1\N         Ajusta desde S1 dentro de la línea procesada, a la posición
+                     indicada por N. Ejemplo:
+                     si #=" a[100]=0"
+                     "="\10 ==> " a[100]   =0"
+                     Esto es complementario a CTRL-KD, y es más útil usarlo con
+                     CTRL-K4.
+                     
+               <<IMPORTANTE>>
+                     Esta operación tomará la línea desde el BUFFER, no desde
+                     la pila de proceso. Una vez procesada la expresión, el
+                     resultado será puesto en el BUFFER, o en el editor, si
+                     está en modo CTRL-K4.
+                     Solo tomará la primera ocurrencia de S1; las demás, serán
+                     descartadas.
+                     
+        S1^S2        Idem a AF(S1,S2).
+
+        S1^N         Inserta S1 dentro de la línea procesada, en la posición N.
+                     Ejemplo:
+                     si #="base(100)"
+                     ".string"\at{"("} ==> "base.string(100)"
+                     
+               <<IMPORTANTE>>
+                     Esta operación tomará la línea desde el BUFFER, no desde
+                     la pila de proceso. Una vez procesada la expresión, el
+                     resultado será puesto en el BUFFER, o en el editor, si
+                     está en modo CTRL-K4.
+                     
+        S1%S2        Devuelve "0" si S1 tiene coincidencias con el patrón
+                     indicado en S2. Ejemplo:
+                     "base-20192601.txt"  % "base-????????.*" ==> 0
+                     "base-201926011.txt" % "base-????????.*" ==> 1
+                     "0" indica "éxito".
+                     "1" indica, según el usuario:
+                     -informático de tomo y lomo: fracaso.
+                     -millenial: No te preocupes, es una oportunidad para
+                                 mejorar; no estás mal, solo es este editor
+                                 de mierda el que no te comprende... 
+                     "?" indica que se espera un solo caracter.
+                     "*" indica que se espera una secuencia de caracteres.
+
+
+$$END Sobrecarga de operadores
+$$BEGIN Funciones de archivo
+
+
+   Funciones de operaciones de archivos de macros:
+
+   LOAD(S)           Carga un archivo de expresiones. Las nuevas
+                     expresiones son añadidas a las expresiones
+                     existentes.
+
+   SAVE(S)           Graba la lista de expresiones en un archivo.
+
+   CLEAR             Elimina la lista de expresiones.
+
+
+
+$$END Funciones de archivo
+$$BEGIN Funciones aritmeticas
+
+  
+   ABS(n), SQRT(n), LOG(n), LN(n), SIN(n), COS(n), TAN(n)
+                     Para qué las explico...
+
+   PI                Constante con el valor de PI.
+
+   INT(n)|[n]        Entero. 
+
+   CEIL(n)           Función techo.
+
+   FLOOR(n)          Función piso.
+
+   ROUND(n,dec)      Redondeo.
+
+   ROUND{dec}        Idem, pero en el BUFFER
+
+   SGN(n)            -1 si n<0; 1 si n>0; 0 si n=0.
+
+   EXP(n)            Exponencial.
+
+   INV(n)            1/n.
+
+
+$$END Funciones aritmeticas
+$$BEGIN Funciones basicas de texto
+
+      
+   RP(#,V)           Reemplaza línea de BUFFER por "V".
+
+      RP{V}          idem.
+
+   TRI(V)            Quita los espacios laterales de "V".
+
+   LTRI(V)           Quita solo los espacios a la izquierda de "V".
+
+   RTRI(V)           Quita solo los espacios a la derecha de "V".
+
+   UP(V)             Convierte "V" a mayúsculas.
+
+   LO(V)             Convierte "V" a minúsculas.
+
+   PC(V,N)           Centra un texto "V" entre "N" caracteres.
+
+      PC{N}          Centra el BUFFER.
+
+   PL(V,N)           Justifica el texto "V" hacia la derecha, entre
+                     "N" caracteres (padea "V" hacia la izquerda).
+
+      PL{N}          Idem, pero usa el BUFFER. 
+
+   PR(V,N)           Justifica el texto "V" hacia la izquierda, entre
+                     "N" caracteres.
+
+      PR{N}          Idem, pero usa el BUFFER.
+
+   CH(N)             Devuelve el caracter ASCII de "N".
+                     Ejemplo:
+                     ch(65) ==> "A"
+
+      '{N}           Idem.
+
+   ASC(S)            Devuelve el valor ASCII de "S".
+                     Ejemplo:
+                     asc("A") ==> 65
+
+      &{S}           Idem.
+
+   VAL(V)            Convierte "V" a tipo número para calcular. Si "V" es un
+                     string alfanumérico, "val(V)" devolverá "0". Cuidado!, 
+                     porque esto puede conducir a errores.
+
+      !{V}           Idem.
+
+   CP(V,N)           Repite "V", "N" veces. Ejemplo:
+                     cp("*",10)  ==> "**********"
+      {*N}           Repite la línea del BUFFER, "N" veces.
+
+   LIN(N)            Devuelve el contenido de la línea del BUFFER
+                     indicada por "N". Si "N" es 0, devuelve la línea
+                     actual.
+
+      #{N}           Idem.
+
+      #N             Idem.
+
+   Diferencia entre #{N} y #N:
+                     #{N} da la posibilidad de meter una expresión entre
+                     las llaves, ejemplo: #{(2+sgn(#10)*sgn(#10))}. En
+                     cambio, #N requiere que "N" sea una constante
+                     numérica.
+
+
+$$END Funciones basicas de texto
+$$BEGIN Modificacion de BUFFER
+
+
+   LET(N,S)          Cambia el contenido de la línea de BUFFER "N", por "S".
+                     El cambio es permanente.
+                     Este comando sirve para emular variables.
+                     Es posible que OPE devuelva un mensaje de error del tipo
+                     "Operación no válida", si este comando se ejecuta en
+                     solitario, pero hay que omitirlo si no lo acompaña un
+                     mensaje en la base de la pantalla.
+                     
+   COPY(V)           Toma el valor de "V" y lo deja en el BUFFER, bajo las
+                     siguientes condiciones:
+                  1) "V" debe contener algo. No copia string vacío.
+                  2) "V" debe ser distinto de "0".    
+                     Este comando solo trabaja bajo el modo CTRL-K4, es decir,
+                     cuando se trabaja con texto marcado directamente, y no
+                     con el BUFFER.
+                     Esta función no devuelve nada a la pila.
+                     
+                     copy(@1)
+
+        Importante   Esto sirve cuando quiere extraer líneas del texto marcado,
+                     que cumplan con una condición dada. Estas quedarán en el
+                     BUFFER, donde podrá hacer con ellas lo que desee.
+
+
+$$END Modificacion de BUFFER
+$$BEGIN Funciones avanzadas de texto
+
+
+   CAT(V,W)          Concatena "V" con "W". Ambos, o cualquiera de ellos, pueden
+                     ser números. Ejemplo:
+                       cat("Número = ",(100+10))
+                     resultará:
+                       Número = 110
+                        
+      {V,W}          Idem.
+
+   LEN(V)            Largo de "V".
+
+   SUB(V,M,N)        Obtiene un substring de "V", que comienza en "M",
+                     con "N" caracteres de largo.
+
+      SUB{M,N}       Obtiene un substring de la línea del BUFFER.
+
+   TR(V,S,T)         Reemplaza "S" por "T", en "V". El reemplazo no
+                     discrimina palabras completas de substrings.
+                     Ejemplo: si busca "sa", y reemplaza por "xu", el
+                     resultado final es:
+                       "sapo"   ==> "xupo"
+                       "salas"  ==> "xulas"
+                       "pisala" ==> "pixula" 
+
+      TR{S,T}        Idem, pero usa el BUFFER.
+
+   TRE(V,S,T)        Reemplaza exactamente "S" por "T". Sirve para borrar
+                     palabras si "T" es "".
+
+      TRE{S,T}       Idem, pero usa el BUFFER.
+
+   RPC(V,S,T)        Reemplaza en "V", todos los caracteres indicados por
+                     "S", por lo caracteres indicados por "T".
+                     Ejemplo:
+                     Si V="Av. acacia #666"
+                     rpc(V,".#1234567890","$@ABCDEFGHIJ")
+                     ==> "Av$ acacia @GGG"
+
+      RPC{S,T}       Idem, pero usa el BUFFER.
+
+   INS(V,S,P)        Inserta "S" en la posición "P" de "V". Si "P" es 0,
+                     devuelve la línea de "V" sin tocar.
+
+      INS{S,P}       Idem. Más corto y usa el BUFFER.
+
+   DC(V,S)           Elimina los caracteres en "V" indicados por "S".
+                     Por ejemplo:
+                     Si V="hola.. .mundo!$!"
+                     dc{".$"}  ==> "hola mundo!!"
+                     Puede usar caracteres no imprimibles, concatenando
+                     "CH(n)" o "'{n}" al string. 
+
+      DC{S}          Idem, pero en el BUFFER.
+
+   ONE(V,S)          Reduce secuencias de caracteres iguales, a uno solo.
+                     El caracter es indicado por "T".
+                     Ejemplo:
+                     Si V="2.00023     0.0289   1.29607  "
+                     one(V," ") ==> "2.00023 0.0289 1.29607"
+
+      ONE{S}         Idem, pero con el BUFFER.
+
+   AT(V,S)           Devuelve la posición donde inicia "S", en "V",
+                     contando de izquierda a derecha.
+
+      AT{S}          Idem, pero en la línea del BUFFER.
+
+   RAT(V,S)          Devuelve la posición donde inicia "S", en "V",
+                     contando de derecha a izquierda.
+
+      RAT{S}         Idem, pero en la línea del BUFFER. 
+
+   AF(V,S)           Tal como AT(), pero busca exactamente "S".
+                     La búsqueda se realiza de derecha a izquierda.
+
+      AF{S}          Idem, pero usando el BUFFER.
+
+   PTRP(V,N)         Avanza el inicio del string "V", "N" caracteres.
+                     Ejemplo:
+                         V="Postula"
+                         ptrp(V,4) ==> "tula"
+
+      {+N}           Idem, pero usa el BUFFER.
+
+   PTRM(V,N)         Retrocede el final del string "V", "N" caracteres.
+
+      {-N}           Idem, pero usa el BUFFER.
+
+
+
+$$END Funciones avanzadas de texto
+$$BEGIN Tokens
+
+
+   DEFT(S)           Define localmente un nuevo tokenizer. El tokenizer global
+                     es cambiado en la opción CTRL-LT. Omita el mensaje de
+                     error "Operación no válida" si no tiene un texto en la
+                     base de la pantalla.
+      
+   TK(V,N)           Obtiene el token "N" de "V". "N" comienza en 1.
+                     Si "N" es 0, devuelve la línea completa.
+                     Un token se devuelve sin espacios laterales.
+                     Un índice de token negativo da error.
+
+      ${N}           Obtiene el token "N" del BUFFER.
+
+      $N             Obtiene el token "N" del BUFFER.
+
+   Diferencia entre ${N} y $N:
+                     ${N} da la posibilidad de meter una expresión entre
+                     las llaves, ejemplo: ${2+sgn(#10)}. En cambio, $N
+                     requiere que "N" sea una constante numérica, tal y
+                     como se usa en AWK.
+
+   LETK(V,N,M)       Cambia el token indicado por "N", por el token
+                     indicado por "M", de "V".
+                     Si "M" es un tipo string, cambia el token "N" por el
+                     string. 
+                     Este comando no cambia el valor de "V", sino, su copia,
+                     la que es dejada en la pila de proceso.
+
+      LETK{N,M}      Idem, pero usa el BUFFER.
+
+
+$$END Tokens
+$$BEGIN Funciones utilitarias
+
+
+   MON(V,S,M,N)      Da formato moneda al número en "V", con un signo 
+                     monetario "S", un ancho "M", y "N" decimales. El
+                     primer caracter de "S" es un relleno.
+                     Ejemplo:
+                         mon("12345.3567",".US$",17,2)
+                     ==> US$.....12,345.36
+
+      MON{S,M,N}     Idem, pero usa el BUFFER.
+
+   MSK(V,S)          Da formato a "V", siguiendo un patrón "S". El
+                     primer caracter de "S" es un relleno.
+                     Ejemplo:
+                         msk("123456768"," ##.###.###-#")
+                     ==> 12.345.676-8
+
+      MSK{S}         Idem, pero usa el BUFFER.
+
+   SAT(V,S)          Crea, a partir de "V", un string formateado por "S".
+                     Sirve para dar formato a archivos de datos como 
+                     archivos largo-posición, por ejemplo.
+                     
+                     Un campo está formado por el signo "$", un número que
+                     indica posición de token (que inicia en 0), y, 
+                     opcionalmente, el ancho en caracteres seguido por la 
+                     justificación del texto (C,L,R), separado de "$n" por ":".
+                     Puede ser usado un campo simplemente indicando "$n", sin
+                     otro tipo de formateo.
+                     La función de XU "SATURA()", en el menú "CTRL-OP", sección
+                     "STANDARD", posee información más detallada sobre el 
+                     formato de "S".
+             Ejemplo:
+
+                     si #=Juanito Pérez,5.334.234-K,Av. El Desguesadero S/N,
+                          Pedro Aguirre Cerda,300.000
+
+                     sat(#,"$0:30L$1:15L$2:25L$3:20L$4:10R")
+
+            devuelve:
+
+                   Juanito Pérez                 5.334.234-K    Av. El Desguesadero S/N                      Pedro Aguirre Cerda    300.000
+
+            Lo mismo hace:
+
+                   sat{"$0:30L$1:15L$2:25L$3:20L$4:10R"}
+
+                     Nuevamente, use "sat{}" si no piensa usar "#" como argumento
+                     de otra función. Si hace esto último, debe usar la forma "SAT()".
+
+      SAT{S}         Idem, pero usa el BUFFER.
+
+   MATCH(V,S)        Devuelve "0" si todos los tokens de "S" están en "V";
+                     de lo contrario, devuelve un número negativo.
+                     "S" debe separar sus tokens con "\;". Ejemplo:
+                     Si V="Mensaje a analizar por tokens"
+                     match(V,"analizar\;tokens") ==> 0
+                     match(V,"analiza\;tokens")  ==> -1
+                     match(V,"analiza\;token")   ==> -2
+                     Esta función es ideal para trabajar con IF() y con el
+                     BUFFER. Por ejemplo, en la siguiente línea, si el match
+                     es "0", devuelve la primera línea del BUFFER; de lo
+                     contrario, devuelve la segunda línea del BUFFER:
+                     
+                     if ( match{"string1\;string2"}, #1, #2 )
+                     
+      MATCH{S}       Idem, pero usa el BUFFER.
+   
+   EXPR-A-EVALUAR ? <EXPR1> [ : <EXPR2> ] ;|.
+                     Evalúa "EXPR-A-EVALUAR":
+                     
+                     1) Si es 0 o vacío, ejecuta <EXPR1>.
+                     2) (Opcional) De lo contrario, ejecuta <EXPR2>.
+                     
+                     El terminador ";"|"." es OBLIGATORIO, pues indica donde
+                     finaliza "?". Si no lo coloca, podría haber un error.
+
+          <<IMPORTANTE>>
+                     Puede anidar este comando.
+                     Puede usar "?" sin ":", pero no olvide el terminador ";"|".".
+                     Puede usar AND(), OR(), XOR() y "~" (negación), explicados
+                     más adelante.
+                     Puede usar más de una expresión en <EXPR1> y <EXPR2>, siempre
+                     y cuando estas no dejen más de un resultado en la pila
+                     al finalizar su macro.
+
+         >>COMENTARIOS>>
+                     Si usa ":" sin "?", saltará todo lo que venga después,
+                     dado que buscará ";" o ".".
+                     Este comando es más útil y eficiente que IFxx, dado que
+                     solo ejecuta lo que debe ejecutar, no como IFxx, que
+                     ejecuta todo, y luego elige el resultado en función de
+                     la evaluación.
+      
+   IF(F,S,T)         Si "F" es vacío o 0, devuelve "S", de lo contrario,
+                     devuelve "T".
+
+         <<IMPORTANTE>>
+                     IF (y sus variantes) necesita que "S" y "T" generen
+                     resultados que puedan ser guardados en la pila de
+                     proceso.
+                     Tanto "S" como "T" son ejecutados, pero uno de esos
+                     resultados será el ganador; el otro se desechará.
+                     Así que trate de que no haya error en ambos. Si no
+                     necesita un "ELSE", use NOP.
+
+                     "IF" devuelve un tipo string; por tanto, si trabaja con
+                     números, debe usar "VAL()" o "!{}". Ejemplo:
+                        val( if( ($1%2), $2, $3))*100
+                     Si el primer token es par, usa el token 2; sino, usa el
+                     token 3.
+                     Si desea comprobar cosas como si la expresión es negativa
+                     o positiva (distinta de 0), puede usar cosas como esta:
+                        if( sgn($1)+1, ..., ...)  Comprueba por negativo
+                        if( sgn($1)-1, ..., ...)  Comprueba por positivo
+                        if( sgn($1)+1, ..., if( sgn($1), ... ,...)  )
+                                                  Comprueba si es menor o igual
+                                                  a 0. Etc.
+                     El problema con el último ejemplo, es que tendrá que 
+                     repetir la operación tanto para "menor" como para "igual"
+                     a 0. Salvo que use las siguientes funciones, que solo
+                     trabajan con expresiones que devuelven números:
+
+    IFLE(F,S,T)      Comprueba si "F" es menor o igual a cero. 
+
+    IFGE(F,S,T)      Comprueba si "F" es mayor o igual a cero.
+            
+            NOTA     Si desea hacer algo cuando "F" sea menor que cero, solo use
+                     la parte "falso" de IFGE(); idem cuando desee hacer algo
+                     para "F" mayor que cero (IFLE()). Idem cuando desee hacer 
+                     algo con "F" distinto de cero, usando el falso de IF().
+
+    DIFERENCIAS ENTRE IFxx Y "?"
+                     Mientras IFxx deja un resultado en la pila en función de su
+                     evaluación, "?" no devuelve nada, sino que son las expresiones
+                     en su interior las que devuelven resultados.
+                     Tenga presente esta diferencia.
+
+    AND, OR y XOR    Se puede simular AND sumando el resultado de las operaciones
+                     de IFxx. Ejemplo:
+                        if( ( match{"word"} + (sgn($1)-1) ),...,...)
+                     si "match" encuentra una palabra, es "0", y si el primer
+                     token es positivo, el resultado es "0": AND.
+                     OR se puede simular con una multiplicación. 
+                        if( ( match{"word"} * (sgn($1)-1) ),...,...)
+                     Si uno de los resultados es "0", hará todo cero y se obtendrá
+                     la opción para "verdad"; lo mismo sucede si todos los resultados
+                     son "0". De lo contrario, si ninguno es "0", se obtendrá la
+                     opción para "falso".
+                     XOR es algo más rebuscado. Se puede simular así, con la 
+                     ayuda de registros de memoria para hacer el trabajo una
+                     sola vez:
+
+                        @1(sgn(match{"word"})*(-1))
+                        @2(sgn($1)-1)
+                        if ( ( (@1+(1-@2)) * ((1-@1)+@2) ), ..., ...)
+
+    AND(), OR(), XOR()
+                     Si todo lo anterior te parece "pajero", existen las funciones
+                     aludidas que hacen el mismo trabajo. Estas devuelven "0" si
+                     sus argumentos son "0", o "1" si alguno de ellos no cumple con
+                     la condición esperada. Solo aceptan dos argumentos. Ejemplo:
+                        if( and(match{"word"}, (sgn($1)-1)), ..., ...)
+                        if( or(match{"word"},  (sgn($1)-1)), ..., ...)
+                        if( xor(match{"word"}, (sgn($1)-1)), ..., ...)
+                     Se permite anidar dichas funciones. Obvio.
+     
+    "~" (negación)   Niega un resultado numérico: si "n" es 0, "~n" es 1, y si
+                     "n" es distinto de "0" (puede ser negativo), "~n" es 0. 
+                     Util.        
+
+
+$$END Funciones utilitarias
+$$BEGIN Operadores de bits
+
+
+   Funciones y operadores de bits.
+
+                     Se incluye estos operadores y funciones, debido a que ED4XU es
+                     un editor para programadores, y también porque se puede hacer
+                     edición hexadecimal de archivos binarios (ver más adelante).
+   
+   Números de base diferente al decimal.
+                     ED4XU convertirá cualquier número de base hexadecimal, octal y
+                     binaria, a decimal, y lo hará por defecto en el análisis
+                     sintáctico. Igual se incluye un convertidor a decimal, por si
+                     desea convertir una cadena formada dentro de la expresión.
+                     Los números de base diferente son, y se deben escribir, así:
+   
+   BINARIA           Prefijo: "0x", dígitos "0" y "1", y sufijo "b". Ejemplo:
+                     0x10100101b 
+                     
+   HEXADECIMAL       Prefijo: "0x", dígitos 0-9, caracteres mayúsculas A,B,C,D,E,F,
+                     y sufijo "h". Ejemplo:
+                     0xA0389FFh
+   
+   OCTAL             Prefijo "0x", dígitos 0-7, y sufijo "o". Ejemplo
+                     0x7165o
+
+   Los siguientes operadores y funciones trabajan con números de 32 bits.
+   
+   &                 AND binario. Ejemplo 0x100101 & 25, 0xFF & 0x00101
+
+   |                 OR BINARIO.
+
+   !                 XOR BINARIO.
+
+   >>                Desplazamiento hacia la derecha. Ejemplo: 1>>2
+
+   <<                Desplazamiento hacia la izquierda, Ejemplo: 1<<2.
+   
+   Los operadores anteriores aceptan argumentos de strings, donde realizan operaciones
+   sobre el equivalente valor ASCII de cada caracter de estos. En los operadores ">>"
+   y "<<", el primer operando puede ser un string, pero el segundo operando debe ser
+   un número, porque decide el número de bits a desplazar. En los demás operadores,
+   ambos operandos deben ser del mismo tipo, ya sea números, ya sea strings.
+   El operador "~", operado con strings, sirve para cifrar cosas.
+   
+   BIT(N,P)          Devuelve el bit de "N" ubicado en la posición "P".
+
+   ON(N,P)           Enciende el bit "P" de "N" (lo deja en "1").
+
+   OFF(N,P)          Apaga el bit "P" de "N" (lo deja en "0").
+
+   NOT(N)            Negación binaria de "N" (complemento a 1).
+
+   BIN(N)            Devuelve la versión binaria de N.
+
+   HEX(N)            Devuelve la versión hexadecimal de N.
+
+   OCT(N)            Devuelve la versión octal de N.
+
+   DEC(S)            DEvuelve la versión decimal numérica de la cadena S.
+                     Ejemplo:
+                        dec("0xFFh") ==> 255.00
+                     Si intenta convertir una expresión constante sin comillas, habrá
+                     error, lo mimso si intenta usar DEC con un número decimal.
+   
+   Para realizar el cálculo de complemento a 2, simplemente escriba:
+   num-binario ! 0x11111...(n-bits)b + 1
+   También puede usar números hexadecimales, si desea.
+ 
+
+$$END Operadores de bits
+$$BEGIN Ejemplos
+
+  
+ EJEMPLO DE EXPRESION "OPE":
+   Las siguientes expresiones extraen un string separado con comillas,
+   en cualquier ubicación.
+   La primera expresión está escrita con atajos, y la segunda, con sus
+   funciones equivalentes:
+   
+   sub{ (!{at{"\""})+1}, (!{rat{"\""}) - !{at{"\""}}-1 )  }
+
+   sub(#,val(at(#,ch(34))+1), (val(rat(#,ch(34)))-val(at(#, ch(34)))-1))
+   
+   (Es mucho más compacto escribir lo de arriba que lo de abajo, aunque esté
+    escrito en proto-sumerio)
+   
+   Si # = var<-getenv("SHELL")
+   La expresión devuelve: SHELL  (sin comillas)
+   
+ IMPORTANTE
+   Cualquier expresión aritmética usada como argumento de función, debe estar
+   escrita entre paréntesis. Por ejemplo:
+   
+   25,7 = _
+   
+   (marca con CTRL-KC el "25" y el "7", y ubicate a continuación de "=")
+   
+   OPE: { ($1 \ $2), {" Resto: ", ($1 % $2) } }   
+   
+   25,7 = 3 Resto: 4.0000000000000_
+   
+   La división entera y el resto módulo de los tokens 1 y 2, deben estar entre
+   paréntesis.
+
+ OTRO EJEMPLO.
+   Suponga que tiene unas líneas marcadas con CTRL-K4, y desea dejar en blanco
+   aquellas líneas que no cumplen una condición.
+   
+   void  /* acepte la línea vacía como resultado valido */
+   #*(1-(match{"word"}*(-1)))
+   
+   o bien, para irse más a la segura:
+   
+   void
+   #*(1 - (sgn(match{"word"})) * (-1))
+   
+   Dejará solo las líneas que tienen "word", y las demás las dejará en blanco.
+
+ Y OTRO EJEMPLO.
+   Suponga que edita un archivo de cadenas de ADN, y desea encontrar, en una misma
+   línea, dos subcadenas, pero que no contenga una tercera subcadena. Marcará las
+   líneas con CTRL-K4, y procederá:
+   
+   @1(match{"ATGCTT"})
+   @2(match{"ATAATC"})
+   @3(match{"ATTTAA"})
+   copy( if( and(and(@1,@2),(@3+1) ),I,0 ))
+   
+   Dejará en el BUFFER las líneas que cumplen con la condición. Puede ir a cada línea
+   haciendo CTRL-J sobre la línea dentro del editor del BUFFER.
+   
+   Esplicación: Si el match es realizado, devolverá "0". Así, si encuentra las cadenas
+   en @1 y @2, AND de más adentro devolverá "0". Luego, si encuentra un match para @3,
+   devolverá 0, pero no nos sirve, luego, se le suma 1, como una especie de negación.
+   Aquí, NOT() es un negador binario, no de valores de "verdad".
+   El primer AND evaluará todo, y el IF devolverá el número de línea actual si todo se
+   cumple; de lo contrario, devuelve "0". Ahora, COPY solo guardará en el BUFFER un
+   valor que sea distinto de vacío, o distinto de 0.
+
+ Y EL ULTIMO EJEMPLO.
+   Usted desea copiar al BUFFER las líneas que contengan, al menos, una comilla.
+   Marcará el texto con CTRL-K4, y procederá:
+   
+   copy( sgn(at{"\""})*# )
+   
+   Copiará las líneas al BUFFER que contengan comillas. Si no encuentra comillas, 
+   AT() devuelve "0", SGN() devuelve 0, y 0*STRING es nada. Ahora, si encuentra,
+   AT() devolverá un número mayor que cero, SGN() devolvera "1", y 1*STRING es
+   el mismo STRING. Recordar que un string multiplicado por un número "N", produce una
+   réplica del mismo, "N" veces.
+
+
+
+$$END Ejemplos
+$$BEGIN Comandos ALT (atajos de comandos CTRL)
+
+
+ATAJOS Y COMANDOS QUE SOLO FUNCIONAN EN LINUX:
+(porque mierdApple los usa para hacer más atractiva la experiencia del
+ pinche usuario)
+
+<<NOTA>>    Para que algunos de estos comandos funcionen bien en Linux,
+            oculte el menú de la ventana del terminal y no use pestañas.
+
+ALT - C     Cancela XU. De hecho, cancela XU. Es una salida deshonrosa
+            pero útil en caso de que el programa se ahuevone. No obstante,
+            Ni XU ni ED4XU se ahuevonan: si programaste un LOOP infinito,
+            ya sea por probar o por huevón, esta es la solución. Lo mismo
+            sucede si tu POOL en ED4XU es infinito, pero ahí tendrás que
+            cerrar el terminal, por huea.
+            En mierdApple no puedes hacer esto, y tendrás que cerrar el
+            terminal. Sugerencia: instala Linux basado en Debian en tu 
+            Mac.
+
+ALT - 0     Alt-cero. Atajo para CTRL-K4. 
+
+ALT - 1 ... ALT - 9
+            Salta a la ventana de edición indexada con el número, si existe.
+
+ALT - L     Atajo para CTRL-L - Modo Calculadora de macros (OPE).
+            En una edición hexadecimal, llama a una calculadora de
+            expresiones como atajo de CTRL-K0.
+
+ALT - O     Atajo para CTRL-OL.
+
+ALT - Y     Atajo para CTRL-OP - Repite último comando OPE.
+
+ALT - I     Atajo para CTRL-JJ - Ir a Línea.
+
+ALT - .     Mueve la línea hacia arriba. Si existe una marca previa de CTRL-KW,
+(alt-punto) mueve el bloque.
+
+ALT - -     Mueve la línea hacia abajo. Si existe una marca previa de CTRL-KW,
+(alt-guion) mueve el bloque. 
+
+ALT - C     Atajo para CTRL-KC (No cancela ED4XU, solo a XU).
+
+ALT - M     Atajo para CTRL-KM.
+
+ALT - U     Atajo para CTRL-KU.
+
+ALT - Q     Atajo para CTRL-KQ.
+
+ALT - A     Atajo para CTRL-KA.
+
+ALT - D     Atajo para CTRL-KD.
+
+ALT - S     Atajo para CTRL-KS.
+
+ALT - A     Atajo para CTRL-KA.
+
+ALT - X     Atajo para CTRL-KX.
+
+ALT - H     Atajo para CTRL-KH
+
+ALT - P     Atajo para CTRL-KP (No CTRL-K + CTRL-P)
+
+ALT - E     Atajo para CTRL-KE.
+
+ALT - B     Atajo para CTRL-KB.
+
+ALT - J     Atajo para CTRL-KJ.
+
+ALT - F     Atajo para CTRL-KF.
+
+ALT - R     Atajo para CTRL-KR. 
+
+ALT - T     Atajo para CTRL-KT.
+
+ALT - K     Atajo para CTRL-KK.
+
+ALT - G     Atajo para CTRL-KG.
+
+ALT - W     Atajo para CTRL-KW.
+
+ALT - V     Atajo para CTRL-KV.
+
+ALT - Z     Elimina una línea. Puede ser recuperada con CTRL-Z.
+            Este comando limpia el stack de búsqueda.
+
+ALT - ,          Ubica el cursor sobre el siguiente número, si existe.
+(alt-coma)
+
+SHIFT - ALT - ;  Ubica el cursor sobre el número anterior, si existe.   
+(S-A-semicolon)  
+
+ALT - '     Método corto de CTRL-OS, ejecuta un comando del Shell.
+(alt-apóstrofe)
+
+SHIFT - TAB     
+            Activa/desactiva Highlighthinhgitnwangtingthing coloreado de palabras.
+
+ALT - FLECHA DERECHA
+            Salta "n" caracteres hacia la derecha.
+
+ALT - FLECHA IZQUIERDA
+            Salta "n" caracteres hacia la izquierda.
+            
+SHIFT-CTRL-FLECHA IZQUIERDA
+            Ubica el cursor sobre el símbolo de comilla o del
+            apóstrofe, y avanza de izquierda a derecha.
+
+SHIFT-CTRL-FLECHA DERECHA
+            Ubica el cursor sobre el símbolo de comilla o del
+            apóstrofe, y avanza de derecha a izquierda.
+
+SHIFT-ALT-FLECHA DERECHA
+            Ubica el cursor sobre un símbolo "(", "[" o
+            "{", de izquierda a derecha. La pulsación seguida
+            de este comando ubica al cursor en el siguiente
+            símbolo que encuentre.
+
+SHIFT-ALT-FLECHA IZQUIERDA
+            Idem al anterior, solo que se mueve de derecha
+            a izquierda.
+
+
+$$END Comandos ALT (atajos de comandos CTRL)
+$$BEGIN Edicion hexadecimal
+
+
+VISUALIZACION Y EDICION DE ARCHIVOS BINARIOS
+
+ED4XU permite la visualización y edición de archivos binarios. Esto significa que podrá ver y sobreescribir datos en el archivo, así como podrá insertar nuevos datos al final. Hay que tener cuidado con eso.
+Al cargar un archivo, se despliegan tres columnas:
+1) columna 1: dirección inicial y final de un segmento, en hexadecimal.
+2) columna 2: segmento de valores hexadecimales, con 5 grupos de cuatro bytes. Use CTRL-PH para diferenciar columnas de datos.
+3) columna 3: segmento de valores ASCII en forma de caracteres imprimibles y no imprimibles. Por ahí se moverá el cursor, y tendrá eco en la columna 2.
+
+CARACTERES VISIBLES E INVISIBLES.
+Existen algunos caracteres que no son visibles, como el caracter "0". El caracter "127", dependiendo de la versión de Ubuntu que use, será impreso como un cuadrado qlo feo, o simplemente con un caracter de retroceso. Pero, aunque usted no los vea, están ahí, y su prueba lo puede ver en la columna 2.
+Además, como este programa está escrito en Harbour, pues, la codificación ASCII tiene sus "bemoles". Lo sabrá cuando lo vea.
+
+CARACTERES ASCII, HEXADECIMALES.
+Cargue y ejecute el programa ASCII.XU, para obtener una tabla de caracteres ASCII completa, la que podrá usar para editar su archivo binario.
+
+BUSQUEDA.
+Se puede buscar, tanto palabras hexadecimales como caracteres.
+   *Si va a buscar opcode hexadecimal, use CTRL-NN y escriba "&FB 02 0 B0...", así, con espacio en blanco entre cada byte. Además, puede usar las opciones "*" y "!". Si intenta buscar opcode hexadecimal sin "&", no encontrará nada.
+   *Puede indicar caracteres ASCII. Por ejemplo, si desea buscar los caracteres ASCII 1 y 201, debe escribir: "#1;#201;". Puede mezclar. Ejemplo: "dato#32;#100; duro".
+   *No puede mezclar lo anterior con opcode hexadecimal. Ejemplo no válido: "DATO#208;&D0 10".
+
+BUSQUEDA DE RANGOS DE CARACTERES.
+Se pueden buscar caracteres que estén en un rango. Usará el comando "R" o "r", seguido del número correspondiente al caracter inicial del rango, una coma, y luego, del segundo número correspondiente al caracter final del rango. Ejemplo:
+
+   r 1,31
+
+Buscará la aparición o apariciones de cualesquiera de los caracteres indicados en el rango, en este caso, desde el caracter ASCII 1 (la carita feliz), hasta el caracter ASCII 31. 
+Este comando es muy útil cuando desea encontrar caracteres erróneos en archivos de texto.
+Este comando solo trabaja en el modo de edición hexadecimal.
+
+REEMPLAZO.
+No puede usar los comandos de reemplazo de texto aquí. Hágalo a manito cambiada, con CTRL-I. Al efectuar el reemplazo con CTRL-I, la lista de búsqueda no será refrescada, por lo que seguirá ubicándose sobre las posiciones originales.
+No creo que tenga mucho que reemplazar en un archivo binario.
+
+SALTO A POSICION.
+Puede saltar a cualquier posición del archivo. Cuando edita un archivo binario, la localización es por posicion (o desplazamiento desde la posición 0). Use CTRL-JJ o F6 para eso.
+   *La posición a buscar puede ser escrita en ENTERO o en HEXADECIMAL. Las letras hexadecimales pueden ser escritas con minúsculas y no debe usar el caracter "&": este es solo para la busqueda de datos.
+
+SOBREESCRITURA E INSERCION.
+Demás está decir que debe hacerlo con cuidado, respaldar su archivo antes de modificarlo, y guardar con otro nombre si es preciso. Asumo que usted sabe lo que hace.
+Para sobreescribir o insertar, ubíquese en la posición donde desea sobreescribir caracteres, y presione CTRL-I. Entonces, use el comando "O" u "o" y meta los datos en formato hexadecimal, como por ejemplo: "OA0 00 FF F0", CON, AL MENOS, UN ESPACIO EN BLANCO SEPARANDO CADA BYTE. 
+Si escribe en otro formato, ED4XU convertirá cada caracter a hexadecimal, y procederá con la sobreescritura.
+Se puede usar codificación ASCII del tipo "#nn;", junto con caracteres imprimibles, pero no puede mezclar esto con opcode hexadecimal.
+Si escribe bytes al final del archivo, nuevas posiciones serán añadidas, pero tenga cuidado.
+
+ELIMINACION DE POSICIONES.
+Dentro de CTRL-I, se puede usar el comando "X" para eliminar posiciones desde la posición donde está parado el cursor. Ejemplo:
+  X5 o x5
+Elimina 5(decimal) posiciones, desde la posición donde está el cursor, en adelante. Todo el archivo es compactado.
+
+INSERCION DE CARACTERES EN NUEVAS POSICIONES.
+Siempre dentro de CTRL-I, puede insertar nuevas posiciones, desde donde está parado el cursor, con el comando "I", seguido del caracter o los caracteres a insertar. Ejemplo:
+  I#32; o i#32; o i20
+Insertará una posición, y la rellenará con un espacio en blanco.
+Lo primero que ED4XU hará, será detectar opcode hexadecimal; si falla en eso, considerará que el inserto es ASCII.
+
+*PROBLEMA*
+Si intenta ejecutar "i20", ED4XU creerá que quiere insertar el caracter hexadecimal para espacio en blanco. Pero, ¿Y si usted solo quiere insertar los caracteres "2" y "0"? No hay cómo saberlo. En ese caso, use caracteres ASCII: "i#50;#48;".
+Puede combinar caracteres ASCII (#nn;) y caracteres imprimibles, pero no puede combinar esto con opcode hexadecimal. Ejemplo:
+   i#255;dato    ---> está correcto (caracter ASCII 255, más la palabra "dato", 5 caracteres en total).
+   i1B FF FF 20  ---> está correcto, insertará 4 caracteres.
+   i#13;1B       ---> está incorrecto, si su intención inicial es insertar el caracter hexadecimal "1B".
+
+<<CUIDADO>> eliminar o insertar posiciones en un archivo ejecutable es suicida si no sabe lo que hace, porque hay saltos hacia direcciones calculadas en la compilación, y si modifica el archivo, podría ser catastrófico. Distinto es el caso de archivos binarios no ejecutables.
+Con estos comandos puede resolver problemas de caracteres raros en archivos que no deben ser binarios.
+
+NO PUEDE USAR CTRL-Z.
+Si cree que cometió un error, debe deshacerlo manualmente.
+
+GUARDAR ARCHIVO.
+Puede guardar su archivo, con el mismo nombre u otro, con CTRL-W. Para que sea ejecutable, si es que ese es el caso, use CHMOD, pero esto usted ya lo sabe, no lo trato de imbécil por aclarárselo, porque si no sabe, no entra aquí, pero si entra aquí, y no sabe, entonces, vale el dato, y trate de no ser un imbécil con su archivo que ninguna culpa tiene. Recuerde a TRON: hay vidas digitales en juego...
+
+EDITOR DE CALCULO (CALCULADORA).
+Se accede a él con ALT-L. A diferencia de la versión para una edición normal, no pega el resultado en el texto, sino que lo muestra en una ventana superior.
+Las reglas de cálculo son las mismas que tiene la versión normal. Para más detalles, lea CTRL-K0 descrito más arriba.
+
+
+$$END Edicion hexadecimal
+
+===================================================================
+
+$$BEGIN Introduccion ED4XU
+
+
+INTRODUCCION 
+
+(SIN ACTUALIZAR. PERO, HAY DETALLES QUE NO SE TRATAN ARRIBA)
+
+ED4XU es un editor gratuito hecho por programadores TOC para programadores TOC. El autor declara no tener responsabilidad en cualquier cagada que pueda quedar por su uso; no obstante, como se verá a continuación, ED4XU tiene muchas opciones para evitar tales desastres.
+Como anticipación, le puedo señalar que cuando edite un archivo, hágalo siempre indicando un directorio de respaldo, como se muestra más adelante.
+
+ED4XU es un editor de línea creado para editar archivos escritos en XU. Esto significa que bastará con que escriba en la línea de comandos de su terminal:
+
+  ./ed4xu archivo.xu
+
+y ED4XU leerá el archivo indicado desde el directorio FUENTE declarado en el archivo XU.CONFIG, que es el mismo archivo de configuración empleado por el compilador XUC y la virtual mashin XU. Lo mismo sucede cuando desea abrir o crear un archivo XU con CTRL-OF (F2).
+Para todos los demás archivos, podría necesitar indicar su ruta.
+Asimismo, si desea editar un archivo de definiciones que se incluya con la directiva "#include", puede escribir:
+
+  ./ed4xu archivo.def
+
+ED4XU, automáticamente, apuntará al directorio "include" de XU para su proceso. Para cargar este archivo en un programa XU, debe escribir en la cabecera de este:
+
+  #include include/archivo.def
+
+Sí, ya sé lo que me dirá, porque la mariguana me ha hecho clarividente: hay que escribir la ruta en el archivo, porque me ha dado paja arreglar eso.
+
+Cuando ED4XU edita un archivo, si este es NUEVO, aparecerá una plantilla simple que le ayudará a programar.
+Si el archivo ya existe, ED4XU creará una copia. Por ejemplo, si su archivo se llama:
+
+  trump.xu
+
+ED4XU creará el archivo:
+
+  trump.xu~
+
+así, con la "colita de cerdo" añadida. Este archivo no será modificado cuando usted use el comando CTRL-W, pero sí se reemplazará su contenido cuando vuelva a editar el mismo archivo.
+
+CARGA DE ARCHIVOS MULTIPLES
+
+Se pueden cargar varios archivos usando comodín "*", o escribiendo los archivos directamente.
+ED4XU solo carga un archivo en memoria. El resto, es dejado en una lista de edición, y serán cargados en memoria cada vez que los seleccione con CTRL-U.
+
+**NOTA**
+Debe saber que cada vez que se cambie de archivo con "^U", el anterior será guardado en el disco.
+
+Otra cosa importantísima: los archivos nativos con extensión ".XU" y ".DEF" se procesarán en los directorios declarados en el archivo de configuración "XU.CONFIG". En los demás tipos de archivos, se respetará la ruta que los acompaña.
+
+Si desea editar archivos XU ubicados en otros directorios, cambie el directorio de trabajo en el archivo "XU.CONFIG". No obstante, si lo hace, debe considerar que tanto el compilador XUC y la virtual mashin XU leerán los archivos fuente desde ese directorio.
+
+Esto último puede hacerse desde afuera, o desde adentro de ED4XU. Si lo hace desde adentro, deberá refrescar la configuración con "^PC" para que los cambios tengan efecto.
+
+OPCION DE EDICION DE CARPETA
+
+ED4XU puede editar la totalidad de los archivos de un directorio, indicando el parámetro "-d" y el nombre del directorio, junto con su ruta, si es necesario.
+Ejemplo:
+
+  ./ed4xu -d proyecto
+
+Todos los archivos del directorio "proyecto" serán editados.
+
+**IMPORTANTE**
+El directorio especificado DEBE EXISTIR y debe contener archivos.
+
+ED4XU no edita binarios: se cae. Así es no más. Por esa razón, cuando usa este parámetro, ED4XU crea (o usa) un espacio de trabajo con las siguientes carpetas:
+-bak   guardará los archivos de respaldo.
+-tmp   guardará los archivos temporales.
+-exe   guardará los archivos ejecutables.
+
+Estos son los nombres por defecto cuando usa "-d". Si desea usar otros nombres, deberá indicarlos por separado, pero ya no podrá usar el parámetro "-d".
+En el caso de que desee hacer lo anterior, puede invocar al editor de la siguiente manera:
+Por ejemplo:
+
+  ./ed4xu proyecto/*.c -t proyecto/temp -e proyecto/ejecutables -b proyecto/respaldos
+
+o si está dentro del directorio de trabajo:
+
+  ./ed4xu -t tmp -e ejecutable -b bak *.c 
+
+ED4XU puede seguir aceptando archivos en edición en la misma línea de comando. Por ejemplo:
+
+  ./ed4xu make -d proyecto
+
+ED4XU editará el archivo "make" y todos los archivos que pertenecen al directorio "Proyecto".
+
+NOTA: ED4XU no editará los directorios ni los archivos temporales con "~". Tampoco cargará en memoria todos los archivos, sino que lo hará en la medida que sean seleccionados mediante "^U".
+
+Con el parámetro "-t" puede indicarle a ED4XU una carpeta donde guardar los archivos temporales de la sesión.
+Si el directorio no existe, ED4XU lo creará.
+Por ejemplo:
+
+   ./ed4xu -t proyecto/tmp
+
+Con el parámetro "-b" puede indicarle a ED4XU una carpetea donde guardará un respaldo oficial de los archivos a editar.
+El respaldo es permanente, porque al archivo indicado se le añade la fecha y la hora del respaldo.
+Por ejemplo:
+
+   ./ed4xu -b bak archivo.c
+
+guardará en el directorio "bak" el archivo "archivo.c_20111201_043407"
+
+Si no se indica un directorio de respaldo, este no será guardado.
+
+Con el parámetro "-e" le indicará a ED4XU que los ejecutables deben ser guardados en el directorio indicado, y desde allí serán ejecutados.
+**NOTA**
+Este parámetro es útil solo con programas compilados, como "C" y "PDFLATEX".
+XU tiene su propio directorio de ejecutables, por lo que este parámetro no lo afecta.
+Para programas interpretados como Bash Shell, Python, etc, no debe usar este parámetro, porque no podrá ejecutarlo. Sí puede usar los parámetros "-t" y "-b".
+
+Estos parámetros, y en particular el parámetro universal "-d", existen para ordenar el trabajo del entorno de edición y ejecución.
+Si usted no usa algunos de estos parámetros, ED4XU guardará el temporal y el ejecutable en el mismo lugar desde donde carga el archivo de edición.
+
+**IMPORTANTE**
+1) trabajar con un directorio de trabajo especificado con "-d" significa que cualquier cosa que edite fuera de ese directorio será procesado dentro de ese espacio.
+Esto significa que los respaldos, archivos temporales y ejecutables de archivos ubicados fuera de ese espacio, serán guardados dentro del espacio.
+
+2) Si ha especificado un directorio de respaldo, ahí se guardará todo lo que edite en esa sesión. Si intenta editar un archivo ubicado en otro directorio, su respaldo también será guardado en el directorio especificado con "-d". El problema surge cuando intenta editar dos archivos con el mismo nombre, ubicados en directorios diferentes: puede confundirse con los respaldos.
+
+3) Cualquier programa ".xu" que edite, no importando desde qué directorio lo haga, ED4XU se remitirá a guardarlo en el directorio por defecto indicado en XU.CONFIG.
+
+NOTA: tanto "-t" como "-d" guardan un respaldo, pero "-b" genera respaldos con fecha y hora cada vez que se inicia una sesión ED4XU; en cambio, "-t" sobreescribe el archivo temporal anterior.
+
+OBSERVACIONES SOBRE EL EDITOR
+
+1) La posición del cursor aparece sobre el menú inferior de la pantalla. Además, verá la palabra "Auto=ON", el código ASCII del caracter donde está parado el cursor encerrado entre paréntesis cuadrados, y el tipo de archivo en el extremo derecho.
+   También verá, si ha usado "CTRL-V+I", la palabra "OVERWRIT", que significa que está sobreescribiendo.
+
+2) En el bottom de la pantalla aparecerá una sarta de huevadas que son algunos de los comando que usted puede usar.
+   Aquí, el signo "^" significa "CTRL". El comando "CTRL-W" significa que debe presionar "CTRL" y sin soltar, debe presionar "W".
+   Si no entiende la explicación anterior, es que es usted bien huevón.
+   Algunos de estos comandos llaman a otro menú. Eso es explicado en la ayuda rápida con más eficiencia.
+
+3) ED4XU autocompleta "(", "[", comillas y "{", como "()", "[]", "" y "{}". Sobre el menú inferior, hacia la izquierda, aparece "Auto=ON", lo que indica el estado de "autocompletar".
+
+4) ED4XU edita un archivo sin caracteres de control incluídos. No hay saltos de línea. Los saltos de línea son incluídos en el momento de guardar el archivo en el disco.
+
+5) ED4XU colorea todo lo indicado en el archivo ED4XU.COMPILER.
+
+6) En la parte superior de la pantalla, está el nombre del programa, el nombre del archivo, y en el extremo derecho, la descripción del mapa de colores usado en ese momento.
+
+7) Si tiene un ratón:
+* Puede hacer clic sobre "Edit4XU": aparecerá un "acerca de", junto con el nombre del compilador asociado al programa. 
+* Además, si hace clic sobre el nombre del archivo, aparecerá una ventana con la lista de los archivos editados, listos para ser seleccionados; 
+* por otro lado, si hace clic sobre el nombre del mapa de colores, podrá seleccionar uno nuevo.
+* Si hace clic sobre "Auto=ON" cambiará el modo de autocompletación.
+* Si hace clic sobre alrededor de las coordenadas del cursor, llamará a la función "Ir a Línea".
+*** Si hace clic en cualquier parte de las barras superior e inferior, que no tengan funciones asociadas, avanzará o retrocederá páginas del texto editado.
+
+8) Busca los "huevitos de Pascua". Si sigues el guión, sabrás dónde encontrarlos. Si necesitas ayuda, solo llámame, pero siempre siguiendo el guión...
+
+
+$$END Introduccion ED4XU
+
+FIN DEL ARCHIVO DE AYUDA

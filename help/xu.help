@@ -1,0 +1,1061 @@
+    ___       _____ ___   __
+     |  |\  |   |   |  \ /  \    \  / |  |
+     |  | \ |   |   |  | |  |     \/  |  |
+     |  |  \|   |   |__/ |  |     /\  |  |
+    _|_ |   |   |   |  \ \__/    /  \ \__/
+$$END INTRO
+$$BEGIN Introduccion
+
+XU en gratuito y se presenta "AS IS", como quedó la hueá no más, y su autor no se hace responsable de ninguna cagada que quede por mala manipulación del código o por el surgimiento de algún "bug" no detectado.
+De todas maneras, el autor está abierto a mejorar el programa con la colaboración de la comunidad.
+
+Tanto el compilador como la virtual mashin están escritos en Harbour 3.0 y en ANSI C. Las operaciones con variables individuales se realizan en Harbour, y las operaciones matriciales en ANSI C.
+
+Por lo anterior, XU NO ES UN LENGUAJE PARA TRABAJAR 24x7. Solo fue concebido para resolver situaciones puntuales, como una alternativa a AWK y otros lenguajes scripts.
+
+** IMPORTANTE **
+
+Puede usar XU desde cualquier parte del sistema si copia los binarios "XUC", "XU" y "ED4XU" en "/usr/bin", pero deberá declarar una variable de entorno.
+La variable se llama "PATH_XU" y su declaración debe incluir el path donde está instalado el lenguaje.
+
+XU trabaja con el archivo "XU.CONFIG" que debe estar en la raíz del directorio del lenguaje. Este archivo contiene los nombres de los directorios de trabajo de XU.
+Si desea cambiar los directorios de trabajo, modifique este archivo.
+
+ED4XU necesita del archivo de configuración para trabajar con archivos ".xu" y ."def".
+
+
+$$END Introduccion
+$$BEGIN Compilacion y ejecucion
+
+_________________________________________
+======== COMPILACION Y EJECUCION ========
+
+Un programa XU debe ser compilado con las siguientes opciones:
+
+   ./xuc <archivo.xu> [parámetros]
+
+donde 
+  <archivo.xu> se guarda en "SOURCE". No hace falta indicar el directorio, porque su ubicación se setea directamente en el archivo XU.CONFIG.
+  
+[parámetros] puede ser:
+  -x    Genera ejecutable. Dicho binario queda en "BINARY".
+  -v    Genera archivo de variables. Dicho archivo queda en "DEBUG".
+  -m    Genera archivo de mapa. Dicho archivo queda en "DEBUG".
+  -p    Genera preprocesado. Dicho archivo queda en "DEBUG".
+  -wret Anula warning de retorno de función.
+  -h    Muestra la ayuda
+  -l    Genera librería. Se guarda en "LIB".
+  -sys  Interno.
+
+Para ejecutar un programa ya compilado, puede hacerlo así:
+
+  ./xu <archivo> [parámetros]
+
+donde:
+  <archivo> es el archivo compilado, sin extensión.
+  [parámetros] es una lista de parámetros, si se requieren.
+
+
+QUIEBRE DE EJECUCION DE UN PROGRAMA.
+
+Un programa XU en ejecución podrá ser abortado si presiona ALT-C, en Linux basado en Debian.
+
+Sin embargo, esto no es efectivo cuando el control del programa está en modo entrada
+de datos, o en algún proceso matricial.
+
+
+$$END Compilacion y ejecucion
+$$BEGIN Un programa simple
+
+_________________________________________
+============ PROGRAMA SIMPLE ============
+
+Si no va a usar variables ni funciones, un programa básico XU puede escribirse como sigue:
+
+  algorithm:
+     ."Hola mundo!\n"
+  stop
+
+Puede prescindir de declarar "vars:" y "functions:", pero no de "algorithm:" ni de "stop". XU es programación "vintage", y un programa es un algoritmo top-down.
+
+Además, puede separar instrucciones con ";". Por ejemplo:
+
+  algorithm: ; ."Hola mundo!\n"; stop
+  
+pero no puede usar ";" como terminador de línea. Para XU una línea termina donde encuentre el caracter "nueva línea".
+
+
+$$END Un programa simple
+$$BEGIN Detalles de la programacion XU
+
+_________________________________________
+============== COMENTARIOS ==============
+
+XU soporta comentarios de línea "//" y comentarios de bloque "/**/".
+
+_________________________________________
+========= SEPARADOR DE STRING ===========
+
+XU usa la comilla como único separador de string. Por ejemplo:
+
+  "Hola mundo" --> es un string válido.
+  'Hola mundo' --> está como las hueas, porque "'" no es un separador válido.
+
+_________________________________________
+================ UTF8 ===================
+
+XU puede interpretar la mayoría de los símbolos no ASCII. Sin embargo, no interpreta bien las letras con acentos extraños, y definitivamente no interpreta las mayúsculas con acentos.
+Para una correcta interpretación de estos símbolos, se recomienda emplear funciones CHR() y ASC() descritas en la sección "STANDARD" del menú de ayuda.
+
+_________________________________________
+========== NUMEROS NEGATIVOS ============
+
+XU requiere que un número negativo sea escrito entre paréntesis. Por ejemplo:
+
+  (-4)    está bien.
+  (-tasa) está la raja!
+  -4      está mal
+  -tasa   está como la hueas.
+
+La razón es sencilla: cuando el analizador sintáctico encuentra un número negativo, lo convierte a una resta:
+
+   (-4)    --> (0-4)
+   (-tasa) --> (0-tasa)
+
+Y para hacer esto, necesita encontrar el token "(-". Si no lo encuentra, puede realizar una conversión defectuosa, o simplemente mandarte a la mierda con un mensaje de error.
+
+_________________________________________
+=============== NaN e Inf ===============
+
+El que XU hubiese sido escrito en dos lenguajes, trae algunas complicaciones a considerar.
+Por ejemplo, cuando se realizan las operaciones individuales, los resutados son tratados de acuerdo al formato establecido por Harbour, que atrapa todos los problemas y los enmascara con resultados. Para Harbour, no existen los resultados NaN ni Inf.
+Sin embargo, las operaciones en ANSI C son diferentes: en estas sí pueden surgir resultados NaN e Inf.
+Un caso especial es el cálculo de la raíz cuadrada en ambas formas, tanto la individual como la matricial, donde el resultado de la raíz sobre números negativos dará siempre (-1).
+Algunas operaciones matemáticas pueden dar como resultado NaN, como por ejemplo, el arcoseno y el arcocoseno. Otras, como el factorial de un número mayor a 169, dará resultado Inf.
+
+_________________________________________
+=========== CODIGOS DE ESCAPE ===========
+
+XU usa los siguientes códigos de escape en el despliegue con "write" o con la macro ".":
+
+* \n  Salto de línea
+* \t  Tabulación de 8 espacios.
+* \"  despliega la comilla dentro de un string.
+
+Por ejemplo:
+
+  ."El mensaje:\n\t\"Todos son buenas personas\"\nSerá desplegado en una sola línea."
+
+desplegará lo siguente:
+
+   El mensaje:
+           "Todos son buenas personas"
+   Será desplegado en una sola línea.
+
+_________________________________________
+========= SEPARACION DE LINEAS ==========
+
+Para separar líneas largas, se usa el símbolo "&".
+Existen reglas para su uso. Estas son las siguientes:
+
+1) No pueden separarse strings.
+
+   write "Este es un &
+         string..."    --> esto está mal
+
+   write "Este es un" &
+         "string..."   --> mal. Falta ","
+            
+   write "Este es un", &
+         "string..."   --> esto está ok.
+
+2) Todo lo demás puede separarse... supongo.
+
+_________________________________________
+=========== USO DE PARENTESIS ===========
+
+XU es estricto con el uso de paréntesis. A veces se marea con expresiones demasiado complejas, así como con expresiones como argumento de funciones, y bueno sería usar paréntesis para asegurarse de lo que se desea obtener. Por ejemplo:
+
+Si quiere llamar a una función "F" y pasarle 2 argumentos: n+1 y m-1, deberá hacerlo así:
+
+  .F( (n+1) (m-1) )
+
+Si lo hace de este otro modo:
+
+  .F( n+1 m-1 )
+
+Podría no obtener lo que quiere.
+
+RAZONES. XU no usa "," para separar argumentos de funciones, porque a mí me marean las comas. Es algo muy personal. El problema es que ahora me marean los paréntesis.
+
+
+$$END Detalles de la programacion XU
+$$BEGIN Sentencia flag
+
+_________________________________________
+============ SENTENCIA "FLAG" ===========
+
+Esta sentencia o función se creó para hacer que un valor que en circunstancias normales sería usado como parámetro de una función, persista dentro del programa, y no sea necesario realizar copias de dicho valor.
+Una explicación de mierda. Mejor, un ejemplo.
+
+linea sentencias
+  1   flag (",")
+  2   S<-"codigo-1,codigo-2,codigo-3,codigo-4,codigo-5"
+  3   if flc("datos.txt")>0
+  4      datos<-mat.load("datos.txt" 0 0)
+  5    end
+
+En este grupo de instrucciones, el uso de "flag" es importante. Repasemos:
+Linea 1: se declara un flag ","
+linea 2: se tokeniza el string usando como token ",", o sea, el "flag"
+linea 3: "FLC" devuelve el número de líneas de un archivo, número de tokens por línea, número total de tokens encontrados en el archivo, y el tamaño del archivo en número de caracteres. "FLAG" declara el token a usar con "FLC".
+linea 4: "MAT.LOAD" necesita saber qué token usará para reconocer la separación de los datos a leer. Usa "FLC" internamente, y por tanto, el valor de "flag".
+
+Si no existiese "FLAG", el valor "," habría tenido que usarse como parámetro en cada una de las operaciones, lo que redunda en mayor acceso al stack de programa y al stack de trabajo. Con "flag", se pueden ahorrar varias cargas de direcciones y ciclos de computación.
+
+**IMPORTANTE**
+Un flag sobreescribe al anterior. Si desea usar una lógica de pilas para no perder el flag anterior y otorgarle inteligencia a su programa, eche un vistazo al programa "FLAG.XU", que usa "STACKS".
+Un flag puede ser usado a favor del programador, almacenando valores que empleará en su programa, aunque sea independiente de la necesidad de las sentencias de XU. Sea pillo y no huea.
+
+
+$$END Sentencia flag
+$$BEGIN Asignacion de datos
+
+_________________________________________
+============= ASIGNACIONES ==============
+
+Para asignar un valor a una variable, se usa "<-".
+
+ x <- 0     
+    asigna "0" a "x" 
+    
+ s <- "María tenía un corderito"
+    asigna el string "María tenía..." a "s"
+    
+ b <- true
+    asigna el valor lógico "true" a "b".
+    
+ M <- N
+    Si "M" y "N" son matrices, copia la matriz "N" en "M".
+    **IMPORTANTE**
+    XU no maneja punteros. Esta operación crea un duplicado de "N" en "M".
+    
+ M <- (-1)
+    Si "M" es matriz, la rellena con "-1".
+    
+ M <- "María tenía un corderito"
+    Si "M" es matriz de string, asigna un token a cada posición. El token por defecto es espacio.
+    M = "María","tenía","un","corderito"
+    **IMPORTANTE**
+    La configuración anterior de "M" se pierde y es reemplazada por la nueva.
+     
+    **IMPORTANTE**
+    Si quiere usar otro token, indíquelo con "FLAG":
+    M <- (flag ",") "A,B,C,D,E" --> M = "A","B","C","D"
+    O bien, divídalo por el token:
+    M <- "A,B,C,D" / ","  --> M = "A","B","C","D"
+
+*** CASO ESPECIAL: SWAP ***
+
+El operador "<->" intercambia los valores de dos variables. Ejemplo:
+
+CASO 1:  Variables simples
+  a<-10; b<-(-10)
+  a<->b
+  "a" tendrá "-10" y "b" tendrá "10"
+
+CASO 2:  Matrices
+  si "M" y "N" son matrices:
+  M<->N
+  Intercambia el contenido de "M" por "N" y viceversa, sin importar sus dimensiones.
+
+**IMPORTANTE**
+No puede usar "<->" con variables de diferente tipo y naturaleza. Por ejemplo:
+
+ * Si "a" es string y "n" es number, error.
+ * Si "M" es matriz y "s" es string, error.
+ * Si "M" es matriz number y "N" es matriz booleana, error
+ * n <-> 2, está mal, porque "2" no es una variable, sino, una constante que no es.
+ Etcétera.
+
+
+_________________________________________
+======== ATAJOS DE ASIGNACIONES =========
+
+XU permite atajos en asignaciones, tal como lo hace "C". Por ejemplo:
+
+ x<-+1  -->  x<-x+1  |  x<-*10  -->  x<-x*10
+ x<--1  -->  x<-x-1  |  x<-/2   -->  x<-x/2
+ x<-%2  -->  x<-x%2  |  x<-\3   -->  x<-x\3
+ x<-^2  -->  x<-x^2
+
+**IMPORTANTE**
+XU no acepta este atajo cuando usa asignaciones combinadas. Por ejemplo:
+
+ {r,x} <-+ 1  --> causará un mensaje de error en la compilación
+
+
+
+$$END Asignacion de datos
+$$BEGIN Operadores matematicos y logicos
+
+_________________________________________
+======== OPERADORES MATEMATICOS =========
+
+XU soporta los siguientes operadores matemáticos, tanto para variables simples como para matrices:
+
+ + suma            | / división
+ - resta           | \ división entera
+ * multiplicación  | % resto módulo
+ ^ potencia (elevado a)
+
+Ejemplos:
+
+ a<-a+1      // suma 1 a "a"
+ M<-0.5*M    // Si "M" es matriz, multiplica cada elemento de "M" por "0.5"
+ M<-M*(N+1)  // Si "M" y "N" son matrices, suma "1" a "N", y luego realiza una multiplicación Hadagar (o como se escriba la hueá) entre ese resultado y "M". 
+
+_________________________________________
+========== OPERADORES LOGICOS ===========
+
+Una expresión lógica se compone de variables relacionadas con operadores de relación y operadores lógicos.
+Los operadores de relación son los siguientes:
+
+- =       Igual que            a = b
+- <=      Menor o igual que    a <= b
+- >=      Mayor o igual que    a >= b
+- <>      Distinto que         a <> b
+- @       Está contenido en    a @ b (solo trabaja con strings)
+- between Está entre X e Y     A between V W, ó between(A V W)       
+
+Los operadores lógicos empleados en XU son los siguientes:
+
+- AND   a<b and c=0
+- OR    a=b or a=c
+- XOR   a=b xor d=e
+
+El operador de negación se antepone a una expresión lógica. Ejemplo:
+
+- ~(a=b)   si "a" es igual a "b", el resultado es "false"
+- ~a       si "a" es "true", "~a" es "false" 
+
+
+_________________________________________
+==== OPERACIONES LOGICAS MATRICIALES ====
+
+XU devuelve un único valor cuando se comparan matrices numéricas. La comparación se realiza entre cada elemento de ambas matrices.
+Esto significa que ambas matrices deben tener las mismas dimensiones, rangos y tipos.
+Los casos aceptados son los siguientes:
+
+- M = N   "true" si "M" y "N" son estrictamente iguales.
+          "false" si son estrictamente distintas.
+- M <> N  "true" si son estrictamente distintas
+          "false" si son estrictamente iguales.
+- M < N   "true" si "M" es estrictamente menor que "N".
+          "false" si "M" no es estrictamente menor que "N".
+- M > N   "true" si "M" es estrictamente mayor que "N".
+          "false" si "M" no es estrictamente mayor que "N".
+- M <= N  "true" si "M" es menor o igual que "N".
+          "false" si "M" no es menor o igual que "N".
+- M >= N  "true" si "M" es mayor o igual que "N".
+          "false" si "M" no es mayor o igual que "N".
+
+La palabra "estrictamente" se refiere a que la condición se cumple para todos los elementos.
+Por ejemplo, cuando se dice que "M es estrictamente menor que N", significa que cada elemento de "M" es menor a su homólogo en "N".
+
+Por otro lado, cuando "M no es menor o igual que N", significa que existe, al menos, un elemento en "N" que es mayor que su homólogo en "M".
+
+
+$$END Operadores matematicos y logicos
+$$BEGIN Tipos de datos en XU
+
+_________________________________________
+============ TIPOS DE DATOS =============
+
+XU soporta los siguientes tipos de datos:
+
+-NUMBER   Tipo numérico: abarca tanto enteros, como doubles y long. También aceptan
+          números en notación científica. Al respecto, ver el apartado final de este
+          tópico. Y, ¡cómo no!, también acepta numeración en base Hexadecimal, octal
+          y binario. Al respecto, ver la sección "BASE" del menú de ayuda.
+          En matrices, el tipo interno será comunmente DOUBLE.
+          Si quiere ahorrar memoria en este caso, use los castores de 
+          casteo:
+          (int MATRIX), (double MATRIX), (long MATRIX)
+
+          Valores de otro tipo pueden ser convertidos a NUMBER:
+          (# "10.12") --> 10.12
+          (# true)    --> 1
+          (# false)   --> 0
+          (# 10.12)   --> 10.12, la conversión del hueón.
+          si M es matriz de string, ejemplo ^["10","HOLA","30","40"]:
+          (# M)       --> 10,0,30,40
+
+          Se pueden desplegar números en diferentes contextos. Estos son
+          los siguientes:
+
+          -context "NOTATION" --> número notación científica
+          -context "NUMBER"   --> número normal
+
+          El número en "notación científica" visualizará una mantisa que
+          será controlada por la instrucción "PRECISION":
+          
+          Si "n" es "1234567890":
+             -despliega "1.2345678900E8" con precision 0
+             -despliega "1.235E8" con precision 1-3
+             -despliega "1.23457E8" con precision 5
+             -despliega "1.234568E8" con precision 6
+             -despliega "1.2345679E8" con precision 7
+          
+          *OBSERVACION: XU no calcula cosas como "1.23E4 * 2". El contexto
+          solo corresponde a visualización. Eso sí, XU puede detectar números
+          en notación científica y convertirlos a NUMBER, y realizar luego la
+          operación descrita.
+          *OBSERVACION 2: Si el número es demasiado grande o pequeño, XU
+          desplegará proactivamente dicho número en notación científica.
+
+-STRING   Tipo alfanumérico. Todos los otros tipos se pueden convertir:
+          ($ 10.12)   --> "10.12"
+          ($ true)    --> (según el contexto. Ver tipo BOOLEAN)
+
+-BOOLEAN  Tipo lógico. "true" y "false" son sus valores. Valores de otro
+          tipo pueden ser convertidos a BOOL, de la siguiente forma:
+          (% "hola") --> true    // (%) es castor de conversión a BOOL.
+          (% "")     --> false
+          (% 1),(% (-4)) --> true
+          (% 0)      --> false
+          (% true)   --> true, la conversión del hueón.
+          
+          CONTEXTO.
+          Para visualizar en pantalla un tipo BOOL, se usa un contexto que
+          será respetado para los archivos que serán leídos desde el disco.
+          También serán usados cuando se usa "($ )".
+          La instrucción "CONTEXT" define el contexto. Estos son:
+          -context "ROBOT"    --> "true" es "ON", "false" es "OFF"
+          -context "BOOL"     --> "true" es "1", "false" es "0"
+          -context "HUMAN"    --> "true" es "YES", "false" es "NO"
+          -context "LOGIC"    --> "true" es "TRUE", "false" es "FALSE"
+          
+-^NUMBER  Matriz de números. XU soporta matrices de hasta 4 dimensiones.
+
+-^STRING  Matriz alfanumérica.
+
+-^BOOLEAN Matriz de valores lógicos.
+
+-STACK
+-^VARIANT Stack unidimensional de elementos de distinto tipo. Puede guardar
+          hasta matrices en un stack. Su uso es un poco "hueveado" y solo se 
+          recomienda para soluciones simples o para fines educacionales.
+
+-VARIANT  Declara un tipo de datos variable. Hay que usarla con cuidado, porque este
+          tipo solo existe en el proceso de compilación, no en la ejecución.
+          Se usa para "entreabrir" ciertas puertas, si es que se entiende la analogía,
+          en medio de la rigidez de tipos que procesa XU.
+       
+       1) Puede ser empleado como tipo para argumentos de función de usuario.
+          Ejemplo:
+          La siguiente función de usuario procesa FLAGS con un STACK. Permite pasar
+          un argumento de tipo VARIANT, con lo que puede pasar desde un string hasta
+          una matriz de booleanos.
+          
+             flag(bandera:variant):void
+             begin:
+               use stack_flag
+               push bandera
+               flag stk.top
+             end
+          
+          Se puede ver que, a pesar de ser declarado como VARIANT, el argumento pasado
+          mantiene su tipo original.
+       
+       2) Puede ser usado como un tipo devuelto de una función.
+          Ejemplo:
+          
+             // obtiene el siguiente FLAG disponible en el STACK, sin sacarlo.
+             // si el STACK está vacío, devuelve una cadena nula.
+             getflag():variant
+             begin:
+               deque
+               use (stack_flag)
+               if ~isempty()
+                  return (?stk.top)
+               else
+                  return (?"")
+               endif
+             end
+          
+          El castor (?) le dice al compilador (y solo al compilador), que no procese el
+          tipo de STK.TOP. Cualquier valor devuelto por una función de tipo VARIANT,
+          debe retornar un valor casteado con (?).
+       
+       3) Puede ser asignado en cualquiera de estos casos:
+          a) si la variable receptora es también de tipo VARIANT.
+          b) si se ha casteado correctamente.
+          c) si es argumento devuelto de una función que recibe cualquier tipo.
+          Ejemplo:
+
+             vars:
+                stack_flag:=stack
+                v:=variant
+                n:=number
+                s:=string
+                
+             functions:
+                // Se asume que existen las funciones .FLAG y .GETFLAG
+                // se añade la siguiente función para que el ejemplo funcione:
+                // Saca el FLAG en uso del stack y deja disponible el siguiente
+                // para su uso, si existe.                                          
+                unflag():void
+                begin:
+                  deque
+                  use (stack_flag)
+                  if ~isempty()
+                     pop
+                     if ~isempty()
+                        flag stk.top
+                     endif
+                  endif
+                end
+             algorithm:
+                .flag(100)   // mete 100 (numerico) al stack de FLAGS
+                
+                // TYPE recibe cualquier tipo
+                write "\nEl tipo del FLAG en uso: ",type(.getflag)
+                
+                v<-.getflag  // ambos, "v" y función, son de tipo VARIANT
+                
+                write "\nFLAG disponible: ",v
+                
+                // "v" es casteado a NUMBER para ser usado correctamente.
+                n<-(#v)*100
+                write "\nVariant operado con (#)= ",n
+                .unflag()    // saca "100" del STACK.
+                .flag("B")   // mete "B" (string) al stack de FLAGS
+                
+                // se asigna a "s" (string) casteado correctamente.
+                s<-($.getflag)
+                write "\nString de VARIANT casteado= ",s
+                .unflag()    // saca "B" y deja el stack FLAG vacío
+                
+                ."\n\nOTROS CASTEOS\n"
+                v<-(?100)
+                write "100 casteado a variant= ",v
+                v<-(?"Esta cadena se asigna a variant")
+                write "String casteado a variant= ",v
+                v<-(?true)
+                write "Boolean casteado a variant= ",v
+             stop
+          
+          Salida:
+             El tipo del FLAG en uso: number
+             FLAG disponible: 100
+             Variant operado con (#)= 10000
+             String de VARIANT casteado= B
+             
+             OTROS CASTEOS
+             100 casteado a variant= 100
+             String casteado a variant= Esta cadena se asigna a variant
+             Boolean casteado a variant= YES
+
+
+NUMEROS EN NOTACIÓN CIENTÍFICA.
+
+Como ya se ha dicho, XU acepta números en notación científica, pero existen condiciones para usarlos dentro de un programa.
+
+Un número en notación científica, en XU, debe escribirse de la siguiente forma:
+
+    [1-9].[0|mantisa] E [+|-] exponente
+
+Ejemplo:
+    1.2009E5, 4.56E-12, 1.0E-4, 2.0E+200, etcétera
+
+XU no acepta números sin punto decimal, como "1E3". Debe escribir "1.0E3".
+
+Si el exponente es menor o igual que 14, puede usarlo directamente en asignaciones y operaciones. 
+En cambio, si es mayor que 14, debe usar la función E2D(), que acepta el número en formato string, y devuelve un número.
+
+Ejemplo:
+  
+  #use string
+  vars:
+    n:=number
+    m:=^number
+    ...
+    n<-2.3E13+10
+    write e2d("1.0E-200")/e2d("1.0E-200")
+    dim m(100)
+    m<-2.0E10
+    
+Cuando el exponente del número es menor o igual a 14, XU realiza la conversión en tiempo de compilación. Cuando el exponente es mayor que 14, no puede realizar la conversión, por una limitación del lenguaje madre de XU, que es Harbour.
+Harbour devuelve una secuencia de "*" cuando el número supera cierto límite, y eso es lo que escribe en el archivo final. Por esa razón, XU internamente añade la función E2D().
+
+Por lo tanto, usted puede escribir en su programa:
+    
+    write e2d("1.0E-200")/e2d("1.0E-200")  ==> 1.000
+
+como
+
+    write 1.0E-200/1.0E-200   ==> 1.000
+
+Ejemplos:
+
+    n<-5.12E105 / 2.2330E105
+    write "\nDivisión 5.12E105 / 2.2330E105 = ",n
+
+    n<-5.12E105 / 2.2330E98
+    write "\nDivisión 5.12E105 / 2.2330E98 = ",n
+  
+Salida:
+
+    División 5.12E105 / 2.2330E105 = 2.2928795342588444
+    División 5.12E105 / 2.2330E98 = 22928795.3425884433090687
+
+
+$$END Tipos de datos en XU
+$$BEGIN Parametros
+
+_________________________________________
+=============== PARAMETROS ==============
+
+Un programa XU puede recibir parámetros desde la línea de comandos. Estos serán tratados según el tipo con que fueron declarados dentro del programa XU.
+Se aceptan valores simples, y cadenas de valores. Los tipos aceptados como parámetros son los siguientes:
+  
+  number   Números
+  string   Cadenas de texto. Se puede usar una cadena entre comillas.
+  boolean  Se aceptan 1 para "true", y 0 para "false".
+  ^string  Acepta parámetros como "*.xu", o palabras separadas por espacio.
+  ^boolean Secuencias de 1's y 0's. Ejemplo: 1 1 0 0 1.
+  ^number  secuencias de números: 100 200 10.45...
+
+DECLARACION DE PARAMETROS
+Para declarar un parámetros, debe hacerlo con "$" y un número correlativo que indicará la posición del argumento pasado. Por ejemplo:
+
+  archivo:=$1:string
+  nSize:=$2:number
+
+XU leerá el primer argumento y lo copiará a "archivo", y leerá el segundo argumento, lo convrtirá a "number", y lo copiará a "nSize".
+
+Si desea pasar una cadena con espacios en blanco como un único argumento, deberá usar comillas. Ejemplo:
+
+  ./xu archivo "juanito pérez"
+
+Esto de los parámetros podría ser un poco hueveado. Si declara un parámetro como una matriz, XU leerá todos los argumentos que considere que corresponden al tipo de la matriz, hasta que encuentre un argumento de distinto tipo.
+Por ejemplo:
+
+  archivos := $1 : ^string
+  nSizes   := $2 : ^number
+  
+Si como argumentos le pasa al programa: 
+
+  ./xu programa a.txt b.txt c.txt 100 200 50
+  
+XU asignará "a.txt", "b.txt" y "c.txt" a la matriz de string "archivos", y asignará 100, 200 y 50 a la matriz de números "nSizes".
+
+**IMPORTANTE**
+XU discrimina el tipo del argumento por simple inspección. Si encuentra un número, lo convertirá a "number" si el tipo del parámetro es "number", o lo dejará como "string" si el tipo del parámetro es "string", o lo convertirá a "boolean" si el tipo es "boolean".
+Además, XU no aumentará el contador de posición de argumentos sino hasta que encuentre un dato de distinto tipo, en el caso de que el tipo de parámetro sea una matriz.
+
+EJEMPLO
+Supongamos que un programa XU tiene las siguientes declaraciones de parámetros:
+
+  vars:
+     nombre:=$1:string
+     numeros:=$2:^number
+     data:=$3:^string
+
+Si el programa es llamado como sigue:
+
+  ./xu archivo "Juanito Pérez" 100 200 300 400 Zapato Ser año
+  
+Sus parámetros se procesarán como sigue:
+
+  nombre  -> Juanito Pérez          // dato simple
+  numeros -> {100,200,300,400}      // array de números
+  data    -> {"Zapato","Ser","año"} // array de strings
+
+Importante. Los parámetros pueden solaparse. Por ejemplo, supongamos que a la declaración de variables anterior se le añade lo siguiente:
+
+  vars:
+     nombre:=$1:string
+     numeros:=$2:^number
+     data:=$3:^string
+     estados:=$4:^boolean
+
+y llamamos al programa con los siguientes parámetros:
+
+   ./xu archivo "Juanito Pérez" 100 200 300 400 Zapato Ser año 0 0 1 0
+   
+Los parámetros serían procesados de la siguiente manera:
+
+  nombre  = Juanito Pérez
+  numeros = {100,200,300,400}
+  data    = {"Zapato","Ser","año","0","0","1","0"}
+  
+El tipo del parámetro $4 ha quedado vacío, y puede generar un error.
+
+Del mismo modo, un parámetro de tipo "^number" puede absorver los parámetros siguientes, si estos son 1's y 0's y se espera que sean leídos como parámetros de tipo "boolean" o "^boolean".
+Hay que tener cuidado con esto. Si no lo tiene, se va a la chucha y no sabrá por qué.
+
+
+$$END Parametros
+$$BEGIN Estructura de un programa XU
+
+_________________________________________
+====== ESTRUCTURA DE UN PROGRAMA ========
+
+La siguiente es la estructura de un típico programa XU:
+
+[ #use <lista de grupos de sentencias> ]
+
+[ #include <archivo.def> ]
+
+[ name: <descripción del programa> ]
+
+[ vars:
+  VAR[, ...] := [$n] <tipo> ]
+
+[ functions:
+
+  [ #import <libreria>.< * | {lista de funciones} | <funcion> ]
+
+   f( VAR:<tipo>[(ref)|(*)][, ...] ): <tipo-devuelto>
+      <declaración-variables-locales>
+   begin:
+      <instrucciones>
+   end ]
+
+algorithm:
+   <sentencias>
+stop
+
+*OBSERVACIONES. El comando de preprocesamiento "#DEFINE" puede ser usado en cualquier parte del programa.
+La única sección obligatoria es "ALGORITHM/STOP". Las otras son opcionales si no es necesario usarlas.
+
+-) #USE.
+
+Esta etiqueta se usa para añadir el preproceso de funciones específicas. Si trabajará con funciones de tipo string, deberá incluirlo es "#USE". Por ejemplo:
+
+   #use string
+
+Si, además, usará funciones de manejo de bits, deberá incluir:
+
+   #use string,bits
+
+En general, estos son los "tags" que puede usar en "#USE":
+   
+   string        math         trig        base
+   date          bit          stack       matrix
+   set (conjuntos)
+
+-) #INCLUDE.
+
+Incluirá un archivo de definiciones en el programa. Un archivo de definiciones contiene tags "#DEFINE".
+Puede incluir tantos archivos "DEF" como los necesite.
+Ver "PREPROC" del menú de ayuda.
+
+-) #DEFINE.
+
+Ver sección "PREPROC" del menú de ayuda.
+
+-) NAME.
+
+Todo programa XU se identifica por una descripción incluída en la cabecera del archivo binario. Aquí puede poner dicha descripción.
+
+-) VARS:
+
+Sección donde declarará las variables que usará. Son variables de alcance global. Si declara variables locales dentro de una función, con el mismo nombre de una variable global, XU priorizará a la variable local.
+"VARS:" puede ir antes o después de "FUNCTIONS:". Por ejemplo:
+
+  vars:
+    a,b:=number
+
+  functions:
+    f():void
+    begin:
+      ...
+    end
+
+Es lo mismo que:
+
+  functions:
+    f():void
+    begin:
+      ...
+    end
+
+  vars:
+    a,b:=number    
+
+
+-) FUNCTIONS:
+
+Ver a continuación.
+
+-) #IMPORT.
+
+Este tag insertará funciones de la librería indicada, y podrá hacerlo dentro de la sección "FUNCTIONS:". 
+Ver el tópico "PREPROC" para más información.
+
+-) ALGORITHM: / STOP
+
+Aquí va el cuerpo principal del programa.
+
+
+$$END Estructura de un programa XU
+$$BEGIN Funciones de usuario
+
+_________________________________________
+========= FUNCIONES DE USUARIO ==========
+
+XU soporta funciones y procedimientos. Un procedimiento es una función que no devuelve nada. Su declaración se realiza en la sección "FUNCTIONS:".
+Existen dos formas para declarar una función:
+
+      NOMBRE := function : <tipo-devuelto>   (F.1)
+y
+      NOMBRE():<tipo-devuelto>               (F.2)
+
+<tipo-devuelto> puede ser un tipo de los ya vistos, o "void", vacío.
+Una función puede recibir parámetros, y estos pueden ser pasados por referencia y por valor.
+Si pasa un parámetro por referencia, use "(ref)" o "(*)".
+
+La forma de invocación de una función es la siguiente:
+
+      .NOMBRE( [<argumentos-separados-por-espacio>] )
+
+Se debe anteponer un "." al nombre de la función cuando esta es invocada. ¿Por qué? Ni puta idea.
+
+ARGUMENTOS DE FUNCION
+
+Si pasa argumentos a una función, se declararán según el tipo F.1 y F.2. Por ejemplo:
+
+PARA TIPO F.1:
+
+      suma := function: number
+        a := $1: number
+        b := $2: number
+        resultado:=number
+      begin:
+        resultado<-a+b
+        return resultado
+      end
+
+PARA TIPO F.2:
+
+      suma(a:number,b:number):number
+         resultado:=number
+      begin:
+        resultado<-a+b
+        return resultado
+      end
+
+Los argumentos que son pasados por referencia, se declaran así, según el tipo:
+
+PARA TIPO F.1:
+      suma := function: number
+        a := $1: number (ref)  // también puede usar (*)
+        b := $2: number (ref)
+      ...
+
+PARA TIPO F.2:
+      suma(a:number(ref),b:number(ref)):number
+      ...
+
+RESTRICCIONES.
+
+Existe una restricción para el uso de funciones de usuario en XU, y es que estás no pueden ser llamadas cíclicamente. Por ejemplo:
+
+     f1():void
+     begin:
+        ...
+        f2()
+     end
+
+     f2():void
+     begin:
+        ...
+        f1()
+     end
+
+XU lo mandará a la soberana mierda, por una sencilla razón: una función invicada debe estar previamente declarada.
+En este caso, el analizador encontrará bien que desde F2() se llame a F1(), pero no encontrará la función F2() invocada desde F1(), porque esta no ha sido declarada aún.
+
+En XU la consigna es: "si vas a usar algo, debes declararlo antes".
+
+  
+RECURSIVIDAD.
+
+XU admite funciones recursivas, pero hay que tratarlas con cuidado. Hay algunos ejemplos en el directorio "SOURCE".
+La recursividad gasta muchos recursos, y XU se huevea con eso.
+
+**IMPORTANTE**
+Para que la recursividad funcione, es necesario anteponer ":" a la sentencia "RETURN", lo que le indicará a XU que debe guardar una sarta de huevadas antes de realizar la invocación de dicha sentencia. Si no pone ":", el resultado podría ser catastrófico.
+
+Ejemplo de función recursiva que funciona la raja:
+
+memory: recursive  // si no incluye esto, XU lo hará por usted.
+
+#use math
+vars:
+   fact := $1:number
+
+functions:
+  factorial(n:number):number
+  begin:
+    : return {n<=1? 1: (n*.factorial(n-1)) }
+  end
+
+algorithm:
+   precision 3    // para la mantiza del resultado si se expresa en notación científica
+   fact<-mth.int(fact)
+   if fact<=0
+      write "Ingrese un número válido para calcular su factorial\n"
+   else
+      write "Factorial de ", fact, " es ",.factorial(fact),"\n"
+   endif
+stop
+ 
+Otro ejemplo que funciona bien es el de las torres de Hanoi. El ejemplo de la función de Fibonacci funciona muy mal con números sobre 20. El ejemplo de la función de Ackerman funciona como las hueas. No la use.
+
+
+$$END Funciones de usuario
+$$BEGIN Librerias
+
+_________________________________________
+=============== LIBRERIAS ===============
+
+Crear una librería en XU es muy sencillo. Para saber algo más sobre su uso, ver el tópico "PREPROC".
+
+Primero, se crea un programa con las funciones que se desean añadir como librería. Las condiciones son:
+
+1) En lo posible, debe declarar las funciones con variables locales. Si usa una variable global, como en el ejemplo del uso de FLAGS en la sección STACK, debe indicarlo en el manual correspondiente.
+
+2) Si usa FLAGS en las funciones, también debe indicarlo. Recordar que un FLAG es permanente, y si no tiene cuidado con eso, podría afectar otras funciones.
+
+3) Debe añadir la sección principal ALGORITHM/STOP. Si no lo hace, XU no creará la librería. En esta sección usted probará el uso de sus funciones.
+
+4) Puede usar funciones recursivas en su librería, pero debe tener cuidado con ellas.
+
+Respecto al punto 3, XU creará la librería omitiendo la sección principal, por lo que se recomienda hacer uso de todo lo que pueda para probar sus funciones, dado que con ello sabrá cómo usarlas y tendrá pruebas fiables.
+
+
+COMPILAR UNA LIBRERIA.
+
+Para crear una librería, una vez hechas todas las pruebas necesarias, solo tiene que escribir esta cadena en su terminal:
+
+   xuc archivo.xu -l
+
+También puede seleccionar la opción de compilación "XU - Librería (.lib)" en ED4XU.
+
+La librería creada tendrá la extensión LIB y será guardada en el directorio LIB declarado en XU.CONFIG.
+Por ejemplo, el programa FLAG.XU mostrado como ejemplo en la sección STACK, genera la siguiente librería:
+
+            flag=function:void
+            bandera=$1:string
+            begin:
+            tstk_code 7 1
+            if xcode_nc 1 (xcode_cc 7 (bandera))>0
+            use (stack_flag)
+            push bandera
+            flag bandera
+            else
+            if ~isempty()
+            flag (trstk_code 1)
+            endif
+            endif
+            end
+            unflag=function:void
+            begin:
+            tstk_code 7 1
+            use (stack_flag)
+            if ~isempty()
+            pop
+            if ~isempty()
+            flag (trstk_code 1)
+            endif
+            endif
+            end
+            getflag=function:string
+            begin:
+            tstk_code 7 1
+            use (stack_flag)
+            if ~isempty()
+            return xtostr( pop)
+            else
+            return ""
+            endif
+            end
+
+Notará que no existe el cuerpo principal del programa original, y que lo que se guarda es una versión preprocesada del programa, no una versión binaria.
+Esto es porque el analizador sintáctico inserta dicha librería al momento de leer el programa fuente donde se usará, y la deja "enganchada" al resto del código. Con ello me evito hacer recálculos huevones de posiciones y mierdas por el estilo.
+Se puede ver, además, el uso de la variable GLOBAL "stack_flag". Esta variable tendrá que ser declarada en todo prorama donde se use esta librería:
+
+     vars:
+        stack_flag := stack
+
+
+$$END Librerias
+$$BEGIN Precision numerica
+
+_________________________________________
+========== PRECISION NUMERICA ===========
+
+(Es muy necesario tenerlo en cuenta)
+
+Cuando se trabaja con funciones matemáticas, XU lo hace con todos los decimales que le proporciona el coma flotante para un número tipo "double". No emplea precision. El resultado se puede redondear, pero la precision interna del número seguirá siendo la misma.
+Esto puede llevar a "errores".
+Por esa razón, se ha separado lo que es la precision numérica de la precisión de despliegue. La precisión de despliegue solo redondea el número en el despliegue y se hace con "precision n", con "n" número de decimales.
+La precision numérica se hace con "fix(v n)", con "v" la variable y "n" los decimales deseados.
+Un ejemplo de la basura dicha anteriormente es el siguiente:
+
+Este programa toma un número aleatorio, y lo multiplica por un decimal. "RAND" devuelve un número en coma flotante tipo "double".
+
+  algorithm:
+    m<-mth.rand(10)
+    ."NUMERO =",m
+    ."\nMULTIPLICADO POR 10.05 = ",m*10.05
+    ."\n\n/* SE AJUSTA A CINCO DECIMALES CON FIX() */"
+
+    m<-fix(m 5)  // se fija a cinco decimales.
+    ."\nNUMERO CON AJUSTE FIX =",m
+    precision 5
+    ."\nNUMERO CON PRECISION DE DESPLIEGUE 5 decimales =",m
+    ."\nMULTIPLICADO POR 10.05 = ",m*10.05
+  stop
+
+Su salida es la siguiente:
+
+  NUMERO =7.1503370674327016                                                      
+  MULTIPLICADO POR 10.05 = 71.8608875276986510
+                                            
+  /* SE AJUSTA A CINCO DECIMALES CON FIX() */
+  NUMERO CON AJUSTE FIX =7.1503399999999999
+  NUMERO CON PRECISION DE DESPLIEGUE 5 decimales =7.15034
+  MULTIPLICADO POR 10.05 = 71.86092 
+
+Note que el ajuste del número arrojó "7.1503399999999999". Esto se debe al error de redondeo del coma flotante de la máquina.
+La precisión de despliegue muestra "7.15034", que es como se redondeará al momento de efectuar un cálculo aritmético.
+Si multiplica "7.15034" por "10.05" con una calculadora, esta arrojará como resultado "71.860917". El redondeo de los últimos dígitos por parte de XU es aceptable.
+
+Supongamos que no hacemos ajuste "FIX", y solo ajuste de precisión de despliegue.
+En el siguiente ejemplo, sumaremos tres números aleatorios y los desplegaremos con ajuste de despliegue de 5 decimales, sin ajuste "FIX".
+
+  NUMEROS:                                                                        
+  3.5138654708862305, 7.5369966821745038, 4.3032962922006845                      
+  SUMA = 15.3541584452614188                                
+
+  NUMEROS CON PRECISION DE DESPLIEGUE 5 decimales:
+  3.51387, 7.53700, 4.30330
+  SUMA = 15.35416
+
+Si suma con una calculadora las cifras "3.51387+7.53700+4.30330", obtendrá como resultado "15.35417".
+Esto no significa que el cálculo esté malo, porque se realizó con todos los decimales. El error es de percepción.
+Para evitar ese error de percepción, es que se incluyó la función "FIX".
+
+Esto se hace enormemente patente cuando trabaja con calculos matriciales. Aplique "FIX" a sus matrices si quiere obtener resultados que cuadren, o si necesita que cuadren a un número definido de decimales.
+
+OBSERVACIONES. Este error de percepción puede suceder con cualquier función matemática y trigonométrica que trabaje con decimales.
+Usted vea como mierda lo hace para que los resultados le salgan buenos y no como la callampa.
+
+
+$$END Precision numerica
+FIN DE AYUDA INTRODUCCION A XU

@@ -1,0 +1,6 @@
+/*
+  prueba
+*/
+#define _TIC(V)  V<-seconds("")
+#define _TOC(V)  seconds("")-V
+

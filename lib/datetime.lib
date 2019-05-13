@@ -1,0 +1,20 @@
+timediff=function:string
+ti=$1:string
+tf=$2:string
+begin:
+if istime(ti) and istime(tf)
+return    xcode_cn 4 (seconds(tf)-seconds(ti))
+else
+return  "0"
+endif
+end
+time2hour=function:number
+secs=$1:string
+begin:
+return seconds(secs)/60/60
+end
+time2min=function:number
+secs=$1:string
+begin:
+return seconds(secs)/60
+end

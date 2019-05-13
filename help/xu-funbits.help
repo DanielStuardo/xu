@@ -1,0 +1,372 @@
+   ____  _ _____  ___
+   |   \ |   |   /   
+   | __/ |   |   \__ 
+   |   \ |   |      \
+   |___/ |   |   ___/
+
+
+XU tiene castores y funciones que posibilitan el manejo básico de bits.
+Para acceder a estos castores y funciones, se debe escribir en la cabecera "#use bit".
+$$END INTRO
+$$BEGIN Manipulacion de bits
+
+_________________________________________
+========= MANIPULACION DE BITS ==========
+
+Los siguientes castores aceptan variables simples y matrices en sus argumentos.
+
+OBSERVACIONES.
+La rutina "print" invocada por GOSUB en los ejemplos, se muestra al final de la ayuda como un apéndice.
+
+  (BIT n pos)       Devuelve "1" si el bit de "n" en la posición "pos" está encendido.
+                    Devuelve "0" si está apagado.
+                    
+                    Ejemplo:
+                      n<-8926
+                      write "Otro numerito = ",n,"\n"
+                      gosub "print"
+                      context("ROBOT")
+                      write "BIT posicion 4 = ",(BIT n 4)
+                      write " Estado = ",(%(BIT n 4)),"\n"
+                      write "BIT posicion 5 = ",(BIT n 4)," Estado = ",(%(BIT n 4))
+                    
+                    Salida:
+                      Otro numerito = 8926
+                      00000000000000000010001011011110
+                      BIT posicion 4 = 1 Estado = ON
+                      BIT posicion 5 = 0 Estado = OFF
+                 
+  (ON n pos)        Enciende el bit de "n" en la posición "pos".
+
+  (OFF n pos)       Apaga el bit de "n" en la posición "pos".
+  
+                    EJEMPLO DE (ON) y (OFF).
+                      n<-255
+                      gosub "print"
+                      n<-(OFF n 4)
+                      gosub "print"
+                      n<-(ON n 4)
+                      gosub "print"
+
+                    Salida:
+                      00000000000000000000000011111111
+                      00000000000000000000000011101111
+                      00000000000000000000000011111111
+  
+  (AND n m)         Devuelve el resultado de la multiplicación binaria entre "n" y "m".
+  
+  (OR n m)          Devuelve el resultado de la suma binaria entre "n" y "m".
+  
+  (XOR n m)         Devuelve el resultado de o-exclusivo entre "n" y "m".
+  
+  (NOT n)           Devuelve la negación binaria de "n".
+                    
+                    EJEMPLO DE (AND), (OR), (XOR) y (NOT).
+                      n<-34; ."N=",n
+                      i<-12; ."I=",i
+                      write "\nAND = ",(AND n i)
+                      write "\nOR  = ",(OR n i)
+                      write "\nXOR = ",(XOR n i)
+                      write "\nNOT = ",(NOT n)
+                    
+                    Salida:
+                      N=34                            
+                      00000000000000000000000000100010
+                      I=12
+                      00000000000000000000000000001100
+                      AND = 0
+                      => 00000000000000000000000000000000
+                      OR  = 46
+                      => 00000000000000000000000000101110
+                      XOR = 46
+                      => 00000000000000000000000000101110
+                      NOT = 4294967261
+                      => 11111111111111111111111111011101
+  
+  (>> n i)          Desplaza i-veces los bits de "n" hacia la derecha (right shift).
+  
+  (<< n i)          Desplaza i-veces los bits de "n" hacia la izquierda (left shift).
+
+                    EJEMPLO DE (>>) y (<<).
+                      n<-34
+                       // 00000000000000000000000000100010
+                      n<-(>>n 1)
+                      write "Desplazamiento a la derecha 1 bit = ",n
+                      n<-(<<n 1)
+                      write "Desplazamiento a la izquierda 1 bit = ",n
+                    
+                    Salida:
+                      Desplazamiento a la derecha 1 bit = 17
+                      => 00000000000000000000000000010001
+                      Desplazamiento a la izquierda 1 bit = 68
+                      => 00000000000000000000000001000100
+                   
+                   *Con (<<) y (>>) puedes generar la multiplicación y división por 2
+                    rápidamente.
+
+
+$$END Manipulacion de bits
+$$BEGIN Funciones de bits
+
+_________________________________________
+========== FUNCIONES DE BITS ============
+
+Estas son funciones y castores que solo aceptan variables simples como argumento.
+
+Su principal importancia es que con ellos se pueden realizar tareas con CAMPOS DE BITS, tal como se puede hacer con el lenguaje "C", pero sin definir estructuras. El acceso directo a los bits de un número se realiza a través de estos castores, ya sea para un bit cagón, como para un grupo de bits.
+
+Además, XU tiene la mala manía, heredada de Harbour y este del lenguaje C, de interpretar los valores booleanos como un número entero. Esto significa que, para guardar un valor "true" o "false", se emplea un entero corto (8 bits). Con estos castores, puede hacer uso de una sola variable numérica como un campo de hasta 32 bits, cada uno de ellos empleado como un valor booleano.
+
+Pero esto no acaba aquí, no señor. Se puede emplear una sola variable para guardar (siempre en memoria) un set de números pequeños, definiendo una porción de bits para cada uno de ellos, dentro de los 32 bits disponibles. Se me ocurre una aplicación: guardar fechas y horas.
+Por ejemplo:
+  *los días del mes pueden ser guardados en 5 bits: 
+      día 1:  00001
+      día 31: 11111
+  *los meses del año, en 4 bits:
+      mes 1:  0001
+      mes 12: 1100
+  *y el año, bueno, si desea guardar hasta el año 3100, usa 5 bits para el centenio, y 7 bits para los años:
+      centenio 2000: 10100 (que va desde 00 hasta 31)
+      año 99: 1100011  (que es más barato que guardar cada dígito por separado)
+En total, se emplean 21 bits para guardar 4 cifras correspondientes a una fecha mm/dd/aaaa, o sea, usarías solo una variable numérica de XU. Si dicha fecha se guarda en un "string", usarías 80 bits en total, considerando los "/", y sin ellos, 64 bits.
+En fin. ¿Qué puedes hacer con los 11 bits restantes? métetelos en la r*...
+
+ACLARACION.
+
+XU solo puede guardar en disco, en forma binaria, enteros signados de 16 y 32 bits si queremos mantener un estándar entre diferentes máquinas. Por lo tanto, si deseas guardar información "empaquetada" en bits en archivos binarios, debes considerar este dato: usar solo dichos enteros.
+
+
+  [n pos]           Castor análogo a (BIT) cuando es asignado. 
+                    Ejemplo:
+                    
+                      bit <- [n 2]
+                    
+                    Además, puede cambiar el estado de un bit si es receptor.
+                    Ejemplo:
+                    
+                      n<-255; gosub "print"
+                      [n 4] <- 0
+                      write "Ponemos un 0 en la posición 4 = ",n
+                      gosub "print"
+                      [n 4] <- 1
+                      write "Volvemos a poner 1 en posición 4 = ",n
+                      gosub "print"
+                    
+                    Salida:
+                      Ponemos un 0 en la posición 4 = 239
+                      00000000000000000000000011101111
+                      Volvemos a poner 1 en posición 4 = 255
+                      00000000000000000000000011111111
+                    
+  xgetbit(n pos)    Función análoga a (BIT) y al castor [n pos] cuando es asignado.
+                    Ejemplo:
+
+                      bit <- xgetbit(n 2)
+
+  xsetbit(n pos bit) Función análoga al castor [n pos] cuando este es receptor.
+                     Ejemplo:
+
+                      xsetbit(n 2 1)   // enciende el bit 2
+                      xsetbit(n 4 0)   // apaga el bit 4
+
+  [.n pos OFFSET]   Castor que obtiene un grupo de bits de "n", desde la posición "pos"
+                    desplazándose OFFSET bits hacia la derecha.
+
+                      m <- [.n pos OFFSET]
+
+                    Ejemplo:
+
+                      n<-8926
+                      write "Número=",n
+                      write "BITS desde posicion 3, 4 bits hacia la derecha = ",[.n 3 4]
+                      write "BITS desde posicion 6, 3 bits hacia la derecha = ",[.n 6 3]
+
+                    Salida:
+                      Número=8926
+                      // ==> 00000000000000000010001011011110
+                      BITS desde posicion 3, 4 bits hacia la derecha = 14 // 1110
+                      BITS desde posicion 6, 3 bits hacia la derecha = 5  // 101
+
+                   *La función análoga a este castor es GETGBIT.
+
+                      getgbit(n 6 3) es idéntico a [.n 6 3]
+
+  [.n biti bitf]    Como receptor, modifica el grupo de bits con el bit asignado, pero el
+                    comportamiento de los argumentos cambia respecto a su homólogo cuando
+                    es asignado.
+                    Lo que hace es modificar el grupo de bits indicado:
+
+                       [.n bit-inicial bit-final]<-0|1
+                       [.n bit-inicial bit-final]<- <número mayor que 1>
+
+                    bit-inicial es el bit donde inicia el conteo.
+                    bit-final es el bit donde finaliza el conteo.
+
+                    donde:
+                      bit-inicial <= bit-final
+
+                  * Si lo asignado es un 0 o un 1, rellenará el grupo indicado con ese
+                    bit.
+                  * Si lo asignado es un número mayor que 1, rellenará el grupo de bits
+                    con cada bit de la versión binaria de ese número. Es absolutamente
+                    necesario que el el total de posiciones de bits modificadas coincida
+                    con el número de bits del numero asignado.
+
+                    Ejemplo:
+
+                      n<-255
+                      [.n 3 5]<-0
+                      write n
+
+                    Salida:
+                      // 255
+                      00000000000000000000000011111111
+                      // 199
+                      00000000000000000000000011000111
+
+                    Ejemplo 2:
+
+                       n<-255
+                       write n,"\n"
+                       gosub "print"
+                       ."\nNúmero asignado: 69 = ",(Bx69)," desde pos 0 hasta 6\n"
+                       [.n 0 6]<-69
+                       write n,"\n"
+                       gosub "print"
+                       n<-255
+                       write n,"\n"
+                       gosub "print"
+                       ."\nNúmero asignado: 4 = ",(Bx4)," desde pos 3 hasta 5\n"
+                       [.n 3 5]<-4
+                       gosub "print"
+
+                    Salida:
+                       MODIFICAREMOS un grupo de bits:
+                       255
+                       00000000000000000000000011111111
+
+                       Número asignado: 69 = 1000101 desde pos 0 hasta 6
+                       197
+                       00000000000000000000000011000101
+                       255
+                       00000000000000000000000011111111
+
+                       Número asignado: 4 = 100 desde pos 3 hasta 5
+                       00000000000000000000000011100111
+
+
+                   *La función análoga a este castor es SETGBIT.
+
+                      setgbit(n 3 5 0) es idéntico a [.n 3 5]<-0
+
+
+$$END Funciones de bits
+$$BEGIN Ejemplo: operaciones con bits
+
+_________________________________________
+========= OPERACIONES DE BITS ===========
+
+XU permite realizar operaciones de BITS empleando los castores de bits, de manera análoga a como se puede realizar en ANSI C.
+No obstante, no es eficiente como ANSI C. Sí que lo es cuando se aplican dichos castores a matrices, porque se emula a ANSI C.
+
+Ejemplo:
+
+  sub "print"
+     for i<-31 downto 0
+       c<-xgetbit(n i)
+       write {(%c)?color(15):color(7)}c
+     next
+     color(7)
+     ."\n"
+  back
+
+  n<-0
+  o <- (OR n 0x4h)
+  write "\nPone a 1 el bit 2 =",o,"\n"
+  gosub "print"
+  o <- (OR n (<< 1 2))
+  write "\nPone a 1 el bit 2 =",o,"\n"
+  gosub "print"
+  o <- (OR n (OR (<<1 5) (<<1 2) ))
+  write "\nPone a 1 los bits 5 y 2 =",o,"\n"
+  gosub "print"
+  ."\n"
+  
+  n<-0x111111111111111b
+  o<-(AND n (NOT 0x8h))
+  write "\nPone a 0 el bit 3:\n"
+  gosub "print"
+  o<-(AND n (NOT (<<1 3)))
+  gosub "print"
+  write "\nPone a 0 los bits 4 y 3:\n"
+  o<-(AND n (NOT (OR (<<1 4) (<<1 3))))
+  gosub "print"
+
+  n<-0
+  o<-(XOR n (<<1 5))
+  ."\nInvierte el bit 5: ",o,"\n"
+  gosub "print"
+  o<-(XOR n (OR (<<1 5) (<<1 0) ))
+  ."\nInvierte los bits 5 y 0: ",o,"\n"
+  gosub "print"
+
+  ."\n BIT 4 ? ",(AND o (<<1 4)),"\n"
+  ."\n BIT 5 ? ",(AND o (<<1 5)),"\n"
+
+  if (%(AND o (<<1 4)))
+     ."\nBIT 4 está en 1\n"
+  elseif (%(AND o (<<1 5)))
+     ."\nBIT 5 está en 1\n"
+  endif
+
+SALIDA:
+
+  Pone a 1 el bit 2 =4
+  00000000000000000000000000000100
+
+  Pone a 1 el bit 2 =4
+  00000000000000000000000000000100
+
+  Pone a 1 los bits 5 y 2 =36
+  00000000000000000000000000100100
+
+
+  Pone a 0 el bit 3:
+  00000000000000000111111111110111
+  00000000000000000111111111110111
+
+  Pone a 0 los bits 4 y 3:
+  00000000000000000111111111100111
+
+  Invierte el bit 5: 32
+  00000000000000000000000000100000
+
+  Invierte los bits 5 y 0: 33
+  00000000000000000000000000100001
+
+  BIT 4 ? 0
+
+  BIT 5 ? 32
+
+  BIT 5 está en 1
+
+
+$$END Ejemplo: operaciones con bits
+_________________________________________
+=============== APENDICE ================
+
+
+RUTINA DE IMPRESION DE BITS.
+
+Esto es por si perdiste el archivo "setbit.xu".
+
+   sub "print"
+     for i<-31 downto 0
+       c<-xgetbit(n i)
+       write {(%c)?color(15):color(7)}c
+     next
+     color(7)
+     ."\n"
+   back
+
+FIN DE AYUDA DE BITS

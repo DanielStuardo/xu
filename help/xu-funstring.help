@@ -1,0 +1,468 @@
+    ___ _____ ___  ___        __   ___
+   /      |   |  \  |  |\  | /    /
+   \__    |   |  |  |  | \ | | __ \__ 
+      \   |   |__/  |  |  \| |  |    \
+   ___/   |   |  \ _|_ |   | \__| ___/  
+
+XU trabaja con strings o cadenas de caracteres, para lo cual tiene una serie de funciones interesantes que hacen el trabajo más sencillo.
+
+Para usar funciones "string", es necesario incluir el tag "#use string" en la cabecera.
+
+Además, cada una de las funciones descritas puede ser usada con matrices de string. Al final de la descripción de las funciones se indicarán los formatos para trabajar con matrices.
+$$END INTRO
+$$BEGIN Asignacion de strings
+
+_________________________________________
+=============== ASIGNACION ==============
+
+    str <- "Este es un string"
+  
+  Si "M" es matriz de string, asignar el string anterior significa tokenizar y
+  asignar cada elemento a "M". Dicha tokenización usa por defecto el espacio.
+  Para cambiar el token, use "flag". Por ejemplo:
+  
+    M <- (flag ",")"COD001,COD010,COD900,COD201"
+  
+  Mismo efecto produce sobre "M" la siguiente línea:
+  
+    M <- "COD001,COD010,COD900,COD201" / ","
+
+
+$$END Asignacion de strings
+$$BEGIN Despliegue
+
+_________________________________________
+============== DESPLIEGUE ===============
+
+    write "Este es un string"
+   ó
+    ."Este es un string"
+  
+  Si "M" es una matriz de string, desplegará cada elemento separado por ",", por
+  defecto. Si quiere cambiar el separador, use "flag". Por ejemplo:
+
+    M <- "cadena1 cadena2 cadena3"/" "
+    write (flag ":")M
+
+  Despliegua:
+  
+    cadena1:cadena2:cadena3
+
+
+$$END Despliegue
+$$BEGIN Tamaño
+
+_________________________________________
+======== LONGITUD DE UNA CADENA =========
+
+   str <- "Este es un string"
+   strlen(str)     --> 17
+   strlen("")      --> 0
+  
+  Si "M" es una matriz de string, "strlen(M)" devuelve la longitud de cada
+  cadena de la matriz
+  
+  -) Longitud cero?
+   strlz("Hola")   --> false
+   strlz("")       --> true
+ 
+  Si "M" es una matriz de string, "strlz(M)" devuelve una matriz de valores 
+  booleanos.
+
+
+$$END Tamaño
+$$BEGIN Concatenacion
+
+_________________________________________
+============= CONCATENACION =============
+
+    str <- "Este es" + " un " + "string"
+  
+  Si "M" es una matriz con elementos: {"hola","hola","hola",...}:
+  
+   M+" mundo!!" ==> {"hola mundo!!","hola mundo!!","hola mundo!!",...}
+   "Ey! "+M     ==> {"Ey! hola","Ey! hola","Ey! hola",...}
+ 
+  Si "N" es una matriz con elementos: {"Bob!","Mary!","estúpido y sensual Flanders!","tú!"}
+
+   write M+" "+N,"\n\n"
+   ==> {"hola Bob!","hola Mary!","hola estúpido y sensual Flanders!","hola tú!"}
+
+
+$$END Concatenacion
+$$BEGIN Substrings
+
+_________________________________________
+============== SUBCADENAS ===============
+
+    str <- "Este es un string" + 7 --> " un string"
+    str <- 7 + "Este es un string" --> " un string"
+    str <- 7 - "Este es un string" --> "Este es "
+    str <- "Este es un string" - 7 --> "Este es "
+  
+  Si "M" es una matriz de string, es válido "M+7" y "7+M".
+  Si "N" es una matriz de números, es válido "N+N" y "N+M". 
+   
+****Usando "castores"
+    str <- "Este es un string"
+    write [str 1]          --> "E"
+    write [.str 6 10]      --> "es un"
+    write [."Este es un string" 12 17] --> "string"
+  
+  También, es posible hacer cosas lúgubres como esta:
+  
+   [."Hola mundo loco" 12 15]<-"genial"
+   write "Hola mundo loco"  --> imprime "Hola mundo genial"
+  
+  Esto se debe a que, en XU, las variables no serán, y las constantes no son.
+  
+  Una limitación es que en XU no se pueden usar matrices con estos castores, al menos, para este uso.
+  
+****Usando funciones
+    str <- "Este es un string"
+    strcpy(str 6 5)        --> "es un"
+    strcut(str 6 5)        --> "es un"
+                          (es "str" queda: "Este  string"
+    strcpy(str 6 strlen(str)) --> "es un string"
+
+  Si "M" es una matriz de string, "Ni" y "Nf" matrices de números, y "n" y "m"
+  números, las siguientes líneas son válidas, y procesan cada elemento de "M":
+    strcpy(M n m)      strcut(M n m)
+    strcpy(M Ni m)     strcut(M Ni m)
+    strcpy(M n Nf)     strcut(M n Nf)
+    strcpy(M Ni Nf)    strcut(M Ni Nf)
+
+
+$$END Substrings
+$$BEGIN Replicacion
+
+_________________________________________
+============= REPLICACION ===============
+
+    str <- "hola" * 3 --> "holaholahola"
+    str <- 3 * "hola" --> "holaholahola"
+
+  Si "M" es una matriz de string, "N" una matriz de números, y "n" un número,
+  las siguientes líneas son válidas, y procesan cada elemento de "M":
+    M * n     n * M
+    M * N     N * M
+
+
+$$END Replicacion
+$$BEGIN Insercion
+
+_________________________________________
+============== INSERCION ================
+
+    strins(s pos w)    Inserta "w" en "s", desde la posición "pos".
+              Ejemplo:
+                       s<-"Hola mundo!!"
+                       strins(s 11 " feliz")
+                   ==> "Hola mundo feliz!!" 
+
+  Si "M" es una matriz de string, "POS" matriz de números, "W" matriz de string,
+  "pos" un número y "w" un string, las siguientes líneas son válidas:
+    strins(M pos w)    strins(M pos W)
+    strins(M POS w)    strins(M pos w)
+
+
+$$END Insercion
+$$BEGIN Reemplazo
+
+_________________________________________
+========= REEMPLAZO DE STRINGS ==========
+    
+    str <- "Este es un string"
+
+*****Usando castores
+ -) Reemplazo de un caracter:
+    [str 6]<-"E"           --> "Este Es un string"
+    [str 6]<-"párrafo"     --> "Este ps un string"
+
+ -) Reemplazo de una porción de caracteres:
+    [.str 6 10]<-"párrafo bonito" --> "Este párrafo bonito string"
+   
+  No pueden usarse matrices con estos castores.
+   
+*****Usando funciones
+    strchg(s v w)      Reemplaza todas las ocurrencias de "v" con "w".
+             Ejemplo:
+                       s<-"El error de un condenado"
+                       strchg(s "error" "ejemplo")
+                   ==> "El ejemplo de un condenado"
+
+  Si "M", "V" y "W" son matrices de string, son válidas las siguientes líneas:
+      strchg(M v w)     strchg(M v W)
+      strchg(M V w)     strchg(M V W)
+
+    strrep(s v w omite ocurrencias)
+                       Reemplaza "v" con "w", saltando las primeras "omite"
+                       ocurrencias, y cambiando la "ocurrencias" indicadas.
+              Ejemplo:
+                       s<-"Esta cadena será alterada por la ciencia seráfina"
+                       strrep (c1 "será" "fue" 0 1 )
+                       Cambiará "será" por "fue", sin omitir ninguna ocurrencia
+                       inicial, pero cambiando una sola ocurrencia:  
+                   ==> "Esta cadena fue alterada por la ciencia seráfina"
+
+  *Solo se admiten matrices en los tres primeros argumentos de "strrep".
+
+    strrepc(s c pos)   Reemplaza el caracter ubicado en la posición "pos" de "s",
+                       con "c". Si "pos" es cero, reemplaza el último caracter.
+                       Si "pos" es negativo, no reemplaza.
+              Ejemplo:
+                       s<-"Hola mundo!!"
+                       strrepc(s ":" 6)
+                   ==> "Hola :undo!!"
+   
+  *Se admiten matrices en todos los argumentos de "strrepc".
+    
+    strccar(s v w)     Reemplaza cada caracter indicado en "v" por el caracter
+                       indicado en "w", en "s".
+              Ejemplo:
+                       s<-"Avenida El Salto nº 12045"
+                       strccar(s "1234567890" "|@#$%&/()=")
+                   ==> "Avenida el Salto nº |@=$%"
+
+  *Se admiten matrices en todos los argumentos de "strccar".
+
+    strerac(s)         Elimina los caracteres indicados en FLAG.
+              Ejemplo:
+                       s<-"Cal.l%%%e E..l Salto n$$ro. 124..5"
+                       strerac( (flag "%.$") s )
+                   ==> "Calle El Salto nro 1245"
+
+  *El argumento puede ser una matriz en "strerac".
+
+
+$$END Reemplazo
+$$BEGIN Busqueda
+
+_________________________________________
+=============== BUSQUEDA ================
+
+   s <- "Esta cadena es una cadena corta"
+   
+   strat(v s)          Busca la primera ocurrencia de "v" en "str". Usa FLAGS.
+              Ejemplo: 
+                       strat( (flag "L") "cadena" s)  // "L"=left
+                   ==> 6
+                       strat( (flag "R") "cadena" s)  // "R"=right
+                   ==> 20
+
+  *Se admiten ambos argumentos como matrices, pero si solo hay un argumento matricial,
+   ese debe ser "s". No es válida la siguiente línea:
+      strat( matriz string )
+
+   strfind(s v pos)    Busca "v" es "s" y entrega la posición "pos" de esa ocurrencia.
+                       Si no encuentra ocurrencias, devuelve cero.
+              Ejemplo:
+                       strfind(s "cad" 1)
+                   ==> 6
+                       strfind(s "cad" 2) 
+                   ==> 20
+                       strfind(s "cas" 3) 
+                   ==> 0
+
+  *Se admiten las siguientes combinaciones con matrices en esta función:
+     strfind( matriz matriz matriz )    strfind( matriz string numero )
+     strfind( matriz matriz numero )    strfind( string matriz numero )
+     strfind( matriz string matriz )
+
+   strdiff(v s OFFSET) Realiza una búsqueda basada en el algoritmo de "Cálculo de la
+                       distancia de Levensthein".
+                       Esta función solo trabaja con variables simples, no matrices,
+                       y devueve un vector con las distancias encontradas.
+                       "v" es la cadena a buscar.
+                       "s" es el string donde realizar la búsqueda.
+                       "OFFSET" es el desplazamiento a realizar para cada búsqueda.
+                       Si OFFSET<=0, se setea a 1.
+              Ejemplo:
+                       #define OFFSET 1
+                       s<-"esta es una cadena muy corta. Esta cadena será comparada"+&
+                          " con caderas flacas"
+                       t<-"cadena"
+                       strdiff(t s OFFSET)
+                   ==> 6,5,4,5,6,4,5,6,5,5,4,2,0,2,4,6,5,6,6,6,6,6,5,5,6,6,5,6,5,6,6,5,
+                       5,4,2,0,2,4,6,5,5,6,6,6,6,6,5,5,5,6,4,5,4,5,5,5,6,4,6,4,3,1,3,5,
+                       6,5,5,6,5,6,5
+                       
+                       En el ejemplo, se puede observar 0 (match completo) en las
+                       posiciones 13 y 36, y 1 en la posición 62 ("caderas").
+                       
+                       Si OFFSET=6, se da el siguiente resultado:
+                   ==> 6,5,0,6,6,6,2,6,5,5,3,5
+                       "cadena" se da justo en el tercer desplazamiento, pero con la
+                       actual configuración de OFFSET, no es posible detectar la 
+                       segunda ocurrencia.
+
+
+$$END Busqueda
+$$BEGIN Archivos
+
+_________________________________________
+=========== ARCHIVOS DE TEXTO ===========
+
+   strload( f )        Carga un archivo de texto indicado en "f".
+              Ejemplo:
+                       s<-strload("datos.txt")
+                   ==> carga el archivo "datos.txt" y lo guarda en "s".
+
+  *La función "strload" es capaz de cargar una lista de archivos en un mismo string, si sus
+   nombres están en un vector. Por ejemplo, sea "filenames" un tipo "^string":
+
+                       filenames<-"datos.txt datos2.txt datos3.txt"
+                       s<-strload ( filenames ) 
+   
+   Todos los archivos ubicados en la "filenames" son cargados y concatenados en la variable
+   receptora.
+  
+   strsave(f s)        Guarda el string "s" en el archivo indicado en "f".
+                       No se aceptan matrices.
+                       Para AGREGAR (APPEND) strings al archivo "f", esto es, guardar
+                       datos en el archivo sin borrar lo ya existente, use el siguiente
+                       FLAG:
+                       
+                       flag "A"       // significa en este caso "append"
+                       strsave(f s1)
+
+
+$$END Archivos
+$$BEGIN Tokens
+
+_________________________________________
+================ TOKENS =================
+
+   strntok(s)          Devuelve el número de tokens que tiene el string "s". Usa FLAGS.
+              Ejemplo:
+                       s<-"María tenia un corderito"
+                       strntok( (flag " ") s)    // usa token espacio (chr(32))
+                   ==> 4
+                       s<-"Línea múltiple\ncuya función es mostrar\ncómo trabaja STRLCOUNT."
+                       strntok( (flag "\n") s)   // usa "\n" salto de línea
+                   ==> 3
+  
+  *La función "strntok" acepta argumento matricial.
+
+   strtok(s n)         Devuelve el token número "n" del string "s".
+  
+  *La función "strtok" acepta argumentos matriciales en las siguientes combinaciones:
+      strtok(matriz matriz)
+      strtok(matriz numero)
+
+
+$$END Tokens
+$$BEGIN Miscelaneos
+
+_________________________________________
+======= OTRAS OPERACIONES UTILES ========
+
+**IMPORTANTE**
+Todas las funciones descritas a continuación aceptan un argumento matricial. la función "strlin" es la única que presenta restricciones en las combinaciones de sus argumentos.
+
+   strtrim(s)          Limpia espacios. Usa FLAG. El flag debe ser "A"(all),
+                       "L"(left) o "R"(right).
+              Ejemplo:
+                       s<-"  María tenía fiebre  "
+                       strtrim( (flag "A") s)  --> "María tenía fiebre"
+                       strtrim( (flag "L") s)  --> "María tenía fiebre  "
+                       strtrim( (flag "R") s)  --> "  María tenía fiebre" 
+  
+   strpad(s|n ancho)   Ajusta un string o un número a un espacio indicado por "ancho".
+                       El número es convertido a string.
+                       Usa FLAGS. El flag debe ser "L"(left),"R"(right), o "C"(center),
+                       seguido de un caracter de relleno:
+             Ejemplos:
+                       s<-"manzana"
+                       strpad( (flag "C.") s 20) --> "......manzana......."
+                       strpad( (flag "L ") s 20) --> "manzana             "
+                       strpad( (flag "R.") s 20) --> ".............manzana" 
+                          
+                       n<-100.5
+                       strpad( (flag "R-") n 10) --> "-----100.5"
+
+   strupper(s)         Convierte "s" en mayúsculas.
+
+   strlower(s)         Convierte "s" en minúsculas.
+
+   strcount(s)         Cuenta el total de caracteres de "s", indicados por FLAG.
+             Ejemplos:
+                       s<-"Aquí hay Números 1234, y Otros Símbolos $%&."
+                       flag "LU"           //cuenta letras mayusculas y minusculas
+                       strcount s  --> 25 
+                       flag "L"            //cuenta solo minusculas
+                       strcount s  --> 20 
+                       flag "U"            //cuenta solo mayusculas
+                       strcount s  --> 4 
+                       flag " "            //cuenta solo espacios
+                       strcount s  --> 7
+                       flag "N"            //cuenta dígitos
+                       strcount s  --> 4
+                       flag "."            //cuenta símbolos punto "."
+                       strcount s  --> 1
+                       etcétera.
+
+   strlcount(s)        Cuenta el número de líneas de un string. El caracter "nueva línea"
+                       determina un salto de línea, y eso es lo que cuenta. 
+              Ejemplo:
+                       s<-"Línea múltiple\ncuya función es mostrar\ncómo trabaja STRLCOUNT."
+                       strlcount(s)  -->  3
+
+   strwcount(s)        Cuenta el número de palabras que posee el string "s". Si "s" es un 
+                       string multilínea, contará como palabras completas aquellas donde el
+                       caracter nueva línea "\n" esté unida a ambas palabras.
+                       El caracter "\n" se cuenta como una palabra. 
+              Ejemplo:
+                       s<-"Aquí hay 4 palabras"
+                       strwcount(s)  --> 4
+                       
+   strlin(s nLinea)    Devuelve la línea de "s" indicada por "nLinea". Si la línea no existe
+                       devuelve un string vacío.
+                       La línea es devuelta sin el salto de línea, salvo que se devuelvan más
+                       líneas, ahí se incluye el salto de línea.
+              Ejemplo:
+                       s<-"Línea múltiple\ncuya función es mostrar\ncómo trabaja STRLCOUNT."
+                       strlin(s 2)  --> "cuya función es mostrar"
+  
+         * La función "strlin" acepta argumento matricial en las siguientes combinaciones:
+
+                       strlin(string vector-de-numeros)     (1)
+                       strlin(vector-de-string numero)      (2)
+                       strlin(vector-de-string vector)      (3)
+                       strlin(vector-de-string matriz-2D)   (4)
+         
+         (3)
+         "vector" debe tener el mismo número de filas que "vector-de-string", y hará
+         referencia a una sola línea de cada elemento de "vector-de-string".
+         
+         (4)
+         "matriz-2D" debe tener la misma cantidad de filas que "vector-de-string", y en cuanto
+         a las columnas, las que no sean usadas pueden estar en cero (0). Ejemplo:
+         
+                       dim texto(2)
+                       flag "\n"
+                       [texto 1]<-strload("DEFINICIONES_MATH_H.txt") 
+                       [texto 2]<-strload("texto.txt")
+                       dim k(2,5)
+                       [.k 1 1]<-10  // k[1]={10,0,0,0,0}
+                       [.k 2 1]<-5
+                       [.k 2 2]<-6   // k[2]={ 5,6,0,0,0}
+
+                       tex<-strlin(texto k)
+                       show   tex 0
+                       ."\n"
+                       
+                       En "tex" quedará un vector con dos filas, la primera contendrá la línea
+                       10 del archivo "DEFINICIONES_MATH_H.txt", y la segunda, tendrá las
+                       líneas 5 y 6 del archivo "texto.txt".
+         
+
+   strrev(s)           Invierte la cadena "s".
+              Ejemplo:
+                       strrev("reconocer") --> "reconocer"
+
+
+$$END Miscelaneos
+
+
+FIN DE AYUDA DE STRING

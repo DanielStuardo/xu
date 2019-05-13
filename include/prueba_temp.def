@@ -1,0 +1,16 @@
+  #define PUSH(X,A)         use(X); push A
+
+  #define PRNVECTOR(X,Y,Z)  { Y<-0 ;   
+                                do     // un ";" sin nada debe errar como "}" al final.
+                                 write [X Y]
+                              until (++Y)=Z 
+  }    // esto aquí debe generar un error cuando se pase a _lineexe. 
+  #define IMPRIME_LA_HUEA(X,Y)   write X,Y
+  #define PRINT  write
+
+  #define VECTOR(X,Y)       [X Y]  
+  #define V(X,Y,Z,A,B,C)    X<-A;/*Y<-B*/Y<-A;Z<-C*B
+  #define LET(X,Y,Z,A)      X<-A;Y<-A;Z<-A 
+  
+  #define ESTRUCT(X)   { X<-0
+                         write X,"--", while (++X)<10 }

@@ -1,0 +1,91 @@
+    ___ _____ _____
+   /    |       |
+   \__  |___    |
+      \ |       |
+   ___/ |____   |
+
+
+Esta hueá sí que está de más. XU provee funciones básicas para trabajar con conjuntos. Existen 5 funciones, y son puestas aquí solo para fines pedagógicos.
+
+Un conjunto en XU es un vector ordenado con elementos que no se repiten.
+
+Para acceder a estas funciones, debe escribir en la cabecera "#use set".
+
+_________________________________________
+=============== CONJUNTOS ===============
+
+  unique(M)         Sea "M" una matriz de cualquier dimensión, y de tipo NUMBER o de
+                    de tipo STRING, UNIQUE devuelve un vector ordenado y con valores
+                    únicos, llamado "conjunto".
+                    
+                    Tiene un castor asociado que hace la misma hueá:
+                    
+                       c<-[!M]
+                    
+                    es idéntico a:
+                    
+                       c<-unique(M)
+                    
+                    Si "M" es una matriz de números enteros, le convendría castearlo
+                    a entero para ahorrar memoria.
+                    
+                       c<-(int unique(M))
+
+  setunion(A B)     Efectúa la UNION del conjunto A con el conjunto B.
+  
+  setinter(A B)     Efectúa la INTERSECCION entre el conjunto A y el conjunto B.
+  
+  setdiff(A B)      Efectúa la DIFERENCIA entre A y B.
+                    
+                    Recordar que:
+                        setdiff(A B) <> setdiff(B A)
+
+  setsdiff(A B)     Efectúa la DIFERENCIA SIMÉTRICA entre A y B.
+
+                    Recordar que:
+                        setsdiff(A B) = setsdiff(B A)
+
+EJEMPLO COMPLETO.
+  
+   dim a(10,10)
+   a<-{10,(int mth.ceil(mth.rand(a)))}
+   ."Matriz original:\n"
+   show a 0
+   
+   b<-(int [=5 15 11])
+   a<-(int unique(a))   // ESTO ES NECESARIO PARA TRABAJAR CON CONJUNTOS
+   ."\nconjunto A = ",a,"\n"
+   ."conjunto B = ",b,"\n\n"
+
+   ."A U B  = ",(int setunion(a b)),"\n"   // UNION
+   ."A *U B = ",(int setinter(a b)),"\n"   // INTERSECCION
+   ."A - B  = ",(int setdiff(a b)),"\n"    // DIFERENCIA DE A CON B
+   ."B - A  = ",(int setdiff(b a)),"\n"    // DIFERENCIA DE B CON A
+   ."A *- B = ",(int setsdiff(a b)),"\n"   // DIFERENCIA SIMETRICA
+   ."B *- A = ",(int setsdiff(b a)),"\n"   // DIFERENCIA SIMETRICA
+
+  SALIDA:
+    Matriz original:
+    1 : 2,2,5,2,8,3,9,10,7,9
+    2 : 1,8,3,3,5,4,4,2,2,2
+    3 : 1,6,10,2,5,4,5,4,8,8
+    4 : 6,10,9,6,10,3,2,9,8,7
+    5 : 1,5,2,8,1,4,1,10,1,8
+    6 : 10,7,1,10,1,6,2,8,4,2
+    7 : 8,6,7,3,3,4,6,6,6,7
+    8 : 3,5,2,10,4,1,5,8,2,4
+    9 : 8,3,7,1,8,7,2,9,6,7
+   10 : 10,4,5,8,9,1,7,4,3,7
+   
+   conjunto A=1,2,3,4,5,6,7,8,9,10
+   conjunto B=5,6,7,8,9,10,11,12,13,14,15
+
+   A U B  = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+   A *U B = 5,6,7,8,9,10
+   A - B  = 1,2,3,4
+   B - A  = 11,12,13,14,15
+   A *- B = 1,2,3,4,11,12,13,14,15
+   B *- A = 1,2,3,4,11,12,13,14,15
+
+
+FIN DE AYUDA DE SET

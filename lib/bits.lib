@@ -1,0 +1,30 @@
+T=function:void
+v=$1:number (ref)
+bit=$2:number
+begin:
+tox v
+mov bit_code( 7  v (bit+1))
+end
+F=function:void
+v=$1:number (ref)
+bit=$2:number
+begin:
+tox v
+mov bit_code( 6  v (bit+1))
+end
+IS=function:boolean
+v=$1:number
+bit=$2:number
+begin:
+if bit_code( 1  v (bit-1))=1
+return  true
+else
+return  false
+endif
+end
+BIT=function:number
+v=$1:number
+bit=$2:number
+begin:
+return bit_code( 1  v (bit-1))
+end

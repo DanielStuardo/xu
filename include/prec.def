@@ -1,0 +1,6 @@
+
+/*
+   archivo inclusor
+*/
+
+#define F(V) V<-seconds("")

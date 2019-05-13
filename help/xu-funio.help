@@ -1,0 +1,668 @@
+   _                           __
+   |  __   __       _|_     / /  \      _|_   __       _|_
+   | /  \ |  \ |  |  |     /  |  | |  |  |   |  \ |  |  |
+   | |  | |  | |  |  |    /   |  | |  |  |   |  | |  |  |
+   | |  | |__/ \__|  \__ /    \__/ \__|  \__ |__/ \__|  \__
+          |                                  |
+$$END INTRO
+_________________________________________
+________________ TOPICOS ________________
+
+$$BEGIN Funciones de consola
+
+_________________________________________
+======== FUNCIONES DE CONSOLA ===========
+
+  write             Despliega cualquier cosa que le pongan por delante.
+
+                      write cualquier-cosa[, más hueás]
+
+                    Cuando se quiere desplegar un string, se puede usar la forma corta:
+
+                      ."Este es un string!"
+
+                  - Los números los despliega normal, pero los más grandes y los más
+                    chicos los despliega en notación científica.
+                  - Los valores booleanos los despliega según el contexto.
+                  - Las matrices son desplegadas usando como separador lo que encuentre
+                    en un FLAG. Si no hay flag levantado, o es distinto a string, usará
+                    "," por defecto.
+                  - PRECISION lo afecta.
+
+                    Ejemplos:
+                       write "hola"          ==> hola
+                       write "Menso"*3       ==> MensoMensoMenso
+                       write 200!            ==> INF
+                      *Si "M" es matriz {1,2,3,4,5...}:
+                       write M               ==> 1,2,3,4,5...
+                       write true            ==> YES
+                       write false           ==> NO
+                       write 1/(100!)        ==> 1.0715102881E-158
+                       precision 3 
+                       write 1/(100!)        ==> 1.072E-158
+                       write 168!            ==> 2.526E302
+                       write 1789067         ==> 1789067.000 // por la precision
+
+                   *Un detalle con WRITE.
+
+                       write "hola mundo" 5  ==> solo desplegará "5".
+
+                    XU se meterá en la raja la cadena "hola mundo".
+                    ATENTO con las ",".
+
+  flush             Limpia el BUFFER del teclado.
+
+  rawinput("str")   Detiene la ejecución del programa en espera de la entrada de datos
+                    desde el teclado.
+                    Puede moverse en la línea de edición con las flechas IZQUIERDA y
+                    DERECHA, y las teclas INICIO(CTRL-A) y FIN(CTRL-F). También puede
+                    usar las teclas de suprimir SUPR (CTRL-G) y BACKSPACE(CTRL-H).
+                    Puede limpiar la entrada con la tecla ESC.
+                    Las flechas ARRIBA(5) y ABAJO(24), junto con la tecla ENTER(13) y
+                    la combinación CTRL-C(3), son devueltas al término de la edición.
+                    
+                    La función devuelve un string, y se puede convertir a otro tipo de
+                    dato con los castores que se describen en la siguiente sección.
+                    el argumento "str" es un string que contiene lo siguiente:
+                       
+                       TIPO : LONGITUD
+                    
+                    Los TIPOS son:
+                    - S    = para ingresar solo mayúsculas y otros símbolos.
+                    - s    = ingresa todo tipo de datos, incluso minúsculas.
+                    - N    = solo ingresa números, punto y guión. Si ingresa un número
+                             negativo, coloreará el campo de verde al salir.
+                    - D    = para el ingreso de fechas. Si la fecha no es válida,
+                             se coloreará a rojo cuando salga del campo.
+                             No es necesario escribir "/": XU se lo pone.
+                             El formato de fechas es el siguiente:
+                             
+                                 dd/mm/aaaa
+
+                             donde:
+
+                                 dd = día. Si el día es menor de 10, anteponer "0".
+                                 mm = mes. Si el mes es menor de 10, anteponer "0".
+                                 aaaa = año.
+                    
+                  **IMPORTANTE**
+                    Si no pretende hacer nada con las teclas FLECHA ARRIBA, FLECHA
+                    ABAJO y ENTER, debe agregar a continuación FLUSH.
+                      
+                    Ejemplo:
+                       nombre <- rawinput(nombre "S:30")
+                       flush
+                       sueldo <- (# rawinput(sueldo "N:7"))
+                       flush
+                    
+                    Cuando ingresa un número, XU solo permitirá la presencia de un "-"
+                    y un ".". Si ingresa ".9", XU devolverá "0.9". Si ingresa "-.23",
+                    XU devolverá "-0.23". Pero XU no hace magia, no lo tiente.
+
+
+                  **OBSERVACION**
+                    En el apéndice podrá observar un ejemplo completo de entrada de
+                    datos al estilo XU.
+
+  lastkey           Atrapa la última tecla de RAWINPUT, a saber:
+                      13 = ENTER
+                      24 = FLECHA ABAJO
+                      5  = FLECHA ARRIBA
+                      27 = ESC, se devuelve cuando se presiona CTRL-C en edición.
+
+                    Con esto se puede automatizar el acceso a múltiples secuencias de
+                    RAWINPUT.
+
+                    Además, con LASTKEY puede atrapar los códigos de teclado puestos
+                    en el BUFFER del teclado por KEYPUT, y por PAUSA.
+
+                    Si no usa LASTKEY luego de RAWINPUT, debe usar FLUSH().
+
+                    FLUSH elimina el contenido del BUFFER del teclado, pero LASTKEY
+                    no se ve afectado, reteniendo el valor de la última tecla presionada.
+
+  readkey(c)        Recibe una tecla desde el teclado, sin realizar una pausa, y la 
+                    deja en "c". Si no se presiona nada, deja "0" en "c".
+                    Ejemplo:
+                       do
+                          readkey(c)
+                       until c=27
+
+                    Iterará el ciclo do/until hasta que presione la tecls ESC.
+
+                    READKEY recibirá le código de teclas del ASCII estándar (0 hasta 126)
+                    común en todos los sistemas bajo este paradigma, pero variará en los
+                    códigos mayores de 126 según el sistema. Por ejemplo:
+
+                       readkey(c)    // y presiona ALT-Z
+
+                    En sistemas bajo Linux Debian, c=300, pero bajo Darwin (Mac), "c"
+                    recibirá dos códigos: 206 y 169.
+
+  keyput(v w)       Pone en el BUFFER del teclado el código de tecla "v", y lo repite
+                    "w" veces.
+                    Ejemplo:
+
+                       keyput(13,10)
+                       keyput(27,1)
+                       do
+                          readkey(c)
+                          write c
+                       until c=27
+
+                       imprimirá 10 saltos de línea en pantalla, y el código ASCII 27.
+
+                    El BUFFER del teclado tiene un tamaño determinado de 50 bytes. Para
+                    modificar dicho tamaño, usar el código 256 junto con el nuevo tamaño.
+                    Ejemplo:
+
+                       keyput(256,1024)
+
+                    Aumentará el BUFFER del teclado a 1024 bytes.
+
+
+$$END Funciones de consola
+$$BEGIN Mensajeria entre programas
+
+_________________________________________
+====== MENSAJERIA ENTRE PROGRAMAS =======
+
+XU puede pasar mensajes entre programas, y para eso existen, por ahora, tres funciones. Este método requiere de la existencia de, a lo menos, dos programas: uno que emita el mensaje, y reciba la respuesta, y otro que reciba el mensaje y lo procese.
+La comunicación entre programas es asíncrona: pueden trabajar de manera independiente.
+
+   process(ID_PROCESO v w)
+                    Esta función tiene tres propósitos: emitir el mensaje, escuchar por
+                    respuestas, y recibir la respuesta. ID_PROCESO es una constante
+                    definida en el archivo PROCESS.DEF.
+                    ID_PROCESO puede ser:
+                    
+                    PROC_MSG  0  // Emitir el mensaje
+                    PROC_LST  1  // Escuchar respuestas
+                    PROC_REQ  2  // Recibir respuestas
+   
+   process(PROC_MSG n string)
+                    Emite un mensaje. El PID del mensaje queda registrado en la variable "n".
+                    "string" es el mensaje.
+   
+   process(PROC_LST b n)
+                    Escucha por posibles respuestas. la variable "b" es una variable booleana
+                    que tendrá TRUE si hay respuestas disponibles. La variable "n" puede ser
+                    una constante, y determina el total de respuestas que dejará disponible
+                    para su proceso.
+                    Este modo de PROCESS debe estar dentro de un bucle, y puede ser el mismo
+                    que contiene al emisor de mensajes.
+   
+   process(PROC_REQ s n)
+                    Recibe las "n" respuestas preparadas por PROC_LST, y las recibe en "s",
+                    que es una matriz de strings. Cada registro de "string" contiene:
+                    * el PID del mensaje, en formato string.
+                    * el mensaje de respuesta.
+   
+   server(n)        Toma "n" mensajes y los prepara para ser procesados. Dichos mensajes son
+                    guardados en una matriz de string, cuyos registros están formados por:
+                    * el PID del mensaje, en formato string.
+                    * el mensaje de petición.
+                    Ejemplo:
+                       a<-server(10)
+                       show a 0
+   
+   response(s)      Devuelve la matriz de string "s" con el registro de la respuesta de las
+                    peticiones recibidas por SERVER().
+   
+   **IMPORTANTE**
+   Debe encontrar un punto medio entre los mensajes a servir y la tasa de mensajes de entrada,
+   para evitar problemas. Un número alto de procesos a servir o escuchar no necesariamente
+   significa que procese más rápido. Por tanto, existe una relación entre la tasa de entrada
+   de mensajes, el tiempo promedio de servicio de cada mensaje, y la tasa de escucha de las
+   respuestas, que se debe tener en cuenta.
+
+
+$$END Mensajeria entre programas
+$$BEGIN Archivos
+
+_________________________________________
+======== FUNCIONES DE ARCHIVOS ==========
+
+XU posee funciones de manipulación de archivos escritos en UTF8. 
+
+Las constantes están en el archivo FILES.DEF dentro del directorio INCLUDE.
+
+El archivo FILES.DEF es el siguiente:
+
+/************************************************************************
+
+   Encabezado para trabajar con archivos en XU.
+   Daniel Stuardo.
+
+*************************************************************************/
+
+// Constantes para la Creación de archivos
+
+#define CREATE_NORMAL    0
+#define CREATE_READONLY  1
+#define CREATE_HIDDEN    2
+#define CREATE_SYSTEM    4
+
+/*
+  Constantes para la apertura de archivos
+*/
+#define OPEN_READ        0     // solo lectura
+#define OPEN_WRITE       1     // solo escritura
+#define OPEN_APPEND      2     // lectura y escritura (append)
+#define OPEN_EXCLUSIVE   16    // RED: solo lectura exclusivo
+#define OPEN_DWRITE      32    // RED: inahbita que otro escriba
+#define OPEN_DREAD       48    // RED: inhabilita que otro lea
+#define OPEN_SHARED      64    // RED::comparte lectura y escritura (64+0, 64+1...)
+
+/* algunos preprocesos truchos */
+
+#define TOPPOS           0
+#define RELPOS           1
+#define ENDPOS           2
+#define _TOPFILE(X)      fseek( X 0 TOPPOS )
+#define _RELAFILE(X)     fseek( X 0 RELPOS )
+#define _BOTTFILE(X)     fseek( X 0 ENDPOS )
+
+/* EOF */
+
+
+MANEJO DE ERRORES.
+
+Los errores son manejados por TRY/EXCEPTION.
+
+A continuación, las funciones.
+
+  out "archivo"     Redirige todo despliegue por pantalla hacia un archivo indicado
+                    por el string "archivo".
+                    No inhabilita la salida por pantalla. Al respecto, ver SCREEN en el
+                    tópico FUNCIONES DE PANTALLA de la sección "STANDARD" del menú.
+                    Use
+
+                        out ""
+
+                    para desactivar la salida hacia el archivo.
+
+                    Ejemplo:
+                       out "./salida.txt"
+                       write "Esto se grabará en un archivo\nY esto también!\n"
+                       out ""
+                       write "Esto no se grabará en el archivo...\n"
+
+  flc(archivo)      Entrega información sobre el archivo "archivo", en un array.
+                    El array contiene los siguientes datos:
+
+                       total de líneas
+                       total de tokens por línea
+                       total de tokens del archivo
+                       total de caracteres del archivo
+
+                    Los TOKENS detectados son proporcionados por FLAG.
+
+                    Ejemplo:
+
+                       c <- flc( (flag ",") "index30_15.txt")
+
+  fexist(archivo)   Devuelve "true" si el archivo indicado por "archivo" existe; de
+                    lo contrario, devuelve "false".
+                    Ejemplo:
+
+                        if fexist("index.txt")
+                            ."Existe el archivo"
+                        else
+                            ."No existe ná..."
+                        endif
+
+  fcreate(nombre modo)
+
+                    Crea un archivo llamado "nombre", y lo crea según el modo "modo".
+                    Ejemplo:
+                       #include include/files.def
+                       ...
+                       fcreate ("./index30_15.txt" CREATE_NORMAL)
+
+                    Crea un archivo llamado "./index30_15.txt" en modo normal.
+
+  fopen(nombre modo)
+
+                    Abre un archivo llamado "nombre" en un modo "modo".
+                    Los errores de apertura de archivo deben ser tratados con TRY/
+                    EXCEPTION.
+                    El handler del archivo debe ser declarado con el tipo FILE, en el
+                    área de declaración de variables.
+
+                       fp := file
+
+                    Ejemplo:
+                       #include include/files.def
+                       vars:
+                          fp:=file
+                       algorithm:
+                          try
+                             fp<-fopen("./index30_15.txt" OPEN_WRITE)
+                          exception
+                             ."Error de apertura + ",whatsup()
+                             goodbye
+                          tend
+                          ...
+                       stop
+
+  feof(handler)     Devuelve "true" si se ha llegado al final del archivo; de lo
+                    contrario, devuelve "false".
+                    "handler" es el manipulador del archivo.
+
+                 **IMPORTANTE**
+                    En ciertos sistemas, esta función es errática. La hueá está mal
+                    hecha, qué le vamos a hacer. Por eso, internamente no usa la función
+                    FEOF() proporcionada por Harbour, sino, una función hecha a partir
+                    de FSEEK().
+
+                    Ejemplo:
+
+                       fp<-fopen("./index30_15.txt" OPEN_READ)
+                       do
+                          write freadl(fp),"\n"
+                       until feof(fp)
+                       fclose(fp)
+
+  fclose(handler)   Cierra un archivo abierto con FOPEN.
+                    "handler" es el handler del archivo.
+                    Ejemplo:
+                       #include include/files.def
+                       vars:
+                          fp:=files
+                       ...
+                       fp<-fopen("archivo.txt" OPEN)
+                       ...
+                       fclose(fp)
+
+  fseek(handler OFFSET origen)
+
+                    Fija la posición en el archivo para la lectura y/o la escritura.
+                    Cada acción de lectura o escritura actualiza dicha posición.
+                    Esta función devuelve la posición del puntero en el archivo.
+                    Ejemplo:
+
+                       try
+                           fp<-fopen("source/freadl.xu" OPEN_READ)
+                       exception
+                           ."\nError de archivo: ",whatsup()
+                           goodbye
+                       tend
+                       ."Tamaño del archivo: ",_BOTTFILE(fp)  //fseek( fp 0 ENDPOS )
+                       ntmp<-_TOPFILE(fp)     // fseek( fp 0 TOPPOS )
+                       fclose(fp)
+
+  freads(handler n) Lee un string desde el archivo apuntado por "handler". "n" es
+                    el número de caracteres a leer.
+                    Use:
+                        flag "SP"
+                    para efectuar una lectura de caracteres especiales (acentos y
+                    toda esa mierda).
+                    
+                    Para moverse dentro del archivo y leer strings específicos, use
+                    FSEEK().
+
+                    Ejemplo:
+                       flag "SP"
+                       while ~feof(fp)      // FEOF() indica true si es fin de archivo
+                         linea<-freads(fp 10)  /* FREADS lee 10 caracteres */
+                         write linea,"\n"
+                       wend
+
+  fwrites(handler s)
+                    Escribe "s" en el archivo apuntado por "handler".
+
+                    Ejemplo de FREADS y FWRITES:
+
+                    #include include/files.def
+                    vars:
+                      fp,ft:=file
+                      linea:=string
+                    algorithm:
+                      ."\nCopiaremos el contenido de FWRITES.XU en FWRITES_01.XU:\n"
+                      try
+                        fp<-fopen("source/fwrites.xu" OPEN_READ)  // abrimos el archivo
+                      exception
+                        ."\nError de archivo: ",whatsup()
+                        goodbye
+                      tend
+                      ." OK!\nCreamos el archivo target:"
+                      try
+                        fcreate("source/fwrites_01.xu" CREATE_NORMAL)
+                        ft<-fopen("source/fwrites_01.xu" OPEN_WRITE)
+                      exception
+                        ."\nError de creación o de apertura de archivo: ",whatsup()
+                        goodbye
+                      tend
+                      ." OK!\nCopiamos el archivo: "
+                      flag "SP"     // con esto leerá caracteres especiales desde los
+                                    // archivos de texto plano.
+                      while ~feof(fp)       // FEOF() indica true si es fin de archivo
+                         linea<-freads(fp 10)  /* FREADS lee un grupo de caracteres
+                                                  de forma binaria. Si quiere leer
+                                                  caracteres especiales, use flag "SP" */
+                         fwrites(ft linea)    // grabará en el target lo leído del source.
+                      wend
+
+                      fclose(fp)    // cerramos el archivo 
+                      ."OK!\n"
+                    stop
+
+
+  freadl(handler)   Lee una línea desde el archivo apuntado por "handler".
+                    Use:
+                        flag "SP"
+                    para efectuar una lectura de caracteres especiales (acentos y
+                    toda esa mierda).
+                    
+                    Lo que hace, en el fondo, es leer un grupo de caracteres desde la
+                    posición del puntero de lectura hasta el primer caracter "nueva
+                    línea" que encuentre. Si la lectura se hace desde el principio del
+                    archivo, leerá líneas; pero, si usa la función FSEEK(), sucederá
+                    lo mencionado al principio de este párrafo.
+                    Por tanto, no es que lea "líneas" en verdad.
+
+                    Ejemplo:
+                       flag "SP"
+                       while ~feof(fp)      // FEOF() indica true si es fin de archivo
+                         linea<-freadl(fp)  /* FREADL lee una línea hasta fin de línea
+                                               y devuelve la línea en formato string.
+                                               Omite el caracter fin de línea. */
+                         write linea,"\n"
+                       wend
+
+  fwritel(handler s)
+                    Escribe "s" en el archivo apuntado por "handler".
+                    Ejemplo:
+
+                      flag "SP"
+                      while ~feof(fp)
+                         fwritel( fp freadl(fp) )
+                      wend
+
+  freadb(handler)     Lee un caracter entero binario con signo desde un archivo binario.
+                      Debe usar un FLAG que determina el tipo de binario a leer: si es 
+                      un entero de 16 bits con signo, o uno de 32 bits con signo.
+                      
+                         flag "I"   ==> habilita la lectura de enteros de 16 bits
+                         flag "L"   ==> habilita la lectura de enteros de 32 bits
+
+                      Ejemplo:
+                         fp<-fopen("archivo.bin" OPEN_READ)
+                         flag "I"
+                         n<-fread(fp)
+                         fclose(fp)
+
+  fwriteb(handler c)  Escribe un caracter entero binario con signo en un archivo.
+                      Debe usar un FLAG que determina el tipo de binario a escribir:
+                      si es un entero de 16 bits con signo, o uno de 32 bits con signo.
+                      
+                         flag "I"   ==> habilita la lectura de enteros de 16 bits
+                         flag "L"   ==> habilita la lectura de enteros de 32 bits
+
+                    *NOTA*
+                      Un archivo binario XU es guardado con enteros de 16 bits.
+
+                      Ejemplo:
+                         fp<-fopen("archivo.bin" OPEN_WRITE)
+                         flag "I"
+                         fwriteb(fp c)
+                         fclose(fp)
+
+                      Para un ejemplo completo de FREADB y FWRITEB, ver APENDICE.
+
+
+$$END Archivos
+$$BEGIN Ejemplo archivos binarios
+
+_________________________________________
+=============== APENDICE ================
+
+EJEMPLO COMPLETO DE USO DE ARCHIVOS BINARIOS.
+
+He aquí un ejemplo completo sobre el uso básico de archivos binarios.
+
+
+                 #include include/files.def
+                 #use stack,string
+                 vars:
+                    msg:=string
+                    fp:=file
+                    r:=number
+
+                 functions:
+                    cifrado(w:string,v:string):string
+                       s0 := ^string
+                    begin:
+                       s0<-v/" "
+                       use(s0)
+                       w<-crypt(w pop), until isempty
+                       return w
+                    end
+
+                 algorithm:
+                    msg<-"este mensaje será cifrado ñoño púbico.\nBueno, "+&
+                         "agüaite Telúrica única!!"
+
+                    ."Mensaje original= ", msg,"\n"
+                    msg<-.cifrado((queue)msg "12jn320ww ku·$56%%d2f Fcf45cf545y")
+                    ."Mensaje cifrado = ",msg,"\n"
+   
+                    fcreate("./clave.txt" CREATE_NORMAL)
+                    fp<-fopen("./clave.txt" OPEN_WRITE)
+
+                    flag "L"   // graba un entero signado de 32 bits.
+                    for r<-1 to strlen(msg)
+                          fwriteb(fp asc(strcpy(msg r 1)))
+                    next
+                    fclose(fp)
+
+                    msg<-""
+
+                    ."Presione una conchuda tecla...\n";pause
+
+                    fp<-fopen("./clave.txt" OPEN_READ)
+                    do
+                          msg<-+ chr(freadb(fp))
+                    until feof(fp)
+                    fclose(fp)
+
+                  /* el despliegue de MSG, al contener caracteres binarios, podría
+                     malograr el despliegue por pantalla. por eso se muestra luego
+                     de un salto de línea*/
+
+                    ."\nArchivo en clave leído:\n ",msg
+                    msg<-.cifrado((deque)msg "12jn320ww ku·$56%%d2f Fcf45cf545y")
+                    ."Mensaje descifrado  = ",msg,"\n"
+
+                 stop
+         
+         SALIDA:
+                 Mensaje original= este mensaje será cifrado ñoño púbico.
+                 Bueno, agüaite Telúrica única!!
+                 ╗↔m╣6╗│¥₧Gαú○‼¬Mφéö╢s,≤æ▌Γwd]ò█≥√╗╙zZB═■,3╙g└Éßv■oQ½▓≈ª☺ùí╕ñ$7♫╒
+                 Presione una conchuda tecla...
+
+                 Archivo en clave leído:                                                                                    
+                 ╗↔m╣6╗│¥₧Gαú○‼¬Mφéö╢s,≤æ▌Γwd]ò█≥√╗╙zZB═■,3╙g└Éßv■oQ½▓≈ª☺ùí╕ñ$7♫╒ 
+                 Mensaje descifrado  = este mensaje será cifrado ñoño púbico.
+                 Bueno, agüaite Telúrica única!!
+
+
+$$END Ejemplo archivos binarios
+$$BEGIN Ejemplo entrada de datos
+
+EJEMPLO COMPLETO DE ENTRADA DE DATOS ESTILO XU.
+
+El siguiente programa no solo permite ingresar datos, sino que, además, permite la
+navegación entre las dintintas entradas para modificar algún dato.
+
+Para ver un ejemplo más completo y universal, ver el archivo READINPUT.XU, ubicado en
+la carpeta SOURCE.
+
+                 #use matrix,string
+                 vars:
+                   k,i:=number
+                   s:=^string
+                   n:=^number
+
+                 functions:
+                   input(n:number,s:^string,XY:^number):^string
+                      str:=string
+                   begin:
+                      at([.XY 1 n] [.XY 2 n])
+                      str<-[.s 1 n]
+                      [.s 1 n]<- rawinput(str [.s 2 n])
+                      return s
+                   end
+                 algorithm:
+
+                   precision 2
+                   cls
+                   at(5 10);  write "NOMBRE :"
+                   at(6 10);  write "DIRECCION:"
+                   at(7 10);  write "FECHA NACIMIENTO:"
+                   at(8 10);  write "EDAD :"
+                   at(9 10);  write "TELEFONO:"
+                   at(10 10); write "SUELDO:"
+                   at(12,10); write "Flecha arriba/abajo = se mueve entre campos"
+                   at(13,10); write "Enter en el último campo = termina edición"
+
+                   dim s(2,6)  // declaración de espacio y condiciones de edición
+                   use s
+                   mat.row(1); mat.col(1)
+                   mat.put(^["","","","","",""])
+                   mat.row(2)
+                   mat.put(^["s:30","S:30","S:10","N:4","N:12","N:9"])
+
+                   dim n(2,6)  // declaración de coordenadas
+                   use n
+                   mat.row(1); mat.put(^[5,6,7,8,9,10])
+                   mat.row(2); mat.put(^[18,20,27,16,19,17])
+
+                   k<-0
+                   i<-1
+                   do
+                      s<-.input(i s n)
+                      k<-lastkey
+                      if k=24
+                         if i=6; i<-1; else; ++i; endif
+                      elseif k=5
+                         if i=1; i<-6; else; --i; endif
+                      elseif k=13
+                         ++i
+                      endif
+                   until k=13 and i>=6
+
+                 ."\n"*6
+                   i<-1
+                   while i<=6
+                     write [.s 1 i]," LEN=",strlen([.s 1 i]),"\n"
+                     ++i
+                   wend
+                 stop
+
+
+$$END Ejemplo entrada de datos
+FIN DE AYUDA INPUT/OUTPUT
+

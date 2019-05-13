@@ -1,0 +1,289 @@
+buildDiag=function:^number
+fil=$1:number
+pos=$2:number
+ldiag=^number
+temp=number
+begin:
+tox temp
+mov (fil-math_code(6 pos)+1)
+if pos>0
+tox ldiag
+mov  seqsp(  1 temp temp)
+return xmatalter( 1 1  ldiag seqsp(  pos fil temp))
+else
+tox pos
+mov math_code(6 pos)
+tox ldiag
+mov  seqsp(  pos fil temp)
+return xmatalter( 1 1  ldiag seqsp(  1 temp temp))
+endif
+end
+build2Diag=function:^number
+fil=$1:number
+col=$2:number
+pos=$3:number
+ldiag=^number
+temp=number
+begin:
+if pos>0
+if fil>col
+tox ldiag
+mov  seqsp(  1 (col-pos+1) (col-pos+1))
+return xmatalter( 1 1  ldiag seqsp(  pos col (col-pos+1)) )
+else
+if (col-pos+1)>=fil
+tox ldiag
+mov  seqsp(  1 fil fil)
+return xmatalter( 1 1  ldiag seqsp(  pos (pos+fil-1) fil))
+else
+tox ldiag
+mov  seqsp(  1 (col-pos+1) (col-pos+1))
+return xmatalter( 1 1  ldiag seqsp(  pos col (col-pos+1)))
+endif
+endif
+else
+tox pos
+mov math_code(6 pos)
+tox temp
+mov (fil-pos+1)
+if temp <= col
+tox ldiag
+mov  seqsp(  pos fil temp)
+return xmatalter( 1 1  ldiag seqsp(  1 temp temp))
+else
+tox ldiag
+mov  seqsp(  pos (pos+col-1) col)
+return xmatalter( 1 1  ldiag seqsp( 1 col col ))
+endif
+endif
+end
+mdiag=function:^number
+m=$1:^number
+fill=$2:number
+n,msize=^number
+fil=number
+begin:
+tox msize
+mov  xmsize( m)
+if vget( msize 1)=1
+tox fil
+mov  vget( msize 2)
+set_array fil fil 0 0
+config_array n
+tox n
+mov fill
+prange n .buildDiag(fil 1) m
+else
+write "ERROR: debe ser un vector!\n"
+goodbye
+endif
+return n
+end
+vdiag=function:^number
+m=$1:^number
+posd=$2:number
+n,msize=^number
+fil,col=number
+begin:
+tox msize
+mov  xmsize( m)
+if vget( msize 1)=2
+tox fil
+mov  vget( msize 2)
+tox col
+mov  vget( msize 3)
+if fil=col
+tox n
+mov  grange( m .buildDiag(fil posd))
+else
+tox n
+mov  grange( m .build2Diag(fil col posd))
+endif
+else
+write "ERROR: matriz debe ser de dimensión 2!\n"
+goodbye
+endif
+return n
+end
+triup=function:^number
+m=$1:^number
+msize=^number
+i,k=number
+fil=number
+begin:
+tox msize
+mov  xmsize( m)
+tox fil
+mov  vget( msize 2)
+if vget( msize 1)=2 and fil = vget( msize 3)
+tox i
+mov 1 - 1
+while i < fil
+inc i
+tox msize
+mov  xmatalter( 1 1  seqsp(  i fil (fil-i+1)) seqsp( i i (fil-i+1)) )
+prange m msize 0
+wend
+else
+write "ERROR: matriz debe ser cuadrada y con dimensión 2!\n"
+goodbye
+endif
+return m
+end
+trilo=function:^number
+m=$1:^number
+msize=^number
+i,k=number
+fil=number
+begin:
+tox msize
+mov  xmsize( m)
+tox fil
+mov  vget( msize 2)
+if vget( msize 1)=2 and fil = vget( msize 3)
+tox i
+mov 1 - 1
+while i < fil
+inc i
+tox msize
+mov  xmatalter( 1 1  seqsp( i i (fil-i+1)) seqsp(  i fil (fil-i+1)))
+prange m msize 0
+wend
+else
+write "ERROR: matriz debe ser cuadrada y con dimensión 2!\n"
+goodbye
+endif
+return m
+end
+trans=function:^number
+m=$1:^number
+msize,sizf,sizc,temp,mt=^number
+fil,col,i=number
+begin:
+tox msize
+mov  xmsize( m)
+tox fil
+mov  vget( msize 2)
+tox col
+mov  vget( msize 3)
+if vget( msize 1)=2
+if fil = col
+set_array fil fil 0 0
+config_array mt
+tox i
+mov 1 - 1
+while i < col
+inc i
+tox sizf
+mov  xmatalter( 1 1  seqsp( i i col) seqsp( 1 col col) )
+tox sizc
+mov  xmatalter( 1 1  seqsp( 1 col col) seqsp( i i col) )
+prange mt sizf grange( m sizc)
+wend
+else
+set_array col fil 0 0
+config_array mt
+if col>fil
+tox i
+mov 1 - 1
+while i < fil
+inc i
+tox sizf
+mov  xmatalter( 1 1  seqsp( i i col) seqsp( 1 col col) )
+tox sizc
+mov  xmatalter( 1 1  seqsp( 1 col col) seqsp( i i col) )
+prange mt sizc grange( m sizf)
+wend
+else
+tox i
+mov 1 - 1
+while i < col
+inc i
+tox sizf
+mov  xmatalter( 1 1  seqsp( i i fil) seqsp( 1 fil fil) )
+tox sizc
+mov  xmatalter( 1 1  seqsp( 1 fil fil) seqsp( i i fil) )
+prange mt sizf grange( m sizc)
+wend
+endif
+endif
+else
+write "ERROR: matriz debe tener dimensión 2!\n"
+goodbye
+endif
+return mt
+end
+eyes=function:^number
+sRow=$1:number
+sCol=$2:number
+sFrom=$3:number
+temp=^number
+begin:
+if sRow>0 and sCol>0
+set_array sRow sCol 0 0
+config_array temp
+if sRow=sCol
+prange temp .buildDiag(sRow sFrom) 1
+else
+prange temp .build2Diag(sRow sCol sFrom) 1
+endif
+else
+write "ERROR: argumentos inválidos en EYES"
+goodbye
+endif
+return temp
+end
+ones=function:^number
+sRow=$1:number
+sCol=$2:number
+sPag=$3:number
+sBlk=$4:number
+temp=^number
+begin:
+if sRow>0
+set_array sRow sCol sPag sBlk
+config_array temp
+tox temp
+mov 1
+else
+write "ERROR: argumentos inválidos en ONES\n"
+goodbye
+endif
+return temp
+end
+zeros=function:^number
+sRow=$1:number
+sCol=$2:number
+sPag=$3:number
+sBlk=$4:number
+temp=^number
+begin:
+if sRow>0
+set_array sRow sCol sPag sBlk
+config_array temp
+else
+write "ERROR: argumentos inválidos en ZEROS\n"
+goodbye
+endif
+return temp
+end
+random=function:^number
+sRow=$1:number
+sCol=$2:number
+sPag=$3:number
+sBlk=$4:number
+temp=^number
+begin:
+if sRow>0
+set_array sRow sCol sPag sBlk
+config_array temp
+tox temp
+mov 1
+tox temp
+mov  tmath_code 1 (temp)
+else
+write "ERROR: argumentos inválidos en RANDOM\n"
+goodbye
+endif
+return temp
+end

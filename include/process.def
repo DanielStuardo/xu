@@ -1,0 +1,8 @@
+/*
+  Macros para función PROCESS()
+*/
+
+#define PROC_MSG  0
+#define PROC_LST  1
+#define PROC_REQ  2
+

@@ -1,0 +1,1397 @@
+              _  _____ ___  _ _    _
+   |\    /|  / \   |   |  \ |  \  /
+   | \  / | /   \  |   |  | |   \/
+   |  \/  | |___|  |   |__/ |   /\
+   |      | |   |  |   |  \ | _/  \_
+
+XU tiene numerosas funciones y castores para trabajar con matrices de forma masiva. Estas funciones y castores existen porque manipular matrices con ciclos FOR suele ser bastante lento en ciertas ocasiones.
+
+Un castor es un "atajo" que inventé por dos razones: 
+1) las funciones reales son en extremo complicadas, porque son funciones que son familias de funciones (si no me cree, compile con la opción "-p" y luego eche un vistazo al archivo ".xpre" del directorio "DEBUG").
+2) no me gusta llenar un programa con funciones. Así puedo identificar muy bien la naturaleza de estas.
+
+En síntesis, no puse más castores porque se me acabaron los símbolos del teclado.
+
+Una observación importante: estas operaciones aplican sobre matrices y vectores de todos los tipos aceptados por XU: string, números y booleanos.
+Los ejemplos se escriben con matrices numéricas, pero son aplicables a los otros tipos.
+
+Para acceder a las funciones de matrices, se debe declarar en la cabecera "#use matrix".
+$$END INTRO
+_________________________________________
+________________ TOPICOS ________________
+
+$$BEGIN Dimensiones y declaraciones
+
+_________________________________________
+============== DIMENSIONES ==============
+
+Las matrices en XU se distinguen por tener hasta 4 dimensiones. Estas son las siguientes:
+
+  1D   = vector.
+  2D   = página. Una página es un rectángulo de m-filas y n-columnas.
+  3D   = bloque. Un bloque se compone de p-páginas.
+  4D   = Ritchie... No tiene nombre; si hay que ponerle uno, yo diría que se llama "tetra".
+         Un "tetra" es un vector de b-bloques.
+
+
+_________________________________________
+============= DECLARACIONES =============
+
+En XU se declaran matrices de varias formas.
+
+ 1) dim M(fila[,col[,pagina[,bloque]]])
+   
+   * Declara una matriz "M". Se aceptan declaraciones hasta de 4 dimensiones.
+   * Si "M" tiene una dimensión, es un vector adimensional. Un vector es distinto
+     a una matriz fila o matriz columna, porque estas últimas son matrices de 2
+     dimensiones.
+   * La matriz será rellenada inicialmente con valores según el tipo de la matriz.
+     -) Si "M" es "number", se rellena con 0.
+     -) Si "M" es "string", se rellena con "".
+     -) Si "M" es "boolean", se rellena con false.
+   * Esta declaración elimina cualquier configuración anterior de dicha matriz.
+ 
+ 2) M <- _( (fila[,col[,pagina[,bloque]]]) { elementos } )
+   
+   * Declara una matriz estática-variable "M". Es estática porque define una
+     estructura para "M", y es variable porque entre sus elementos pueden declararse
+     variables, funciones y operaciones matemáticas.
+   * En realidad, esta declaración es un preprocesamiento.
+   * Ejemplo: 
+   
+    M<-_((2,2,2){ { { !{strlen(t)>0?100:(-100)},400},{2,!{true?1000:(-1000)}} },&
+                    { {(#[w 3 3 3 3]),  n+1},        {0,(-1)} } })
+     
+     Se declara "M" como una matriz 3D de 2 filas con 2 columnas y 2 páginas, donde
+     sus elementos se declaran de la siguiente manera:
+
+     (1,1,1) ==> es una bifurcación inline.
+     (1,2,1) ==> 400
+     (2,1,1) ==> 2
+     (2,2,1) ==> bifurcación inline.
+     (1,1,2) ==> conversión de un elemento "w" 4D.
+     (1,2,2) ==> n+1
+     (2,1,2) ==> 0
+     (2,2,2) ==> -1
+
+ 3) M <- ^[ elementos constantes ]
+ 
+   * Declara una matriz "M" estática constante, porque sus valores son constantes.
+   * Los datos deben tener un mismo tipo.
+   * Ejemplo:
+
+    M<-^[ [2,5,5],[(-1),0,0],[0,0,7] ]
+
+     Declara "M" como una matriz de 2 dimensiones, con 3 filas y 3 columnas.
+
+
+$$END Dimensiones y declaraciones
+$$BEGIN Redimension
+
+_________________________________________
+=============== RESHAPE =================
+
+Se puede cambiar la forma de una matriz o vector con la sentencia RESHAPE.
+Es necesario que las nuevas dimensiones se correspondan con las dimensiones originales, en cuanto al numero de elementos.
+RESHAPE usa FLAGS para realizar sus operaciones.
+
+ * Si "M" es un vector de 100 elementos:
+ 
+   reshape M(20,5)   Es válido, porque 20x5=100.
+   reshape M(2,5,10) Es válido, porque 2x5x10=100.
+
+ * Si "M" es una matriz de 50x50 elementos:
+ 
+   reshape M(2500)    Es válido.
+   reshape M(10,50,5) Es válido, porque 10x50x5=50x50=2500.
+   
+ RESHAPE debe usarse con FLAGS, para establecer el modo en que serán leidos y escritos los elementos de la matriz.
+ 
+   flag "RR"    Leerá los elementos por fila, y los escribirá por fila.
+   flag "RC"    Leerá los elementos por fila, y los escribirá por columna.
+   flag "CR"    Leerá los elementos por columna, y los escribirá por fila.
+   flag "CC"    Leerá y escribirá los elementos por columna.
+ 
+ Para el caso de reformar una matriz en un vector, el flag es irrelevante, porque leerá por filas.
+
+
+$$END Redimension
+$$BEGIN Tamaño de una matriz
+
+_________________________________________
+============ CASTOR "SIZE" ==============
+
+El castor [@] devuelve un vector con la información de una matriz. Su uso es simple:
+
+   [@ M]   Devuelve la información de la matriz "M".
+
+La información resultante es la siguiente:
+
+   {dim, #fil, #col, #pag, #blk}
+   
+   dim  = dimensiones de "M": puede ir desde 1 (vector), hasta 4 (matriz 4D)
+   #fil = número de filas de "M".
+   #col = número de columnas de "M"
+   #pag = número de páginas de "M"
+   #blk = número de bloques de "M"
+
+Ejemplos:
+   dim M(10)
+   write [@M]   ==> Devuelve {1,10,0,0,0}
+   
+   dim M(100,20)
+   write [@M]   ==> Devuelve {2,100,20,0,0}
+   
+   dim M(100,50,10)
+   write [@M]   ==> Devuelve {3,100,50,10,0}
+
+   dim M(10,40,5,5)
+   write [@M]   ==> Devuelve {4,10,40,5,5}
+
+ FUNCION SIZE.
+   Es la misma hueá que el castor [@], solo que en tiempo de compilación, dicho castor
+   se preprocesa a la función. Se usa el castor para escribir menos.
+   
+     size(M) = [@M]
+
+
+$$END Tamaño de una matriz
+$$BEGIN Sentencia USE
+
+_________________________________________
+=========== SENTENCIA "USE" =============
+
+Esta sentencia sirve para especificar una matriz para operaciones matriciales, sin
+tener la necesidad de ponerla cada vez que se quisiera acceder a ella.
+
+   use Matriz
+  ó
+   use(Matriz)
+
+Con esta sentencia se pueden usar otras sentencias, las que se vinculan con funciones
+y sentencias de STACKS. Algunas de ellas son las siguientes:
+
+   drop             "Elimina" el vector o la matriz en uso. Puede eliminar un vector o
+                    matriz declarada con "dim". No usa parámetros.
+                    Ejemplo:
+                      use M
+                      drop
+                    
+                    La eliminación es virtual: lo que hace es dejar a la matriz con
+                    dimension 1 y rango 0.
+   
+   Funciones "mat"  Estas funciones se usan para fijar coordenadas de una matriz. Para
+                    más información, ver "FUNCIONES MAT" en sección "ACCESO".
+
+   Funciones "stk"  Son funciones que operan sobre stacks. Para más información, ver
+                    la sección "STACK" del menú de ayuda.
+
+
+$$END Sentencia USE
+$$BEGIN Acceso a una matriz
+
+_________________________________________
+================ ACCESO =================
+
+Para acceder a los valores de vectores y matrices, XU cuenta con algunas formas
+como los "castores" y funciones específicas.
+La sentencia "use" no influye en estos castores.
+
+ 1) CASTORES SIMPLES
+ 
+   [M m]        Castor de acceso a vector "M" de una dimensión.
+   [.M m n]     Castor de acceso a matriz "M" de dos dimensiones.
+   [:M m n o]   Castor de acceso a matriz "M" de tres dimensiones.
+   [_M m n o p] Castor de acceso a matriz "M" de cuatro dimensiones.
+   
+   * Ejemplos:
+    a) [M 2] <- 0
+    b) [.M [NDX i] 10] <- [M j]*(0.5 + [:tasa (j-1) (k+1) l]) 
+    c) write "Código = ",strpad([str i] 50)
+    d) if [_M i j k (l-1)] = 0 ; ."Es cero"; endif
+
+   Algunos de estos castores están sobrecargados, y se puede ver un uso diferente
+   con strings y operaciones de bits.
+ 
+ *OBSERVACION*
+   Reconozco que no estuve muy creativo cuando diseñé estos castores. De haberlo hecho a
+   la manera tradicional, ejemplo, "M[i][j]", me habría llenado de corchetes. Me fue
+   más cómodo dejarlo así: "[.M i j]".
+
+
+ 2) FUNCIONES "MAT"
+ 
+   Son funciones que requieren la sentencia "USE". Son más lentas que los castores,
+   porque interactúan con ciclos FOR, pero eso se nota cuando las matrices son muy
+   grandes.
+   
+   mat.row(n)   Fija la coordenada fila de la matriz en uso.
+   mat.col(n)   Fija la coordenada columna.
+   mat.pg(n)    Fija la coordenada página.
+   mat.bk(n)    Fija la coordenada bloque.
+   mat.get      Obtiene el valor ubicado en la posición fijada por las funciones
+                anteriores.
+                Ejemplo:
+                  precision 0
+                  dim n(5,5)
+                  n<-{10,mth.ceil(mth.rand(n))}
+                  show n 0
+                  use(n)    // de aquí en adelante, usaré "n"
+                  mat.col(2)     // fija la columna 2
+                  for i<-1 to 5
+                     mat.row(i)  // recorre las filas de "n"
+                     write mat.get,"-"
+                  next
+                
+                Resultado:
+                
+                  1 : 4,5,5,6,5
+                  2 : 4,3,5,10,3
+                  3 : 9,9,1,9,8
+                  4 : 4,4,8,1,9
+                  5 : 8,7,10,7,10
+                  
+                  5-3-9-4-7-
+                  
+   mat.put(V)   Pone un elemento en la posición fijada por las funciones "mat",
+                así como puede poner una matriz o vector de orden igual o inferior
+                al orden de la matriz en uso.
+                Ejemplo:
+                  dim a(5,5,2,2)    // declara una matriz 4D
+                  a<-10             // rellena con 10.
+                  b<-^[ [0,0,0],[1,1,1],[2,2,2]]  // crea una matriz estática 2D 3x3
+                  use(a)
+                  mat.row(3); mat.col(2); mat.pg(2); mat.bk(1)
+                  mat.put(b)
+                  show a 0
+
+                Resultado:
+                  
+                  BLOCK   1; PAGE   1:    BLOCK   1; PAGE   2:
+                    1 : 10,10,10,10,10      1 : 10,10,10,10,10
+                    2 : 10,10,10,10,10      2 : 10,10,10,10,10
+                    3 : 10,10,10,10,10      3 : 10,0,0,0,10
+                    4 : 10,10,10,10,10      4 : 10,1,1,1,10
+                    5 : 10,10,10,10,10      5 : 10,2,2,2,10
+
+                  BLOCK   2; PAGE   1:    BLOCK   2; PAGE   2:
+                    1 : 10,10,10,10,10      1 : 10,10,10,10,10
+                    2 : 10,10,10,10,10      2 : 10,10,10,10,10
+                    3 : 10,10,10,10,10      3 : 10,10,10,10,10
+                    4 : 10,10,10,10,10      4 : 10,10,10,10,10
+                    5 : 10,10,10,10,10      5 : 10,10,10,10,10
+
+
+$$END Acceso a una matriz
+$$BEGIN Declaracion de rangos
+
+_________________________________________
+================ RANGOS =================   
+
+La clave para operar rápidamente con matrices grandes es usar rangos. En otros lenguajes,
+Los rangos se declaran con ":", como en Matlab(c), o Python(c).
+XU define rangos una vez, que pueden ser usados en múltiples líneas de trabajo. Dichos
+rangos suelen ser castores, y los hay involucrados en procesos de búsqueda.
+A continuación se verán los más importantes.
+
+ 1) RANGOS
+ 
+   Un rango común, por ejemplo, 1:5, define la lista 1,2,3,4,5. Un rango como 2:1,4:2
+   definen una lista así:
+
+     2,1; 2,2; 3,1; 3,2; 4,1; 4,2
+
+   En XU se declaran los rangos con los castores [*],[*|],[*-] y [*'],de la siguiente
+   manera:
+
+  * r<-[* ^[2,1,4,2]]     Declara un rango rectangular que va desde 2,1 hasta el 4,2.
+  
+    r<-[* ^[2,1,4,2,5]]   Declara un rango de 3 dimensiones, donde se incluye la página 5.
+                          2,1,5; 2,2,5
+                          3,1,5; 3,2,5
+                          4,1,5; 4,2,5
+                          
+    r<-[* ^[2,1,4,2,1,5]] Declara un rango cúbico, incluyendo las páginas desde la 1 hasta
+                          la 5.
+                          2,1,1; 2,1,2; 2,1,3... 2,2,5
+                          3,1,1; 3,1,2; 3,1,3... 3,2,5
+                          4,1,1; 4,1,2; 4,1,3... 4,2,5
+                          
+    r<-[* ^[2,1,4,2,1,5,4]]
+                          Declara un rango cúbico que incluye la dimensión 4D con el bloque
+                          número 4.
+
+    r<-[* ^[2,1,4,2,1,5,2,3]]
+                          Declara un rango tetradimensional que incluyen los bloques desde
+                          el 2 hasta el 3.
+
+  * r<-[*| n M ]          Declara un rango con la totalidad de filas "n" y las columnas
+                          seleccionadas en un vector "M".
+                          Ejemplo:
+                            r<-[*| 3 ^[2,4]]
+                          Declara el rango:
+                            1,2; 1,4; 
+                            2,2; 2,4; 
+                            3,2; 3,4
+
+  * r<-[*- M n ]          Declara un rango con filas seleccionadas en un vector "M", y la
+                          totalidad de las columnas.
+                          Ejemplo:
+                            r<-[*- ^[2,5,6] 5]
+                          Declara el rango:
+                            2,1; 2,2; 2,3; 2,4; 2,5; 
+                            5,1; 5,2; 5,3; 5,4; 5,5;
+                            6,1; 6,2; 6,3; 6,4; 6,5
+
+  * r<-[*' M N]           Declara un rango de filas y columnas seleccionadas.
+                          Ejemplo:
+                            r<-[*' ^[1,3,4,6] ^[1,2,7]]
+                          Declara el rango:
+                            1,1; 1,2; 1,7; 
+                            3,1; 3,2; 3,7;
+                            4,1; 4,2; 4,7;
+                            6,1; 6,2; 6,7
+
+ **IMPORTANTE**
+   Los vectores pueden ser declarados de cualquier forma, no solo deben ser estáticos
+   como se muestra en los ejemplos anteriores. Incluso, se pueden declarar con stacks.
+   Para más información, ver la sección del menú de ayuda "STACK".
+   Por ejemplo:
+     use t; drop; push{2,inicio+1,4,strlen(S),1,5,2,3}
+     r<-[* t]
+
+ 2) FUNCION MAT.EQUAL
+ 
+   Esta función está al mismo nivel de las funciones MAT.MIN y MAT.MAX que se verán a
+   continuación, pero la diferencia es que MAT.EQUAL devuelve un rango con los valores
+   iguales entre 2 matrices, y entre una matriz y un valor.
+   Solo trabaja con tipos numéricos.
+   
+      mat.equal(M N)     Devuelve un rango con los valores coincidentes entre "M" y "N".
+      mat.equal(M v) ó mat.equal(v M)
+                         Siendo "v" un número simple, devuelve un rango con los valores
+                         coincidentes entre "M" y ese número.
+      Ejemplos:
+         
+         dim a(3,10); dim b(3,10)
+         a<-{10,mth.ceil(mth.rand(a))}
+           /* 1 : 2,3,6,5,7,7,6,3,7,7
+              2 : 2,1,10,2,3,10,7,2,4,3
+              3 : 1,6,4,1,10,3,8,1,6,6 */
+              
+         b<-{10,mth.ceil(mth.rand(b))}
+           /* 1 : 10,2,9,3,6,7,3,5,6,6
+              2 : 3,2,7,1,3,10,9,8,3,3
+              3 : 6,4,2,4,7,9,1,3,4,2 */
+
+         c<-mat.equal(a b)
+           /* 1,6; 2,5; 2,6; 2,10 */
+
+         c<-mat.equal(2 b)
+           /* 1,2; 2,2; 3,3; 3,10 */
+           
+
+ 3) RANGOS MEDIANTE BUSQUEDA
+ 
+   XU proporciona un castor para realizar búsquedas sobre matrices, y como resultado
+   devuelve un RANGO listo para ser usado por funciones y castores. Para más información,
+   ver "BUSQUEDA" más adelante.
+   
+
+$$END Declaracion de rangos
+$$BEGIN Uso de rangos
+
+_________________________________________
+============= USO DE RANGOS =============
+   
+ACCESO MASIVO
+   
+Los rangos declarados anteriormente son usados por los siguientes castores, para modificar el contenido de matrices de forma masiva.
+   
+   [>M Rango]    Modifica la matriz "M" en el rango definido.
+   [<M Rango]    Lee los elementos de "M" ubicados dentro del rango, y devuelve un
+                 vector con dichos elementos.
+   
+   Ejemplos:
+   
+   [>M rango] <- mth.sqrt([<M rango])
+                 Obtiene la raíz cuadrada de los elementos de "M" dentro del rango.
+   
+   [>B rango] <- (% strlen([<S rango]))
+                 Primero, se obtiene la longitud de cada elemento de la matriz string
+                 "S" dentro del rango, se convierte a boolean, y se actualiza la matriz
+                 "B" de tipo booleano, dentro del mismo rango.
+                 En este ejemplo se asume la existencia de dos matrices, una de tipo
+                 string y otra de tipo booleano actuando como una máscara, ambas del
+                 mismo orden y mismas dimensiones.
+  
+  *Se sabe que el castor [<] entrega un vector. Esto significa que se puede asignar un
+   vector a un castor [>] sin haber sido generado por [<].
+   Por ejemplo:
+     dim b(10,10)
+     b<-1      // rellena con 1
+     r<-[*' ^[1,3,4,6] ^[1,2,7]]
+     use t; drop; push{101,102,103,104,105,106,107,108,109,110,111,112}
+     [>b r]<-t
+   Resultado:
+     1 : 101,102,1,1,1,1,103,1,1,1
+     2 : 1,1,1,1,1,1,1,1,1,1
+     3 : 104,105,1,1,1,1,106,1,1,1
+     4 : 107,108,1,1,1,1,109,1,1,1
+     5 : 1,1,1,1,1,1,1,1,1,1
+     6 : 110,111,1,1,1,1,112,1,1,1
+     7 : 1,1,1,1,1,1,1,1,1,1
+     8 : 1,1,1,1,1,1,1,1,1,1
+     9 : 1,1,1,1,1,1,1,1,1,1
+    10 : 1,1,1,1,1,1,1,1,1,1
+
+  *El tamaño del vector debe coincidir con el número de elementos del rango. La
+   lectura del vector será desde el primero hasta el último, y será asignado a
+   las posiciones desde la menor hasta la mayor.
+
+
+$$END Uso de rangos
+$$BEGIN Busqueda
+
+_________________________________________
+=============== BUSQUEDA ================
+
+XU posee una herramienta potente de búsqueda dentro de una matriz, es el castor "[\]".
+
+  [\ matriz_base  "operador" dato|vector ]
+
+Devuelve una matriz de rangos, con las posiciones de los elementos encontrados. Dicha matriz es de 2 dimensiones, y posee tantas columnas como dimensiones tiene "matriz_base".
+El castor [\] posee operadores que se administran como string.
+Ejemplos:
+
+-) BUSQUEDA DE NUMEROS
+
+ * Si "M" es matriz de números, "v" una variable numérica o constante y "V" un vector de
+    números; si "N" es una matriz de igual dimensión, rango y tipo de "M":
+   
+   [\M "=" v]   Devuelve un rango con los elementos de "M" que son iguales a "v".
+   [\M "=" V]   Devuelve un rango con los elementos que coinciden con algunos o con
+                todos los valores del vector "V".
+   [\M "=" N]   Compara "M" con "N". Es una comparación punto a punto, donde un
+                elemento de "M" es comparado con el elemento ubicado en la misma
+                posición en "N".
+   
+   Acepta operaciones aritméticas. Por ejemplo:
+   
+   [\(M%2) "=" 0]   Devuelve un rango con valores pares de "M".
+   [\M "<" (V\2)]   Devuelve un rango con los valores de "M" menores que cada
+                    elemento de "V" dividido-entero por 2.
+                    Los paréntesis son importantes en una operación así.
+   
+   Otros operadores aceptados:
+   "<",">","<=", ">=", "<>"
+
+-) BUSQUEDA DE NaN e INF
+
+ * Como las operaciones matriciales pueden generar valores NaN o Inf, su detección es
+   importante. Esta se realiza con los operadores "nan" e "inf". El tercer argumento del
+   castor, en este caso, es irrelevante, pero XU espera un número, por tanto, use "0".
+   
+   [\M "nan" 0]   Devuelve un rango con las posiciones "NaN".
+   [\M "inf" 0]   Devuelve un rango con las posiciones "INF".
+   
+   Ejemplo NAN:
+      dim g(2,3,4)
+      g<-{89,trg.d2r(mth.ceil(mth.rand (g)))}
+      g<-trg.asin(g)
+      write "\nUBICACIONES de NAN:", [\g "nan" 0],"\n"
+      if [[@ [\g "nan" 10]] 2]>0   // si hay filas, despliega sus valores
+         write [<g [\g "nan" 0]],"\n"
+      else
+         ."\nNo hay NAN"
+      endif
+   
+   Ejemplo INF:
+      g<-{200,mth.ceil(mth.rand (g))!}  // calcula su factorial "!"
+      write "\nUBICACIONES de INF:", [\g "inf" 0],"\n"
+      if [[@ [\g "inf" 0]] 2]>0
+         write [<g [\g "inf" 0]],"\n"
+      else
+         ."\nNo hay INF"
+      endif
+    
+-) BUSQUEDA DE BOOLEANOS
+
+ * Se emplea el operador "is", y el tercer argumento puede ser "true", "false", o un array
+   de booleanos.
+   
+   [\B "is" true]  Devuelve un rango con los valores "true".
+   [\B "is" false] Devuelve un rango con los valores "false".
+   [\B "is" V]     Devuelve un rango con los valores "true" o "false" que coincidan con
+                   algún valor "true" o "false" del vector "V".
+   [\B "is" M]     Devuelve un rango con los valores "true" o "false" que coincidan con
+                   cada valor "true" o "false" de la matriz "M".
+   
+   Ejemplo:
+      dim b(2,10)   // "b" es matriz booleana, y se inicializa en "false".
+      [.b 1 3]<-true; [.b 2 4]<-true; [.b 1 10]<-true;
+      write "\nBooleanos verdaderos?: ",[\b "is" true],"\n"
+      write "\nBooleanos falsos?: ",[\b "is" false],"\n"
+
+-) BUSQUEDA DE STRINGS
+
+ * Esta búsqueda se realiza con los siguientes operadores:
+ 
+   [\S "@" s]      Devuelve un rango con todos los elementos de "S" donde "s" está
+                   contenido. 
+                   Ejemplos de matches:
+                   Si s="ser", "ser", "será" y "aserrar" son matches.
+                   
+                   Si "s" es un vector, devolverá un rango con elementos donde esté 
+                   contenido, al menos, uno de los elementos de "s".
+   
+   [\S "=" s]      Devuelve un rango con elementos iguales a "s".
+                   Si "s" es un vector, devolverá la posición donde, al menos, uno de
+                   los valores de "s" sea igual al elemento de "S".
+   
+   [\S "~@" s]     Devuelve un rango con elementos donde no esté contenido "s".
+                   Si "s" es un vector, devolverá la posición de aquel elemento que no
+                   tiene contenido ninguno de los elementos de "s".
+   
+ * Opciones donde "s" solo debe ser un vector:
+   
+   [\S "@*" s]     Devuelve un rango con elementos que contengan todos los elementos del
+                   vector "s".
+ 
+ * BUSQUEDA CASE-SENSITIVE Y CASE-INSENSITIVE
+ 
+   Para realizar una búsqueda "case-sensitive", debe anteponer un flag "false".
+      (flag false)[\S "@" s]
+      
+   Para realizar una búsqueda "case-insensitive", el flag debe ser "true".
+      (flag true)[\S "@" s]
+
+**IMPORTANTE**
+  El tercer argumento, si es array, debe ser un vector. Si es una matriz, debe usar la
+  sentecia RESHAPE para reformarla a vector.
+
+
+$$END Busqueda
+$$BEGIN Unir matrices
+
+_________________________________________
+========== CONCATENAR MATRICES ==========
+
+**IMPORTANTE**
+   Las operaciones de concatenación no pueden ser realizadas sobre matrices 4D.
+   En cambio, sí se pueden realizar cortes de matrices con 4D.
+   
+   Se pueden concatenar dos matrices o vectores de manera horizontal y vertical.
+   
+   [+| M N]   Concatena "M" y "N" de manera horizontal, hacia el lado. 
+              
+              CASO 1D: Ambos deben tener el mismo número de elementos, porque formará
+                       una matriz 2D. Ejemplo:
+                       l<-^[0,1,2,3,4,5,6,7,8,9]
+                       m<-^[0,1,2,3,4,5,6,7,8,9]
+                       r<-[+| l m]
+              
+              CASO 2D: Ambos deben tener el mismo número de filas, aunque pueden tener
+                       distinto numero de columnas. Ejemplo:
+                       dim l(5,3)
+                       dim m(5,4)
+                       l<-10; m<-(-5)
+                       r<-[+| l m]
+              
+              CASO 3D: Ambas matrices deben coincidir en el número de filas, y en el
+                       número de páginas. Ejemplo:
+                       dim l(5,3,2)
+                       dim m(5,4,2)
+                       l<-10; m<-(-5)
+                       r<-[+| l m]
+              
+   [+- M N]   Concatena "M" y "N" de manera vertical, hacia abajo. 
+              
+              CASO 1D: Ambos pueden tener distinto número de elementos, porque pegará
+                       uno a continuación del otro. Ejemplo:
+                       l<-^[0,1,2,3]
+                       m<-^[4,5,6,7,8,9]
+                       r<-[+- l m]
+              
+              CASO 2D: Ambos deben tener el mismo número de columnas, aunque pueden tener
+                       distinto numero de filas. Ejemplo
+                       dim l(3,5)
+                       dim m(4,5)
+                       l<-10; m<-(-5)
+                       r<-[+- l m]
+              
+              CASO 3D: Ambas matrices deben coincidir en el número de columnas, y en el
+                       número de páginas. Ejemplo:
+                       dim l(3,5,2)
+                       dim m(4,5,2)
+                       l<-10; m<-(-5)
+                       r<-[+- l m]
+   
+   Algunas consideraciones especiales:
+              
+   1) Si "M" es 3D, y "N" es 2D, "N" será pegada a "M" como la última página.
+      En cambio, si "M" es 2D y "N" es 3D, pegará "N" como la primera página de "M".
+      
+   2) En el caso anterior, da lo mismo si usa "[+|]" o "[+-]".
+
+
+$$END Unir matrices
+$$BEGIN Cortar matrices
+
+_________________________________________
+============ CORTAR MATRICES ============
+
+**IMPORTANTE**
+   Las operaciones de concatenación no pueden ser realizadas sobre matrices 4D.
+   En cambio, sí se pueden realizar cortes de matrices con 4D.
+
+   Cortar significa extraer una submatriz de una matriz principal, cambiando las
+   dimensiones de esta. No obstante, si usa el FLAG "COPY", no cortará, sino que
+   copiará la submatriz, dejando la matriz principal inmaculada como la mamita de
+   Jebus.
+   
+   [-| M vector-de-columnas]  Extrae una submatriz de "M" formada por las columnas
+                        indicadas en "vector-de-columnas". Estas columnas pueden ser
+                        repetidas. 
+   
+       CASO 1D: No importa si se usa "[-|]" o "[--]", porque es un vector.
+                Ejemplo:
+                
+                dim l(10)
+                l<-^["A","L","C","CH","P","E","U","G","O","Z"]
+                m<-^[4,7,5,1,2,9,9,9,9]
+               //  flag "COPY"
+                r<-[-| l m]    /* no importa si es "[--]" o "[-|]", 
+                                  porque es un vector */
+                write r,"\n...\n"
+                write l,"\n"
+   
+       CASO 2D: Cortará las columnas indicadas.
+                Ejemplo:
+                
+                dim l(10,10)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[1,4,6,8,8]  /* extraeré estas columnas de "l". 
+                                    Se puedes repetir ;) */
+                //flag "COPY"  /* con este flag, no se produce el corte, 
+                                  sino, una copia */
+                r<-[-| l m]
+
+       CASO 3D: Cortará las columnas indicadas, en todas las páginas del bloque, como
+                si se tratase de revanadas de un pastel que luego unirá en otro pastel.
+                Ejemplo:
+                
+                dim l(5,5,3)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[1,4,5]
+                //  flag "COPY"
+                r<-[-| l m]
+   
+       CASO 4D: Cortará las columnas indicadas, en todas las páginas de todos los bloques
+                de la matriz source.
+                Ejemplo:
+                
+                dim l(5,5,3,2)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[4,5,1,1,1,2]  // repetirá la columna 1 en "m". Cool!
+                // flag "COPY"
+                r<-[-| l m]
+
+      
+   [-- M vector-de-filas]     Extrae una submatriz de "M" formada por las filas
+                        indicadas en "vector-de-filas". Estas filas pueden repetirse.
+
+       CASO 1D: Ya fue visto en el caso 1D "[-|]".
+   
+       CASO 2D: Cortará las filas indicadas.
+                Ejemplo:
+                
+                dim l(10,10)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[1,4,6,8,8]  // extraeré estas filas de "l". Se puedes repetir ;)
+                //flag "COPY"  /* con este flag, no se produce el corte, sino, una copia */
+                r<-[-- l m]
+
+       CASO 3D: Cortará las filas indicadas, en todas las páginas del bloque, como
+                si se tratase de las eras geológicas de una montaña.
+                Ejemplo:
+                
+                dim l(5,5,3)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[1,4,5]
+                //  flag "COPY"
+                r<-[-- l m]
+   
+       CASO 4D: Cortará las filas indicadas, en todas las páginas de todos los bloques
+                de la matriz source.
+                Ejemplo:
+                
+                dim l(5,5,3,2)
+                l<-{10,mth.ceil(mth.rand(l))}
+                m<-^[4,5,1,1,1,2]  // repetirá la columna 1 en "m". Cool!
+                // flag "COPY"
+                r<-[-- l m]
+
+
+$$END Cortar matrices
+$$BEGIN Copiar submatrices
+
+_________________________________________
+========== COPIAR SUBMATRICES ===========
+
+   Los castores anteriores solo permiten hacer operaciones con filas y columnas
+   completas. Este castor permite copiar una porción de una matriz.
+   
+   [% M vector-de-coordenadas]  Obtiene una copia de "M" según las coordenadas
+                                indicadas en "vector-de-coordenadas".
+
+        CASO 1D: vector-de-coordenadas, "viky" para los amigos, debe componerse de 2
+                 elementos: desde y hasta.
+                 Ejemplo:
+                 
+                 dim m(10)
+                 tmp<-[%m (# ^[3,7])]
+                 
+                 Obtendrá una copia del vector desde la posición 3 hasta la 7.
+        
+        CASO 2D: "viky" puede componerse de cuatro elementos: las coordenadas fila y
+                 columna "desde", y las coordenadas fila y columna "hasta".
+                 Ejemplo:
+                 
+                 dim m(10,10)
+                 tmp<-[%m (# ^[3,3,7,8])] // copia la porción 3,3 - 7,8
+        
+        CASO 3D: "viky" debe contener las coordenadas desde-hasta rectangular, más las
+                 coordenadas de páginas desde-hasta. Si solo se quiere copiar una de
+                 las páginas, hay que repetir la coordenada.
+                 Ejemplo:
+                 
+                 dim m(10,10,5)
+                 tmp<-[%m (# ^[3,3,7,8,2,2])]  // copia solo la porción de la página 2
+                 tmp<-[%m (# ^[3,3,7,8,1,3])]  // copia desde la página 1 hasta la 3
+        
+        CASO 4D: "viky" debe contener las coordenadas anteriores, más las coordenadas
+                 desde-hasta de los bloques.
+                 Ejemplo:
+                 
+                 dim m(10,10,5,5)
+                 tmp<-[%m (# ^[3,3,7,8,2,2,1,1])]  /* copia solo la página 2 del
+                                                      bloque 1, porción 3,3-7,8 */
+                 tmp<-[%m (# ^[3,3,7,8,2,2,1,4])]  /* copia desde el bloque 1 hasta el
+                                                      bloque 4, incluyendo solo la 
+                                                      página 2, porción 3,3-7,8 */
+
+
+$$END Copiar submatrices
+$$BEGIN Insertar matrices
+
+_________________________________________
+========== INSERTAR MATRICES ============
+
+   Para insertar submatrices o vectores, se emplea el castor [^]. No confundir con el castor ^[], que declara arrays estáticos de constantes.
+   
+   [^| M matriz|vector fila POS ]  Inserta la matriz o el vector en "M", desde la
+                                   posición columna indicada POS.
+        
+        CASO 1D: No importa si se usa "[^|]" o "[^-]", porque se trata de un vector, y
+                 la matriz o vector se pega en "M", aumentando el rango de "M".
+                 Ejemplo:
+                 
+                 dim s(5)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                    // 2,6,1,7,8
+                 s<-[^- s (#^[100,200,300,400,500]) 2]
+                    // 2,100,200,300,400,500,6,1,7,8
+                    
+        CASO 2D: Para insertar un vector o matriz, este debe tener el mismo número de
+                 filas que "M".
+                 Ejemplo:
+                 
+                 dim s(5,5)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                    /* 1 : 3,1,10,4,3
+                       2 : 5,4,4,9,5
+                       3 : 6,3,7,5,4
+                       4 : 2,7,9,10,6
+                       5 : 8,4,3,10,9 */
+     
+                 s<-[^| s (#^[100,200,300,400,500]) 3]
+                    /* 1 : 3,1,100,10,4,3
+                       2 : 5,4,200,4,9,5
+                       3 : 6,3,300,7,5,4
+                       4 : 2,7,400,9,10,6
+                       5 : 8,4,500,3,10,9 */
+        
+        CASO 3D: Para insertar correctamente, el número de las filas y de las páginas 
+                 deben coincidir en ambas matrices.
+                 Ejemplo:
+                 
+                 dim s(5,5,2)
+                 dim t(5,3,2)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                 /* PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 5,6,9,3,8
+                        4 : 4,3,8,2,6
+                        5 : 5,8,9,2,8
+                    PAGE  2:
+                        ... 
+                    */
+                 t<-100
+                 s<-[^| s t 3]
+                 /* PAGE  1: 
+                        1 : 1,2,100,100,100,3,6,6
+                        2 : 7,6,100,100,100,1,9,9
+                        3 : 5,6,100,100,100,9,3,8
+                        4 : 4,3,100,100,100,8,2,6
+                        5 : 5,8,100,100,100,9,2,8
+                    PAGE  2:
+                        ... 
+                    */
+        CASO 4D: Para insertar correctamente, el número de las filas, de las páginas 
+                 y de los bloques deben coincidir en ambas matrices.
+                 Ejemplo:
+                 
+                 dim s(5,5,2,2)
+                 dim t(5,3,2,2)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                 /* BLOCK  1; PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 5,6,9,3,8
+                        4 : 4,3,8,2,6
+                        5 : 5,8,9,2,8
+                    BLOCK  1; PAGE  2:
+                        ... 
+                    */
+                 t<-100
+                 s<-[^| s t 3]
+                 /* BLOCK  1; PAGE  1: 
+                        1 : 1,2,100,100,100,3,6,6
+                        2 : 7,6,100,100,100,1,9,9
+                        3 : 5,6,100,100,100,9,3,8
+                        4 : 4,3,100,100,100,8,2,6
+                        5 : 5,8,100,100,100,9,2,8
+                    BLOCK  1; PAGE  2:
+                        ... 
+                    */
+                 
+
+   [^- M matriz|vector columna POS ]  Inserta la matriz o el vector en "M", desde la
+                                      posición fila indicada POS.
+
+        CASO 1D: Ya visto en caso 1D "[^|]".
+        
+        CASO 2D: Para insertar un vector o matriz, este debe tener el mismo número de
+                 columnas que "M".
+                 Ejemplo:
+                 
+                 dim s(5,5)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                 /* 1 : 3,8,4,5,1
+                    2 : 3,9,5,7,2
+                    3 : 1,5,1,8,3
+                    4 : 10,8,8,3,10
+                    5 : 6,5,8,3,9 */
+                 s<-[^- s (#^[100,200,300,400,500]) 3]
+                 /* 1 : 3,8,4,5,1
+                    2 : 3,9,5,7,2
+                    3 : 100,200,300,400,500
+                    4 : 1,5,1,8,3
+                    5 : 10,8,8,3,10
+                    6 : 6,5,8,3,9 */
+        
+        CASO 3D: Para insertar correctamente, el número de las columnas y de las
+                 páginas deben coincidir en ambas matrices.
+                 Ejemplo:
+                 
+                 dim s(5,5,2)
+                 dim t(3,5,2)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                 /* PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 5,6,9,3,8
+                        4 : 4,3,8,2,6
+                        5 : 5,8,9,2,8
+                    PAGE  2:
+                        ... 
+                    */
+                 t<-100
+                 s<-[^- s t 3]
+                 /* PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 100,100,100,100,100
+                        4 : 100,100,100,100,100
+                        5 : 100,100,100,100,100
+                        6 : 5,6,9,3,8
+                        7 : 4,3,8,2,6
+                        8 : 5,8,9,2,8
+                    PAGE  2:
+                        ... 
+                    */
+        CASO 4D: Para insertar correctamente, el número de columnas, de las páginas 
+                 y de los bloques deben coincidir en ambas matrices.
+                 Ejemplo:
+                 
+                 dim s(5,5,2,2)
+                 dim t(3,5,2,2)
+                 s<-{10,mth.ceil(mth.rand(s))}
+                 /* BLOCK  1; PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 5,6,9,3,8
+                        4 : 4,3,8,2,6
+                        5 : 5,8,9,2,8
+                    BLOCK  1; PAGE  2:
+                        ... 
+                    */
+                 t<-100
+                 s<-[^- s t 3]
+                 /* BLOCK  1; PAGE  1: 
+                        1 : 1,2,3,6,6
+                        2 : 7,6,1,9,9
+                        3 : 100,100,100,100,100
+                        4 : 100,100,100,100,100
+                        5 : 100,100,100,100,100
+                        6 : 5,6,9,3,8
+                        7 : 4,3,8,2,6
+                        8 : 5,8,9,2,8
+                    BLOCK  1; PAGE  2:
+                        ... 
+                    */
+
+
+$$END Insertar matrices
+$$BEGIN Archivos
+
+_________________________________________
+=============== ARCHIVOS ================
+
+XU permite llenar una matriz con datos leídos desde un archivo de texto.
+Asimismo, se puede guardar una matriz en un archivo, o se pueden añadir datos al archivo.
+Se puede usar un FLAG que señale el separador de los datos. Por defecto se usa ",".
+
+Las funciones que realizan este trabajo son las siguientes:
+ 
+  mat.save( [(flag "sep")] matriz|vector "archivo")
+
+     Guardará la matriz o vector en "archivo", usando como separador de datos "sep".
+     Ejemplo:
+         flag ","
+         mat.save( TempStgo "registro/TSTGO31012019.txt")
+         
+   * El separador por defecto es coma (","), esto es, si no hay flag ("") o si este es de
+     otro tipo, distinto a string.
+   
+   * Solo acepta un caracter como separador. Si usa algo como esto: "#-", XU solo va a
+     considerar "#".
+   
+   * Si la matriz es de 3 dimensiones, guardará cada página hacia abajo.
+   
+   * Si la matriz es de 4 dimensiones, hará lo mismo que con una de 3: todo será guardado
+     hacia abajo.
+  
+  mat.load( [(flag "sep")] matriz|vector "archivo")
+     
+     Cargará los datos de "archivo" en la matriz o vector. Ejemplo:
+     
+         flag ","
+         mat.load( TempStgo "registro/TSTGO31012019.txt" )
+      
+     Internamente, XU intentará determinar si se trata de un vector o de una matriz. Para
+     ello, calculará una relación entre los saltos de línea y los tokens que encuentre en
+     cada fila leída. La relación que calcula XU es la siguiente:
+           
+           #lineas x #token-primera-linea = #total-de-tokens
+     
+     * Si en la carga es detectada una diferencia en el número de tokens de una línea, con
+       respecto al número de tokens de la primera línea, XU mandará error. 
+     
+     * Si el archivo posee separadores y un solo salto de línea al final, será leído como
+       un vector.
+       
+     * Los archivos que posean solo un salto de línea al final, serán leídos de igual forma
+       que si su separador fuese un salto de línea.
+     
+     * Si el separador no es el adecuado, es posible que XU genere un error, o bien, cargue
+       datos erróneos. Por ejemplo, si intenta cargar archivos de números con el flag
+       equivocado, es posible que devuelva una matriz con ceros, o el programa devuelva un
+       error de FLAG.
+     
+     Además, intentará convertir los datos al tipo de la matriz:
+     
+    -) Si lee números, intentará detectar si estos tienen notación normal o científica.
+    -) Si lee booleanos, intentará convertir los datos de acuerdo al CONTEXTO. Por ejemplo,
+       si context="bool", buscará "0" y "1"; si context="robot", buscará "ON" y "OFF", y
+       así con el resto de los contextos admitidos.
+       Cualquier otra cosa, convertirá a "falso".
+    -) Los strings pasan jabonados. Leer un archivo de strings es más rápido que leerlo en
+       cualquier otro tipo.
+    
+    **IMPORTANTE**
+     Todo archivo leído con "mat.load" debe tener un salto de línea al final de la última
+     línea.
+  
+  mat.append( [(flag "sep")] matriz|vector "archivo" )
+     
+     Guardará matriz o vector a continuación de lo que tenga guardado "archivo".
+     Si desea que al momento de leer el archivo, XU no lo mande a la mierda, asegúrese
+     de que las dimensiones de la matriz coincidan, así como el separador.
+
+
+$$END Archivos
+$$BEGIN Operaciones estadisticas
+
+_________________________________________
+======== OPERACIONES ESTADISTICAS =======
+
+-) MAT.SUM
+   
+   Efectúa una suma de los elementos de una matriz. Esta función usa FLAGS. En ausencia de flag, o un flag distinto al esperado, se realiza la suma completa de los valores de la matriz.
+   
+   Las opciones son las siguientes:
+   mat.sum( (flag "r") M )    Suma todas las filas de "M".
+   mat.sum( (flag "c") M )    Suma todas las columnas de "M".
+   mat.sum( (flag "p") M )    Suma cada página de todos los bloques de "M".
+   mat.sum( (flag "rp") M )   Suma las filas para cada página de todos los bloques.
+   mat.sum( (flag "cp") M )   Suma las columnas para cada página de todos los bloques.
+   mat.sum( (flag "pb") M )   Suma cada página por bloques.
+   mat.sum( (flag "rpb") M )  Suma cada fila por página por bloques.
+   mat.sum( (flag "cpb") M )  Suma cada columna por página por bloques.
+   mat.sum( (flag "") M )     Suma toda la hueá.
+   
+-) MAT.MEAN
+
+   Efectúa un promedio de los elementos de una matriz. Esta función usa FLAGS. En ausencia de flag, o un flag distinto al esperado, se realiza el promedio de los valores de la matriz.
+   
+   Las opciones son las siguientes:
+   mat.mean( (flag "r") M )    Promedia todas las filas de "M".
+   mat.mean( (flag "c") M )    Promedia todas las columnas de "M".
+   mat.mean( (flag "p") M )    Promedia cada página de todos los bloques de "M".
+   mat.mean( (flag "rp") M )   Promedia las filas para cada página de todos los
+                               bloques.
+   mat.mean( (flag "cp") M )   Promedia las columnas para cada página de todos los
+                               bloques.
+   mat.mean( (flag "pb") M )   Promedia cada página por bloques.
+   mat.mean( (flag "rpb") M )  Promedia cada fila por página por bloques.
+   mat.mean( (flag "cpb") M )  Promedia cada columna por página por bloques.
+   mat.mean( (flag "") M )     Promedia toda la hueá.
+
+
+$$END Operaciones estadisticas
+$$BEGIN Despliegue
+
+_________________________________________
+======== DESPLIEGUE DE MATRICES =========
+
+   La función SHOW despliega una matriz o vector. Ya se ha visto su uso antes.
+   
+     show matriz columnas
+   
+   donde:
+    matriz    Es la matriz a desplegar.
+    columnas  Es el número de columnas como se desea que se despliegue. Si la matriz
+              posee 100 columnas, y se declara 50 en SHOW, entonces, desplegará la fila
+              en dos filas de 50 columnas.
+              Mejor con un ejemplo:
+                
+              *Si v=[ [1,2,3,4,5,6,7,8,9,10],
+                      [1,2,3,4,5,6,7,8,9,10],
+                      [1,2,3,4,5,6,7,8,9,10]]
+              
+                show v 5
+              
+              despliega:
+              
+                1: 1,2,3,4,5
+                   6,7,8,9,10
+                2: 1,2,3,4,5
+                   6,7,8,9,10
+                3: 1,2,3,4,5
+                   6,7,8,9,10
+
+              Si pone un "0" en su lugar, desplegará el máximo de columnas que posee la 
+              matriz. La matriz "v" del ejemplo anterior:
+              
+                show v 0
+
+              despliega:
+              
+                1: 1,2,3,4,5,6,7,8,9,10
+                2: 1,2,3,4,5,6,7,8,9,10
+                3: 1,2,3,4,5,6,7,8,9,10
+
+
+$$END Despliegue
+$$BEGIN Generar secuencias
+
+_________________________________________
+======= GENERACION DE SECUENCIAS ========
+
+-) SECUENCIA LINEAL.
+   Se realiza con el castor "[=]".
+   
+   Ejemplos:
+   [=1 10 10]   Devuelve un vector de 10 elementos:
+                1,2,3,4,5,6,7,8,9,10
+
+   [=0.5 1.5 7] Devuelve un vector con 7 elementos:
+                0.5,0.6666,0.8333,1.0,1.1666,1.3333,1.5
+
+-) SECUENCIA SUCIA.
+   Se realiza con la función "SEQ".
+   
+   Ejemplos:
+   c<-seq(1 1 10)   Devuelve una secuencia de 10 elementos, que comienza en 1 y se
+                    incrementa en 1.
+                    1.00,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00,10.00
+
+   c<-seq(1 0.5 10) Devuelve una secuencia de 10 elementos, que comienza en 1 y se
+                    se incrementa en 0.5.
+                    1.00,1.50,2.00,2.50,3.00,3.50,4.00,4.50,5.00,5.50
+
+
+$$END Generar secuencias
+$$BEGIN Ordenacion
+
+_________________________________________
+=============== ORDENACION ==============
+
+   Esta es una función que ordena matrices de 1 y 2 dimensiones. No trabaja con matrices
+   de otras dimensiones. Además, puede ordenar datos de tipo NUMBER y STRING si se
+   trata de un vector, o STRING si se trata de matrices.
+   No devuelve nada: modifica la matriz directamente.
+   
+   sort( matriz columna "tipo" ini fin )
+   
+   donde:
+     matriz    Es la matriz o vector a ordenar. Si es una matriz 2D, debe ser STRING. El
+               argumento "tipo" convierte internamente el elemento al tipo que se desea
+               ordenar.
+     columna   Es la columna usada como clave de ordenación. Si se ordena un vector,
+               este valor es 1.
+     "tipo"    Indica el tipo de la columna a ordenar. Los tipos son los siguientes:
+               "N" = número
+               "D" = fecha. Es un string, pero internamente se comparan fechas. Cool!
+                     Para más información, ver sección "DATE" del menú de ayuda.
+               ""  = el tipo de la matriz. Se asume el tipo STRING.
+     ini       Desde qué fila se ordenará.
+     fin       Hasta qué fila se ordenará.
+    
+    *Si ini=0 y fin=0, ordena toda la hueá.
+   
+   FLAGS:
+     flag "A"  Ordena ascendentemente.
+     flag "D"  Ordena descendentemente.
+
+   Ejemplos:
+   sort( (flag "A") M 1 "N" 0 0)   Ordena "M" ascendentemente, usando la columna 1 como
+                                   clave de ordenación numérica.
+
+   sort( (flag "A") M 5 "D" 1 10)  Ordena "M" ascendentemente, usando la columna 5 como
+                                   clave de ordenación de fechas, desde la fila 1,
+                                   columna 10.
+
+
+$$END Ordenacion
+$$BEGIN Maximo y minimo
+
+_________________________________________
+============ MAXIMO Y MINIMO ============
+
+   Las funciones MAT.MIN y MAT.MAX devuelven el mínimo y el máximo entre 2 matrices.
+   Ambas funciones usan FLAGS que modifican su comportamiento.
+   La matriz resultante tiene las mismas dimensiones y rango de ambas matrices.
+   
+   mat.min(A B)      Devuelve una matriz con los mínimos entre A y B.
+   mat.min(10 A)     Si un elemento de "A" es menor que 10, devuelve el elemento; sino,
+                     devuelve 10.
+   mat.min(A 10)     Idem.
+   
+   Ejemplo 1:
+   * Sea "a" y "b" vectores numéricos de orden 10, con enteros aleatorios, y "($)" 
+     castor de conversión a string. La siguiente línea:
+     
+      show ("min "+($a)+", "+($b)+" = "+($mat.min(a b)) ) 0
+     
+     Devuelve lo siguiente:
+     
+      1 : min  5.00, 93.00 =  5.00
+      2 : min 22.00, 86.00 = 22.00
+      3 : min 20.00, 78.00 = 20.00
+      4 : min 27.00, 23.00 = 23.00
+      5 : min  9.00, 80.00 =  9.00  
+      6 : min 26.00, 29.00 = 26.00
+      7 : min  1.00,100.00 =  1.00 
+      8 : min  5.00, 52.00 =  5.00 
+      9 : min 21.00,  4.00 =  4.00
+     10 : min 18.00, 67.00 = 18.00 
+   
+   Ejemplo 2:
+   * Sea "a" una matriz numérica de orden 5x2, con los siguientes elementos:
+      
+      1 : 22,8
+      2 : 36,8
+      3 : 42,25
+      4 : 42,27
+      5 : 33,42
+   
+     La siguiente línea:
+   
+      show mat.min(a 25) 0
+      
+     Devuelve lo siguiente:
+     
+      1 : 22,8             
+      2 : 25,8
+      3 : 25,25
+      4 : 25,25
+      5 : 25,25
+   
+   Ejemplo 3:
+   * Sea "a" y "b" matrices de 2 dimensiones, con 5 filas y 2 columnas. La siguiente
+     línea:
+       
+       show [+| [+|a b] mat.min(a b)] 0
+       
+     que concatena ambas matrices con el resultado del mínimo, devuelve lo siguiente:
+     
+          "a"      "b"    "min(a,b)"
+     1 : 21,43,   83,14,    21,14     mínimo entre 21 y 83; entre 43 y 14
+     2 : 45,44,   16,21,    16,21       "      "   45 y 16;   "   44 y 21
+     3 :  2,40,   55,20,     2,20       "      "    2 y 55;   "   40 y 20
+     4 : 26, 1,   45,49,    26, 1       "      "   26 y 45;   "    1 y 49
+     5 : 33,27,    8,72,     8,27       "      "   33 y  8;   "   27 y 72
+     
+     Las cabeceras y la separación fueron puestas aquí para fines pedagógicos.
+
+   
+   MODIFICADOR FLAG.
+   
+   Al usar un FLAG, estas funciones solo operan sobre el primer argumento, pasándose
+   por la raja al segundo. Su trabajo es encontrar mínimos o máximos dentro de la misma
+   matriz, no por comparación con otra, y lo puede hacer buscando por filas, por columnas,
+   por páginas y por bloques.
+   En este caso, es mejor repetir el argumento 1 en el 2. Internamente, solo será un
+   puto puntero el pasado, y si no se usa, nada se pierde.
+   
+   (flag "R")mat.min(a a)  Devuelve un array con los mínimos por cada fila de "a". La
+                           longitud del resultado será el número de filas de "a".
+   (flag "C")mat.min(a a)  Devuelve un array con los mínimos por cada columna de "a".
+                           La longitud del resultado será el número de columnas de "a".
+   (flag "P")mat.min(a a)  Devuelve un array con el mínimo por cada página de "a". La
+                           longitud del resultado será el número de páginas de "a".
+   (flag "B")mat.min(a a)  Devuelve un array con el mínimo por cada bloque de "a". La
+                           longitud del resultado será el número de bloques de "a".
+ 
+  **IMPORTANTE**  
+    La función MAT.MAX es análoga a MAT.MIN, solo que devuelve el máximo valor entre
+    ambas matrices.
+
+
+$$END Maximo y minimo
+$$BEGIN Funciones IS...
+
+_________________________________________
+============ FUNCIONES "IS" =============
+
+-) FUNCIONES DE CONSULTA.
+   Existen funciones que permiten saber si las matrices contienen ciertos valores antes
+   de realizar operaciones sobre estas. Estas funciones trabajan sobre todos los tipos
+   de datos aceptados por XU. Además, también pueden trabajar sobre variables simples.
+   
+   ispos(M)         Devuelve "true" si "M" es estrictamente positiva.
+                    Si la matriz contiene, al menos, un negativo, será "false".
+   isneg(M)         Devuelve "true" si "M" es estrictamente negativa.
+                    Si la matriz contiene, al menos, un positivo, será "false".
+   
+   *Las funciones ISPOS e ISNEG son inútiles cuando la matriz contiene tanto positivos
+    como negativos, porque siempre será "false".
+    
+   isall(M v)       Devuelve "true" si toda la matriz "M" tiene el valor "v".
+   isany(M v)       Devuelve "true" si, al menos, un elemento tiene "v".
+   isnan(M)         Devuelve "true" si encuentra, al menos, un "NaN" en "M".
+   isinf(M)         Devuelve "true" si encuentra, al menos, un "INF" en "M".
+   isnear(M N)
+   isnear(v M)
+   isnear(M v)      Devuelve "true" si todos los valores de "M" están cercanos a los
+                    valores de "v", o a los valores de "N".
+                    Para establecer un valor de cercanía, se usa la función MTH.SETDELTA
+                    que puede ver en la sección "MATH" del menú de ayuda.
+   istype(M "tipo") Devuelve "true" si el tipo de "M" coincide con "tipo".
+                    Escribir:
+
+                       if istype(M "<string>")
+
+                    es homólogo a escribir:
+
+                       if type(M)="<string>"
+                    
+                    pero me ahorro una comparación.
+                    
+                   * Para más información sobre la función TYPE, ver la sección STANDARD
+                     del menú de ayuda.
+
+   Ejemplos:
+   
+   Sea "M" una matriz 2D con los siguientes valores:
+     1 :  1,45
+     2 : 19,38
+     3 : 43,39
+     4 :  7,46 
+     5 :  6,25
+   
+   El siguiente programa:
+     write "ISPOS = ",ispos(M),"\n"
+     write "ISNEG = ",isneg(M),"\n"
+     write "ISALL PAR = ",isall( (M%2) 0 ),"\n"
+     write "ISANY PAR = ",isany( (M%2) 0 ),"\n"
+     write "ISTYPE NUMBER? = ", istype(M "<number>")
+     write "ISTYPE (1,1) NUMBER? = ", istype([.M 1 1] "number")
+   
+   Devuelve lo siguiente:
+   
+     ISPOS = YES
+     ISNEG = NO 
+     ISALL PAR = NO
+     ISANY PAR = YES
+     ISTYPE NUMBER? = YES
+     ISTYPE (1,1) NUMBER? = YES... OH, MY GOD!
+
+
+$$END Funciones IS...
+$$BEGIN Funcion JOIN
+
+_________________________________________
+============ FUNCION "JOIN" =============
+
+   Esta función une los elementos de una matriz string en un solo string.
+   Necesita de FLAGS. El flag debe contener el tipo de unión y un token usado para
+   separar los elementos dentro del string.
+   
+   El tipo "T" unirá todo en una sola línea.
+   El tipo "D" unirá todo de acuerdo a la forma de la matriz, añadiendo "nueva línea"
+   al final de cada línea unida.
+   Ejemplo:
+   
+   Si "M" es una matriz:
+      dim M(4,4)
+      M<-"hola"
+      flag "T,"       // T=total
+      write join(M)
+      flag "D*"       // D=document
+      write join(M)
+      
+   Salida:
+      hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola,hola
+      hola*hola*hola*hola
+      hola*hola*hola*hola
+      hola*hola*hola*hola
+      hola*hola*hola*hola
+
+
+$$END Funcion JOIN
+FIN DE AYUDA MATRIX

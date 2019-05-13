@@ -1,0 +1,234 @@
+nrepmat=function:^number
+M=$1:^number
+tipo=$2:string
+repite=$3:number
+msize,r,rtmp=^number
+retorno,tmp=^number
+i,nDim=number
+begin:
+use retorno
+tstk_code 5 1
+tox msize
+mov  size( M)
+tox nDim
+mov  vget( msize 1)
+if tipo="="
+tox retorno
+mov M
+if nDim=1
+reshape retorno 1 vget( msize 2) 0 0
+endif
+tox i
+mov 1 - 1
+while i < repite-1
+inc i
+tox retorno
+mov  xmatalter( 1 2  retorno M)
+wend
+elseif tipo="||"
+tox retorno
+mov M
+tox i
+mov 1 - 1
+while i < repite-1
+inc i
+tox retorno
+mov  xmatalter( 1 1  retorno M)
+wend
+elseif tipo="\\"
+if nDim=2
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) 0 0
+config_array retorno
+elseif nDim=3
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) vget( msize 4) 0
+config_array retorno
+else
+write "ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+goodbye
+endif
+tox i
+mov 1 - 1
+while i < repite
+inc i
+tfstk_code 1 ((vget( msize 2)*(i-1)+1))
+tfstk_code 2 ((vget( msize 3)*(i-1)+1))
+if nDim=3
+tfstk_code 3 (1)
+endif
+.putdata (M)
+wend
+elseif tipo="//"
+if nDim=2
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) 0 0
+config_array retorno
+elseif nDim=3
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) vget( msize 4) 0
+config_array retorno
+else
+write "ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+goodbye
+endif
+tox i
+mov 1 - 1
+while i < repite
+inc i
+tfstk_code 1 ((vget( msize 2)*(i-1)+1))
+tfstk_code 2 ((vget( msize 3)*(repite-i)+1))
+if nDim=3
+tfstk_code 3 (1)
+endif
+.putdata (M)
+wend
+endif
+return retorno
+end
+srepmat=function:^string
+M=$1:^string
+tipo=$2:string
+repite=$3:number
+msize,r,rtmp=^number
+retorno,tmp=^string
+i,nDim=number
+begin:
+use retorno
+tstk_code 5 1
+tox msize
+mov  size( M)
+tox nDim
+mov  vget( msize 1)
+if tipo="="
+tox retorno
+mov M
+if nDim=1
+reshape retorno 1 vget( msize 2) 0 0
+endif
+tox i
+mov 1 - 1
+while i < repite-1
+inc i
+tox retorno
+mov  xmatalter( 1 2  retorno M)
+wend
+elseif tipo="||"
+tox retorno
+mov M
+tox i
+mov 1 - 1
+while i < repite-1
+inc i
+tox retorno
+mov  xmatalter( 1 1  retorno M)
+wend
+elseif tipo="\\"
+if nDim=2
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) 0 0
+config_array retorno
+elseif nDim=3
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) vget( msize 4) 0
+config_array retorno
+else
+write "ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+goodbye
+endif
+tox i
+mov 1 - 1
+while i < repite
+inc i
+tfstk_code 1 ((vget( msize 2)*(i-1)+1))
+tfstk_code 2 ((vget( msize 3)*(i-1)+1))
+if nDim=3
+tfstk_code 3 (1)
+endif
+.putdata (M)
+wend
+elseif tipo="//"
+if nDim=2
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) 0 0
+config_array retorno
+elseif nDim=3
+set_array (vget( msize 2)*repite) (vget( msize 3)*repite) vget( msize 4) 0
+config_array retorno
+else
+write "ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+goodbye
+endif
+tox i
+mov 1 - 1
+while i < repite
+inc i
+tfstk_code 1 ((vget( msize 2)*(i-1)+1))
+tfstk_code 2 ((vget( msize 3)*(repite-i)+1))
+if nDim=3
+tfstk_code 3 (1)
+endif
+.putdata (M)
+wend
+endif
+return retorno
+end
+enumstr=function:void
+SOURCE=$1:^string(*)
+FROM=$2:number
+nsize,Tmp=^number
+begin:
+tox nsize
+mov  size( SOURCE)
+if vget( nsize 1)<=2
+tox Tmp
+mov  seqsp(  FROM (vget( nsize 2)+FROM-1) vget( nsize 2))
+if type(SOURCE)="<SC>"
+tox SOURCE
+mov  xmatalter( 1 1  xtostr( (tcast_code 0  Tmp)) SOURCE)
+endif
+endif
+end
+enumnum=function:void
+SOURCE=$1:^number(*)
+FROM=$2:number
+nsize,Tmp=^number
+begin:
+tox nsize
+mov  size( SOURCE)
+if vget( nsize 1)<=2
+tox Tmp
+mov  seqsp(  FROM (vget( nsize 2)+FROM-1) vget( nsize 2))
+if type(SOURCE)="<SN>"
+tox SOURCE
+mov  xmatalter( 1 1  (tcast_code 0  Tmp) SOURCE)
+endif
+endif
+end
+enumistr=function:void
+SOURCE=$1:^string(*)
+FROM=$2:number
+INCR=$3:number
+nsize,Tmp=^number
+begin:
+tox nsize
+mov  size( SOURCE)
+if vget( nsize 1)<=2
+tox Tmp
+mov  seq(FROM INCR vget( nsize 2))
+if type(SOURCE)="<SC>"
+tox SOURCE
+mov  xmatalter( 1 1  money( Tmp "" 2 10) SOURCE)
+endif
+endif
+end
+enuminum=function:void
+SOURCE=$1:^number(*)
+FROM=$2:number
+INCR=$3:number
+nsize,Tmp=^number
+begin:
+tox nsize
+mov  size( SOURCE)
+if vget( nsize 1)<=2
+tox Tmp
+mov  seq(FROM INCR vget( nsize 2))
+if type(SOURCE)="<SN>"
+tox SOURCE
+mov  xmatalter( 1 1  Tmp SOURCE)
+endif
+endif
+end

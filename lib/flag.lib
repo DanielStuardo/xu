@@ -1,0 +1,35 @@
+flag=function:void
+bandera=$1:string
+begin:
+tstk_code 7 1
+if xcode_nc 1 (xcode_cc 7 (bandera))>0
+use (stack_flag)
+push bandera
+flag bandera
+else
+if ~isempty()
+flag (trstk_code 1)
+endif
+endif
+end
+unflag=function:void
+begin:
+tstk_code 7 1
+use (stack_flag)
+if ~isempty()
+pop
+if ~isempty()
+flag (trstk_code 1)
+endif
+endif
+end
+getflag=function:string
+begin:
+tstk_code 7 1
+use (stack_flag)
+if ~isempty()
+return xtostr( pop)
+else
+return ""
+endif
+end

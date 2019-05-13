@@ -1,0 +1,16 @@
+// definiciones de etiquetas
+
+#define ON,           1
+#define OFF,          0
+#define CR,           (#10)+(#13)
+#define BKSP,         8          // linux-unix, 8=dos/W
+#define TAB,          "      "
+#define RETRACE,      write chr(8)  // 8
+#define PUT_CURSOR,   write chr(219)         // 124=linux window/dos=(#219)
+#define PROCEDURE,    function:void
+#define KUP,          5
+#define KDOWN,        24
+#define KLEFT,        19
+#define KRIGHT,       4
+#define KESCAPE,      27
+#define KRETURN,      13

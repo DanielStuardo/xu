@@ -1,0 +1,388 @@
+              _  _____ _   _ 
+   |\    /|  / \   |   |   |
+   | \  / | /   \  |   |   |
+   |  \/  | |___|  |   |___|
+   |      | |   |  |   |   |
+
+
+XU posee un set de funciones matemáticas y trigonométricas, las cuales pasaremos a revisar a continuación.
+Estas funciones aplican tanto para variables y números simples, como para matrices.
+La mayoría de los errores pueden ser atrapados con TRY/EXCEPTION.
+Para usar estas funciones, debe escribir "#use math" en la cabecera; para las funciones trigonométricas, debe escribir en la cabecera "#use trig".
+$$END INTRO
+_________________________________________
+________________ TOPICOS ________________
+
+$$BEGIN Numeros aleatorios
+
+_________________________________________
+========== NUMEROS ALEATORIOS ===========
+
+  seed()            Establece una nueva semilla para el generador de números aleatorios.
+                    Ejemplo:
+                       seed(6780)
+  
+  mth.rand(v)       Devuelve un número aleatorio entre 0 y 1. El argumento "v" es un
+                    multiplicador de dicho número.
+                    Ejemplos:
+                       mth.rand(1)  ==> 0.27
+                       mth.rand(10) ==> 2.7
+                    Si "v" es una matriz, usará cada elemento como multiplicador de un
+                    número aleatorio diferente, y devolverá una matriz.
+
+
+$$END Numeros aleatorios
+$$BEGIN Enteros y redondeo
+
+_________________________________________
+========== ENTEROS Y REDONDEO ===========
+
+  mth.int(v)        Devuelve la parte entera de "v".
+                    Si "v" es una matriz, obtiene la parte entera de todos sus elementos.
+                    Ejemplo:
+                       mth.int(10.234) ==> 10
+                    
+  mth.ceil(v)       Calcula la función techo de "v".
+                    Ejemplo:
+                       mth.ceil(2.678)  ==> 3
+                       mth.ceil(2.061)  ==> 3
+
+  mth.floor(v)      Calcula la función piso de "v".
+                    Ejemplo:
+                       mth.floor(2.678)  ==> 2
+                       mth.floor(2.061)  ==> 2
+
+  mth.round(v dec)  Redondea al entero o decimal más cercano de "v", indicado por "dec".
+                    "dec" es la posición decimal de redondeo. Si "dec" es 0, redondea
+                    al entero más cercano.
+                    Ejemplo 1:
+                        mth.round(2.456 0)  ==> 2
+                        mth.round(2.656 0)  ==> 3
+                   
+                    Ejemplo 2:
+                    Sea "M" un vector con los siguientes valores:
+                    
+                    7.90720,6.24283,3.25362,3.66292,2.75490,
+                    1.61894,9.56148,9.75436,1.50342,8.00041
+
+                    mth.round(M 1) =
+                        7.90000,6.20000,3.30000,3.70000,2.80000,
+                        1.60000,9.60000,9.80000,1.50000,8.00000
+                    
+                    mth.round(M 2) = 
+                        7.91000,6.24000,3.25000,3.66000,2.75000,
+                        1.62000,9.56000,9.75000,1.50000,8.00000
+                    
+                    mth.round(M 3) =
+                        7.90700,6.24300,3.25400,3.66300,2.75500,
+                        1.61900,9.56100,9.75400,1.50300,8.00000
+
+
+$$END Enteros y redondeo
+$$BEGIN Funciones comunes
+
+_________________________________________
+========== FUNCIONES COMUNES ============
+
+  v!                Calcula el factorial de "v".
+                    Ejemplos:
+                       5!       ==> 120
+                       (2*5)!   ==> 3628800
+                    
+                    También puede calcular el factorial de una matriz:
+                       (v*2+1)!
+                    
+                   *Si el factorial devuelve un número que supera las capacidades de la
+                    máquina, devuelve INF. Si dicho valor se encuentra dentro de una
+                    matriz, puede usar ISINF() o el castor [\] para identificarlo.
+  
+  mth.abs(v)        Devuelve el valor absoluto de "v".
+                    Ejemplos:
+                       mth.abs(2.456)    ==> 2.456
+                       mth.abs((-2.456)) ==> 2.456
+                    
+                    También se pueden usar los palitos "||":
+                       |2.456|    ==> 2.456
+                       |(-2.456)| ==> 2.456
+
+  mth.sqrt(v)       Devuelve la raíz cuadrada de "v".
+                    Si el argumento es negativo, XU devuelve -1. Sí... comprendo que no
+                    es un resultado esperado, pero XU no trabaja con números complejos,
+                    y -1 como resultado ya es anómalo como para saber que algo salió mal.
+                    Ejemplo:
+                       mth.sqrt(25)   ==>   5
+                    
+                    También puede obtener la raíz cuadrada de cada elemento de una matriz.
+                    
+                   *Raíces n-ésimas se pueden obtener con el operador potencia "^".
+                    Ejemplo:
+                       raíz quinta de 125 = 125^(1/5) = 2.626527804
+
+  mth.log(v)        Calcula el logaritmo en base 10 de "v".
+                    Ejemplo:
+                       mth.log(5)  ==> 0.6989...
+                    
+                    También puede obtener el logaritmo de cada elemento de una matriz, así
+                    como en todas las funciones que seguirán.
+
+  mth.ln(v)         Calcula el logaritmo natural de "v".
+                    Ejemplo:
+                       mth.ln(5)   ==> 1.60943...
+
+  mth.exp(v)        Calcula el exponencial de "v".
+                    Ejemplo:
+                       mth.exp(5)  ==> 148.413159...
+
+
+$$END Funciones comunes
+$$BEGIN Funciones miscelaneas
+
+_________________________________________
+======== FUNCIONES MISCELANEAS ==========
+
+  mth.sgn(v)        Devuelve "1" si "v" es positivo, "-1" si "v" es negativo, y "0" si
+                    "v" es cero.
+
+  mth.min(v w)
+  mth.max(v w)      Obtiene el mínimo y el máximo entre "v" y "w". Y me equivoqué...
+                    Tanto "v" como "w" deben ser números simples. No acepta matrices.
+                    Ejemplo:
+                        mth.min(4 5)  ==> 4
+                        mth.max(4 5)  ==> 5
+                        
+                   *Para obtener mínimos y máximos con matrices, ver las funciones
+                    MAT.MIN, MAT.MAX en la sección "MATRIX", o STK.MIN y STK.MAX en
+                    la sección "STACK" del menú de ayuda.
+
+  mth.gcd(v w)      Calcula el máximo común divisor entre "v" y "w".
+                    Tanto "v" como "w" pueden ser valores simples o matrices, y se
+                    permite combinación de ambos.
+
+  mth.lcm(v w)      Calcula el mínimo común múltiplo entre "v" y "w".
+                    Tanto "v" como "w" pueden ser valores simples o matrices, y se
+                    permite combinación de ambos.
+
+  mth.cels(v)       Calcula el grado Celsius de "v". "v" puede ser una matriz.
+  
+  mth.fahr(v)       Calcula el grado Fahrenheit de "v". "v" puede ser una matriz.
+
+  mth.setdelta(v)   Establece un valor de cercanía que usará la función ISNEAR.
+                    "v" no puede ser una matriz.
+                    Ejemplo 1:
+                       {m,n} <- {1,0.3456}
+                       mth.setdelta(0.05)                                                                                 
+                       write n," está cerca de ",m,"?...",isnear(m n)
+                       write "\n0.7 está cerca de 0.68?...",isnear(0.7 0.68)
+
+                     Salida:
+                       0.3456 está cerca de 1?...NO
+                       0.7 está cerca de 0.68?...YES
+                    
+                    Ejemplo 2:
+                       dim v(5)
+                       mth.setdelta(0.05)
+                       v<-{1,mth.rand(v)}
+                       write v,"\n"
+                       write isnear(v v),"\n"
+                       write isnear(v 0.5)
+                     Salida:
+                       0.1029300517402589,0.9453804036602378,0.0084517165087163,
+                       0.0479994281195104,0.7263887799344957
+                       YES
+                       NO
+                    
+                    *Para más información sobre la función ISNEAR, ver la sección
+                     "MATRIX" del menú de ayuda.
+
+
+$$END Funciones miscelaneas
+$$BEGIN Trigonometria
+
+_________________________________________
+======= FUNCIONES TRIGONOMETRICAS =======
+
+  trg.d2r(v)        Convierte "v" a radianes. Esto es muy útil, porque las funciones
+                    descritas a continuación solo trabajan con radianes.
+
+  trg.r2d(v)        Convierte "v" a grados.
+
+  trg.sin(v)        Calcula el seno de "v".
+  
+  trg.cos(v)        Calcula el coseno de "v".
+  
+  trg.tan(v)        Calcula la tangente de "v".
+  
+  trg.cot(v)        Calcula la cotangente de "v".
+  
+  trg.asin(v)       Calcula el arcoseno de "v".
+  
+  trg.acos(v)       Calcula el arcocoseno de "v".
+  
+  trg.atan(v)       Calcula el arcotangente de "v".
+  
+  trg.sinh(v)       Calcula el seno hiperbólico de "v". Esta es muy útil.
+  
+  trg.cosh(v)       Calcula el coseno hiperbólico de "v".
+  
+  trg.tanh(v)       Calcula la tangente hiperbólica de "v".
+  
+
+EJEMPLOS
+
+  Ejemplo 1:
+     dim g(5)
+     {g,g}<-{89,trg.d2r(mth.ceil(mth.rand (g)))}
+     write "\nMatrices:\n"
+     write "SIN  = ",  trg.sin(g), nl
+     write "COS  = ",  trg.cos(g), nl
+     write "TAN  = ",  trg.tan(g), nl
+     write "COT  = ",  trg.cot(g), nl
+     write "NUMS=",g,"\nASIN = ", trg.asin(g), nl
+     write "NUMS=",g,"\nACOS = ", trg.acos(g), nl
+     write "ATAN = ", trg.atan(g), nl
+     write "SINH = ", trg.sinh(g), nl
+     write "COSH = ", trg.cosh(g), nl
+     write "TANH = ", trg.tanh(g), nl
+    
+    Salida:
+     SIN  = 0.358367949545300,0.857167300702112,0.719339800338651,0.809016994374947,
+            0.224951054343865
+     COS  = 0.933580426497202,0.515038074910054,0.694658370458997,0.587785252292473,
+            0.974370064785235
+     TAN  = 0.383864035035416,1.664279482350518,1.035530313790569,1.376381920471173,
+            0.230868191125563
+     COT  = 2.605089064693802,0.600860619027560,0.965688774807074,0.726542528005361,
+            4.331475874284155
+     NUMS=0.366519142918809,1.029744258676655,0.802851455917392,0.942477796076938,
+          0.226892802759263
+     ASIN = 0.375265045331157,NAN,0.932062815889530,1.229967073304535,0.228886087094804
+     NUMS=0.366519142918809,1.029744258676655,0.802851455917392,0.942477796076938,
+          0.226892802759263
+     ACOS = 1.195531281463740,NAN,0.638733510905366,0.340829253490361,1.341910239700093
+     ATAN = 0.351314747281351,0.800051304884254,0.676477218028962,0.755794016159308,
+            0.223115307318241
+     SINH = 0.374780575136959,1.221625652165200,0.891923234656263,1.088335628916394,
+            0.228844573136153
+     COSH = 1.067923442714874,1.578723925842656,1.339972782007042,1.477996766291741,
+            1.025850787714212
+     TANH = 0.350943298130241,0.773805750434261,0.665627874411240,0.736358599516427,
+            0.223077835370251
+     
+  Ejemplo 2:
+     write "Numero = ", m
+     write "\nEn Rads = ", trg.d2r(m)
+     m<-trg.d2r(30)       // grados a radianes
+
+     write "SIN  = ",  trg.sin  (m), nl
+     write "COS  = ",  trg.cos  (m), nl
+     write "TAN  = ",  trg.tan  (m), nl
+     write "COT  = ",  trg.cot  (m), nl
+     write "ASIN = ", trg.asin (m), nl
+     write "ACOS = ", trg.acos (m), nl
+     write "ATAN = ", trg.atan (m), nl
+     write "SINH = ", trg.sinh (m), nl
+     write "COSH = ", trg.cosh (m), nl
+     write "TANH = ", trg.tanh (m), nl
+
+    Salida:
+     Numero = 30.000000000000000
+     En Rads = 0.523598775598299
+     SIN  = 0.500000000000000
+     COS  = 0.866025403784439
+     TAN  = 0.577350269189626
+     COT  = 1.732050807568878
+     ASIN = 0.551069583099446
+     ACOS = 1.019726743695450
+     ATAN = 0.482347907101025
+     SINH = 0.547853473888040
+     COSH = 1.140238321076429
+     TANH = 0.480472778156452
+
+
+$$END Trigonometria
+$$BEGIN Conjuntos
+
+_________________________________________
+=============== CONJUNTOS ===============
+
+Un conjunto en XU es un vector ordenado con elementos que no se repiten.
+
+Para acceder a estas funciones, debe escribir en la cabecera "#use set".
+
+  unique(M)         Sea "M" una matriz de cualquier dimensión, y de tipo NUMBER o de
+                    de tipo STRING, UNIQUE devuelve un vector ordenado y con valores
+                    únicos, llamado "conjunto".
+                    
+                    Tiene un castor asociado que hace la misma hueá:
+                    
+                       c<-[!M]
+                    
+                    es idéntico a:
+                    
+                       c<-unique(M)
+                    
+                    Si "M" es una matriz de números enteros, le convendría castearlo
+                    a entero para ahorrar memoria.
+                    
+                       c<-(int unique(M))
+
+  setunion(A B)     Efectúa la UNION del conjunto A con el conjunto B.
+  
+  setinter(A B)     Efectúa la INTERSECCION entre el conjunto A y el conjunto B.
+  
+  setdiff(A B)      Efectúa la DIFERENCIA entre A y B.
+                    
+                    Recordar que:
+                        setdiff(A B) <> setdiff(B A)
+
+  setsdiff(A B)     Efectúa la DIFERENCIA SIMÉTRICA entre A y B.
+
+                    Recordar que:
+                        setsdiff(A B) = setsdiff(B A)
+
+EJEMPLO COMPLETO.
+  
+   dim a(10,10)
+   a<-{10,(int mth.ceil(mth.rand(a)))}
+   ."Matriz original:\n"
+   show a 0
+   
+   b<-(int [=5 15 11])
+   a<-(int unique(a))   // ESTO ES NECESARIO PARA TRABAJAR CON CONJUNTOS
+   ."\nconjunto A = ",a,"\n"
+   ."conjunto B = ",b,"\n\n"
+
+   ."A U B  = ",(int setunion(a b)),"\n"   // UNION
+   ."A *U B = ",(int setinter(a b)),"\n"   // INTERSECCION
+   ."A - B  = ",(int setdiff(a b)),"\n"    // DIFERENCIA DE A CON B
+   ."B - A  = ",(int setdiff(b a)),"\n"    // DIFERENCIA DE B CON A
+   ."A *- B = ",(int setsdiff(a b)),"\n"   // DIFERENCIA SIMETRICA
+   ."B *- A = ",(int setsdiff(b a)),"\n"   // DIFERENCIA SIMETRICA
+
+  SALIDA:
+    Matriz original:
+    1 : 2,2,5,2,8,3,9,10,7,9
+    2 : 1,8,3,3,5,4,4,2,2,2
+    3 : 1,6,10,2,5,4,5,4,8,8
+    4 : 6,10,9,6,10,3,2,9,8,7
+    5 : 1,5,2,8,1,4,1,10,1,8
+    6 : 10,7,1,10,1,6,2,8,4,2
+    7 : 8,6,7,3,3,4,6,6,6,7
+    8 : 3,5,2,10,4,1,5,8,2,4
+    9 : 8,3,7,1,8,7,2,9,6,7
+   10 : 10,4,5,8,9,1,7,4,3,7
+   
+   conjunto A=1,2,3,4,5,6,7,8,9,10
+   conjunto B=5,6,7,8,9,10,11,12,13,14,15
+
+   A U B  = 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+   A *U B = 5,6,7,8,9,10
+   A - B  = 1,2,3,4
+   B - A  = 11,12,13,14,15
+   A *- B = 1,2,3,4,11,12,13,14,15
+   B *- A = 1,2,3,4,11,12,13,14,15
+
+
+$$END Conjuntos
+
+FIN DE AYUDA MATH

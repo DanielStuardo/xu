@@ -1,0 +1,472 @@
+    ___ _____   _    ___ _    _
+   /      |    / \  /    |   /
+   \__    |   /   \ |    |__/
+      \   |   |___| |    |  \
+   ___/   |   |   | \___ |   \_
+
+
+Es stack, no "Stark", y este fue el primer set de datos que escribí para XU.
+Un STACK es un vector declarado con el tipo "stack". Esto permite que en el stack puedan ser guardados datos de distinto tipo, y ser, finalmente, un stack.
+Algunas funciones son estándares, pero otras requieren que en la cabecera se escriba "#use stack".
+$$END INTRO
+$$BEGIN Funciones estandar
+
+_________________________________________
+========== FUNCIONES ESTANDAR ===========
+
+  use S             Deja en uso un stack "S". Si se quiere usar funciones de stack
+                    sobre una matriz o vector con tipo, se debe invocar USE.
+                    Ejemplo:
+                      #use stack
+                      vars:
+                         s:=stack
+                         ...
+                      algorithm:
+                         use s
+                         // resto de sentencias
+                      stop
+
+  drop              Limpia un stack o matriz con tipo en uso.
+                    Ejemplos:
+                       n:=^number
+                       s:=stack
+                       ...
+                       use s; drop
+                       use n; drop
+
+$$END Funciones estandar
+$$BEGIN Push y pop
+
+_________________________________________
+============== PUSH Y POP ===============
+
+  push dato
+  push {datos}      Mete un dato, o un conjunto de datos, al stack en uso. También puede
+                    meter datos en un vector con tipo.
+                    La sentencia "push{datos}" es una macro que se separa en diferentes
+                    "push".
+                    Ejemplo:
+                      s:=stack
+                      n:=^number
+                      t,r:=^string
+                      b:=^boolean
+                      ...
+                      use s
+                      push {100,200,"hola",true}
+                      use n
+                      push 5; push 10; push 15
+                      use t
+                      push {"María tenía un corderito","Hola mundo!","Alien"}
+                      use b
+                      push {true,true,true,false,false,true}
+                      dim r(10,10)
+                      r<-100
+                      use s
+                      push r
+                   *NOTA.
+                      No se puede meter un stack dentro de otro stack, solo matrices
+                      con tipo.
+
+  pop               Extrae un dato desde el stack en uso. Si POP es argumento de una
+                    función, o es asignado, recupera el dato del stack y lo deja disponible
+                    para su uso; si se usa como única sentencia, el dato se pierde.
+                    El dato devuelto por POP requiere ser casteado para ser asignado a una
+                    variable de tipo.
+                    Ejemplos:
+                      use s
+                      pop
+                      
+                     *El dato extraído se pierde.
+                      
+                      use s
+                      push {"hola",100,true}
+                      dim r(5,5)
+                      r<-100
+                      use s
+                      push r
+                      use r; drop   // borro la matriz "r"
+                      use s
+                      queue
+                      write "\nSIZE stack = ",[@s]
+                      do
+                         if istype(stk.top "string")
+                            write ($pop)+" mundo!"
+                         elseif istype(stk.top "number")
+                            write (#pop)*100
+                         elseif istype(stk.top "boolean")
+                            write (%pop)
+                         elseif istype(stk.top "<number>")
+                            r<-(^pop)
+                            write r
+                         endif
+                      until isempty
+
+                     Salida:
+                      SIZE stack = 1,4,0,0
+                      hola mundo!
+                      10000
+                      YES
+                      100,100,100,100,100
+                      100,100,100,100,100
+                      100,100,100,100,100
+                      100,100,100,100,100
+                      100,100,100,100,100
+
+$$END Push y pop
+$$BEGIN Recuperacion
+
+_________________________________________
+========== FLAG DE RECUPERACION =========
+
+  flag "recover"    Cuando se usa POP a secas, el dato recuperado se pierde en el olvido.
+                    No obstante, se puede recuperar una matriz, si es que antes de meterla
+                    al stack se levantó un flag. Este flag es "recover".
+                    Ejemplo largo:
+                      #use stack,matrix
+                      vars:
+                        w:=stack
+                        n:=^number
+                        s:=^string
+                        b:=^boolean
+                        i:=number
+                      algorithm:
+                        precision 0
+                        dim n(5,5)  // matriz 2D de 25 números
+                        n<-10
+                        dim b(10)
+                        b<-true
+                        dim s(10)
+                        s<-"Hola"
+                        use(w)
+                        flag "recover"  // magia...
+                        push{n,b,s}
+                        flag ","   /* baja la bandera de "recovery" y lo dejamos listo
+                                      para "write" */
+                      /* mostramos el stack */
+                        ."Contenido del stack W:\n"
+                        for i<-1 to [[@w] 2]
+                           write (mat.row(i)) mat.get,"\n"
+                        next
+                        ."\nAhora borramos las matrices...\n"
+                      /* borramos las matrices */
+                        use(n); drop
+                        use(s); drop
+                        use(b); drop
+                      /*  hasta aquí */
+                        
+                        use w
+
+                      sub "muestra tamaños"
+                        ."\nTamaño de matrices:\n"
+                        ."N=",[@n],"\n"
+                        ."B=",[@b],"\n"
+                        ."S=",[@s],"\n"
+                        ."Tamaño stack: ",[@w],"\n"
+                      back
+                        
+                        gosub "muestra tamaños"
+                        queue   // recuperará la matriz "n".
+                        ."\nRecupera matriz \"N\":\n"
+                        pop
+                        gosub "muestra tamaños"
+                      /* recuperará el resto de las matrices en orden "queue" */
+                        ."\nRecupera matriz \"B\" y \"S\":\n"
+                        pop
+                        pop
+                        gosub "muestra tamaños"
+                      stop
+
+                    Salida:
+                      Contenido del stack W:                                                                                
+                      10,10,10,10,10
+                      10,10,10,10,10
+                      10,10,10,10,10
+                      10,10,10,10,10
+                      10,10,10,10,10
+
+                      YES,YES,YES,YES,YES,YES,YES,YES,YES,YES
+                      Hola,Hola,Hola,Hola,Hola,Hola,Hola,Hola,Hola,Hola
+
+                      Ahora borramos las matrices...
+
+                      Tamaño de matrices:
+                      N=1,0
+                      B=1,0
+                      S=1,0
+                      Tamaño stack: 1,3
+                      Recupera matriz "N":
+                      Tamaño de matrices:
+                      N=2,5,5
+                      B=1,0
+                      S=1,0
+                      Tamaño stack: 1,2
+                      Recupera matriz "B" y "S":
+                      Tamaño de matrices:
+                      N=2,5,5
+                      B=1,10
+                      S=1,10
+                      Tamaño stack: 1,0
+
+
+$$END Recuperacion
+$$BEGIN Queue y deque
+
+_________________________________________
+============= QUEUE Y DEQUE =============
+
+  queue             Setea el stack para extraer datos como si fuese una cola.
+                    Esto significa que el primer dato en ser extraído, es el primero
+                    que se introdujo al stack.
+                    Ejemplo:
+                      use s
+                      push {"hola","mundo",100}
+                      queue
+                      do
+                         write pop,", "
+                      until isempty
+
+                    Salida:
+                      hola, mundo, 100 
+  
+  deque             Setea el stack para extraer datos como si fuese una pila.
+                    Significa que el primer dato en ser extraído, es el último que se
+                    introdujo en el stack.
+                    Ejemplo:
+                      use s
+                      push {"hola","mundo",100}
+                      deque
+                      do
+                         write pop,", "
+                      until isempty
+
+                    Salida:
+                      100, mundo, hola
+                   
+                   *QUEUE y DEQUE pueden ser intercaladas según la necesidad.
+
+
+$$END Queue y deque
+$$BEGIN Manipulacion de stacks
+
+  isempty()         Devuelve "true" si el stack está vacío.
+                    Ejemplo:
+                      use s
+                      push 100
+                      write isempty()   ==>  false
+                      drop
+                      write isempty()   ==>  true
+                    
+                   *ISEMPTY Puede escribirse sin paréntesis.
+  
+  type(v)           Devuelve el tipo del dato de "v".
+                    Los tipos que maneja TYPE son los siguientes:
+                      "string"    ==> string simple
+                      "number"    ==> número simple
+                      "boolean"   ==> booleano simple
+                      "<string>"  ==> matriz de string
+                      "<number>"  ==> matriz de number
+                      "<boolean>" ==> matriz de booleanos
+                    Ejemplo:
+                      use s
+                      push "hola"
+                      write type(stk.top)   ==> "string"
+                      write type(s)         ==> "<string>"
+                      
+
+  stk.top()         Devuelve el dato en el tope de la lista, sin extraerlo.
+                    Ejemplo:
+                      use s
+                      push {"hola","mundo",100}
+                      deque
+                      write stk.top     ==>  100
+                      queue
+                      write stk.top     ==>  "hola"
+  
+  stk.ins           Inserta un espacio en un stack, en una posición indicada por la
+                    función MAT.ROW.
+                    La nueva posición queda inicializada con la cadena nula "<null>".
+                    Luego, dicha posición se puede llenar con MAT.PUT.
+                    Ejemplo:
+                      s:=stack
+                      r:=^string
+                      ...
+                      use s
+                      push "hola"
+                      dim r(10) ; r<-"cadena"
+                      use s ; push r
+                      push {10,20,30}
+                      write "\nSIZE stack = ",[@s],"\n"
+                      mat.row(2)
+                      stk.ins
+                      write "Posición insertada hay :",mat.get,"\n"
+                      mat.put( ^[10,20,30,40,50] )
+                      write "Ahora hay un vector :",mat.get,"\n"
+                      do
+                         write "\nDATO (tipo ",type(stk.top),"): ",pop,"\n"
+                      until isempty
+
+                    Salida:
+                      SIZE stack = 1,5                                                                                      
+                      Posición insertada hay :<null>                                                                        
+                      Ahora hay un vector :10,20,30,40,50
+                      DATO (tipo number): 30
+                      DATO (tipo number): 20
+                      DATO (tipo number): 10
+                      DATO (tipo <string>): cadena,cadena,cadena,cadena,cadena,cadena,
+                                            cadena,cadena,cadena,cadena
+                      DATO (tipo <number>): 10,20,30,40,50
+                      DATO (tipo string): hola
+
+                 **IMPORTANTE**
+                    MAT.GET puede leer una matriz desde un stack sin tipo, pero no lo hace
+                    desde un stack con tipo. La razón es que cuando se usa un stack sin
+                    tipo, XU se configura para trabajar con él, disponiendo de funciones
+                    internas que posibilitan ese trabajo. Cuando se trabaja con stack con
+                    tipo, o sea, matrices tipadas, dichas funciones internas no están
+                    disponibles. Así es que si quieres meter matrices dentro de un stack,
+                    este debe ser sin tipo.
+  
+  stk.del           Borra un elemento del stack, cuya posición fue previamente marcada
+                    por la función MAT.ROW.
+                    Ejemplo:
+                       use s
+                       push {"hola",100,false}
+                       write s,"\n"
+                       mat.row(2)
+                       stk.del
+                       write s,"\n"
+                    
+                    Salida:
+                       hola, 100, NO
+                       hola, NO
+              
+              **IMPORTANTE**
+                Tanto STK.INS como STK.DEL no obedecen a QUEUE o DEQUE, sino, a MAT.ROW,
+                y esta última toma las posiciones absolutas de los elementos del stack,
+                independiente de la forma en que se ha seteado su extracción.
+
+  stk.min(v)
+  stk.max(v)        Obtienen el mínimo y el máximo de una lista. Esta es una opción 
+                    barata cuando solo se necesita conocer un valor mínimo o máximo de
+                    un vector, en contraste con MAT.MIN y MAT.MAX, que son más complejas.
+                    Ejemplo:
+                       use s
+                       push {10,200,1,(-1),900,1890,3,4,5}
+                       write "Mínimo:",stk.min(s),"\nMáximo:",stk.max(s)
+                    
+                    Salida:
+                       Mínimo:-1
+                       Máximo:1890
+
+
+$$END Manipulacion de stacks
+$$BEGIN Ejemplo de uso
+
+_________________________________________
+========EJEMPLO DE USO DE STACKS ========
+
+El siguiente programa completo muestra un uso inteligente de FLAGS, apoyado por STACKS.
+La idea del programa (convertido en librería) es manipular FLAGS mediante un stack declarado GLOBAL en la sección VARS.
+Además, veremos un uso útil para el tipo de dato VARIANT. 
+
+            #use stack,string
+            vars:
+              stack_flag:=stack
+              a:=number
+              m:=^number
+              v:=variant
+              s:=string
+
+            functions:
+               flag:=function:void
+                 bandera:=$1:variant
+               begin:
+                 use stack_flag
+                 push bandera
+                 flag stk.top
+               end
+
+            // Saca un FLAG del stack y lo deja disponible para su uso.
+               unflag:=function:void
+               begin:
+                 deque
+                 use (stack_flag)
+                 if ~isempty()
+                    pop
+                    if ~isempty()
+                       flag stk.top
+                    endif
+                 endif
+               end
+
+            // lee el FLAG y lo devuelve, sin quitarlo del stack.
+            // Si el stack está vacío, devuelve una cadena nula
+               getflag:=function:variant
+               begin:
+                 deque
+                 use (stack_flag)
+                 if ~isempty()
+                    return (?stk.top)
+                 else
+                    return (?"")
+                 endif
+               end
+
+            algorithm:
+               precision 0
+               .flag(100)
+               .flag("B")
+
+               v<-.getflag
+               write "\nRecibe de GETFLAG=",v,"\n"   
+               write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+               s<-($v)
+               write "\nVariant casteado=",s
+               .unflag
+               write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+               v<-.getflag
+               a<-(#v)*100
+               write "Operacion entre number y variant=",a,"\n"
+               dim m(10,10)
+               m<-100
+              // puede meter una matriz como un flag...porque, recuerde: un "flag"
+              // es el parámetro que nunca existió.
+               .flag(m)
+               .flag(true)
+               write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+               .unflag
+               write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+               .unflag
+               write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+            stop
+
+     SALIDA:
+
+            Recibe de GETFLAG=B
+
+            Tipo=string
+            B
+
+            Variant casteado=B
+            Tipo=number
+            100
+            Operacion entre number y variant=10000
+
+            Tipo=boolean
+            YES
+
+            Tipo=<number>
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+            100,100,100,100,100,100,100,100,100,100
+
+
+$$END Ejemplo de uso
+FIN DE AYUDA STACK

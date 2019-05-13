@@ -1,0 +1,131 @@
+/************************************
+   Definiciones en español para XU.
+   Autor: Dr. Dalien
+ ************************************/  
+
+#define VARIABLES,    vars
+#define NUMEROS,      number
+#define NUMERO,       number
+#define CADENAS,      string
+#define CADENA,       string
+#define LOGICAS,      boolean
+#define LOGICA,       boolean
+#define VACIO,        void
+#define ARCHIVOS,     file
+#define ARCHIVO,      file
+#define FUNCIONES,    functions
+#define FUNCION,      function
+#define FUNC,         function
+#define INICIO,       begin
+#define FIN SI,       endif
+#define FIN MIENTRAS, wend
+#define MIENTRAS,     while
+#define REPITE,       do
+#define HASTA QUE,    until
+#define ALGORITMO,    algorithm
+#define DETENTE,      STOP
+#define SIGUIENTE,    next
+#define PARA,         for
+#define SINO SI,      elseif     // una opción considerada en if
+#define SINO,         else       // opción última de un if
+#define SALIR SI,     exitif     // sale de un ciclo si se cumple la condición
+#define CONTINUA,     continue   // salta al inicio de la estructura para continuar
+#define SALIR,        break      // sale de un while, do o select
+#define RETORNA,      return     // retorno de una función
+#define SELECCIONA,   select     // estructura de seleccion select
+#define FIN SELEC,    send       // fin de la estructura select
+#define OTRO CASO,    otherwise  // opción no contemplada en los case
+#define CASO,         case       // caso a evaluar de select
+#define HASTA,        to         // particula del for ... to
+#define INCREMENTA,   step       // incremento del for ... to... step
+#define PAUSA,        pause      // genera una pausa en la ejecución
+#define IMPRIME,      write      // escribe un dato en pantalla
+#define ESCRIBE,      write
+#define MUESTRA,      write
+#define INTENTA,      try        // inicio estructura TRY/EXCEPTION
+#define EXCEPCION,    exception  
+#define FIN INTENTA,  tend
+#define SSI,          iif        // condicional en una sola línea
+#define LEE,          readinput  // lee un dato desde teclado, con formato de entrada
+#define ADIOS,        goodbye    // termina prematuramente un programa
+#define VERDAD,       true       // valor/funcion de verdad
+#define FALSO,        false      // valor/funcion de falsedad
+/*
+    MATEMATICAS
+ */
+#define ENT,          mth.int
+#define SIGNO,        mth.sgn
+#define LOG10,        mth.log
+#define LOG,          mth.ln
+#define REDONDEO,     mth.round
+#define ABS,          mth.abs
+#define RAIZ,         mth.sqrt
+#define PISO,         mth.floor
+#define TECHO,        htm.ceil
+#define ARCTAN,       trg.atan
+#define ARCSEN,       trg.asin
+#define ARCCOS,       trg.acos
+#define EXP,          mth.exp
+#define SENH,         trg.sinh
+#define COSH,         trg.cosh
+#define TANH,         trg.tanh
+#define COTAN,        trg.cot
+#define COS,          trg.cos
+#define SEN,          trg.sin
+#define TAN,          trg.tan
+#define AZAR,         mth.rand
+/*
+    MATRICES
+ */
+#define REDIM,        reshape    // redimensiona una matriz, sin borrar los valores
+/*
+    LISTAS
+ */
+#define PILA,         queue      // modo pila para extraer datos de lista
+#define COLA,         deque      // modo cola
+#define METE,         push       // mete un dato a la lista
+#define SACA,         pop        // saca un dato de la pila y devuelve ese dato
+#define USA,          use        // señala que usará esa lista
+#define LIMPIA,       drop       // limpia la lista
+#define EXTRAE,       pop        // saca un dato, pero se pierde
+/*
+    ARCHIVOS
+ */
+#define CREAR,        fcreate    // crea un archivo de texto
+#define ABRIR,        fopen      // abre el archivo de texto
+#define CERRAR,       fclose     // cierra el archivo de texto
+#define EXISTE,       fexist     // devuelve VERDAD si el archivo existe
+#define UBICAR,       fseek      // ubica el puntero del archivo en modo lectura en una posicion
+#define FDA,          feof       // devuelve VERDAD si se ha llegado al fin de la lectura del archivo 
+#define REBOBINAR,    .frewind   // funcion de usuario que envia el puntero del archivo al inicio
+#define IR AL FINAL,  .fend      // funcion de usuario que envia el puntero del archivo al final
+#define POSICION,     .frelative // funcion de usuario que devuelve la posición donde está el puntero
+#define LEER,         freads     // lee un string/caracter desde el archivo
+#define GUARDAR,      fwrites    // escribe un string/caracter en un archivo
+#define LEER BIN,     freadb     // lee un caracter binario desde el archivo
+#define GUARDAR BIN,  fwriteb    // escribe un valor binario en archivo
+/*
+    CONJUNTOS
+ */
+#define UNION,        setunion   // union de conjuntos
+#define INTERSECCION, setinter   // interseccion de conjuntos
+#define DIFSIM,       setsdiff   // diferencia simétrica de conjuntos
+#define DIFERENCIA,   setdiff    // diferencia de conjuntos
+#define UNICO,        unique     // quita los elementos repetidos de un conjunto
+/*
+    OTROS
+ */
+#define DIM,          1          // parámetros para arreglos y matrices (size|[@...])
+#define FILA,         2
+#define FIL,          2
+#define COL,          3
+#define COLUMNA,      3
+#define PAGINA,       4
+#define PAG,          4
+#define BLOQUE,       5
+#define BLOQ,         5
+#define .Y.,          and
+#define .O.,          or
+#define SI,           if         // condicional if
+#define FIN,          end        // fin de función
+

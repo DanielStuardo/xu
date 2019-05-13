@@ -1,0 +1,102 @@
+do_input=function:^string
+n=$1:number
+s=$2:^string
+XY=$3:^number
+str=string
+begin:
+at(mget( XY 1 n) mget( XY 2 n))
+tox str
+mov  mget( s 1 n)
+mput s 1 n xcode_ccc 3 (str mget( s 2 n))
+return s
+end
+structInput=function:void
+s=$1:^string(ref)
+ST=$2:string
+n,i=number
+tipo=^string
+begin:
+tox tipo
+mov ST/","
+tox n
+mov  vget( size( tipo) 2)
+set_array 2 n 0 0
+config_array s
+tox i
+mov 1
+do
+mput s 1 i ""
+until (finc i)>n
+use s
+tfstk_code 1 (2)
+tfstk_code 2 (1)
+.putdata (tipo)
+end
+structAt=function:void
+XY=$1:^number(ref)
+ST=$2:string
+tipo=^number
+i,j,nSize=number
+begin:
+tox tipo
+mov xtonum(  (ST/","))
+tox nSize
+mov  vget( size( tipo) 2)
+set_array 2 (nSize\2) 0 0
+config_array XY
+tox j
+mov 1
+tox i
+mov 1 - 1
+while i < nSize
+inc i
+mput XY 1 j vget( tipo i)
+mput XY 2 j vget( tipo (finc i))
+inc j
+wend
+end
+input=function:^string
+s=$1:^string
+XY=$2:^number
+i,k,n=number
+begin:
+tox k
+mov 0
+tox i
+mov 1
+tox n
+mov  vget( size( s) 3)
+status true
+do
+tox s
+mov .do_input(i s XY)
+tox k
+mov lastkey
+if k=27
+tox i
+mov 1
+do
+mput s 1 i ""
+until (finc i)>n
+status false
+break
+elseif k=24
+if i=n
+tox i
+mov 1
+else
+inc i
+endif
+elseif k=5
+if i=1
+tox i
+mov n
+else
+dec i
+endif
+elseif k=13
+inc i
+endif
+until k=13 and i=(n+1)
+return s
+end

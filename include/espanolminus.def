@@ -1,0 +1,140 @@
+/************************************
+   Definiciones en español para XU.
+   Autor: Dr. Dalien
+ ************************************/  
+
+#define variables    vars
+#define números      number
+#define numeros      number
+#define número       number
+#define numero       number
+#define cadenas      string
+#define cadena       string
+#define lógicas      boolean
+#define lógica       boolean
+#define logicas      boolean
+#define logica       boolean
+#define vacío        void
+#define vacio        void
+#define archivos     file
+#define archivo      file
+#define funciones    functions
+#define función      function
+#define funcion      function
+#define func         function
+#define inicio       begin
+#define fin si       endif
+#define fin mientras wend
+#define mientras     while
+#define repite       do
+#define hasta que    until
+#define algoritmo    algorithm
+#define detente      STOP
+#define siguiente    next
+#define para         for
+#define sino si      elseif     // una opción considerada en if
+#define sino         else       // opción última de un if
+#define salir si     exitif     // sale de un ciclo si se cumple la condición
+#define continúa     continue   // salta al inicio de la estructura para continuar
+#define continua     continue
+#define salir        break      // sale de un while do o select
+#define retorna      return     // retorno de una función
+#define selecciona   select     // estructura de seleccion select
+#define fin selec    send       // fin de la estructura select
+#define otro caso    otherwise  // opción no contemplada en los case
+#define caso         case       // caso a evaluar de select
+#define hasta        to         // particula del for ... to
+#define incrementa   step       // incremento del for ... to... step
+#define pausa        pause      // genera una pausa en la ejecución
+#define imprime      write      // escribe un dato en pantalla
+#define escribe      write
+#define muestra      write
+#define ssi          iif        // condicional en una sola línea
+#define lee          readinput  // lee un dato desde teclado con formato de entrada
+#define adiós        goodbye    // termina prematuramente un programa
+#define adios        goodbye
+#define verdad       true       // valor/funcion de verdad
+#define falso        false      // valor/funcion de falsedad
+/*
+    MATEMATICAS
+ */
+#define ent          mth.int
+#define signo        mth.sgn
+#define log10        mth.log
+#define log          mth.ln
+#define redondeo     mth.round
+#define abs          mth.abs
+#define raiz         mth.sqrt
+#define piso         mth.floor
+#define techo        htm.ceil
+#define arctan       trg.atan
+#define arcsen       trg.asin
+#define arccon       trg.acos
+#define exp          mth.exp
+#define senh         trg.sinh
+#define cosh         trg.cosh
+#define tanh         trg.tanh
+#define cotan        trg.cot
+#define cos          trg.cos
+#define sen          trg.sin
+#define tan          trg.tan
+#define azar         mth.rand
+/*
+    MATRICES
+ */
+#define redim        reshape    // redimensiona una matriz sin borrar los valores
+/*
+    LISTAS
+ */
+#define pila         queue      // modo pila para extraer datos de lista
+#define cola         deque      // modo cola
+#define mete         push       // mete un dato a la lista
+#define saca         ^pop       // saca un dato de la pila y devuelve ese dato
+#define usa          use        // señala que usará esa lista
+#define limpia       drop       // limpia la lista
+#define extrae       pop        // saca un dato pero se pierde
+/*
+    ARCHIVOS
+ */
+#define crear        fcreate    // crea un archivo de texto
+#define abrir        fopen      // abre el archivo de texto
+#define cerrar       fclose     // cierra el archivo de texto
+#define existe       fexist     // devuelve VERDAD si el archivo existe
+#define ubicar       fseek      // ubica el puntero del archivo en modo lectura en una posicion
+#define fda          feof       // devuelve VERDAD si se ha llegado al fin de la lectura del archivo 
+#define rebobinar    .frewind   // funcion de usuario que envia el puntero del archivo al inicio
+#define ir al final  .fend      // funcion de usuario que envia el puntero del archivo al final
+#define posición     .frelative // funcion de usuario que devuelve la posición donde está el puntero
+#define posicion     .frelative
+#define leer         freads     // lee un string/caracter desde el archivo
+#define guardar      fwrites    // escribe un string/caracter en un archivo
+#define leer bin     freadb     // lee un caracter binario desde el archivo
+#define guardar bin  fwriteb    // escribe un valor binario en archivo
+/*
+    CONJUNTOS
+ */
+#define unión        setunion   // union de conjuntos
+#define union        setunion
+#define intersección setinter   // interseccion de conjuntos
+#define interseccion setinter
+#define difsim       setsdiff   // diferencia simétrica de conjuntos
+#define diferencia   setdiff    // diferencia de conjuntos
+#define único        unique     // quita los elementos repetidos de un conjunto
+#define unico        unique
+/*
+    OTROS
+ */
+#define DIM          1          // parámetros para arreglos y matrices (size|[@...])
+#define FILA         2
+#define FIL          2
+#define COL          3
+#define COLUMNA      3
+#define PAGINA       4
+#define PAG          4
+#define BLOQUE       5
+#define BLOQ         5
+#define .y.          and
+#define .o.          or
+#define si           if         // condicional if
+#define fin          end        // fin de función
+

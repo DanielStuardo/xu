@@ -1,0 +1,6 @@
+#define STKNUMBER,      "<SN>"
+#define STKSTRING,      "<SC>"
+#define STKBOOLEAN,     "<SB>"
+#define NUMBER,         "<N>"
+#define STRING,         "<C>"
+#define BOOLEAN,        "<B>"

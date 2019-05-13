@@ -1,0 +1,237 @@
+   ___     _  _____ _____   _   _____ _ _      _ _____
+   |  \   / \   |   |      / \    |   | |\    /| |
+   |   | /   \  |   |___   \_/    |   | | \  / | |___
+   |   | |___|  |   |      / \/   |   | |  \/  | |
+   |__/  |   |  |   |____  \_/\   |   | |      | |____
+   
+
+XU posee muchas funciones para trabajar con fechas, y da lo necesario para hacer cositas con horas.
+
+Agradecer a Harbour y a sus contribuyentes por unas excelentes funciones, y antes de ellos, a Clipper, por haber sido el primer lenguaje de programación que se preocupó de este tópico. Todos los demás, arrogantes culiaos, decían "hágalo usted mismo".
+
+Para acceder a estas funciones, debe escribir en la cabecera "#use date".
+$$END INTRO
+_________________________________________
+________________ TOPICOS ________________
+
+$$BEGIN Funciones de Hora
+
+_________________________________________
+=========== FUNCIONES DE HORA ===========
+
+  timenow           Devuelve un string con la hora del sistema.
+                    Ejemplo:
+                       write timenow   ==>  "18:37:44"
+  
+  istime(v)         Devuelve "true" si la hora en "v" es válida.
+                    Ejemplos:
+                       write istime("18:37:44") ==> YES
+                       write istime("27:37:44") ==> NO
+                       
+                       use mTime; drop
+                       push {"12:24:10","25:01:00","02:14:89"}
+                       write "\nHoras en array? = ", istime( mTime )
+                    ==> YES,NO,NO   
+
+  seconds(v)        Devuelve los segundos transcurridos desde la medianoche hasta la
+                    hora en "v".
+                    Si "v" es vacío (""), devuelve los segundos desde la medianoche 
+                    hasta la hora actual.
+                    Ejemplos:
+                       use mTime; drop
+                       t<-timenow
+                       push {"12:24:10","21:01:00","02:14:02"}
+                       write "\nSegundos desde medianoche en array = ",seconds(mTime)
+                       write "\nSegundos desde medianoche = ",seconds("")
+                       write "\nSegundos desde medianoche hasta ",t," = ",seconds(t)
+                      
+                      Salida:
+                       Segundos desde medianoche en array = 44650,75660,8042
+                       Segundos desde medianoche = 68880.885
+                       Segundos desde medianoche hasta 19:07:59 = 68879
+
+  elaptime(v w)     Devuelve el tiempo transcurrido entre la hora "v" y la hora "w", en
+                    formato "hh:mm:ss".
+                    Ejemplo:
+                       use mTime; drop
+                       t<-timenow
+                       push {"12:24:10","21:01:00","02:14:02"}
+                       write "\nTiempo transcurrido entre array y ",t," = ", &
+                               elaptime(mTime t)
+                       write "\nTiempo transcurrido entre medianoche y hora actual = ",&
+                               elaptime("00:00:00" t)
+
+                      Salida:
+                       Tiempo transcurrido entre array y 19:13:33 = 
+                                                             06:49:23,22:12:33,16:59:31
+                       Tiempo transcurrido entre medianoche y hora actual = 19:13:33
+
+  sec2time(v)       Devuelve la hora en formato "hh:mm:ss" obtenida desde los segundos
+                    transcurridos desde la medianoche.
+                    Ejemplo:
+                       write "\nHora actual? ",sec2time(seconds(""))
+                       write "\nHora de 68879? ",sec2time(68879)
+                       use aTime; drop
+                       push {7890,12897,80989}
+                       write "\nHora desde segundos en array? ",sec2time(aTime)
+
+                      Salida:
+                       Hora actual? 19:24:10
+                       Hora de 68879? 19:07:59
+                       Hora desde segundos en array? 02:11:30,03:34:57,22:29:49
+
+
+-) MACROS PARA OBTENER HORA, MINUTOS Y SEGUNDOS.
+
+   Las siguientes macros, hechas en XU, permiten obtener, desde una hora en formato 
+   "hh:mm:ss", la hora, los minutos y los segundos en forma separada.
+   Requieren agregar "#use math" en la cabecera.
+
+   #define HOUR(Hs)     mth.int ( Hs / 3600 )
+   #define SECOND(X)    X - mth.int( X / 60 ) * 60 
+   #define MINUTES(X)   mth.int( (X - ( ( HOUR(X) ) * 3600 ) - (SECOND(X)) ) / 60 )
+   
+   Ejemplos:
+     t<-timenow
+     ."\nHora de ",t," = ", HOUR(seconds(t)),"\n"
+     ."\nMinutos de ",t," = ",MINUTES(seconds(t)),"\n"
+     ."\nSegundos de ",t," = ",SECOND(seconds(t)),"\n"
+      
+   Salida:
+     Hora de 19:40:18 = 19
+     Minutos de 19:40:18 = 40
+     Segundos de 19:40:18 = 18
+
+
+$$END Funciones de Hora
+$$BEGIN Funciones de fecha
+
+_________________________________________
+========== FUNCIONES DE FECHAS ==========
+
+  datenow           Devuelve un string con la fecha del sistema.
+                    Ejemplo:
+                       write datenow  ==> "30/12/2018"
+
+  isleap(v)         Devuelve "true" si el año en "v" es bisiesto. La variable "v"
+                    debe ser numérica, y debe contener un año.
+                    Acepta una matriz como argumento.
+
+  date2ansi(v)      Devuelve el valor ANSI de la fecha en "v".
+                    Acepta una matriz como argumento.
+
+  ansi2date(v)      Devuelve la fecha en formato "dd/mm/aaaa" de un valor ANSI en "v".
+                    Acepta una matriz como argumento.
+  
+  date.day(v)       Devuelve el día del mes de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.month(v)     Devuelve el mes de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.year(v)      Devuelve el año de la fecha en "v".
+                    Acepta una matriz como argumento.
+
+  date.week(v)      Devuelve el índice de la semana de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.ndweek(v)    Devuelve el índice del día de la semana de la fecha en "v".
+                    Asume el primer día, o día "1", el día domingo.
+                    Acepta una matriz como argumento.
+  
+  date.dmonth(v)    Devuelve el número de días que componen el mes de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.dyear(v)     Devuelve el índice del día en el año de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.sdweek(v)    Devuelve el nombre del día de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.smonth(v)    Devuelve el nombre del mes de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.quarter(v)   Devuelve el índice del cuatrimestre de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.bquarter(v)  Devuelve el inicio del cuatrimestre de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  date.equarter(v)  Devuelve el fin del cuatrimestre de la fecha en "v".
+                    Acepta una matriz como argumento.
+  
+  dateadd(v n)      Suma (o resta, si "n" es negativo) días a la fecha en "v".
+                    Acepta ambos argumentos como arrays, y combinaciones con variables
+                    simples.
+  
+  daysdiff(v w)     Devuelve el número de días que difieren entre la fecha en "v" y
+                    la fecha en "w".
+                    Si la fecha "v" es menor a la fecha "w", el resultado es negativo.
+                    Ambos pueden ser matrices, y se aceptan combinaciones con variables
+                    simples.
+
+
+$$END Funciones de fecha
+$$BEGIN Ejemplo
+
+_________________________________________
+================ EJEMPLO ================
+
+   Observe el uso de las funciones con estos ejemplos.
+   
+   d<-datenow
+   write "\n\tFecha natural       = ",  d
+   write "\n\tEs año bisiesto?    = ", isleap(date.year(d))
+   write "\n\tFecha -> ansi       = ", date2ansi(d)
+   write "\n\tAnsi -> fecha       = ", ansi2date(date2ansi(d))
+   write "\n\tCuatrimestre        = ", date.quarter(d)
+   write "\n\t\tInicia    = ", date.bquarter (d)
+   write "\n\t\tfinaliza  = ", date.equarter (d)
+   write "\n\tIndice Día          = ", date.day    (d)
+   write "\n\tIndice Mes          = ", date.month  (d)
+   write "\n\tIndice Año          = ", date.year   (d)
+   write "\n\tIndice Semana       = ", date.week   (d)
+   write "\n\tInd. Día de Semana  = ", date.ndweek (d)
+   write "\n\tDías en el mes      = ", date.dmonth (d)
+   write "\n\tNº día del ANO      = ", date.dyear (d)
+   write "\n\tNombre del día      = ", date.sdweek (d)
+   write "\n\tNombre del Mes      = ", date.smonth (d)
+   write "\n\tActual - 10 días    = ", dateadd (d (-10))
+   write "\n\tActual + 10.25 días    = ", dateadd (d 10.25)
+   write "\n\tactual - 12/7/2010  = ", daysdiff (d "12/07/2010")
+   write "\n\t12/7/2010 - actual  = ", daysdiff ("12/07/2010" d)
+   mDate<-"10/12/1980,8/4/1991,9/10/2016,20/10/2018"/","
+   reshape mDate(2,2)
+   write "\n\tResta de fechas string-Matriz = ",daysdiff(mDate "21/10/2018")*(-1)
+
+  SALIDA:
+  
+        Fecha natural       = 30/12/2018
+        Es año bisiesto?    = NO
+        Fecha -> ansi       = 20181230
+        Ansi -> fecha       = 30/12/2018
+        Cuatrimestre        = 4
+                Inicia    = 01/10/2018
+                finaliza  = 31/12/2018
+        Indice Día          = 30
+        Indice Mes          = 12
+        Indice Año          = 2018
+        Indice Semana       = 52
+        Ind. Día de Semana  = 1
+        Días en el mes      = 31
+        Nº día del ANO      = 364
+        Nombre del día      = Domingo
+        Nombre del Mes      = Diciembre
+        Actual - 10 días    = 20/12/2018
+        Actual + 10.25 días    = 09/01/2019
+        actual - 12/7/2010  = 3093
+        12/7/2010 - actual  = -3093
+        Resta de fechas string-Matriz = 13829,10058,742,1
+
+  *Sí... es año nuevo y yo haciendo un puto manual.
+
+
+$$END Ejemplo
+
+FIN DE AYUDA DATE
+ 

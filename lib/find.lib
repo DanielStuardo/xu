@@ -1,0 +1,76 @@
+findex=function:^number
+M=$1:^string
+COL=$2:number
+SUBTIP=$3:string
+SIGNO=$4:string
+DATO=$5:variant
+col=number
+r,tmp,tMat=^number
+begin:
+tox col
+mov  vget( size( M) 3)
+use tMat
+tstk_code 5 1
+if COL>0 and COL<=col
+use tmp
+tstk_code 5 1
+push COL
+tox r
+mov  matrange( 2  vget( size( M) 2) tmp)
+if SUBTIP="N"
+tox tmp
+mov  afindstk(  xtonum( grange( M r)) SIGNO xtonum( DATO))
+elseif SUBTIP="S"
+tox tmp
+mov  afindstk(  xtostr( grange( M r)) SIGNO xtostr( DATO))
+elseif SUBTIP="D"
+tox tmp
+mov  afindstk(  xtonum(  tdate_code 1 (grange( M r))) SIGNO xtonum(  tdate_code 1 ( xtostr(  DATO) )))
+endif
+if vget( size( tmp) 2)>0
+tox tMat
+mov  matrange( 3  tmp col)
+endif
+endif
+return tMat
+end
+find=function:^string
+M=$1:^string
+COL=$2:number
+SUBTIP=$3:string
+SIGNO=$4:string
+DATO=$5:variant
+col=number
+retorno=^string
+tmp,r=^number
+begin:
+use retorno
+tstk_code 5 1
+tox col
+mov  vget( size( M) 3)
+if COL>0 and COL<=col
+use tmp
+tstk_code 5 1
+push COL
+tox r
+mov  matrange( 2  vget( size( M) 2) tmp)
+if SUBTIP="N"
+tox tmp
+mov  afindstk(  xtonum( grange( M r)) SIGNO xtonum( DATO))
+elseif SUBTIP="S"
+tox tmp
+mov  afindstk(  xtostr( grange( M r)) SIGNO xtostr( DATO))
+elseif SUBTIP="D"
+tox tmp
+mov  afindstk(  xtonum(  tdate_code 1 (grange( M r))) SIGNO xtonum(  tdate_code 1 ( xtostr(  DATO) )))
+else
+return retorno
+endif
+if vget( size( tmp) 2)>0
+tox retorno
+mov  grange( M matrange( 3  tmp col))
+reshape retorno vget( size( tmp) 2) col 0 0
+endif
+endif
+return retorno
+end

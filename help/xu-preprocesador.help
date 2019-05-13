@@ -1,0 +1,222 @@
+   ___  ___  ____    ___  ___   __   ___ ____  ___  ___  __  ___
+   |  \ |  \ |       |  \ |  \ /  \ /    |    /    /    /  \ |  \
+   |  | |  | |__  __ |  | |  | |  | |    |__  \__  \__  |  | |  |
+   |__/ |__/ |       |__/ |__/ |  | |    |       \    \ |  | |__/
+   |    |  \ |___    |    |  \ \__/ \___ |___ ___/ ___/ \__/ |  \
+$$END INTRO
+PREPROCESAMIENTO
+
+XU preprocesa todo, incluso aquello. Ahora veremos algunos aspectos importantes de este tópico.
+
+$$BEGIN Asignaciones
+
+_________________________________________
+============== ASIGNACIONES =============
+
+Las asignaciones se realizan de izquierda a derecha, usando como operador "<-".
+
+TIPOS DE ASIGNACIONES
+
+Normal:
+-) a <- v            el valor "v" es asignado a la variable "a".
+
+Generoso:
+-) {a,b,c} <- v      el valor "v" es asignado a "a","b" y "c".
+
+Democrático:
+-) {a,b} <- {v1,v2}  el valor "v1" es asignado a "a", y el valor "v2" es asignado a "b".
+
+Nadie sabe para quién trabaja:
+-) a <- b <- c ...   "c" se asigna a "b", y este a "a".
+
+"Hoyo negro":
+-) a <- {b, c, ...}  "b" se asigna a "a", y "c" también. Esto parece huevón, pero tiene utilidad. Ejemplo:
+                     
+   dim n(10)  // declara "n" como array de 10 numeros
+   n <- {10,mth.ceil(mth.rand(n))}
+
+   Primero, asigna "10" al array, o sea, llena el array con "10". Luego, la función "RAND" toma cada elemento de "n" como multiplicador de un número aleatorio, y modifica el array "n".
+
+
+$$END Asignaciones
+$$BEGIN Macro #define
+
+_________________________________________
+======== DEFINICIONES #DEFINE ===========
+
+El preprocesador existe para escribir menos. Esa es la misión de "#DEFINE".
+Con este tag se pueden escribir porciones de código y referenciarlas con nombres. Visualmente, se parecen a las funciones, pero no son funciones.
+Lo que sucede es que en tiempo de compilación, lo referenciado con "#DEFINE" es reemplazado por el código al cual referencia. En cambio, una función se procesa de otra forma, es una dirección aparte, y existe un trabajo de proceso de argumentos mediante pilas.
+Grupos de declaraciones "#DEFINE" pueden ser agrupados en archivos ".def" que pueden ser incluidos en el programa por medio de "#INCLUDE".
+
+EJEMPLOS
+
+-) La siguiente es una declaración simple:
+
+  #define _TIC(V)   V<-seconds("")
+  #define _TOC(V)   seconds("")-V
+    :
+  _TIC(t)
+  .funcion()
+  write "Elapsed time = ",_TOC(t)
+
+El código anterior se resuelve en tiempo de compilación de la siguiente forma:
+
+  t<-seconds("")
+  .funcion()
+  write "Elapsed time = ",seconds("")-t
+
+-) Declaraciones complejas:
+
+  #define _LOOP(V,W,CODIGO)  do \\
+                               CODIGO  \\
+                             until V=W
+     :
+  _LOOP((++m),10,."Iteración #"+($m)+"\n")
+
+El código anterior se resuelve de la siguiente forma:
+
+   do
+      write "Iteración #"+($m)+"\n"
+   until (++m)=10
+
+OBSERVACIONES. Cuando se usan varias líneas dentro de un "#DEFINE", se debe colocar "\\" al final de cada línea, menos la última.
+
+-) El siguiente código proporciona un medio rápido para calcular datos relativos a horas, minutos y segundos.
+
+   /**** TIME *****/
+   #use math,date
+
+   #define ADDMIN(X,Y)    X + ( Y * 60)
+   #define HOUR(Hs)       mth.int ( Hs / 3600 )
+   #define SECOND(X)      X - mth.int( X / 60 ) * 60
+   #define MINUTES(X)     mth.int((X-((HOUR(X))*3600)-(SECOND(X)))/60)
+      :
+   t<-timenow
+   seg<-seconds(t)
+   ."\nSUMA ",t," + 12 mins = ",sec2time(ADDMIN(seg,12)),"\n"
+   ."\nHora de ",t," = ", HOUR(seg),"\n"
+   ."\nMinutos de ",t," = ",MINUTES(seg)
+
+Se resuelve de la siguiente forma:
+   
+   t<-timenow
+   seg<-seconds(t)
+   write "\nSUMA ",t," + 12 mins = ",sec2time(seg + ( 12 * 60 )),"\n"
+   write "\nHora de ",t," = ", mth.int ( seg / 3600 ),"\n"
+   write "\nMinutos de ",t," = ",mth.int((seg-((mth.int ( seg / 3600 ))*3600)-(X - mth.int( X / 60 ) * 60))/60)
+
+Con el ejemplo anterior se comprueba que con "#DEFINE" se escribe menos.
+Pero, hablando en serio, se puede ver que puede ser usado un "#DEFINE" declarado con anterioridad dentro de otro "#DEFINE".
+Otra cosa importante, es que el alcance de un #DEFINE va desde el momento de su declaración en adelante, sin considerar el código escrito antes de su declaración. Para tenerlo en cuenta.
+
+
+$$END Macro #define
+$$BEGIN Bifurcacion inline
+
+_________________________________________
+========= BIFURCACIONES INLINE ==========
+
+Una bifurcación inline sirve para ahorrarse líneas con "IF". Un ejemplo simple es el siguiente:
+
+  v <- { a<0 or n=1 ? 100 : (-100) }
+
+Esto se resuelve así:
+
+  if a<0 or n=1
+     v <- 100
+  else
+     v <- (-100)
+  endif
+
+Otro ejemplo es con funciones:
+
+  msg <- ^["El proceso terminó OK","El proceso cagó",&
+           "El proceso quedó Indefinido"]
+    :
+  write strupper( {retorno=0?[msg 1]:{retorno<0?[msg 2]:[msg 3]}})
+
+Esto se resuelve así:
+
+  if retorno=0
+     write strupper([msg 1])
+  else
+     if retorno<0
+        write strupper([msg 2])
+     else
+        write strupper([msg 3])
+     endif
+  endif  
+
+Otro ejemplo. Asignación de un valor a variables de manera selectiva:
+
+  !{n=0?v1:{n=1?v2:{n=2?v3:v4}}} <- 0
+
+Esto se resuelve así:
+
+  if n=0
+     v1 <- 0
+  else
+     if n=1
+        v2 <- 0
+     else
+        if n=3
+           v3 <- 0
+        else
+           v4 <- 0
+        endif
+     endif
+  endif
+
+Sí. Concuerdo que de puro "pajero" no usé "elseif", aunque para efectos de la versión binaria, no tiene ninguna diferencia.
+  
+Para más información, ver sección "CONTROL" del menú.
+
+
+$$END Bifurcacion inline
+$$BEGIN Macro #include
+
+_________________________________________
+===== INCLUSION DE ARCHIVOS "DEF" =======
+
+Un archivo "DEF" se incluye en la cabecera del programa, mediante el tag "#INCLUDE".
+
+  #include <ruta>/archivo.def
+
+Es necesario incluir la ruta, aunque dicho archivo esté en el directorio INCLUDE de XU. Esta es una falta que no pienso reparar aún.
+Ejemplo:
+
+  #include include/files.def
+  
+Incluye las macros de definición de archivos.
+
+
+$$END Macro #include
+$$BEGIN Macro #import
+
+_________________________________________
+======= INCLUSION DE FUNCIONES ==========
+
+Las funciones de usuario deben ser compiladas como "librerías" antes de ser importadas al programa.
+Para incluir funciones desde una librería, se usa "#IMPORT", y se debe usar dentro del espacio de funciones "FUNCTIONS:".
+Ejemplo:
+
+  functions:
+    #import fechas.*
+
+Se insertará la librería completa desde la línea del "#import".
+
+    #import fechas.sumaanio
+
+Se insertará la función "sumaanio" desde "fechas".
+
+    #import fechas.{definesiglo,sumaanio}
+
+Se insertarán las funciones "definesiglo" y "sumanio", en ese orden.
+
+OBSERVACIONES. Si una función es invocada antes de ser declarada, XU lo mandará a la mierda. Una función debe ser declarada antes de ser usada.
+
+
+$$END Macro #import
+
+FIN DE AYUDA DE PREPROCESAMIENTO

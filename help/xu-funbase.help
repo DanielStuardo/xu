@@ -1,0 +1,247 @@
+   ____    _    ___ _____ 
+   |   \  / \  /    |     
+   | __/ /   \ \__  |___  
+   |   \ |___|    \ |     
+   |___/ |   | ___/ |____ 
+
+
+La conversión de base numérica se realiza de dos maneras: a través de castores especiales, o en tiempo de compilación. Los castores aceptan tanto variables o valores simples, como matrices.
+$$END INTRO
+$$BEGIN Bases numericas
+
+_________________________________________
+============ BASES NUMERICAS ============
+
+Es posible escribir números en base 2, 8 y 16, directamente en asignaciones y operaciones. De manera interna, XU realiza la detección y conversión de estos números a decimal.
+
+Un número en base Binaria, Octal y Hexadecimal, debe escribirse con el prefijo "0x", y debe ser terminado con la letra que identifica la base, en minúscula: "h","o" y "b".
+Ejemplo:
+  
+  0x1100010101b     Número binario.
+  0x7BFh            Número hexadecimal.
+  0x10274o          Número octal.
+
+Si se omite el último caracter, XU mandará un error.
+
+OPERACIONES CON NUMEROS DE DISTINTA BASE.
+
+Como XU convierte los números de distinta base a decimal en tiempo de compilación, es posible realizar operaciones tanto aritméticas como binarias.
+
+Ejemplo:
+
+  m,n,o:=number
+  aM:=^number
+  
+  ...
+
+  o<-0x1223o
+  write "Octal: ",o,"\n... x 0.25: ",0.25*0x1223o,"\n"
+  m<-0x8AF34h
+  write "Hexadecimal: ",m,"\n"
+  m<-0x0011010b * 2
+  write "Binairo: ",m,"\n"
+  write "chr(): ",0x1101b,", ", chr((32+0x1101b)),"\n"
+
+  n<-0x11111111b
+  write n,"\n" 
+  [.n 3 5]<-0x101b
+  write n,"\n"
+  ."\nSUMA aditiva:\n"
+  n<-0x11111111b + 0x111b
+  write "0x11111111b + 0x111b = ",n
+  write "\nSUMA BINARIA:\n"
+  n<-(OR 0x11111111b 0x111b)
+  write "0x11111111b or 0x111b = ",n,"\n"
+  ."\nNo es lo mismo una suma aditiva que una suma binaria\n"
+  
+  write "\nHEXA: 0xAB12h = ",0xAB12h
+  dim aM(10)
+  aM<-{0x1010b,mth.ceil(mth.rand(aM))*0xAB12h}
+  show [+| aM (aM/0xAB12h)] 0
+  ."\n"
+
+Salida:
+
+  Octal: 659
+  ... x 0.25: 164.75
+  Hexadecimal: 569140
+  Binairo: 52
+  chr(): 13, -
+  255
+  239
+
+  SUMA aditiva:
+  0x11111111b + 0x111b = 262
+  SUMA BINARIA:
+  0x11111111b or 0x111b = 255
+
+  No es lo mismo una suma aditiva que una suma binaria
+
+  HEXA: 0xAB12h = 43794
+      1 : 394146,9
+      2 : 437940,10
+      3 : 350352,8
+      4 : 87588,2
+      5 : 43794,1
+      6 : 262764,6
+      7 : 43794,1
+      8 : 87588,2
+      9 : 175176,4
+     10 : 175176,4
+
+
+$$END Bases numericas
+$$BEGIN Cambio de base
+
+_________________________________________
+============ CAMBIO DE BASE =============
+
+El cambio de base se realiza mediante castores.
+Para acceder a estos castores, se debe escribir en la cabecera "#use base".
+
+  (Bx m)            Convierte "m" a BINARIO. "m" debe ser un número entero.
+  
+  (Hx m)            Convierte "m" a HEXADECIMAL. "m" debe ser un número entero.
+  
+  (Ox m)            Convierte "m" a OCTAL. "m" debe ser un número entero.
+  
+  (BDx b)           Convierte de BINARIO a DECIMAL. "b" debe ser un string.
+  
+  (HDx h)           Convierte de HEXADECIMAL a DECIMAL. "h" debe ser un string.
+  
+  (ODx o)           Convierte de OCTAL a DECIMAL. "o" debe ser un string.
+
+
+EJEMPLOS.
+
+   Ejemplo 1:
+     
+    ."\nBIN 749:",(Bx749)
+    ."\nHEXA 749:",(Hx749)
+    ."\nOCTAL 749:",(Ox749),"\n"
+    ."\nDEC 45HCF:",(HDx"45HCF")
+    ."\nDEC 100101:",(BDx"100101")
+    ."\nDEC 25654:", (ODx"25654"),"\n"
+    
+   Salida:
+     BIN 749:1011101101
+     HEXA 749:2ED
+     OCTAL 749:1355
+
+     DEC 45HCF:282575
+     DEC 100101:37
+     DEC 25654:11180
+   
+   Ejemplo 2:
+     Conversión numérica de arrays.
+     
+     dim m(5,5)
+     m<-{255,mth.ceil(mth.rand(m))}
+     ."\nMatriz Decimal:\n"
+     show m 0
+     
+     ."\nMatriz Binaria:\n"
+     show (Bxm) 0
+     
+     ."\nMatriz Hexadecimal:\n"
+     show (Hxm) 0
+     
+     ."\nMatriz Octal:\n"
+     show (Oxm) 0
+   
+   Salida:
+     Matriz Decimal:
+     1 : 114,58,156,227,173
+     2 : 130,86,100,195,230
+     3 : 57,245,94,31,155
+     4 : 133,246,204,116,48
+     5 : 45,155,192,50,201
+
+     Matriz Binaria:
+     1 : 1110010,111010,10011100,11100011,10101101
+     2 : 10000010,1010110,1100100,11000011,11100110
+     3 : 111001,11110101,1011110,11111,10011011
+     4 : 10000101,11110110,11001100,1110100,110000
+     5 : 101101,10011011,11000000,110010,11001001
+
+     Matriz Hexadecimal:
+     1 : 72,3A,9C,E3,AD
+     2 : 82,56,64,C3,E6
+     3 : 39,F5,5E,1F,9B
+     4 : 85,F6,CC,74,30
+     5 : 2D,9B,C0,32,C9
+
+     Matriz Octal:
+     1 : 162,72,234,343,255
+     2 : 202,126,144,303,346
+     3 : 71,365,136,37,233
+     4 : 205,366,314,164,60
+     5 : 55,233,300,62,311
+
+   Ejemplo 3:
+     
+     b<-(Bx m)
+     ."\nMatriz Binaria:\n"
+     show b 0
+     ."\nMatriz convertida:\n"
+     show (BDxb) 0
+
+     b<-(Hx m)                                                                                        
+     ."\nMatriz Hexadecimal:\n"
+     show b 0
+     ."\nMatriz convertida:\n"
+     show (HDx b) 0
+
+     b<-(Ox m)
+     ."\nMatriz Octal:\n"
+     show b 0
+     ."\nMatriz convertida:\n"
+     show (ODx b) 0
+     
+   Salida:
+   
+     Matriz Binaria:
+     1 : 10000000,100110,100,10010111,10111000
+     2 : 10000,10001010,1010010,1110100,10100100
+     3 : 11010110,10100011,10111011,101010,10011110
+     4 : 11,10110000,11101100,1000011,11000011
+     5 : 11111110,100110,110000,1011010,10011000
+
+     Matriz convertida:
+     1 : 128,38,4,151,184
+     2 : 16,138,82,116,164
+     3 : 214,163,187,42,158
+     4 : 3,176,236,67,195
+     5 : 254,38,48,90,152
+
+     Matriz Hexadecimal:
+     1 : 80,26,4,97,B8
+     2 : 10,8A,52,74,A4
+     3 : D6,A3,BB,2A,9E
+     4 : 3,B0,EC,43,C3 
+     5 : FE,26,30,5A,98
+
+     Matriz convertida:
+     1 : 128,38,4,151,184
+     2 : 16,138,82,116,164
+     3 : 214,163,187,42,158
+     4 : 3,176,236,67,195
+     5 : 254,38,48,90,152
+
+     Matriz Octal:
+     1 : 200,46,4,227,270
+     2 : 20,212,122,164,244
+     3 : 326,243,273,52,236
+     4 : 3,260,354,103,303
+     5 : 376,46,60,132,230
+
+     Matriz convertida:
+     1 : 128,38,4,151,184
+     2 : 16,138,82,116,164
+     3 : 214,163,187,42,158
+     4 : 3,176,236,67,195
+     5 : 254,38,48,90,152
+
+
+$$END Cambio de base
+FIN AYUDA DE BASE

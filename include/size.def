@@ -1,0 +1,5 @@
+#define DIM,   1
+#define ROW,   2
+#define COL,   3
+#define PAGE,  4
+#define BLOCK, 5

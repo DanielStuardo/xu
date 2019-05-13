@@ -1,0 +1,5 @@
+// constantes
+
+#define nl,          "\n"
+#define writeln,     ."\n"
+

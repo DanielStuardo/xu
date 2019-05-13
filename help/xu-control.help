@@ -1,0 +1,381 @@
+    ___  __        _____ ___   __
+   /    /  \ |\  |   |   |  \ /  \ |   
+   |    |  | | \ |   |   |  | |  | |   
+   |    |  | |  \|   |   |__/ |  | |   
+   \___ \__/ |   |   |   |  \ \__/ |___
+$$END INTRO
+
+CONTROL DE FLUJO
+
+La siguiente es una descripción de las sentencias que controlan el flujo de ejecución de un programa XU.
+
+$$BEGIN Iteracion
+_________________________________________
+=============== ITERACION ===============
+
+Las principales instrucciones de iteración de XU son las siguientes:
+
+-) Ciclo WHILE:
+
+   Ejecutará las instrucciones mientras <expresion> sea verdadera.
+   
+     while <expresion>
+        :
+     wend
+   
+   Puede ponerse al final de una instrucción, pero no de un conjunto de instrucciones:
+     
+     write chr(179), while (++n)<40
+     write "\nValor extraído: ",pop, while ~isempty
+
+-) Ciclo DO/UNTIL:
+
+   Ejecutará las instrucciones hasta que <expresión> sea verdadera.
+     
+     do
+        :
+     until <expresion>
+   
+   Puede ponerse al final de una instrucción, pero no de un conjunto de instrucciones:
+     
+     .F(n), until (--n)<0
+     write "\nValor extraído: ",pop, until isempty
+
+-) Ciclo LOOP:
+
+   Es un loop infinito. Cuidado. Use "breakif" para salir de él.
+
+   loop
+      :
+      brkif <expresion>
+      :
+   lend
+   
+   No puede ponerse al final de ninguna instrucción.
+
+
+$$END Iteracion
+$$BEGIN Macros de iteracion
+
+_________________________________________
+========== MACROS DE ITERACION ==========
+
+Las macros de iteración son convertidas a ciclo WHILE en la etapa de compilación, ajustados y optimizados para el tipo de trabajo que realizan las macros.
+
+Ninguna de estas macros pueden ponerse al final de una instrucción.
+
+-) Iteración ascendente:
+
+   for VAR <- <ini> TO <fin> [ step <inc> ]
+      :
+   next 
+
+-) Iteración descendente:
+
+   for VAR <- <ini> DOWNTO <fin> [ step <inc> ]
+      :
+   next
+   *NOTA: <inc> debe ser positivo. Internamente realiza la resta de VAR.
+
+-) Iteración sobre un string:
+
+   for each VAR in STRING
+      :
+   next
+   *NOTA: STRING debe contener substrings separados por espacios en blanco. Si STRING
+   contiene otros tokens, usar FLAG. Por ejemplo:
+   
+   s<-"Hola,mundo,loco,y,weá!"  // string simple
+   flag ","
+   for each v in s
+      write v,"\n"
+   next
+   
+-) Iteración sobre un vector:
+
+   for each VAR inlist VECTOR
+      :
+   next
+   *NOTA: VECTOR debe ser eso, un vector. No se admiten matrices de dimensiones
+    superiores, ni tampoco matrices filas ni matrices columnas.
+
+
+$$END Macros de iteracion
+$$BEGIN Quiebre de iteracion
+
+_________________________________________
+========= QUIEBRE DE ITERACION ==========
+
+-) Familia de instrucciones de salto BREAK.
+
+   Estas instrucciones se usan, tanto en iteraciones, como en la estructura de evaluación EVAL.
+   La instrucción BREAK es la única que se usa en ambas clases de estructuras. El resto, solo
+   se usa en ciclos.
+   Las instrucciones que evalúan respecto a CERO, fueron creadas principalmente para ser
+   usadas en la estructura LOOP, pero hay que saber usarla, para no caer en un ciclo infinito.
+   No obstante, también pueden ser usadas en otras estructuras iterativas, dado que son más
+   rápidas que BRKIF para esa clase de validaciones: la evaluación es interna, y no explícita,
+   como en el primer caso. Esto significa que:
+   
+      brkz n
+   
+   siempre será más rápido que:
+   
+      brkif n=0
+   
+   BREAK    Quiebra un ciclo, o sale de la actual evaluación con EVAL.
+   BRKIF    Se usa para salir de un ciclo iterativo FOR, WHILE, LOOP, DO.
+            Ejemplo:
+            brkif i=100   // salta cuando i=100
+   BRKZ     Sale de los ciclos aludidos, si la variable es cero.
+            Ejemplo:
+            brkz n
+   BRKNZ    Sale de los ciclos aludidos, si la variable no es cero.
+            Ejemplo:
+            brknz n
+   BRKGZ    Sale de los ciclos aludidos, si la variable es mayor que cero.
+            Ejemplo:
+            brkgz n
+   BRKGEZ   Sale de los ciclos aludidos, si la variable es mayor o igual que cero.
+            Ejemplo:
+            brkgez n
+   BRKLZ    Sale de los ciclos aludidos, si la variable es menor que cero.
+            Ejemplo:
+            brklz n
+   BRKLEZ   Sale de los ciclos aludidos, si la variable es menor o igual que cero.
+            Ejemplo:
+            brklez n
+            
+-) CONTINUE
+   Vuelve a evaluar la <expresión> del ciclo, o al principio de la iteración.
+
+
+$$END Quiebre de iteracion
+$$BEGIN Bifurcacion IF
+
+_________________________________________
+============ BIFURCACION IF =============
+
+Las principales instrucciones de bifurcación y selección de XU son las siguientes:
+
+-) IF/ELSEIF/ELSE
+
+     if <expresión>
+        :
+    [ elseif <expresión-2> ]
+        :
+     else
+        :
+     endif
+   
+   Puede ponerse al final de una instrucción, pero no de un conjunto de instrucciones,
+   pero solo en su forma abreviada, no puede usarse ELSE ni ELSEIF:
+   
+     i<-i+1, if i=0
+     break, if ~sw
+
+
+$$END Bifurcacion IF
+$$BEGIN Macros de bifurcacion
+
+_______________________________________
+======= MACROS DE BIFURCACION =========
+
+Las siguientes macros de bifurcación se desarrollan en sentencias "IF", y pueden ser comprobadas compilando con la opción "-p". El archivo de preprocesamiento puede ser chequeado en el directorio "DEBUG", con extensión ".xpre".
+Son una adaptación de lo que existe en "C". Vaya mi homenaje.
+
+  *OBSERVACION. El caracter "!" es un caracter de escape que indica a XU que tendrá que hacer una "movida mágica" para procesar el grupo encerrado entre "{}" a continuación.
+
+-) VAR <- {{<expresión> ? <opcion-1> : <opcion-2>}}
+
+   Si <expresión> es "true", se asigna <opcion-1> a VAR; de lo contrario, se asigna 
+   <opcion-2> a VAR.
+   Es una macro que se desarrolla en una estructura IF en la compilación.
+   Ejemplo:
+   
+ * a <- {{c=0 ? a+1 : (a-1)*2}}
+
+   *NOTA: si "c=0", asigna "a+1" a "a"; de lo contrario, asigna "(a-1)*2" a "a"
+
+ * a <- { a*5-{i=0?10:20}}
+   
+   *NOTA: "a" se multiplica por "5", y se resta por "10" si "i=0", o por "20" sino. 
+
+   *OBSERVACIONES: cualquier expresión que contenga una macro inline debe estar dentro de
+    "{}". Por ejemplo, la expresión:
+        a <- a*5-{{i=0?10:20}}
+    es incorrecta, porque "a*5" no está dentro de las posibilidades de evaluación de la
+    macro inline.
+
+ * Si "x" es una matriz:
+   x <- {{a = 0 ? !{10,mth.rand(x)} : !{20,mth.ceil(x/5)}}}
+
+   *NOTA: la expresión "!{}" se usa aquí para asignar dos o más valores. Si "a=0", se
+   asigna "10" a "x", y luego, se asigna una matriz con valores aleatorios.
+   De lo contrario, se asigna "20" a "x", y luego, la función techo de la división entre
+   la matriz "x" (que contiene "20") y "5".
+
+ * {x, y} <- {{a>0 ? 0 : (-1)}}
+
+   *NOTA: si "a>0", se asigna "0" a "x" y a "y"; de lo contrario, se asigna "-1" a "x" y
+    a "y".
+
+ * {x, y} <- {{a=0 ? 100 : 200}, {b=0 ? 10*n : 20*n}}
+
+   *NOTA: si "a=0", se asigna "100" a "x"; de lo contrario, se asigna "200" a "x".
+   Si "b=0", se asigna "10*n" a "y"; de lo contrario, se asigna "20*n" a "y".
+
+ * Si "vector" es un vector:
+   [vector {a=0 ? 1 : 2}] <- 0
+
+   *NOTA: si "a=0", se asigna "0" a la posición "1" de "vector"; de lo contrario, se 
+   asigna "0" a la posición "2" de "vector".
+
+-) !{<expresión> ? VAR-1 : VAR-2} <- VALOR
+
+   Si <expresión> es "true", se asigna "VALOR" a VAR-1; de lo contrario, se asigna "VALOR"
+   a VAR-2.
+   Ejemplo: sea s1, s2, s3 y s4 variables del mismo tipo.
+
+ * !{o=1 ? s1 : {o=2 ? s2 : {o=3 ? s3 :s4 }}}<-100
+
+   *NOTA: si "o=3", se asigna "100" a "s3", y el resto queda sin asignar.
+
+ * Sea "w" un vector de string, "c" variable string, y "k" y "n" variables number:
+   !{n=1 ? [ w 3 ] : c} <- {"texto", "X", {k>0 ? "E" : "F"} }
+
+   *NOTA: si "n=1", se asigna "texto" a "[w 3]"; de lo contrario, se asigna "texto" a "c".
+    Por otro lado, si "n=1", se asigna "X" a "[w 3]", y sino, se asigna "X" a "c".
+    Ahora bien, si "n=1", si "k>0", se asigna "E" a "[w 3]", sino, "F"; de lo contrario,
+    si "n=1" es falso, si "k>0", se asigna "E" a "c", sino, "F".
+
+-) FUNCION {<expresion> ? <opcion-1> : <opcion-2> }
+   Una macro de bifurcación puede ser usada en funciones e instrucciones.
+
+ * push {10, {a=0 ? !{100,110,120} : !{10,20,30}}, {b=0 ? (-1) : 1}, 20}
+
+   *NOTA: "push" es una sentencia que mete un dato a un "stack". Veamos cómo se resuelve
+   este trabalenguas:
+   Primero, se mete "10" al stack. Luego, si "a=0", mete "100","110" y "120" al stack,
+   sino, mete "10", "20" y "30" al stack.
+   Luego, si "b=0", mete "-1" al stack, sino, mete "1". Finalmente, mete "20" al stack.
+
+ * write "Estado: ", {error=0 ? "OK" : {error=1 ? "No OK" : "Indefinido"}}
+
+   *NOTA: Se escribirá "Estado:" en pantalla. A continuación, si "error=0", escribirá
+    "OK"; de lo contrario, si "error=1", escribirá "No OK", y si "error" tiene otro valor,
+    escribirá "Indefinido".
+
+
+$$END Macros de bifurcacion
+$$BEGIN Evaluacion por seleccion
+
+_______________________________________
+========= EVALUACION "EVAL" ===========
+
+-) EVAL VAR < FOR|= > <expresión aritmética>|<función>
+
+   Evalúa una variable para una expresión matemática o la llamada a una función que devuelve algo. Se pueden usar las instrucciones "CONTINUE" y "BREAK". "BREAK" corta el flujo de selección. Si no se usa, XU seguirá evaluando el siguiente "CASE".
+   Ejemplo:
+   
+   eval x for .menu()  // .menu() devuelve una opción
+     case x=1:
+        :
+        continue  // vuelve a evaluar "x"
+     case x>=2 and x<5:
+        :
+        break     // se va de "eval"
+     case x between 5 9:  // x está entre "5" y "9"
+        :
+        break
+     case x=10:
+        eval y = "*"*mth.ceil(mth.rand(x))
+        case y = "***":
+           :
+           break
+        :
+        evend    // fin de sub bloque eval
+     otherwise:  // si no es ninguna de las anteriores
+        ."Adiós!"
+   evend   // finaliza bloque principal
+
+
+$$END Evaluacion por seleccion
+$$BEGIN Habitaciones
+
+_______________________________________
+======= "HABITACIONES" (ROOM") ========
+
+-) ROOM <VAR-LOGICA>
+
+   Si <VAR-LOGICA> es "true", ejecutará todo lo que está entre "ROOM" y "REND".
+   
+   room gate_01
+      // sentencias
+   rend
+   
+
+$$END Habitaciones
+$$BEGIN Salto a subrutina
+
+_______________________________________
+========= SUB / GOSUB / BACK ==========
+
+SUB "LABEL" / GOSUB "LABEL"
+
+   Es un "GOTO" disfrazado que corta el flujo de ejecución y ejecuta lo que esté entre "SUB" y "BACK". "BACK" retorna al flujo normal de ejecución, a la línea siguiente después de la llamada "GOSUB".
+   El bloque "SUB" debe colocarse antes de una llamada "GOSUB". XU no ejecutará el bloque "SUB" sino hasta que sea usado "GOSUB".
+   Esto se lo copié a "BASIC", vaya mi homenaje.
+   
+   sub "cuenta"
+      ++n
+   back
+   :
+   gosub "cuenta"
+   
+   La ETIQUETA "LABEL" debe ser una constante string, no una variable. La etiqueta no es tratada como una constante string.
+   Emplear GOSUB es más eficiente que usar una función, pero menos que un #DEFINE.
+
+
+$$END Salto a subrutina
+$$BEGIN Atrapar errores
+
+_______________________________________
+=========== TRY / EXCEPTION ===========
+
+   Sí, convengo que esta instrucción atrapa errores de ejecución, pero también se puede ver como una sentencia de control de flujo.
+   Si hay un error en la ejecución de lo que está entre "TRY" y "EXCEPTION", saltará al bloque "EXCEPTION"-"TEND". Dentro de este bloque, si el error puede ser "arreglado", se puede usar la sentencia "AGAIN" para volver a intentar el bloque "TRY".
+   "AGAIN" es la innovación, pero hay que usarlo con cuidado.
+   
+   WHATSUP.
+   Esta función entrega el código de error devuelto por el atrapa-errores.
+   
+   CLEARTRY.
+   Por otro lado, "CLEARTRY" se usa después de un bloque anidado de "TRY", dado que "TRY" usa un stack interno para controlar los retornos de "AGAIN".
+   Ejemplo que simula el acceso a un archivo esperado, que se demoró porque su "mina" no lo dejaba salir:
+
+   try
+      f <- strload("noexiste.txt" 0 0)
+      not l
+   exception
+      write "Error: ",whatsup(),"\n"
+      if (++c) < 5
+         ."Intento #",c," de leer el archivo..."
+         sleep(3) // espero 3 segundos
+         cmd("echo \"hola cabronazos!\" > noexiste.txt"), if c=4
+         again   // vuelva a intentar
+      endif
+   tend
+   cleartry // no es necesario usar esto aquí
+
+   if l
+      ."Lectura satisfactoria\n"
+      write (color(14)) strupper(f), color(7) "\n"
+      cmd("rm noexiste.txt")
+   else
+      ."\nError al acceder al archivo"
+   endif
+
+
+$$END Atrapar errores
+FIN DE AYUDA CONTROL DE FLUJO

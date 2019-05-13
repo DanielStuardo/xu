@@ -1,0 +1,913 @@
+            _  ___  ___ _____ _       _          _____  __
+   |\    /| | /    /    |     |      / \  |\   | |     /  \
+   | \  / | | \__  |    |___  |     /   \ | \  | |___  |  |
+   |  \/  | |    \ |    |     |     |___| |  \ | |     |  |
+   |      | | ___/ \___ |____ |____ |   | |   \| |____ \__/
+
+
+XU tiene, además de todo lo visto, un lote de funciones y castores misceláneos o estándares, que no requieren de un "#use".
+$$END INTRO
+_________________________________________
+________________ TOPICOS ________________
+$$BEGIN Sentencias basicas
+
+_________________________________________
+========== SENTENCIAS BASICAS ===========
+
+  cls               Borra la pantalla. Bacán.
+
+  pause             Genera una pausa en la ejecución. Para salir de ella, debe presionar
+                    una tecla.
+                    La tecla presionada puede ser atrapada por la función LASTKEY, que
+                    será descrita a continuación.
+
+  goodbye           Termina un programa de manera prematura.
+
+  not b             Cambia el valor de verdad de "b". Si "b" es TRUE, cambia a FALSE, y
+                    viceversa.
+
+  ++ / --           Son una copia mala de los operadores de incremento y decremento del
+                    lenguaje "C". Estos son macros que preprocesan a "inc" y a "finc".
+                    Cuando se usan dentro de una expresión, deben ir entre paréntesis.
+
+                  **IMPORTANTE**
+                    Tanto "++" como "--" son operadores PREFIJOS. No se admiten:
+
+                       n++, i--
+
+                    La explicación de esta restricción es sencilla, y la puede ver en
+                    la función FLAG a continuación dentro de este mismo tópico.
+
+                    Ejemplo:
+                       a <- n * (++i)
+                       s <- strcpy( c (--j) (--strlen(c)) )
+
+                    Cuando se usan de manera independiente, no son necesarios los
+                    paréntesis.
+                    Ejemplo:
+                       do
+                          write "Iteración #",i
+                          ...
+                          ++i
+                       until i=100
+
+
+  precision n       Ajusta la precisión de despliegue de los decimales, así como el de 
+                    la mantisa de un número en notación científica (ver WRITE).
+                    Este ajuste no tiene nada que ver con el ajuste decimal de un
+                    número. Para saber más detalles, ver la sección "PRECISION NUMERICA"
+                    de la sección "INTRO" del menú de ayuda.
+
+  fix(n)            Ajusta la precisión de un número decimal. Los decimales se ajustan
+                    segun el número definido en "n", y debe estar comprendido entre 1
+                    y 15.
+                    Según la máquina, se obtiene una precisión libre del error del coma
+                    flotante con una precisión de 12 o 13 decimales, valor que se 
+                    recomienda.
+                    Para saber más detalles, ver la sección "PRECISION NUMERICA"
+                    de la sección "INTRO" del menú de ayuda.
+
+  e2d(s)            Devuelve un número infijo a partir de un número en notación científica
+                    escrito en una constante string o variable string. No acepta matriz.
+                    
+                    Ejemplo:
+                        write e2d("1.45E4")    ==>  14500.0
+                        write e2d("1.0E200")   ==>  1.0E200
+                    
+                    Esta función es una función interna, pero la refloté por si las moscas.
+
+  type(v)           Devuelve el tipo de la variable "v". Los tipos son los siguientes:
+                    
+                    string     tipo string simple.
+                    number     tipo number simple.
+                    boolean    tipo boolean simple.
+                    <string>   tipo matriz de string.
+                    <number>   tipo matriz de number.
+                    <boolean>  tipo matriz booleana.
+                    (null)     En casos especiales, cuando se inserta un espacio nulo en un
+                               stack.
+                    
+                    TYPE no devuelve el tipo "variant", porque no es un tipo formal, sino,
+                    un recurso que engaña al compilador para aceptar ciertas operaciones
+                    sin huevear.
+
+
+$$END Sentencias basicas
+$$BEGIN Funcion de contexto
+
+_________________________________________
+=========== FUNCION "CONTEXT" ===========
+
+  context "str"     Modifica el contexto de despliegue de valores booleanos y numéricos.
+                    Para información más detallada, ver "TIPOS DE DATOS" de la sección
+                    "INTRO" del menú de ayuda.
+                    Los contextos son los siguientes, junto con un ejemplo de despliegue.
+
+                    Contexto de despliegue BOOLEAN:
+                              true  false
+                      ROBOT    ON    OFF
+                      BOOL     1     0
+                      HUMAN    YES   NO   (por defecto)
+                      LOGIC    TRUE  FALSE
+
+                    Contexto de despliegue NUMBER:
+
+                      NUMBER   despliega números normales.
+                      NOTATION despliega números en notación científica.
+
+
+$$END Funcion de contexto
+$$BEGIN Castores de conversion
+
+_________________________________________
+======== CASTORES DE CONVERSION =========
+
+  ($)               Convierte, o intenta hacerlo, cualquier cosa a string.
+                    Ejemplos:
+                       ($ 120)     ==> 120
+                       ($ true)    ==> YES
+
+                      Si "M" es una matriz:
+                       ($ M) convierte todos los elementos a string
+
+  (#)               Convierte, o intenta hacerlo, cualquier cosa a number.
+                    Ejemplos:
+                       (# "hola mundo") ==> 0
+                       (#true)          ==> 1
+                       (#"120")         ==> 120.0
+
+                      Si "M" es una matriz:
+                       (#M) convierte todos los elementos a number.
+
+  (%)               Convierte, o intenta hacerlo, cualquier cosa a boolean.
+                    Ejemplos:
+                       (% "hola mundo") ==> true
+                       (% 200)          ==> true
+                       (% (-2))         ==> true
+                       (% 0)            ==> false
+                       (%"")            ==> false
+
+                      Si "M" es una matriz:
+                       (% M) convierte todos los elementos a booleanos.
+
+  (^)               Como se vio en la sección STACK de este menú de ayuda, este castor
+                    "castea" un POP a stack, respetando el tipo de la matriz receptora.
+                    Ejemplo:
+                       Si en el stack hay un vector string:
+
+                          s<-(^pop)
+
+                       Copia el vector a "s".
+
+  (?)               Convierte un valor o variable de tipo, en tiempo de compilación, a
+                    un tipo VARIANT. Para saber más, ver el tópico "TIPOS DE DATOS" en
+                    la parte "VARIANT" del menú de ayuda.
+                    Ejemplo:
+                       Si "v" es VARIANT, "n" NUMBER, "s" STRING:
+
+                          v<-(?"hola"), v<-(?true) y v<-(?100*n)
+
+                          n<-(#v)+1   // si "v" contiene un número.
+
+                          s<-strcpy( ($v) 1 5)  // si "v" contiene una cadena.
+
+                       son usos válidos. En cambio:
+
+                          v <- 100
+                          n <- v * 100
+                          s <- strlen(v)
+
+                       son usos erróneos, porque no se ha casteado nada.
+
+  (int)
+  (long)
+  (double)          XU mantiene sus valores numéricos con un permanente tipo de doble
+                    precisión. Esto es técnico. Si desea rebajar el tamaño que ocupan
+                    sus números en memoria, puede usar estos castores.
+                    Ejemplo:
+                       n <- (int M)
+                       m <- (double S)
+
+                    Este casteo solo puede realizarlo con matrices, no con variables
+                    simples.
+
+
+$$END Castores de conversion
+$$BEGIN Funcion FLAG
+
+_________________________________________
+============ FUNCION "FLAG" =============
+
+  flag codigo       La sentencia FLAG es usada en casi todo, porque representa al
+                    parámetro que jamás existió.
+                    No devuelve nada.
+                    Para una explicación mayor, ver el tópico "SENTENCIA FLAG" de la
+                    sección "INTRO" del menú de ayuda.
+                    Un detalle que puede ser un problema para un programador despistado
+                    es el hecho de que un FLAG es persistente, no se consume cuando es
+                    usado. Esto puede llevar a cosas como esta:
+
+                      write mat.sum( (flag "R") datos )  // suma las filas de "datos"
+
+                    desplegará algo como esto:
+                      8R23
+                      25R12
+                      23R28
+
+                    Para evitar esto, se debe agregar un FLAG al final de la línea:
+
+                      write mat.sum( (flag "R") datos )(flag ",")
+
+                    y la salida será correcta:
+
+                      8,23
+                      25,12
+                      23,28
+
+                    Esto ocurre porque el analizador sintáctico de XU lleva todo a 
+                    notación postfija, dejando las sentencias y funciones al final.
+                    Luego, suponiendo que la línea en cuestión es la número 37:
+
+                      write mat.sum( (flag "R") datos )(flag ",")
+
+                    se preprocesa internamente como:
+
+                      ( datos ( "R") flag ) 2 tstats_code ( ",")flag write
+
+                    y se obtiene el siguiente binario (archivo MAP):
+
+                      [00037] : 00390 : 000254 (PUSHS-DATA ADDRESS)
+                      [00037] : 00391 : 000005
+                      [00037] : 00392 : 000254 (PUSHS-DATA ADDRESS)
+                      [00037] : 00393 : 000023
+                      [00037] : 00394 : 000031 (FLAG)
+                      [00037] : 00395 : 000254 (PUSHS-DATA ADDRESS)
+                      [00037] : 00396 : 000001
+                      [00037] : 00397 : 000127 (TSTATS_CODE)
+                      [00037] : 00398 : 000254 (PUSHS-DATA ADDRESS)
+                      [00037] : 00399 : 000024
+                      [00037] : 00400 : 000031 (FLAG)
+                      [00037] : 00401 : 000232 (WRITE)
+
+                    Y esta es la razón por la cual la siguiente línea:
+
+                      write "hola mundo" 5
+
+                    solo despliega "5": "hola mundo" queda sin sentencia que la
+                    consuma. Esto revela un bug en XU cuya única solución, hasta el
+                    momento, es añadir la "," que falta.
+
+                    SOLUCION A LA PERMANENCIA DE FLAG.
+
+                    Para evitar que un FLAG influya donde no debe hacerlo, se ha
+                    pensado en una solución con STACKS.
+                    Para verla, eche un vistazo al tópico "TIPOS DE DATOS" en la
+                    parte que habla sobre el tipo "VARIANT", del menú de ayuda.
+
+
+$$END Funcion FLAG
+$$BEGIN Funciones string estandar
+
+_________________________________________
+=========== FUNCIONES STRING ============
+
+  asc(c)            Devuelve el valor ASCII de "c".
+                    Ejemplo:
+                       write asc("A")    ==> 65
+
+                      Si "M" es una matriz de string: "A","B","C","D",...
+                       write asc(M)      ==> 65,66,67,68,...
+
+  chr(c)            Devuelve el caracter ASCII de "c".
+                    Ejemplo:
+                       write chr(65)     ==> A
+
+                      Si "M" es una matriz de números: 65,66,67,68...
+                       write chr(M)      ==> A,B,C,D,...
+
+  crypt(msg "key")  Cifra y descifra MSG usando la clave "key". La clave debe poseer
+                    8 caracteres como mínimo.
+                    Ejemplo:
+                       s<-crypt("Mensaje secreto" "ks8734nkso")
+                       write s,"\n"
+                       s<-crypt(s "ks8734nkso")
+                       write s,"\n"
+
+                    Salida:
+                                  ☻z!îù±↨°«µ┼↔,%u
+                       Mensaje secreto
+
+                   **IMPORTANTE**
+                    No puede guardar esa clave en un archivo usando STRSAVE. Si quiere
+                    guardarla para asegurar su integridad, guardela usando archivos
+                    binarios. En el apéndice de la sección "FUNCIONES DE ARCHIVOS"
+                    puede ver un ejemplo completo.
+
+
+  mask(v "str")     Enmascara un string al formato indicado en "str".
+                    Esta función no sirve para formatear numeros, para eso existe MONEY.
+                    "str" puede contener cualquier símbolo, pero solo "#" será usado 
+                    para ser remplazado por un caracter de "v". El reemplazdo se efectúa
+                    de derecha a izquierda.
+                    Además, el primer caracter de "str" se usa como relleno.
+                    Ejemplo:
+
+                       write mask("COD001010" "0###-##-##-##")
+                       ==> 0COD-00-10-10
+                       s <- mask("102007C" " ####-###-###)
+                       ==>    1-020-07C
+
+                    También enmascara arrays completos. El resultado será una matriz con
+                    las mismas dimensiones de la matriz fuente, pero de tipo STRING.
+
+                       mask( matriz "str" )
+
+                    La cadena de máscara "str" no puede ser matriz.
+
+  money(n "str" dec ancho)
+                    Enmascara "n" (NUMBER) en formato moneda, con caracter de moneda y
+                    de relleno dado en "str", con decimales si se desean, y con un ancho
+                    determinado.
+                    Ejemplos:
+
+                       n<-money(2899238 " US$" 2 20)
+                       write n,"\n"
+                       n<-money((-2899238) " US$" 2 20)
+                       write n,"\n"
+                       n<-money(2811929238.78 " $" 3 20)
+                       write n,"\n"
+                       n<-money(2811929238.78 " $" 2 20)
+                       write n,"\n"
+                       n<-money(2811929238.78 " $" 1 20)
+                       write n,"\n"
+                       n<-money(2811929238.78 " $" 0 20)
+                       write n,"\n"
+                       n<-money((-2811929238.78) " $" 0 20)
+                       write n,"\n"
+                       n<-money(1.25 " $" 2 20)
+                       write n,"\n\n"
+
+                    Salida:
+                       US$     2,899,238.00
+                       US$    -2,899,238.00
+                       $  2,811,929,238.780
+                       $   2,811,929,238.78
+                       $    2,811,929,238.8
+                       $      2,811,929,239   // notar que redondeó último dígito.
+                       $     -2,811,929,239
+                       $               1.25
+
+                    También enmascara arrays completos. El resultado será una matriz con
+                    las mismas dimensiones de la matriz fuente, pero de tipo STRING.
+
+                       money( matriz "str" de ancho )
+
+                    Tanto la cadena de máscara "str", como "dec" y "ancho", no pueden
+                    ser matrices.
+
+  satura(campos sep|array-largo-pos linea-a-saturar)
+                    Esta función es rebacán. Creo...
+                    Lo que hace es tomar un string o matriz de string de campos, que son
+                    un conjunto de datos, ya sea separados por algún separador "sep" o
+                    que estén dispuestos por largo-posición, y reemplaza los comandos
+                    puestos en "linea-a-saturar" por cada uno de estos campos, por cada
+                    línea leída desde "campos".
+                    El formato de un comando es el siguiente:
+
+                      $i:LARGOL|C|R
+
+                    donde:
+                      $ = indica que puede ser un campo.
+                      i = índice del campo. El índice "0" será el primer campo.
+                      LARGO = es el espacio a considerar en el reemplazo del campo.
+                      L = el campo será saturado hacia la izquierda.
+                      C = el campo será centrado.
+                      R = el campo será saturado hacia la derecha.
+
+                    Se pueden omitir "LARGO", "L","R" y "C".
+
+                **IMPORTANTE**
+                    Si no entrega el separador de los campos cuando corresponda, el
+                    programa abortará con un error de memoria o error de máscara.
+
+                    Ejemplo:
+
+                    vars:
+                      tokns,tokns1,linea,linea1:=string
+                      s:=^string
+                      pos:=^number
+                    algorithm:
+                       tokns<-"Juanito Pérez,5.334.234-K,Av. El Desguesadero S/N,"+&"
+                              "Pedro Aguirre Cerda,300.000"
+                       tokns1<-"Juanito Pérez       5.334.234-K Av. El Desguesadero"+&
+                               " S/N  Pedro Aguirre Cerda    300.000"
+                      /*
+                         Tanto "tokns" como "tokns1" pueden ser matrices de string
+                         pero "linea" y "linea1" no puden serlo.
+                       */
+
+                       linea<-"Yo, $0, RUT n° $1, declaro bajo juramento que vivo en"+&
+                              " $2, comuna de $3.\n\tY créanlo, porque soy $0, y "+&
+                              "gano $$4!!"
+                       linea1<-"$0:30L$1:15L$2:25L$3:20L$4:10R"
+                       use pos
+                       push {20,12,25,20,10}
+
+                       write satura(tokns "," linea)
+                       ."\n"
+                       write satura(tokns1 pos linea)
+                       ."\n"
+                       write satura(tokns1 pos linea1)
+                       ."\n"
+                       write satura(tokns "," linea1)
+                    stop                    
+
+                    Salida:
+
+                    Yo, Juanito Pérez, RUT n° 5.334.234-K, declaro bajo juramento que vivo
+                     en Av. El Desguesadero S/N, comuna de Pedro Aguirre Cerda.
+                             Y créanlo, porque soy Juanito Pérez, y gano $300.000!!
+
+                    Yo, Juanito Pérez, RUT n° 5.334.234-K, declaro bajo juramento que vivo
+                     en Av. El Desguesadero S/N, comuna de Pedro Aguirre Cerda.
+                             Y créanlo, porque soy Juanito Pérez, y gano $300.000!!
+
+                    Juanito Pérez                 5.334.234-K    Av. El Desguesadero S/N
+                      Pedro Aguirre Cerda    300.000
+
+                    Juanito Pérez                 5.334.234-K    Av. El Desguesadero S/N
+                      Pedro Aguirre Cerda    300.000
+
+
+$$END Funciones string estandar
+$$BEGIN Funciones XML
+
+_________________________________________
+============ FUNCIONES XUML =============
+
+XU posee tres humildes funciones para procesar archivos XML, HTML...¡XUML!
+
+  parser(tag content)
+
+                    Crea un tag XUML con el nombre "tag" y contenido "content".
+                    "content" puede ser vacío, con lo cual crea un tag vacío.
+                    "tag" puede contener atributos.
+
+                    Ejemplo SIMPLE:
+
+                       parser ("etiqueta_vacia" "")
+
+                    ==> <etiqueta_vacia></etiqueta_vacia>
+
+                       parser("nombre" "Roberto Gómez Bolaños")
+
+                    ==> <nombre>Roberto Gómez Bolaños</nombre>
+
+                    Sea "w", "t" y "v" variables string:
+                    
+                       w <- parser( "textbox" "hola")
+                       w <- w + parser("textbox1" "chao")
+                       w <- w + parser("button1" "aceptar")
+                       w <- w + parser("button2" "cancelar")
+                       t <- parser("NOMBRE" "Dalien")
+                       t <- t + parser("DIRECCION" "Tarapac\&acute 20")
+                       w <- w + parser("meta_form" t)
+                       w <- w + parser("index" "1")
+                       w <- w + parser("button3" "consultar")
+                       w <- w + parser("index" "2")
+                       v <- parser("form" w)
+                       
+                       write v
+                          
+                     Salida (formateada):
+                       <form>
+                          <textbox>hola</textbox>
+                          <textbox1>chao</textbox1>
+                          <button1>aceptar</button1>
+                          <button2>cancelar</button2>
+                          <meta_form>
+                             <NOMBRE>Dalien</NOMBRE>
+                             <DIRECCION>Tarapac\&acute 20</DIRECCION>
+                          </meta_form>
+                          <index>1</index>
+                          <button3>consultar</button3>
+                          <index>2</index>
+                       </form>
+
+                    Ejemplo con ATRIBUTOS:
+                    
+                       parser("tag stat=\"si\" type= \"mode_x\" color=\"#FFC321\"" "")
+
+                    ==> <tag stat="si" type= "mode_x" color="#FFC321"></tag>
+
+                       parser("nombre estado=1 codemp=\"01\" " "Juanito Pérez")
+                    
+                    ==> <nombre estado=1 codemp="01">Juanito Pérez</nombre>
+
+  unparser(tag mensaje)
+
+                    Obtiene los registros de "tag" pertenecientes al mensaje "mensaje".
+                    Se puede obtener cualquier registro desde dentro del mensaje.
+                    Si los tags se repiten, serán obtenidos en orden, desde el primero
+                    que se encuentra, en adelante.
+                    Si no se encuentra un tag, se produce un error que puede ser
+                    atrapado por TRY/EXCEPTION.
+                    Ejemplo:
+
+                       w <- unparser("form" v)
+
+                    Salida:
+                       <textbox>hola</textbox><textbox1>chao</textbox1><button1>aceptar
+                       </button1><button2>cancelar</button2><meta_form><NOMBRE>
+                       Dalien</NOMBRE><DIRECCION>Tarapac\&acute 20</DIRECCION>
+                       </meta_form><index>1</index><button3>consultar</button3><index>2
+                       </index>
+                    
+                       write unparser "index" w, "\n"
+                       write w,"\n"
+                       write unparser "index" w, "\n"
+                       write w,"\n"
+                       write unparser "textbox1" w, "\n"
+                       write w,"\n"
+                       write unparser "button3" w, "\n"
+                       write w,"\n"
+                       try
+                           write unparser("textbox1" w)
+                       exception
+                           write "No existe el tag \"textbox1\"!!\n\n"
+                       tend
+                       write unparser("button1" w), "\n"
+                       write w,"\n"
+                       t <- unparser("meta_form" w)
+                       write t,"\n"
+                       write "Queda: ",w,"\n"
+                       write unparser("NOMBRE" t),"\n"
+                       write unparser("DIRECCION" t)
+                    
+                    Salida:
+                       1
+                       
+                       <textbox>hola</textbox><textbox1>chao</textbox1><button1>aceptar
+                       </button1><button2>cancelar</button2><meta_form><NOMBRE>
+                       Dalien</NOMBRE><DIRECCION>Tarapac\&acute 20</DIRECCION>
+                       </meta_form><button3>consultar</button3><index>2</index>
+                       
+                       2
+                       
+                       <textbox>hola</textbox><textbox1>chao</textbox1><button1>aceptar
+                       </button1><button2>cancelar</button2><meta_form><NOMBRE>
+                       Dalien</NOMBRE><DIRECCION>Tarapac\&acute 20</DIRECCION>
+                       </meta_form><button3>consultar</button3>
+                       
+                       chao
+                       
+                       <textbox>hola</textbox><button1>aceptar</button1><button2>
+                       cancelar</button2><meta_form><NOMBRE>Dalien</NOMBRE><DIRECCION>
+                       Tarapac\&acute 20</DIRECCION></meta_form><button3>consultar
+                       </button3>
+                       
+                       consultar
+                       
+                       <textbox>hola</textbox><button1>aceptar</button1><button2>
+                       cancelar</button2><meta_form><NOMBRE>Dalien</NOMBRE><DIRECCION>
+                       Tarapac\&acute 20</DIRECCION></meta_form>
+                       
+                       No existe el tag "textbox1"!!
+                       
+                       aceptar
+                       
+                       <textbox>hola</textbox><button2>cancelar</button2><meta_form>
+                       <NOMBRE>Dalien</NOMBRE><DIRECCION>Tarapac\&acute 20</DIRECCION>
+                       </meta_form>
+                       
+                       <NOMBRE>Dalien</NOMBRE><DIRECCION>Tarapac\&acute 20</DIRECCION>
+                       
+                       Queda: <textbox>hola</textbox><button2>cancelar</button2>
+                       
+                       Dalien
+                       Tarapac\&acute 20
+
+  parsatt(tag msg stack-de-atributos)
+
+                    Obtiene "tag" desde "msg", junto con los atributos declarados en
+                    "stack-de-atributos".
+                    Si un atributo no es encontrado, se devuelve una cadena vacía.
+                    También es devuelto el contenido del campo, si existe.
+                    Ejemplo:
+
+                    Sea el siguiente registro:
+
+                       <tag stat="si" type= "mode_x" color="#FFC321"></tag>
+
+                    Para recuperar sus atributos:
+
+                       use a
+                       // se añade una etiqueta que no está en el mensaje "error="
+                       push {"stat="," type =","color = ","error="}
+                       v<-parsatt "etiqueta_vacia" w a
+                       write "leyendo atributos:\n"
+                       write "\t",[a 1]," - ",[a 2]," - ",[a 3]," - ",[a 4],"\n"
+                       write "valor de etiqueta? [", v,"]\n\n"
+
+                    Salidas:
+                       leyendo atributos:
+                               si - mode_x - #FFC321 -
+                       valor de etiqueta? []
+
+                    Sea el siguiente otro registro:
+
+                       <tag stat="si" type= "mode_x" color="#FFC321">DATO</tag>
+
+                    La salida, en este caso, es la siguiente:
+
+                       leyendo atributos:
+                               si - mode_x - #FFC321 -
+                       valor de etiqueta? [DATO]
+
+
+$$END Funciones XML
+$$BEGIN Funciones de sistema
+
+_________________________________________
+======== FUNCIONES DE SISTEMA ===========
+
+  cmd("str")        Ejecuta el comando indicado en "str". Este comando no devuelve
+                    ningún resultado.
+                    Ejemplo:
+                       
+                       cmd("afplay pacman_beginning.wav")
+                    
+                    Ejecuta el programa "afplay", y devuelve el control al programa
+                    una vez que el archivo "wav" haya sido ejecutado.
+                    
+                       cmd("afplay pacman_siren-106.wav -v 0.3 &")
+                    
+                    Ejecuta el programa "afplay", pero devuelve de inmediato el control
+                    al programa.
+                    
+                   **IMPORTANTE**
+                    Si va a invocar un proceso del sistema en background ("&"), debe
+                    tener cuidado de no terminar el programa sin que este proceso siga
+                    ejecutándose. Use SLEEP o PAUSE, o de lo contrario, podría causa un
+                    malfuncionamiento al finalizar el programa. 
+
+  fcmd("str")       Ejecuta el comando indicado en "str", y devuelve el resultado a una
+                    variable de tipo string. El programa se detiene a la espera de que
+                    el proceso invocado termine, por lo que no es recomendable usarlo
+                    para procesos background.
+                    Ejemplo:
+                    
+                       s <- cmd("ls *.c -l")
+                    
+                    devuelve una lista de archivos con extensión ".c", y lo guarda en
+                    la variable "s".
+  
+  getenv("str")     Obtiene el valor de la variable del sistema indicada en "str".
+                    Ejemplo:
+                       
+                       s <- getenv("HOME")   ==>  /home/xu/xu
+                    
+                    GETENV puede ser usado para pasar parámetros al programa.
+
+  sleep(n)          Detiene la ejecución del programa la cantidad de segundos indicado
+                    por la variable "n".
+                    Esto no devuelve nada.
+                    Ejemplo:
+
+                       sleep(3)   ==>  realiza una pausa de 3 segundos.
+  
+  msleep(n)         Detiene la ejecución del programa la cantidad de microsegundos
+                    indicado por la variable "n".
+                    Ejemplo:
+                    
+                       msleep(990000)  ==> espera 0.99 segundos.
+  
+  millisec(n)       Detiene la ejecución del programa la cantidad de milisegundos
+                    indicado por la variable "n".
+                    Ejemplo:
+                    
+                       millisec(1000)  ==> espera 1 segundo.
+  
+  status boolean
+  ok                Sentencias que pueden ser usadas para entregar más información
+                    de la ejecución de una función de usuario, u otra cosa.
+                    Ejemplo:
+                      functions:
+                        f():boolean
+                        begin:
+                           ."\nmensaje loco\n"
+                           status false
+                           return true
+                        end
+                      algorithm:
+                        if .f()
+                           ."\nLa función se ejecutó correctamente\n"
+                           if ~ok
+                              ."\n\tPero no fue tan correcta...\n"
+                           endif
+                        endif
+                      stop
+
+
+$$END Funciones de sistema
+$$BEGIN Funciones de pantalla
+
+_________________________________________
+======== FUNCIONES DE PANTALLA ==========
+
+Las siguientes funciones no devuelven nada.
+
+  screen(0|1)       Habilita/inhabilita el despliegue por pantalla mediante WRITE y
+                    SHOW.
+                      screen(0)   inhabilita la salida por pantalla.
+                      screen(1)   habilita la salida por pantalla.
+                    
+                    Esta función se puede usar en conjunto con OUT, que redirige la
+                    salida de WRITE y SHOW hacia un archivo.
+                    Ejemplo:
+                       out "./salida.txt"
+                       screen(0)
+                       write "Esto se grabará en un archivo\nY esto también!\n"
+                       out ""
+                       screen(1)
+                       write "Esto no se grabará en el archivo...\n"
+                    
+                    Lo único que será desplegado en pantalla será:
+                       
+                       "Esto no se grabará en el archivo..."
+
+  at( fil col )     Ubica el cursor en la posición fila "fil", columna "col" de la
+                    pantalla.
+
+  htab(n)
+  vtab(n)           Desplaza el cursor por la pantalla. HTAB desplaza horizontalmente
+                    hacia la derecha, y VTAB, verticalmente hacia abajo.
+                    El desplazamiento horizontal tiene 8 espacios, y el vertical, una
+                    línea.
+                    Si "n" es negativo, HTAB desplazará hacia el principio de línea, y
+                    VTAB desplazará "n" líneas hacia arriba.
+
+  color(n)          Define un color con que será desplegada la siguiente instancia
+                    de WRITE.
+                    El argumento es un número que va de 0 hasta 255, y representa
+                    todas las combinaciones posibles fore y background para una pantalla
+                    de texto disponible en XU, que no es otra cosa que la pantalla virtual
+                    de Harbour.
+                    El programa XU "colores.xu" ubicado en la carpeta SOURCE es una
+                    demostración de estos colores y su índice numérico.
+                    Ejemplo:
+
+                      at(10 10); color(31); write "Estoy en el fondo!"; color(7)
+                      
+                    Despliega el mensaje "Estoy en el fondo!" en la fila 10, columna 10,
+                    con letra blanca brillante y fondo azul, y luego retorna al color 
+                    estándar con letra blanca pedorra y fonto negro.
+  
+  cursor(n)         Muestra y esconde el cursor.
+                    Ejemplos:
+                       cursor(0)   ==> esconde el cursor
+                       cursor(1)   ==> muestra el cursor
+
+  video(fil col)    Ajusta la ventana del terminal a "fil" líneas y "col" columnas.
+  
+  api "string"      Permite crear cajas en pantalla. "string" contiene un comando de
+                    cajas. 
+                    
+                    "API" significa "Anciano Padre Inmortal".
+                    
+                    Los comandos son los siguientes:
+                    
+                    box    Dibuja una caja simple. Sus argumentos son:
+                           
+                           box=Xi,Yi,Xf,Yf,D|S|DS|SD
+                           
+                           donde:
+                           Xi,Yi,Xf,Yf son las coordenadas de la caja (fila-columna).
+                           D  indica que la caja se hace con líneas dobles
+                           S  indica que la caja se hace con líneas simples
+                           DS indica que la caja se hace con líneas verticales dobles
+                              y lineas horizontales simples.
+                           SD Al revés de "DS".
+                           
+                           Ejemplo:
+                             api "box=7,18,18,50,D"
+                           
+                           Salida:
+                             18
+                             |
+                             v
+                        7 -> ╔═══════════════════════════════╗
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ║                               ║
+                             ╚═══════════════════════════════╝ <- 18
+                                                             ^
+                                                             |
+                                                             50
+
+                    hline  Tira una línea horizontal. Sus argumentos son:
+
+                           hline=Xi,Yi,Yf,0|1|2|3,D|S|DS|SD
+                           
+                           donde:
+                           Xi  es la fila.
+                           Yi  desde la columna "Yi".
+                           Yf  hasta la columna "Yf".
+                           0   no une la línea con ninguno de sus topes
+                           1   une la línea con ambos bordes
+                           2   une la línea con el tope derecho
+                           3   une la línea con el tope izquierdo
+                           
+                           Tanto 1,2 y 3 observan el quinto argumento, y define el tope
+                           según éste.
+                           
+                           Ejemplo:
+                             api "box=7,18,18,50,D"
+                             api "hline=9,18,50,0,D"
+                             api "hline=12,18,50,1,D"
+                             api "hline=14,18,50,2,D"
+                             api "hline=16,18,50,3,D"
+                           
+                           Salida:
+                             ╔═══════════════════════════════╗
+                             ║                               ║
+                       9 ->  ║═══════════════════════════════║
+                             ║                               ║
+                             ║                               ║
+                      12 ->  ╠═══════════════════════════════╣
+                             ║                               ║
+                      14 ->  ║═══════════════════════════════╣
+                             ║                               ║
+                      16 ->  ╠═══════════════════════════════║
+                             ║                               ║
+                             ╚═══════════════════════════════╝
+                    
+                    vline  Tira una línea vertical. Sus argumentos son:
+                           
+                           vline=Xi,Yi,Posf,D|S|DS|SD
+                           
+                           donde:
+                           Xi, Yi  son las coordenadas fila-columna donde inicia línea.
+                           Posf, indica hasta dónde llega la línea, expresado en:
+                               
+                             largo = Xi + (Posf - Xi)
+                           
+                           VLINE pondrá los topes correspondientes al tipo del cuarto
+                           argumento.
+                           
+                           Ejemplo:
+                             api "box=7,18,18,50,D"
+                             api "hline=9,18,50,0,D"
+                             api "hline=12,18,50,1,D"
+                             api "hline=14,18,50,2,D"
+                             api "hline=16,18,50,3,D"
+                             api "vline=12,30,18,D"
+                           
+                           Salida:
+                             ╔═══════════════════════════════╗
+                             ║                               ║
+                             ║═══════════════════════════════║
+                             ║                               ║
+                             ║                               ║
+                       12 -> ╠═══════════╦═══════════════════╣
+                             ║           ║                   ║
+                             ║═══════════║═══════════════════╣
+                             ║           ║                   ║
+                             ╠═══════════║═══════════════════║
+                             ║           ║                   ║
+                       18 -> ╚═══════════╩═══════════════════╝
+                                         ^
+                                         |
+                                         30
+
+
+
+                    crux   Pone un caracter intermedio en el cruce de dos líneas.
+                           crux=x1,y1,x2,y2,...,xn,yn,D|S|DS|SD
+
+                           Ejemplo:
+
+                               api "crux=27,30,25,50,27,50,S"
+
+                            ┌───────────────────────────────────────┐
+                            │                                       │
+                            │                                       │
+                            │─────────────────────────────┬─────────│
+                            │                             │         │
+                            ├─────────┬───────────────────┼─────────┤  <- 25,50
+                            │         │                   │         │
+                27,30 ->    │─────────┼───────────────────┼─────────┤  <- 27,50
+                            ├─────────┴───────────────────┴─────────│
+                            │                                       │
+                            └───────────────────────────────────────┘
+
+
+$$END Funciones de pantalla
+FIN AYUDA DE MISCELANEOS

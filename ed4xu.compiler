@@ -1,0 +1,224 @@
+; Configuracion del editor y de compiladores
+
+; Use los siguientes comandos para configurar aspectos visuales y de edición de XUED
+; si no sabe qué color puede usar, ejecute el programa "./xu colores" y obtendrá una secuencia de
+; colores y su número. También puede llamarlo desde XUED y ejecutarlo.
+;
+; map=nombre,help,text,string,menu,cursor_mod,seccion,keyword,preprocesado,comentarios,linea destacada
+; si no quiere destacar la línea, ponga 0
+;
+map=Africa Salvaje,14,6,10,90,100,11,14,12,1,23,47
+map=Arauco Domado,14,6,15,23,100,15,14,13,2,87,71
+map=Veracruz,14,6,11,23,100,11,3,9,2,96,47
+map=Carretera Austral,14,7,15,113,100,9,14,13,2,112,47
+map=Noche en La Antártida,14,7,14,112,100,15,3,13,8,23,31
+map=Noche en Arica,14,7,14,96,100,14,3,13,1,23,96
+map=Noche en Viña,14,7,14,23,100,9,3,13,2,112,47
+map=Noche en Mamalluca,14,6,14,87,100,9,13,7,5,87,47
+map=Valle de la Luna,14,6,7,96,100,9,14,13,1,96,96
+map=Bosque de Cucao,14,2,14,32,100,15,10,13,1,23,47
+map=Playa de Cartagena,14,112,117,27,100,120,113,125,115,23,7
+map=Playa de La Serena,14,112,116,30,100,120,120,117,115,7,7
+map=Farellones,14,112,117,87,100,120,116,115,113,87,7
+map=Oceano Pacífico,14,23,30,112,100,31,27,29,18,112,47
+map=Oceano Atlántico,14,23,30,117,100,31,27,26,19,112,47
+ ;
+
+; Tabulación. Numero de espacios a agregar
+tab=5
+
+; AvPag y RePag. Si se omite, por defecto su valor es el total de líneas de la ventana.
+; pag=20
+
+; desplazamiento ALT-flecha derecha y ALT-flecha izquierda a lo largo de una linea.
+ctrl_lz=10
+
+
+; Puede añadir su compilador favorito aquí, agregando las líneas según lo expresado
+; a continuación. La extensión es la que enlaza al archivo con un compilador, el primero
+; que se declara. Si desea otra versión de compilacion, la puede escoger con ^PS.
+; COMPILADORES POR DEFECTO:
+; xu, c
+; COLOREADO POR DEFECTO:
+; xu/def, c/cpp/h, prg/ch, py, sh, ksh
+;
+; compilador y ejecucion de XU
+; agregue sus lineas de compilacion y ejecucion.
+;
+; Ejemplo:
+; extension=e|ne,linea de compilacion|<none>,línea de ejecucion|<none>,descripcion,comentario de linea
+;donde:
+; e = es ejecutable
+; ne = es un script.
+; esto último es importante: si no especifica "e" o "ne", o si lo especifica mal, su programa no ejecutará.
+
+xu=e,xuc %name%.xu -x -m -v -wret -p -sys, xu %name% %params%, XU - Ejecutable,//
+xu=e,xuc %name%.xu -x -m -v -wret -p -sys, <none>, XU - Compilación,//
+xu=e,xuc %name%.xu -m -v -wret -sys,<none>, XU - Información de debugueo de programa,//
+xu=e,xuc %name%.xu -l -wret -sys,<none>, XU - Librería (.lib),//
+def=ne,<none>,<none>, XU - header.,//
+
+; compilador y ejecucion de programa ANSI C simple
+c=e,gcc %name%.c -o %name%, ./%name% %params%, GCC - Ejecutable,//
+c=e,gcc %name%.c -o %name%, valgrind %name% %params%, GCC - Valgrind,//
+c=e,gcc %name%.c -o %name%, valgrind --leak-check=full %name% %params%, GCC - Valgr.Leak,//
+h=ne,<none>,<none>, GCC - Header.,//
+
+; compilador C++
+cpp=e,g++ %name%.cpp -o %name%, ./%name% %params%, C++ - Ejecutable,//
+h=ne,<none>,<none>, C++ - Header.,//
+
+; ***** AGREGUE SUS LINEAS DE COMPILACION DESDE AQUI *****
+; Para hacer compilaciones complejas, declare la herramienta adecuada. Por ejemplo,
+; si desea compilar en C, agregue "make" o "makefile".
+
+; Matlab. Es complejo. hay que setearlo con cuidado y depende de donde esta instalado, y de la
+; version del lenguaje. En este caso, se puede usar un batch que ejecute, por todas las variables
+; de entorno que esta hueá usa. Es un cacho. Mejor use "C" y librerías Blas y Openmp.
+m=e,mcc -mv %name%, ./execMCC.sh %name%,MATLAB - Ejecutable,%
+m=ne,matlab -nodisplay -r "%name%(%params%); quit",<none>,MATLAB - Script,%
+
+;
+; HARBOUR
+;/opt/harbour/bin/hbmk2  -lhbct -lhbmisc -blinker -nodebug  -D_MAC64_ -static xuc
+prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR MAC- Ejecutable simple,//
+prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR MAC- Ejecutable CT.LIB,//
+prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR MAC- ED4XU,//
+prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR LINUX- Ejecutable simple,//
+prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR LINUX- Ejecutable CT.LIB,//
+prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR LINUX- ED4XU,//
+ch=ne,<none>,<none>, HARBOUR - header.,//
+
+; Python
+py=ne,python3 %name%.py %params%,<none>,PYTHON - script,#
+
+; Bash Shell. Debe ser "e"-jecutable, para que los parámetros los meta en el "sh".
+sh=e,chmod 777 %name%.sh, sh %name%.sh %params%, BASH - script,#
+
+; latex
+; para saber donde debe vivir o vive un paquete, digitar:
+;    apt-cache search texlive paquete
+tex=e,pdflatex -file-line-error %name%.tex, evince %name%.pdf, LATEX - PDFLATEX LINUX,%
+tex=e,pdflatex -file-line-error %name%.tex, open %name%.pdf, LATEX - PDFLATEX MAC,%
+
+
+; CSV
+; csv=ne,<none>,<none>, CSV ,@
+
+end_compiler_definition
+
+; palabras a colorear
+
+; csv   PROBLEMAS: se confunde con "c". Colocar después de "colours=c,h"
+;colours=csv
+;preprocs=1
+;sections=&
+;keywords=@
+;keywords=\
+
+
+; latex
+colours=tex
+preprocs=\title,\author,\date,\part,&
+preprocs=\{,\},\$,\#,\&,\~,\_,\^,\%,\-
+;preprocs=\leq,\geq,\neq,\approx,\parallel,\in,\notin,\ni,\cong
+;preprocs=\perp,\equiv,\sim,\simeq,\subset,\supset,\subseteq,\supseteq,\not
+preprocs=\begin,\end,\newpage,\pagebreak
+preprocs=\alpha,\beta,\gamma,\delta,\epsilon,\zeta,\mu,\theta,\vartheta,\phi,\varphi,\omega,\sigma,
+preprocs=\varsigma,\Gamma,\Delta,\Theta,\Phi,\Omega,\tau,\lambda,\psi,\pi,\rho,\varepsilon,\chi
+;preprocs=\headheight,\headsep,\markright,\textwidth,\topmargin,\textheight,\oddsidemargin,\renewcommand
+;preprocs=\pagestyle,\newcommand,\parindent,\maketitle,\tableofcontents,\setmainfont,\bibitem
+sections=\documentclass,\usepackage,\LaTeX,\setlength,\PreviewBorder
+sections=\chapter,\section,\subsection,\subsubsection,\usetikzlibrary
+keywords=\sum_,\lim_,\verb,\documentstyle,\linewidth,\dotfill,\fontsize,\selectfont,\hrule,\Rightarrow
+keywords=\fontfamily,\fontencoding,\fontseries,\normalfont,\definecolor,\fboxsep,\fcolorbox,\subfigure
+keywords=\underline,\def,\node,\draw,\hrulefill,\rm,\em,\bf,\it,\sf,\sc,\tt,\clearpage,\shadedraw
+keywords=\item,\subitem,\left,\frac,\right,\det,\vec,\multicolumn,\caption,\label,\ref,\displaystyle
+keywords=\overline,\underline,\sqrt,\overbrace,\underbrace,\int,\mathrm,\textit,\textbf,\imagetop
+keywords=\vspace,\vfill,\tiny,\scriptsize,\small,\normalsize,\large,\Large,\LARGE,\huge,\Huge,\filldraw
+keywords=\hspace,\hline,\baselineskip,\parskip,\textcolor,\color,\newtheorem,\stackrel,\addcontentsline
+keywords=\psline,\pscurve,\over,\bf,\fbox,\mbox,\framebox,\makebox,\includegraphics,\mathbb,\mathfrak
+keywords=\textnormal,\texttt,\footnotesize,\rule,\put,\line,\vector,\dashbox,\circle,\oval,\brace
+keywords=\addtocounter,\setcounter,\pagenumbering,\pageref,\mathop,\partial,\fint,\textsf,\textsc,\rput
+keywords=\quad,\qquad,\smallskip,\medskip,\bigskip,\tilde,\cal,\vdots,\odots,\ddots,\cdots,\dots,\brack
+keywords=\choose,\prod_,\oint,\centering,\subfloat,\cline,\vline,[,],(,),\\,|,\biggl,\biggr,\atop
+keywords=\overset,\Longrightarrow,\intertext,\rightarrow,\rowcolor,\rowcolors,\cellcolor,\scalebox
+keywords=\scope,\endscope,\path,\coordinate,\fill,\shade,\addtolength,\rightline,\binom,\cite,\above
+keywords=\bibliography,\bibliographystyle,{,}
+keywords=\
+
+colours=xu,def
+preprocs=#include,#use,#import,#define
+;preprocs=?,:,~
+sections=vars:,functions:,algorithm:,stop
+keywords=for each,for,next,while,wend,begin:,endif,elseif
+keywords=else,try,exception,tend,loop,lend,until
+keywords=downto,step,inlist,and,or,xor,function
+keywords=not,^number,number,^string,string,stack,^boolean,switch
+keywords=boolean,(ref),(*),void,gosub,sub,back,room,rend,exitif
+keywords=again,return,raise,if,true,do
+keywords=break,continue,eval,case,otherwise,evend,end,to,in,false
+keywords=(,),{,},[,]
+;keywords=($,(#,(^,(%,{,},(,),(int,(long,(double
+;keywords=(BDx,(HDx,(ODx,(Hx,(Bx,(Ox,(BIT ,(XOR ,(OR ,(AND ,(<<,(>>,(ON ,(OFF ,(NOT
+;keywords=[,],[.,[:,[_,[>,[@,[=,[\,[%,[!,[<,[+|,[+-,[--,[-|,[^-,[^|,[*',[*|,[*-,[$,[*,^[,|,&
+keywords=\
+
+colours=c,h
+preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef,?,:,&,|
+sections=main,return
+keywords=NULL,auto,break,case,char,const,continue,default,do,double,else,enum,extern,float,for
+keywords=goto,if,int,long,register,return,short,signed,sizeof,static,struct,switch,typedef,union,do
+keywords=unsigned,void,volatile,while,uint8_t,uint16_t,uint32_t,uint64_t
+keywords={,},(,),[,],int16_t,int32_t,int64_t
+keywords=\
+
+colours=cpp,h
+preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef,?,:,&,|
+sections=main,return
+keywords=asm,auto,bool,break,case,catch,char,class,const,const_cast,continue,default,delete
+keywords=do,double,dynamic_cast,else,enum,explicit,extern,false,float,for,friend,goto,if,while
+keywords=inline,int,long,mutable,namespace,new,operator,private,protected,public,register,do
+keywords=reinterpret_cast,return,short,signed,sizeof,static,static_cast,struct,switch,template
+keywords=this,throw,true,try,typedef,typeid,typename,union,unsigned,using,virtual,void,volatile
+keywords={,},(,),[,]
+keywords=\
+
+
+colours=sh,ksh
+preprocs=export,declare,typeset
+sections=function,return,exit
+keywords=echo,for,while,select,until,done,elif,else,case,esac,continue,let,local,set,shift,then,do
+keywords=alias,unalias,getopts,unset,awk,true,false
+keywords=fi,do,in,if,$,(,),{,},$RANDOM,$HOME,$OPTARG,$OPTIND,$PATH,$PS1,$PS2
+keywords=test,readonly,read,[,]
+keywords=\
+
+colours=prg,ch
+preprocs=#define,#include,#ifdef,#ifndef,#undef,#error,#command,#xcommand,#stdout,#endif,#pragma
+preprocs=BEGINDUMP,ENDDUMP,HB_FUNC
+sections=function,procedure,return,FUNCTION,PROCEDURE,RETURN
+keywords=for,while,case,exit,loop,local,memvar,public,switch,otherwise
+keywords=elseif,else,end,if,static,nil,.T.,.F.,.and.,.or.,!
+keywords=release,RELEASE,step,STEP
+keywords=FOR,WHILE,CASE,EXIT,LOOP,LOCAL,MEMVAR,PUBLIC,SWITCH,OTHERWISE
+keywords=ELSEIF,ELSE,END,IF,STATIC,NIL,.t.,.f.,.AND.,.OR.
+keywords=to,quit,{,},(,),[,],?
+keywords=TO,QUIT
+keywords=\
+
+colours=py
+preprocs=import,from
+sections=def,lambda,class,return,global
+keywords=print,for,while,break,continue,yield,assert,except,try,finally,elif,else,raise,except,as
+keywords=exec,not,and,or,is,if,del,{,},(,),[,],:
+keywords=\
+
+colours=m
+preprocs=<none>
+sections=function,return
+keywords=break,case,catch,continue,else,elseif,end,for,global,if,otherwise,persistent,switch,try,while
+keywords=||,&&,~,sprintf,fprintf,disp,pause,@,save,load,ode45,ode23,ode113,ode15s,ode23s,ode23t,ode23tb
+keywords=ode15i,min,max,zeros,ones,eyes,random,odeset,reshape,repmat,linspace,{,},(,),[,],:
+keywords=\
+
