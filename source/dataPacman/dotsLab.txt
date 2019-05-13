@@ -1,0 +1,22 @@
+                                    
+  3 o o 7 o o o 4   3 o o o 7 o o 4 
+  o     o       o   o       o     o 
+  6 o o B o 7 o 9 o 9 o 7 o B o o 5 
+        o   o           o   o       
+        o   6 o 4   3 o 5   o       
+        o       o   o       o       
+        o   3 o 9 C 9 o 4   o       
+        o   o           o   o       
+        A o 8 3   D   4 A o 8       
+        o   o           o   o       
+        o   o           o   o       
+        o   o 6       5 o   o       
+        o   o           o   o       
+  3 o o B o 9 o 4   3 o 9 o B o o 4 
+  @     o       o   o       o     @ 
+  6 4   A o 7 o 5   6 o 7 o 8   3 5 
+    o   o   o           o   o   o   
+  3 9 o 5   6 o 4   3 o 5   6 o 9 4 
+  o             o   o             o 
+  6 o o o o o o 9 o 9 o o o o o o 5 
+                                    
