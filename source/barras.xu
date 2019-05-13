@@ -1,0 +1,34 @@
+//#include
+name: <descripcion del programa>
+
+vars:
+  t:=string
+  n:=number
+  m:=^number
+  s:=^string
+algorithm:
+   m<-^[ [32,219,219,219,219,32],&
+         [32,32,219,219,32,32],&
+         [32,32,219,219,32,32],&
+         [32,32,219,219,32,32],&
+         [32,32,219,219,32,32],&
+         [32,32,219,219,32,32],&
+         [32,219,219,219,219,32] ]
+   show chr(m) 0
+   ."\n\n"
+   flag ""; write chr(m),"\n"
+   dim s(3)
+   [s 1]<-chr(176)
+   [s 2]<-chr(177)
+   [s 3]<-chr(178)
+   for n<-1 to 3 
+      write [s n]*30,"\n" 
+//      write chr(219)*30,"\n" 
+   next
+   t<-([s 1]*20) + "\n" + ([s 2]*20) + "\n" +([s 3]*20) + "\n" + "á é í ó ú ï Ñoño"
+   strsave("barras.txt" t)
+   pause
+   t<-""
+   t<-strload("barras.txt" 0 0)
+   write t,"\n"
+stop

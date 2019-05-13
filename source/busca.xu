@@ -1,0 +1,90 @@
+/********
+  FIND() y FINDEX()
+  La primera es una función de usuario que busca las filas de una matriz que cumpla con
+  una condición, y las entrega como un subconjunto de la matriz original.
+  La segunda entrega los índices donde se encuentran los elementos que cumplen con la
+  condición.
+  *********/
+
+#use matrix,stack
+vars:
+   s,c:=^string
+   n:=^number
+   stack_flag:=stack
+   i:=number 
+   b:=boolean
+functions:
+   #import flag.*
+   #import find.*
+
+algorithm:
+  not b
+  room b
+s<-_( (8,5) {{"Amadeus","15","1","LOS PLATANOS 456","21/10/1999"},&
+             {"Juanito","25","0","EL SALTO 120","12/08/1997"},&
+             {"Fulano","45","0","EL MAZANO 345","10/10/1967"},&
+             {"Ernesto","45","1","EL PERAL 345","27/10/1985"},&
+             {"Andres","120","0","LAS ACACIAS 323","23/10/2000"},&
+             {"Marión","24","1","ENCINAS 980","09/10/1945"},&
+             {"Jaime","35","0","LA NARANJA 345","11/11/1959"},&
+             {"Elizabeth","27","1","DORSAL 6209","02/12/1989"}} )
+
+    mat.save((flag "M,") s "./files2.txt")
+    for i<-1 to 5000
+       mat.append(s "./files2.txt")
+    next
+  rend
+  
+  room ~b
+    use s; drop
+  
+    mat.load(s "./files.txt")
+    .flag "RR"
+     c<-.find(s 5 "D" ">" "20/01/1970")
+    .unflag 
+    show c 0
+    ."\n"
+  rend
+  goodbye
+  
+  show s 0
+  .flag "RR"
+  ."\nFIND (Funcion de usuario):\n"
+  c<-.find(s 2 "N" ">" 40)
+  show c 0
+  ."\n"
+  c<-.find(s 5 "D" ">" "20/01/1970")
+  show c 0
+  ."\n"
+  c<-.find(s 1 "S" "=" "Ernesto")
+  show c 0
+  ."\n"
+  c<-.find(s 3 "N" "=" (#"1"))
+  show c 0
+  
+  ."\n"
+  n<-.findex(s 3 "N" "=" (#"1"))
+  ."\nFINDEX (funcion de usuario):\n"
+  show n 0
+  ."\n"
+  c<-[<s n]
+  ."\nfilas N=",[[@n] 2],"\n"
+  ."\ncol S=",[[@s] 3],"\n"
+  reshape c( ([[@n] 2]/[[@s] 3]), [[@s] 3])
+  ."\n"
+  show c 0
+  
+  ."\n"
+  c<-.find(s 3 "N" "=" (#"3")) // debiera entregar nada
+  use c
+  show c 0, if ~isempty()
+  if isempty()
+     ."\nLa función FIND no encontró elementos\n"
+  endif
+ 
+  ."\nFIND (Funcion de usuario):\n"
+  c<-.find(s 2 "N" ">" 40)
+  show c 0
+  ."\n"
+  .unflag
+stop

@@ -1,0 +1,14 @@
+/*
+   Concatena dos matrices 3D, añadiendo las columnas de la primera
+   delante de las columnas de todas las páginas.
+   Debe coincidir el número de filas y el número de páginas.
+*/
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(3,5,3)
+  dim m(3,2,3)
+  l<-10; m<-(-5)
+  r<-[+| m l]
+  show ($r) 7
+stop

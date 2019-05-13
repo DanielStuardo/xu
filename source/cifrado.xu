@@ -1,0 +1,52 @@
+#include include/files.def
+#use stack,string
+vars:
+   msg:=string
+   fp:=file
+   r:=number
+
+ functions:
+   cifrado := function:string
+      w := $1:string
+      v := $2:string
+      s0 := ^string
+   begin:
+      s0<-v/" "
+      use(s0)
+      w<-crypt(w pop), until isempty
+      return w
+   end
+
+algorithm:
+   msg<-"este mensaje será cifrado ñoño púbico\nBueno, agüaite Cantabria única!!"
+
+   ."Mensaje original= ", msg,"\n"
+   msg<-.cifrado((queue)msg "12jn320ww ku·$56%%d2f Fcf45cf545y")
+   ."Mensaje cifrado = ",msg,"\n"
+
+   fcreate("./clave.txt" CREATE_NORMAL)
+   fp<-fopen("./clave.txt" OPEN_WRITE)
+
+   flag "L"   //escribirá un entero de 32 bits con signo.
+   for r<-1 to strlen(msg)
+      fwriteb(fp asc(strcpy(msg r 1)))
+   next
+   fclose(fp)
+
+   msg<-""
+
+ ."Presione una conchuda tecla...\n";pause
+
+   flag "L"   // usa un entero con signo de 32 bits
+   fp<-fopen("./clave.txt" OPEN_READ)
+   do
+      msg<-+ chr(freadb(fp))
+   until feof(fp)
+   fclose(fp)
+
+   ."\nArchivo en clave leído:\n ",msg
+   msg<-.cifrado((deque)msg "12jn320ww ku·$56%%d2f Fcf45cf545y")
+   ."\nMensaje descifrado  = ",msg,"\n"
+
+ stop
+

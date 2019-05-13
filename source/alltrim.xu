@@ -1,0 +1,26 @@
+#use string
+vars:
+   c:=^string
+algorithm:
+   dim c(600,5)
+   c<-(flag ".")"      Mensaje a ser alltrímiado       "
+   c<-"["+strtrim(c)+"]"
+   show c 0
+
+   c<-(flag ".")"      Mensaje a ser rigth-trímiado       "
+   flag "R"
+   c<-"["+strtrim(c)+"]"
+   show c 0
+
+   c<-(flag ".")"      Mensaje a ser left-trímiado       "
+   flag "L"
+   c<-"["+strtrim(c)+"]"
+   show c 0
+   
+   dim c(5)
+   [c 3]<-(flag ".")"      Mensaje a ser left-trímiado       "
+   c<-strtrim(c)
+   show c 0
+   ."\n"
+   write strlen([c 1]),"\n"
+stop

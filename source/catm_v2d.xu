@@ -1,0 +1,13 @@
+/*
+  Concatena dos matrices 2D hacia abajo (vertical)
+  Debe coincidir el número de columnas
+*/
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(3,5)
+  dim m(4,5)
+  l<-10; m<-(-5)
+  r<-[+- l m]
+  show ($r) 6
+stop

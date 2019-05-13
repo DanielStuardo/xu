@@ -1,0 +1,30 @@
+vars:
+   i:=number
+algorithm:
+  
+  ."Prueba del uso de CONTINUE\n"
+  ."También puede ser usado en una estructura SELECT (Ver \"select.xu\")\n"
+  
+  while (++i)<10
+     if i>5
+       continue
+     endif
+     write "\tWhile..."; htab(3); write i,"\n"
+  wend
+
+  i<-0
+  do
+     continue, if i>5
+     write "\tDo/Until..."; htab(3);write i,"\n"
+  until (++i)>10
+      
+  i<-0
+  loop
+     continue, if (++i)<5
+     write "\tLoop!..."; htab(3);write i,"\n"
+     break, if i=10
+  lend
+  
+ /* No se puede usar CONTINUE en un ciclo FOR */
+  
+stop

@@ -1,0 +1,64 @@
+#define BR              write "\n"
+#define mientras_esta_weá_sea_verdadera:  while
+#define fin_mientras  wend
+#define aumenta, inc
+#define muestra_esta_weá(X,Y)  show X Y
+#define muestra(X,Y)      show X Y
+#define imprime           write
+#define levanta_carpa     flag
+#define chúpalo_conchetumare!   stop
+#define programa         algorithm
+#define variables        vars
+#define array_de_cadenas  ^string
+#define array_de_números  ^number
+#define cadena           string
+#define número           number
+#define mascara          mask
+#define deja             <-
+#define asigna           <-
+#define pone             <-
+#define sale_si          exitif
+
+variables:
+
+  s:= array_de_cadenas
+  r:= array_de_números
+  i:=número
+  w:=cadena
+
+programa:
+
+  s<-^[ ["Juanito Pérez","24","180000"], &
+        ["Jessenia Mori","29","130000"], &
+        ["Maricel Pérez","32","370000"], &
+        ["Armando Soto","21","280000"], &
+        ["Humberto López","19","190000"], &
+        ["Pablo Veliz","25","250000"]  ]
+  muestra(s,3)
+  r pone [* ^[1,3,6,3]]
+  [>> s r]<-($(#[<< s r])/10)
+  muestra(s,3)
+
+  i <- 1
+  levanta_carpa "L."
+
+  BR
+  loop
+     imprime strpad([: s i 1] 30),"\t",mascara(((#[. s i 3])*10) "$ ###,###.=\n")
+     sale_si (++i)=7
+  lend
+  BR
+  i<-1
+  mientras_esta_weá_sea_verdadera: i<=6
+     imprime strpad([: s i 1] 30),"\t",mascara(((#[. s i 3])*10) "$ ###,###.=\n")
+     aumenta i
+  fin_mientras
+
+  muestra_esta_weá(s,3)
+  [. s 1 1] asigna [. s 2 1]  // no se permite swap para [>>..], porque en el fondo se trata de funciones
+  imprime "\nimprime algo... \n"
+  BR
+  muestra(s,3)
+
+chúpalo_conchetumare!
+

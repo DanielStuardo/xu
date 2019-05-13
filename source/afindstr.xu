@@ -1,0 +1,67 @@
+#use string,matrix,stack
+vars:
+   s,t:=^string
+
+algorithm:
+  // show [\s "@" "hola"] 0
+   precision 0
+
+   s<- ^[["cadena larga",&
+         "Esta cadena será muy corta",&
+         "Nadie sabe para quien trabaja",&
+         "Cuando fui a New Yorw",&
+         "Hola mundo!!",&
+         "",&
+         "Una Cadena de oro",&
+         "Podría ser o no podría ser" ],&
+         ["cadena larga",&
+         "Esta cadena es muy corta",&
+         "Nadie sabe para quien trabaja",&
+         "Cuando fui a New Yorw",&
+         "Hola mundo!!",&
+         "",&
+         "Una Cadena de oro",&
+         "Podría ser o no podría ser" ]]
+   show s 1
+   write "\nLEN s=",strlen(s),"\n"
+
+   dim t(3)
+   t<-"cadena"
+   ."\nSIZE T=",[@t]," SIZE S=",[@s]
+/*   use t
+   mat.row(2)
+   stk.del
+   show t 0 */
+   ."\nSIZE T=",[@t]," SIZE S=",[@s]
+   write "\nDónde está [\"cadena\",...]?: ",[\ s "@" t],"\n"
+   write "\nDónde no está [\"cadena\",...]?: ",[\ s "~@" t],"\n"
+   write "\nDónde está \"ser\"?: ",[\ s "@" "ser"],"\n"
+   write "\nDónde no está \"ser\"?: ",[\ s "~@" "ser"],"\n"
+   write "\nDónde está el vacío?: ",[\ s "=" ""],"\n"
+   dim t(2)
+   {[t 1],[t 2]}<-{"cadena",""}
+   write "\nDónde es igual a \"cadena\" o a vacío?: ",[\ s "=" t],"\n"
+   
+
+   //drop (use(t))
+   //push {"cadena","podría"}
+   dim t(2)
+   {[t 1],[t 2]}<-{"cadena","podría"}
+   /* SI t tiene rango diferente a S, se buscará la ocurrencia de un elemento
+      de T en S según el operador.
+      "@" buscará al menos una ocurrencia. (O)
+      "~@" no debe haber ninguno contenido si vector es lado derecho, o el elemento, si es full matriz. (NI)
+      "@*" todos deben estar contenidos. Solo sirve cuando hay un vector a comparar lado derecho. (Y)
+      T debe ser un vector; si no lo es, debe usar RESHAPE */
+   write "\nDónde no están \"cadena\" ni \"podría\"?: ",[\ s "~@" t],"\n"
+   write "\nDónde no están \"cadena\" ni \"podría\" (case insensitive)?: ",(flag true)[\ s "~@" t],"\n"
+   write "\nDónde están \"cadena\" o \"podría\" (case sensitive)?: ",(flag false)[\ s "@" t],"\n"
+   write "\nDónde están \"cadena\" o \"podría\" (case insensitive)?: ",(flag true)[\s "@" t],"\n"
+   flag ","  // se setea para "write"
+//   write "\nDónde están \"cadena\" y \"podría\"?: ",[\ s "@*" t],"\n"
+   [t 2]<-"larga"
+   write "\nDónde están \"cadena\" y \"larga\"?: ",[\ s "@*" t],"\n"
+   [t 1]<-"ser"
+   [t 2]<-"podría"  
+   write "\nDónde están \"ser\" y \"podría\"?: ",[\ s "@*" t],"\n[@ busca]=",[@[\ s "@*" t]],"\n"
+stop

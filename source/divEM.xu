@@ -1,0 +1,19 @@
+vars:
+  c,a:=^number
+  e:=number
+algorithm:
+  dim a(2,2,2)
+  a<-10
+  e<-5
+  c<-a/e
+  write c,"\n"
+  c<-e/a
+  write c,"\n"
+  c<-0/a
+  write c,"\n"
+  c<-a/1
+  write c,"\n"
+  c<-a/0  // esto dará error.
+  write c,"\n"
+  
+stop

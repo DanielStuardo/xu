@@ -1,0 +1,220 @@
+/********
+  FIND() y FINDEX()
+  La primera es una función de usuario que busca las filas de una matriz que cumpla con
+  una condición, y las entrega como un subconjunto de la matriz original.
+  La segunda entrega los índices donde se encuentran los elementos que cumplen con la
+  condición.
+  *********/
+
+#use matrix,set
+vars:
+   s,c,r:=^string
+   n,m,o:=^number
+   t,tf,suma:=number
+
+functions:
+   // .consolide(s setinter(n m))
+   consolide(M:^string,ROW:^number,COL:number):^string
+     retorno:=^string
+   begin:
+     if [[@ROW] 2]>0
+        retorno<-[<M [*- ROW COL]]
+        reshape retorno([[@ROW] 2],COL)
+     endif
+     return retorno
+   end
+
+   findrow(M:^string,COL:number,SUBTIP:string,SIGNO:string,DATO:variant):^number
+      col:=number
+      r,tmp,tMat:=^number
+   begin:
+      col<-[[@M] 3]
+      use tMat; drop
+      if COL>0 and COL<=col
+         use tmp; drop; push COL  // ojo: todo es static: queda en memoria
+         r<-[*| [[@M] 2] tmp]  // todas las filas de la columna COL
+         if SUBTIP="N"
+            tMat<-[\ (#[<M r]) SIGNO (#DATO)]  // esto debe entregar filas
+         elseif SUBTIP="S"
+            tMat<-[\ ($[<M r]) SIGNO ($DATO)]
+         elseif SUBTIP="D"
+            tMat<-[\ (# date2ansi([<M r])) SIGNO (# date2ansi( ($ DATO) ))]
+         endif
+      endif
+      return tMat
+   end
+
+   findex(M:^string,COL:number,SUBTIP:string,SIGNO:string,DATO:variant):^number
+      col:=number
+      r,tmp,tMat:=^number
+   begin:
+      col<-[[@M] 3]
+      use tMat; drop
+      if COL>0 and COL<=col
+         use tmp; drop; push COL  // ojo: todo es static: queda en memoria
+         r<-[*| [[@M] 2] tmp]  // todas las filas de la columna COL
+         if SUBTIP="N"
+            tmp<-[\ (#[<M r]) SIGNO (#DATO)]  // esto debe entregar filas
+         elseif SUBTIP="S"
+            tmp<-[\ ($[<M r]) SIGNO ($DATO)]
+         elseif SUBTIP="D"
+            tmp<-[\ (# date2ansi([<M r])) SIGNO (# date2ansi( ($ DATO) ))]
+         endif
+
+         if [[@tmp] 2]>0
+            tMat<-[*- tmp col]
+         endif
+      endif
+      return tMat
+   end
+
+   find(M:^string,COL:number,SUBTIP:string,SIGNO:string,DATO:variant):^string
+      col:=number
+      retorno:=^string
+      tmp,r:=^number
+   begin:
+      use retorno; drop
+      col<-[[@M] 3]
+      if COL>0 and COL<=col
+         use tmp; drop; push COL  // ojo: todo es static: queda en memoria
+         r<-[*| [[@M] 2] tmp]  // todas las filas de la columna COL
+         if SUBTIP="N"
+            tmp<-[\ (#[<M r]) SIGNO (#DATO)]  // esto debe entregar filas
+         elseif SUBTIP="S"
+            tmp<-[\ ($[<M r]) SIGNO ($DATO)]  // ver si DATO puede ser un vector.
+         elseif SUBTIP="D"
+            tmp<-[\ (# date2ansi([<M r])) SIGNO (# date2ansi( ($ DATO) ))]
+         else
+            return retorno
+         endif
+         if [[@tmp] 2]>0
+            retorno<-[<M [*- tmp col]]
+            reshape retorno([[@tmp] 2],col)
+         endif
+      endif
+      return retorno
+   end
+
+algorithm:
+  use s; drop
+ /* s<-_( (8,5) {{"Amadeus","15","1","LOS PLATANOS 456","21/10/1999"},&
+             {"Juanito","25","0","EL SALTO 120","12/08/1997"},&
+             {"Fulano","45","0","EL MAZANO 345","10/10/1967"},&
+             {"Ernesto","45","1","EL PERAL 345","27/10/1985"},&
+             {"Andres","120","0","LAS ACACIAS 323","23/10/2000"},&
+             {"Marión","24","1","ENCINAS 980","09/10/1945"},&
+             {"Jaime","35","0","LA NARANJA 345","11/11/1959"},&
+             {"Elizabeth","27","1","DORSAL 6209","02/12/1989"}} )
+  */
+   write "\nLineas en fichero:",flc((flag ",")"./files1.txt")
+
+
+   t<-seconds("")
+    mat.load((flag ",") s "./files1.txt")
+   ."\nTIME=",seconds("")-t
+
+   ."\nTOTAL REGISTROS=",[[@s] 2]," CON ",[[@s] 3]," COLUMNAS \n"
+    flag "RR"
+
+/*
+    c<-.find(s 5 "D" ">" "20/01/1970")
+    use c
+    if ~isempty()
+      flag ""
+      show c 0
+      ."\n"
+    endif
+
+    n<-.findex(s 3 "N" "=" (#"1"))
+  ."\nFINDEX (funcion de usuario):\n"
+  show n 0
+  ."\n"
+
+//  goodbye
+
+*/
+
+  // SELECT NOMBRE,DIRECCION WHERE FECHA > 1990
+  // esto se hace buscando las filas que quiero y luego cortando las columnas pedidas:
+    flag "RR"
+    t<-seconds("")
+    c<-[-| .find(s 5 "D" ">" "20/01/1970") ^[1,4]]
+    ."\nTIME=",seconds("")-t
+  //  show c 0
+    goodbye
+  /* buscar con operadores lógicos
+     Funcion FINDROW() que solo busque filas. Luego, según lo que se necesite:
+     aplicar funciones de conjunto y luego consolidar con CONSOLIDE()
+     CREAR una función que selecciones segun lasclaves para poder unir datos desde
+     diferentes tablas.
+     .JOIN(s t ^[COLs COLt])
+     si las columnas son iguales, junte los registros.
+
+     */
+
+   ."\nBUSCANDO FILAS...\n"
+   t<-seconds("")
+   {n,m}<-{.findrow(s 5 "D" ">=" "31/12/1985"), .findrow(s 3 "N" "=" "1") }
+
+   tf<-seconds("")-t
+   suma<-+tf
+   ."\nTIME=",tf
+   ."\nN=",[@n],"\nM=",[@m]
+
+   ."\nEVALUANDO...\n"
+   t<-seconds("")
+
+   // SELECT NOMBRE,DIRECCION,CODIGO-QL,FECHA WHERE FECHA >= 31/12/1985 AND CODIGO-QL=1
+   o<-setinter(n m)
+
+   // SELECT NOMBRE,DIRECCION,CODIGO-QL,FECHA WHERE FECHA >= 31/12/1985 OR CODIGO-QL=1
+   //o<-setunion(n m)
+
+   // SELECT NOMBRE,DIRECCION,CODIGO-QL,FECHA WHERE FECHA >= 31/12/1985 XOR CODIGO-QL=1
+   //o<-setsdiff(n m)
+
+   tf<-seconds("")-t
+   suma<-+tf
+   ."\nTIME =",tf
+   ."\nO=",[@o]
+   ."\nFIN EVALUACION\n"
+   ."\nCONSOLIDANDO...\n"
+
+   t<-seconds("")
+   c<-[-| .consolide(s o [[@s] 3]) ^[1,4,3,5]]
+   tf<-seconds("")-t
+
+   suma<-+tf
+   ."\nTIME=",tf
+   ."\nFIN CONSOLIDACION\n"
+   ."\nTIME TOTAL=",suma
+
+ //  show c 0                   // para ejemplo chico
+   show [% c ^[1,1,5,4]] 0    // para ejemplo grande
+
+ /* // prueba string de setinter()
+   s<-"hola carnero verdura verde tomate rojo azul"/" "
+   c<-"carnero mascarón plutón júpiter rojo amarillo verde"/" "
+   show setinter(s c) 0
+   */
+
+   // prueba con array pequeño. setunion() aplica internamente unique().
+/*   {n,m}<-{.findrow(s 5 "D" ">=" "27/10/1985"), .findrow(s 3 "N" "=" "1") }
+   show n 0
+   show m 0
+   o<-setunion(m n)
+   ."\nO=",[@o],"\n"
+   show o 0
+
+   o<-unique(o)
+   ."\nO=",[@o],"\n"
+   show o 0*/
+
+ // prueba setunion() y unique() para string
+/*   s<-"hola carnero verdura verde tomate rojo azul"/" "
+   c<-"carnero mascarón plutón júpiter rojo amarillo verde"/" "
+   r<-setunion(s c)
+   show r 0
+   show unique(r) 0
+   */
+stop

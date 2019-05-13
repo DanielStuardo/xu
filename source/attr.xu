@@ -1,0 +1,16 @@
+//#use 
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+
+algorithm:
+  color 12
+  at(10 10);write "Hola mundo!"
+  dim attr(11)
+  for i<-1 to 11 
+     [attr i]<-
+  next
+stop

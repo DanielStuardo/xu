@@ -1,0 +1,14 @@
+/*
+   Concatena dos matrices 3D hacia abajo (vertical), añadiendo 
+   las filas de la primera sobre las filas de todas las páginas de la segunda.
+   De coincidir el número de columnas y el número de páginas
+*/
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(3,5,3)
+  dim m(2,5,3)
+  l<-10; m<-(-5)
+  r<-[+- m l]
+  show ($r) 7
+stop

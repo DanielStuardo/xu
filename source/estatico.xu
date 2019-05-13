@@ -1,0 +1,13 @@
+vars:
+   c:=^number
+   n:=number
+algorithm:
+  c<-^[ [[2,3,4],[ 5, 6, 7]], &
+        [[8,9,10],[ 11, 12,13]], &
+        [[14,15,16],[17,18,19]] ]
+
+  show c 0
+
+  n<-[:c 2 2 2]
+  write "\nElemento 2,2,2: ",n,"\n"
+stop

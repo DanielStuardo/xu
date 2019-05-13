@@ -1,0 +1,17 @@
+#include include/math.def
+
+algorithm:
+   write "e         =",M_E,"\n"
+   write "log2 e    =",M_LOG2E,"\n"
+   write "log10 e   =",M_LOG10E,"\n"
+   write "ln 2      =",M_LN2,"\n"
+   write "ln 10     =",M_LN10,"\n"
+   write "pi        =",M_PI,"\n"
+   write "pi/2      =",M_PI_2,"\n"
+   write "pi/4      =",M_PI_4,"\n"
+   write "1/pi      =",M_1_PI,"\n"
+   write "2/pi      =",M_2_PI,"\n"
+   write "2/sqrt pi =",M_2_SQRTPI,"\n"
+   write "sqrt 2    =",M_SQRT2,"\n"
+   write "1/sqrt 2  =",M_SQRT1_2,"\n"
+stop

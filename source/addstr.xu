@@ -1,0 +1,12 @@
+vars:
+  s,r:=^string
+  t:=string
+algorithm:
+  dim s(200,60)
+  s<-"Hola"
+  dim r(200,60)
+  r<-"mundo!!"
+  s<-s+r
+  write [.s 1 5],"\n"
+  //write [s 4],"\n"
+stop

@@ -1,0 +1,61 @@
+#use math
+/*
+   COMPARACION LOGICA DE MATRICES 1D
+*/
+vars:
+  a,b:=^number
+  s1,s2:=^string
+
+algorithm:
+
+  dim a(10); dim b(10)
+  a<-100
+  b<-100
+  write "\nA = B? --> ",( a = b )
+
+  a<-100
+  b<-90
+  write "\nA > B? --> ",( a > b )
+
+  a<-90
+  b<-100
+  write "\nA < B? --> ",( a < b )
+
+  {a,a}<-{10,mth.ceil(mth.rand(a))}
+  {b,b}<-{10,mth.ceil(mth.rand(b))}
+  write "\nA <> B? --> ",( a <> b )
+  write "\nA=",a,"\nB=",b,"\n"
+
+  a<-10
+  {b,b}<-{10,mth.ceil(mth.rand(b))}
+  write "\nA >= B? --> ",( a >= b )
+
+  {a,a}<-{10,mth.ceil(mth.rand(a))}
+  b<-10
+  write "\nA <= B? --> ",( a <= b )
+
+ /*******************/
+/*  CADENAS: solo está soportada la comparación de IGUALDAD.
+    Las otras comparaciones te las puedes meter en la raja :) */
+
+ ."\n"
+  dim s1(100000); dim s2(100000)
+  s1<-"cadena"
+  s2<-"cadena"
+  if s1 = s2
+     write "S1 y S2 son iguales\n"
+  endif
+
+  [s2 9] <- "la \"pichula\""
+  if s1 = s2
+     write "S1 y S2 son iguales\n"
+  else
+     write "S1 y S2 no son iguales\nLa diferencia la marca: "
+     if ~isall(s1 "cadena")
+        write [<s1 [\s1 "<>" "cadena"]],"\n"
+     else
+        write [<s2 [\s2 "<>" "cadena"]],"\n"
+     endif
+  endif
+
+stop

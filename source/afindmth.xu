@@ -1,0 +1,21 @@
+#use math
+vars:
+   m,n:=^number
+algorithm:
+   dim n(10,10)
+   {n,n} <- {10,mth.ceil(mth.rand(n))}
+   write n,"\n"
+   use m
+   push {1,2,3,4,5}
+   write "SIZE m=",[@ m],"\n"
+   write [\ n "=" m],"\n"*2  // buscar todos los valores en N que estén dentro de un rango
+   write [\n "=" 5],"\n"*2
+   
+   dim m(10,10)
+   m<-5
+   write [\n "=" m],"\n"
+   
+   if isall(m 5)
+      ."\nTodos los elementos del array M son 5\n"
+   endif
+stop

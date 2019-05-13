@@ -1,0 +1,27 @@
+name:     El mayor peso de 6 monedas con 3 comparaciones  //indica m?todo principAL
+memory: normal         //recursive=stack+128, normal=stack+16
+
+ vars:
+  { a, b, c, d, e, f} := number
+  temp := number
+
+algorithm:
+
+  {a, b, c, d, e, f} <-  { 20, 20, 20, 24, 20, 20}
+
+  if (a+b+c)<(d+e+f)
+     a<->d
+     b<->e
+     c<->f
+  endif
+
+  if a=c
+     a<->f
+  elseif a<c
+     a<->c 
+  endif
+
+  write "\n\tel mayor es ", a
+
+stop
+

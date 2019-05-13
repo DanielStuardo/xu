@@ -1,0 +1,97 @@
+/*
+   BUSCAR NUMEROS
+   El castor "[\ ]" busca elementos dentro de un vector o matriz.
+   En este ejemplo, veremos la búsqueda de elementos numéricos.
+   IMPORTANTE: este castor no tiene chequeo de rangos de búsqueda,
+   por lo que un rango erróneo hará que XU te mande a la soberana
+   mierda, sin posibilidad de atrapar el error. Se hizo así para
+   agilizar la búsqueda en matrices grandes.
+*/
+#use math,trig
+vars:
+   m,n,g:=^number
+
+algorithm:
+   
+   dim m(2,10,2,2)
+   m<-10
+   //[m 4]<-0
+   //[.m 2 4]<-0
+   //[:m 2 4 1]<-0
+   [_m 2 4 1 2]<-0
+   show m 0
+   ."\n"
+   show [\m "=" 0] 0
+   goodbye
+
+ /*  write mth.sqrt((-1)),"\n"
+   use n; drop
+   push {(-1),(-5.5)}
+   write mth.sqrt(n),"\n"
+   goodbye*/
+   
+   precision 3
+   dim n(10,3)
+   {n,n} <- {10,mth.ceil(mth.rand(n))}
+   write n,"\n"
+   use m
+   push {1,2,3,4,5}
+   write "SIZE n=",[@ n],"\nRango de los números dentro del rango 1-5:\n"
+   write [\ n "=" m],"\n"*2  // buscar todos los valores en N que estén dentro de un rango
+
+   ."RANGO de números <= m\n"
+   write [\n "<=" m],"\n"
+   pause
+
+  ."Rango de los números que son iguales a 5:\n"
+   write [\n "=" 5],"\n"*2
+  ."\nLos mayores o iguales a 5:"
+   write [\n ">=" 5],"\n"*2
+
+   dim m(10,3)
+   {m,m} <- {10,mth.ceil(mth.rand(m))}
+  ."\nCuales coinciden de ambos arrays:\n"
+   ."\nARRAY 1 \n"; show m 0
+   ."\nARRAY 2 \n"; show n 0
+   ."\n:=D \n"
+   write [\n "=" m],"\n"*2
+
+  // redimensionamos el vector
+   dim n(100,3)
+   {n,n} <- {10,mth.ceil(mth.rand(n))}
+   ."\nVector de 100 elementos:\n",n,"\n"
+   ."\nBuscar todos los pares del vector de 100 elementos:\n"
+   write [<n [\ (n%2) "=" 0]],"\n"
+   ."\nTODOS LOS NO PARES:\n"
+   write [<n [\ (n%2) "<>" 0]],"\n"
+
+   dim g(2,3,4)
+     {g,g}<-{89,trg.d2r(mth.ceil(mth.rand (g)))}
+     write "\nMatrices:\n"
+  //   write "NUMS=",g,"\nASIN = ", trg.asin(g), nl
+  //   write "NUMS=",g,"\nACOS = ", trg.acos(g), nl
+     g<-trg.asin(g)
+     show g 0
+     //write g,"\n"
+     write "\nUBICACIONES de NAN:", [\g "nan" 0],"\n"
+     if [[@ [\g "nan" 10]] 2]>0
+        write [<g [\g "nan" 0]],"\n"
+     else
+        ."\nNo hay NAN"
+     endif
+     pause
+
+     {g,g}<-{200,mth.ceil(mth.rand (g))!}
+     show g 0
+     //write g,"\n"
+     write "\nUBICACIONES de INF:", [\g "inf" 0],"\n"
+     if [[@ [\g "inf" 0]] 2]>0
+        write [<g [\g "inf" 0]],"\n"
+     else
+        ."\nNo hay INF"
+     endif
+
+    ."\n"
+    write 1/100000000000000000000000000
+   /* USAR LOS OPERADORES "IS", "NAN" E "INF" QUE BUSCAN VALORES LOGICOS Y NOT NUMBERS */
+stop

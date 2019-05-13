@@ -1,0 +1,13 @@
+/*
+   ARCHIVOS BINARIOS: FEXIST
+   Uso de archivos binarios.
+   Veremos la existencia de archivos.
+*/
+
+algorithm:
+ ."\nVeremos si existen dos archivos:\n"
+ ."\n¿Existe FWRITEL.XU? ---> ",fexist("source/fwritel.xu"),"\n"
+ ."\n¿Existe PICHULA.XU? ---> ",{fexist("source/fpichula.xu")?"SI":"solo la que tení metía en la raja, CTM"},"\n"
+  ."OK!\n"
+
+stop

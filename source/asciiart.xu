@@ -1,0 +1,31 @@
+// Programa XU
+#use string
+
+#include include/files.def
+
+name: <descripcion del programa>
+
+vars:
+  s,fil:=string
+  fp:=file
+  r,i:=number
+//functions:
+
+algorithm:
+
+precision 0
+i<-1
+while i<=10
+   fil<-"sex"+($i)+".txt"
+   ."Procesando... ",fil,"\n"
+   s<-strload(fil)
+   fcreate( ("binary/xuvm"+mask(($i) "0##")+".bin") CREATE_NORMAL)
+   fp<-fopen( ("binary/xuvm"+mask(($i) "0##")+".bin") OPEN_WRITE)
+   flag "L"
+   for r<-1 to strlen(s)
+      fwriteb(fp asc(strcpy(s r 1)))
+   next
+   fclose(fp)
+   ++i
+wend
+stop

@@ -1,0 +1,16 @@
+#use math
+vars:
+  m:=^number
+  l,r:=^number
+algorithm:
+  dim l(5,5,3)
+  {l,l}<-{10,mth.ceil(mth.rand(l))}
+  m<-^[1,4,5]
+//  flag "COPY"
+  show ($l) 10
+  ."\n....\n"
+  r<-[-| l m]
+  show ($r) 10
+  ."\n....\n"
+  show ($l) 10
+stop

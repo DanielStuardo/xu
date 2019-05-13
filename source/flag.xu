@@ -1,0 +1,100 @@
+#use stack,string
+vars:
+  stack_flag:=stack
+  a:=number
+  m:=^number
+  v:=variant
+  s:=string
+functions:
+   flag:=function:void
+     bandera:=$1:variant
+   begin:
+//     deque
+     use stack_flag
+     push bandera
+/*     if istype(bandera "string")
+        push ($bandera)
+     elseif istype(bandera "number")
+        push (#bandera)
+     elseif istype(bandera "boolean")
+        push (%bandera)
+     else
+        ."FLAG no reconoce el tipo"
+        goodbye
+     endif */
+     flag stk.top
+//     if strlen(strtrim(bandera))>0
+//        use (stack_flag)
+//        push bandera
+//        flag bandera
+//     else
+//        if ~isempty()
+//           flag stk.top
+//        endif
+//     endif
+   end
+
+// Saca un FLAG del stack y lo deja disponible para su uso.
+   unflag:=function:void
+   begin:
+     deque
+     use (stack_flag)
+     if ~isempty()
+        pop
+        if ~isempty()
+           flag stk.top
+        endif
+     endif
+   end
+
+// lee el FLAG y lo devuelve como un string
+   getflag:=function:variant
+   begin:
+     deque
+     use (stack_flag)
+     if ~isempty()
+        return (?stk.top) //($pop)
+     else
+        return (?"")
+     endif
+   end
+algorithm:
+   precision 0
+   .flag(100)
+   .flag("B")
+//   v<-100    // malo: no opera variants de esta forma.
+   v<-(?100)   // correcto.
+   write "\nVariant casteado con (?)=",v
+   v<-(?"\"Esta es una cadena ejemplar\"")
+   write "\nVariant casteado con (?)=",v
+   v<-(?true)
+   write "\nVariant casteado con (?)=",v
+   
+   v<-.getflag
+   write "\nRecibe de GETFLAG=",v,"\n"   
+   write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+   s<-($v)
+   write "\nVariant casteado=",s
+   .unflag
+   write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+   v<-.getflag
+   a<-(#v)*100
+   write "Operacion entre number y variant=",a,"\n"
+   dim m(10,10)
+   m<-100
+   .flag(m)
+   .flag(true)
+   write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+   .unflag
+   write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+   .unflag
+   write "\nTipo=",type(.getflag),"\n",.getflag,"\n"
+
+   tox a
+   if false
+      mov 100/20
+   else
+      mov (-100)/20
+   endif
+   write a
+stop

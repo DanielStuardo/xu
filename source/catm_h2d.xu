@@ -1,0 +1,14 @@
+/*
+  Concatenación de dos matrices 2D hacia el lado (horizontal)
+  Debe coincidir el número de filas
+*/
+
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(5,3)
+  dim m(5,4)
+  l<-10; m<-(-5)
+  r<-[+| l m]
+  show ($r) 7
+stop

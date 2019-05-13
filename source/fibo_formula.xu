@@ -1,0 +1,27 @@
+program:    Fibonacci a traves de formula 
+
+#define RAIZ_5,    2.23606797749978
+#define TERM_1,    1.61803398874989
+#define TERM_2,  (-0.61803398874989)
+
+ vars:
+   fibo := $1:number
+
+ functions:
+
+  fib := function:number
+    n := $1:number
+  begin:
+    return (1/RAIZ_5)*((TERM_1^n)-(TERM_2^n))
+  end
+
+algorithm:
+
+   if fibo=0
+      write "Ingrese un número para calcular su fibonacci\n"
+   else
+      write "Fibonacci de ", fibo, " es ",(context "notation") .fib(fibo), "\n"
+   endif
+
+STOP
+

@@ -1,0 +1,13 @@
+
+vars:
+  i:=number
+algorithm:
+
+// comentario
+
+  for i<-1 to 256
+    color(i)
+    write "mensaje en color ",($i)
+  next
+
+stop

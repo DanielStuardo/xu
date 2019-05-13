@@ -1,0 +1,12 @@
+vars:
+  m:=^number
+  l,r:=^string
+algorithm:
+  dim l(10)
+  l<-^["A","L","C","CH","P","E","U","G","O","Z"]
+  m<-^[4,7,5,1,2,9,9,9,9]
+//  flag "COPY"  /* con este flag, no se produce el corte, sino, una copia */
+  r<-[-| l m]    /* no importa si es "[--]" o "[-|]", porque es un vector culiao */
+  write r,"\n...\n"
+  write l,"\n"
+stop

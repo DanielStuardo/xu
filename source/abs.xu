@@ -1,0 +1,44 @@
+/*
+   VALOR ABSOLUTO
+   Función valor absoluto, en forma natural "|X|" y en forma de
+   función "mth.abs()".
+*/
+#use math
+vars:
+  n:=^number
+  b:=number
+
+algorithm:
+//  precision 0
+
+  ."\nValor absoluto de 2.456 = ",|2.456|
+  ."\nValor absoluto de -2,456 = ",|(-2.456)|,"\n"
+  ."\nValor absoluto de 2.456 = ",mth.abs(2.456),"\n",mth.exp(5)
+  ."\nValor absoluto de -2,456 = ",mth.abs((-2.456)),"\n"
+  write mth.sgn(1)," ",mth.sgn((-1))," ",mth.sgn(0),"\n"
+  write mth.round(2.678)," ",mth.round(2.067),"\n"
+  
+  dim n(5,5)
+  {n,n}<-{10,mth.ceil(mth.rand(n))*(-1)}
+
+ ."Despliega la matriz original:\n"
+  show(n 5)
+
+ ."\nApliquemos un cálculo con valor absoluto:\n"
+  precision 5
+  show( |n| 5)
+  ."\nValor absoluto de la matriz + 0.456"
+  show |(n+0.456)| 0
+
+  precision 3
+ ."\nMás cálculos con valor absoluto:\n"
+  n<-3.1415*|(n-5)*|(-2)||
+  show(n 5)
+
+  write "\n\nTambién sirve la función MTH.ABS():\n"
+  b<-(-123123112)      // los negativos van entre paréntesis en XU
+
+  write "MTH.ABS(",b,")\t= ",mth.abs(b),"\n"
+  write "MTH.ABS(-2)\t= ",mth.abs(-2),"\n"
+
+stop

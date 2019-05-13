@@ -1,0 +1,8 @@
+vars:
+  l,m,r:=^number
+algorithm:
+  l<-^[0,1,2,3]
+  m<-^[4,5,6,7,8,9]
+  r<-[+- l m]
+  show r 1    // muestra la matriz con 1 columna
+stop

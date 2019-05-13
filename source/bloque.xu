@@ -1,0 +1,36 @@
+#use matrix,math,stack
+
+vars:
+  m,tmp:=^number
+  stack_flag:=stack
+  n:=number
+functions:
+  #import flag.*
+algorithm:
+
+  precision 0
+
+  dim m(10,10)//,2,2)
+  m<-{10,mth.ceil(mth.rand(m))}
+  show m 0
+  ."\n"
+  
+  tmp<-[%m (# ^[3,3,8])] //,9,1,2,1,1])]
+//  tmp<-[%m (# ^[3,7])]
+  show tmp 0
+  
+  goodbye
+  
+  n<-seconds("")
+  tmp<-[<m [* ^[3,300,500,900]]]
+  .flag "RR"
+  reshape tmp((500-3+1),(900-300+1))
+ // show tmp 0
+  ."\nSIZE TMP=",[@tmp],"\nTIME=",seconds("")-n,"\n"
+  .unflag
+
+  n<-seconds("")
+  tmp<-[%m (# ^[3,300,500,900])]
+ // show tmp 0
+  ."\nSIZE TMP=",[@tmp],"\nTIME=",seconds("")-n,"\n"
+stop

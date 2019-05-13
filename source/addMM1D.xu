@@ -1,0 +1,30 @@
+#use math
+vars:
+  a,b,c:=^number
+
+algorithm:
+
+  dim a(10,10,10); dim b(10,10,10)
+  a<-100
+  b<-(-90)
+  c<-(a+b)*0.2+1
+  write c,"\n"
+
+  c<-b+a
+  write c,"\n"
+  
+  c<-a-b
+  write c,"\n"
+
+  c<-b-a
+  write c,"\n"
+  
+  c<-(b*0.8)+a
+  write c,"\n"
+  
+  c<-(b*1.5)-a
+  write c,"\n"
+
+  c<-a-b*0.5
+  write c,"\n"
+stop

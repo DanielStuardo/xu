@@ -1,0 +1,39 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+algorithm:
+
+  dim a(1000000); dim b(1000000)
+  a<-100
+  b<-(-90)
+  
+  n<-seconds("")
+  c<-a/(b*(-1))
+  write "\nDIV TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"
+
+  n<-seconds("")
+  c<-a\((-1)*b)
+  write "\nIDIV TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"
+
+  [b 5]<-0
+  try
+     n<-seconds("")
+     c<-a/((-1)*b)
+     write "\nDIV TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 = ",[c 10],"\n"
+  exception
+     ."\nERROR CODIGO ( NUM / ZERO )= ",whatsup()
+  tend
+  
+  try
+     n<-seconds("")
+     c<-a\((-1)*b)
+     write "\nIDIV TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 = ",[c 10],"\n"
+  exception
+     ."\nERROR CODIGO ( NUM \ ZERO )= ",whatsup()
+  tend
+stop

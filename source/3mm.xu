@@ -1,0 +1,17 @@
+name:     El mayor de 3 con 2 comparaciones
+memory: normal
+
+ vars:
+  { a, b, c} := number
+  temp := number
+
+algorithm:
+  {a, b, c} <-  { 20, 151, 150}
+
+  a<->b, if a<b
+  a<->c, if a<c
+
+  write "\n\tEl mayor es ", a,"\n"
+
+stop
+

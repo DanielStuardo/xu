@@ -1,0 +1,98 @@
+#use string
+vars:
+   s,t,w:=^string
+   b,v:=^boolean
+
+algorithm:
+
+   precision 0
+   
+   s<- ^["cadena larga",&
+         "Esta cadena es muy corta",&
+         "Nadie sabe para quien trabaja",&
+         "Cuando fui a New Yorw",&
+         "Hola mundo!!",&
+         "",&
+         "Una Cadena de oro",&
+         "Hola Mundo!!",&
+         "Podría ser o no podría ser" ]
+   show ([+| s ("LEN = "+($strlen(s)))]) 0
+   //write "\nLEN s=",strlen(s),"\n"
+
+   ."\nLo mismo, pero con una variable single:\n"
+   write "\n¿Y el \"CaDeNA\" sin case sensitive? : ",(flag true)[\s "@" "CaDeNa"],"\n"
+   write "\n¿Y el \"CaDeNA\" con case sensitive? : ",(flag false)[\s "@" "CaDeNa"],"\n"
+
+   ."\n"
+   ."\nNo esté contenido \"Cadena\", con case sensitive:\n"
+   write (flag false)[\s "~@" "Cadena"],"\n"
+   ."\nNo esté contenido, sin case sensitive:\n"
+   write (flag true)[\s "~@" "Cadena"],"\n"
+   
+   write "\nDónde está el vacío?: ",[\ s "=" ""],"\n"
+   write "\nLo que no es vacío?: ",[\s "<>" ""],"\n"
+   
+   
+   dim t(9)
+   t<-"cadena"
+ //  write "\nDónde está [\"cadena\",...]?: ",[\ s "@" t],"\n"
+ //  write "\nDónde está \"ser\"?: ",[\ s "@" "ser"],"\n"
+   write "\nDónde está el vacío?: ",[\ s "=" ""],"\n"
+   t<-(flag ".")"Hola mundo!!"
+   write "\n¿Y el \"Hola mundo!!\" sin case sensitive? : ",(flag true)[\s "=" t],"\n"
+   write "\n¿Y el \"Hola mundo!!\" con case sensitive? : ",(flag false)[\s "=" t],"\n"
+   show s 0
+   write "\nLo que no es vacío?: ",[\s "<>" ""],"\n"
+
+   t<-(flag ".")"CaDeNA"
+   write "\n¿Y el \"CaDeNA\" sin case sensitive? : ",(flag true)[\s "@" t],"\n"
+   write "\n¿Y el \"CaDeNA\" con case sensitive? : ",(flag false)[\s "@" t],"\n"
+   ."\nLo mismo, pero con una variable single:\n"
+   write "\n¿Y el \"CaDeNA\" sin case sensitive? : ",(flag true)[\s "@" "CaDeNa"],"\n"
+   write "\n¿Y el \"CaDeNA\" con case sensitive? : ",(flag false)[\s "@" "CaDeNa"],"\n"
+   ."\n"
+   ."\nNo esté contenido, con case sensitive:\n"
+   write (flag false)[\s "~@" "Cadena"],"\n"
+   ."\nNo esté contenido, sin case sensitive:\n"
+   write (flag true)[\s "~@" "Cadena"],"\n"
+//   show s 0
+   
+ /* BOOLEANOS: solo sirve en el lado derecho el valor single y la matriz
+    de iguales dimensiones que la matriz del lado izquierdo */
+
+   dim b(2,10)
+   [.b 1 3]<-true; [.b 2 4]<-true; [.b 1 10]<-true;
+   show b 0
+   
+   write "\nBooleanos verdaderos?: ",[\b "is" true],"\n"
+   write "\nBooleanos falsos?: ",[\b "is" false],"\n"
+
+   v<-(%^[[1,0,0,1,1,0,1,0,1,1],[1,0,0,1,1,0,1,0,1,1]])
+
+  // show [+| b v] 0 // para 1D
+   show [+- b v] 0
+
+   write "\nmatches de Booleanos?: ",[\b "is" v],"\n"
+
+   //drop (use(t))
+   //push {"cadena","podría"}
+   dim t(2)
+   {[t 1],[t 2]}<-{"cadena","podría"}
+   /* SI t tiene rango diferente a S, se buscará la primera ocurrencia de un elemento
+      de T en S. En este caso, T debe ser un vector; si no lo es, debe usar RESHAPE */
+
+   write "\nDónde están \"cadena\" o \"podría\"?: \n"
+
+   write [\ s "@" t],"\n"
+//goodbye
+
+  ."\nReemplazamos \"cadena\" por otra palabra, y buscamos sus filas:\n"
+  t<-strchg(s "cadena" "pichula")
+  show t 0
+   write "\n",[<s [\ t "@" "pichula"]],"\n"
+  ."\n¿Salió mal? Porque hay que hacerlo al revés:\n"
+   //write strchg( [<s [\ s  "@" "cadena"]] "cadena" "pichula"),"\n"
+   w<-[<s [\ s  "@" "cadena"]]
+   write "****",w,"  SIZE=",[@w],"\n"
+   write strchg( w "cadena" "pichula"),"\n"
+stop

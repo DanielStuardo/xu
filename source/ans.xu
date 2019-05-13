@@ -1,0 +1,150 @@
+#use string,math,matrix
+vars:
+  c:=string
+  v,w:=^string
+  n,m:=number
+  x,y:=^number
+algorithm:
+  c<-($10)
+  w<-($^[[0,1,1,0],[1,1,0,1],[1,1,1,0]])
+  n<-^10
+  show w 0
+  write "\n\nTIPO = ",type(w),"...",type([.w 2 2]),"\n"
+//  use w
+//  push {strcpy({true?v:w} 1 3)} //  MALO
+//  write strcpy({true?v:{false?w:(w-4)}} 1 3)  // BUENO
+//  use x
+//  push {10,20}  // OK
+//  push {10,{true?100:20},20}  // OK
+//  push {10,{true?100:20}*10-{true?(-1):1},20} // OK
+//  push {10,{true?100:20}*10-{true?(-1):1},20},if [x 1]=0 // OK
+//  n<-*{10,n*10}   // Error:OK
+//  n<-{10,n*10}  // OK
+//  n<-{10,n*10}+10  // ERROR:OK
+//  n<-{true?100:0}   // ERROR:OK
+//  n<-{{true?100:0}}   // OK
+//  n<-{10,{true?100:0}*10-{true?(-1):1}}  // OK
+//  n<-{10,{true?100:0}*10}
+//  n<-*{{true?100:0},10}  // Error:OK
+//  {n,m}<-10   //OK
+//  {n,m}<-*{10,20*n}   // Error: OK
+//  {n,m}<-{10,20*n}  // Ok
+//  {n,m}<-{true?100:200} // MALO
+//  {n,m}<-{{true?100:200}}  // BUENO
+//  {n,m}<-{{true?100:200}*10-{true?(-1):1} } // OK
+//  {n,m}<-{{true?100:200},10*n}  // OK
+//  {n,m}<-{{true?100:200},10*n},if n=0  // OK
+//  {n,m}<-{{true?!{10,mth.rand(n)}:200},10*n}  // OK
+//  {n,m}<-{{true?!{10,{false?mth.floor(n):mth.ceil(n)}}:200},10*n} //OK
+  dim x(2)
+  x<-{{true?10:{false?100:(-100)}}}  // OK
+//  x<-{{true?{false?100:(-100)}:10}}  //OK
+
+ /** conflictivos **/
+//  x<-{true?!{10,mth.rand(x)}:0}  // MALO: falta "{}" OK
+//  x<-{{true?!{10,mth.rand(x)}:0}}  // OK
+//  x<-{{true?!{10,mth.rand(x)}:!{20,mth.ceil(x/5)}}}  // OK
+//  x<-{{true?!{10,mth.rand(x)}:{false?{true?100:!{20,mth.rand(x)}}:(-1) }}}  // OK
+//    x<-{10,20}  // ok
+//  mat.row(1)
+//  mat.put({true?!{100,110,120}:20}) // ERROR:OK. hay que insertar solo de a un valor
+//  push {10,{true?!{100,110,120}:20},30} // OK
+//  push {{true?!{10,20}:30}+1} // OK: solo asigna 1 a 30 porque no puede asignar a un combinado
+//  push {true?20:30}+1 // OK
+/*
+0000000053:push 10
+0000000053:if true
+0000000053:push 100
+0000000053:push 110
+0000000053:push 120
+0000000053:else
+0000000053:push 10
+0000000053:push 20
+0000000053:push 30
+0000000053:endif
+0000000053:if true
+0000000053:push  (-1)
+0000000053:else
+0000000053:push  1
+0000000053:endif
+0000000053:push 20
+*/
+//  push {10,{true?!{100,110,120}:!{10,20,30}},{true?(-1):1},20} //OK. no aplica *10... porque
+     // son combinados.
+//  push {10,{true?100:10}*10-{true?(-1):1},20}   // OK. aqui si lo hace.
+//  x<-{ {true?!{10,mth.rand(x)}:!{5,mth.rand(x)}},x*10,{true?10:0} }  // OK
+//  {x,x,x}<-{ {true?!{10,mth.rand(x)}:!{5,mth.rand(x)}},x*10,{true?10:0} }  // OK
+//  [x {true?1:2}]<-0  // OK
+//  [{true?x:y} 1]<-(-10)   // OK
+//  [{true?x:y} 1]<-{true?10:20}  // OK
+//  [{true?x:y} {true?1:2}]<-20  // OK
+
+//  {[w 1],[w 2]}<-{"A","B"}   //OK
+  // la siguiente linea, de funcionar, solo sirve para una variable y no para combinados.
+//  n<-[[@w] 1]
+//  !{n=1?[w 3]:{n=2?[.w 3 3]:{n=3?[:w 3 3 3]:[_w 3 3 3 3]}}} <-"27:12:12" // OK
+//  c<-"X"
+//  !{n=1?[w 3]:c}<-"27:12:12"  //OK
+//  !{n=1?[w 3]:c}<-{"27:12:12","X","E"}  // OK
+
+/*
+0000000070:if n=1
+0000000070:vput w 3 "27:12:12"
+0000000070:else
+0000000070:tox c
+0000000070:mov "27:12:12"
+0000000070:endif
+0000000070:if n=1
+0000000070:vput w 3 "X"
+0000000070:else
+0000000070:tox c
+0000000070:mov "X"
+0000000070:endif
+0000000070:if n=1
+0000000070:if true
+0000000070:vput w 3  "E"
+0000000070:else
+0000000070:vput w 3  "F"
+0000000070:endif
+0000000070:else
+0000000070:if true
+0000000070:tox c
+0000000070:mov  "E"
+0000000070:else
+0000000070:tox c
+0000000070:mov  "F"
+0000000070:endif
+0000000070:endif
+*/
+//  !{n=1?[w 3]:c}<-{"27:12:12","X",{true?"E":"F"} } // OK
+
+//  !{n=1?[w 3]:c}<-{n=1 and m=0?"27:12:12":"X"}  // ok
+
+//  !{n=1?!{[w 3],c}:{n=2?!{[.w 3 3],c}:{n=3?[:w 3 3 3]:[_w 3 3 3 3]}}} <-"27:12:12" // ERROR.OK
+//  !{n=1?[w 3]:{n=2?[.w 3 3]:{n=3?[:w 3 3 3]:[_w 3 3 3 3]}}} <-"27:12:12" // OK. no permite la combinación
+//  !{n=1?[w 3]:{n=2?[.w 3 3]:{n=3?[:w 3 3 3]:[_w 3 3 3 3]}}} <-{"27:12:12","X"} // OK
+
+//  write {n=1?[w 3]:{n=2?[.w 3 3]:{n=3?[:w 3 3 3]:[_w 3 3 3 3]}}},"\nC=",c,"\n"
+//  !{n=1?push 10:{n=2?c<-"20":n<-100}}  // ERROR: encuentra "<-" y eso caga la linea.
+//  !{n=1?push 10:{n=2?[+| w w]:[+- w w] } } // OK
+
+//  !{n=1?push 10:{n=2?[+| w w]:[+- w w] }} // OK
+
+/*  flag ""
+  n<-{[mat.sum(strlen(w)) 1],{n>0?n*16/100}}
+  write n
+  */
+//  {n,m}<-{{true?100:200},{false?10*n:20*n}} // OK
+
+//  write (context "robot")~true
+
+//  x<-n<-{10,20}  // ERROR. OK
+//  x<-n<-m<-0
+/*  dim x(5000,100)
+  dim y(300,100)
+  x<-10
+  y<-100
+  //x<-[^-x y 499]  //OK inserta.
+  x<-[+- x y]
+  show x 0 */
+stop

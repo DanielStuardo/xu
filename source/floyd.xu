@@ -1,0 +1,123 @@
+/*
+  ALGORITMO de FLOYD: Encontrar para cada par de
+  vertices (v,w) el menor costo
+*/
+
+name: algoritmo de Floyd
+
+#define +oo, 0
+#define procedure, function:void
+
+vars:
+    n,i:=number
+ 
+    centro := ^number    // longitud n
+    {a,c}  := ^number   //como matriz de n*n números
+
+functions:
+    inicializa_arrays := procedure
+    begin:
+      dim centro(n)
+      dim a(n,n)
+      dim c(n,n)
+    end
+
+    INGRESO := procedure
+    begin:
+/*      [:a 1 1]<-2
+      [:a 1 2]<-8
+      [:a 1 3]<-5
+      [:a 2 1]<-3
+      [:a 2 2]<-+oo
+      [:a 2 3]<-+oo
+      [:a 3 1]<-+oo
+      [:a 3 2]<-2
+      [:a 3 3]<-+oo
+
+*/
+      a<-^[ [  2,  8,   5], &
+            [  3,+oo, +oo], &
+            [+oo,  2, +oo]]
+            
+    end
+
+    ORDENACION := procedure   // podria reemplazarlo por ^.sort
+      {n1,i,j,k,posmin,aux} := number
+    begin:
+      i<-1
+      n1<-n-1
+      for i<-1 to n
+         posmin<-i
+         j<-i+1
+         while j<=n 
+            if [.centro j] < [.centro posmin]
+               posmin<-j
+            endif
+            ++j       
+         wend
+         aux              <- [.centro posmin]
+         [.centro posmin] <- [.centro i]
+         [.centro i]      <- aux
+      next
+    end                        
+
+    FLOYD := procedure
+      {i,j,k} := number
+    begin:
+      for i<-1 to n
+        [:a i i]<- 0   // si dejo 99999, suma sobre esa cantidad...
+                      // Y si resto al final??   
+      next
+      for k<-1 to n
+         for i<-1 to n
+            for j<-1 to n
+              if ([:a i k]+[:a k j]) > [:a i j]
+                  [:a i j]<-[:a i k]+[:a k j]
+              endif
+              room false
+                write "i=",i," k=",k," : ",[:a i k],"\n"
+                write "k=",k," j=",j," : ",[:a k j],"\n"
+                write "i=",i," j=",j," : ",[:a i j],"\n","-"*30,"\n"
+              rend
+            next
+         next
+      next
+    end
+
+    CENTRO := function:number
+      {i,j} := number
+    begin:
+    for i<-1 to n
+       [.centro i]<-[:a 1 i]
+       for j<-1 to n
+          if [:a j i]>[.centro i]
+             [.centro i]<-[:a j i]
+          endif
+       next
+    next
+    .ORDENACION
+    return [.centro 1]
+    end
+
+algorithm:
+
+   n<-3
+   cls
+   .inicializa_arrays()
+   .INGRESO()
+   .FLOYD()
+
+   for i<-1 to n
+      write [:a i 1],",",[:a i 2],",",[:a i 3],"\n"
+   next
+
+   color(14)
+   api "box=5,5,9,35,D" 
+   api "hline=7,5,35,2,DS" 
+   api "vline=5,20,9,SD"
+
+   color(13)
+   write at(7 8) "El centro del grafo es ",.CENTRO()
+   vtab(4)
+
+stop

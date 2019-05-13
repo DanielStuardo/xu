@@ -1,0 +1,24 @@
+#use string
+vars:
+   n,t:=number
+   v,file:=string
+algorithm:
+   n<-seconds("")
+   file<-fcmd("cat files.txt")
+   ."TIME=",seconds("")-n
+   
+  /* 
+   // el siguiente trozo es bueno si se quiere hacer proceso con cada linea,
+   // pero es muy lento.
+   flag "\n"   // para separar el string con el "for"
+   for each v in file
+      //write "Linea ",($(++n))," ",v,"\n"
+      v<-strupper(v)
+   next*/
+  // write strupper(file),"\n"
+  
+   n<-seconds("")
+   file<-strload("files.txt" 0 0)
+   ."\nTIME=",seconds("")-n
+   
+stop

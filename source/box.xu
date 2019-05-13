@@ -1,0 +1,84 @@
+name: generacion de cajas en modo texto
+memory: normal
+
+//
+//  api que genera cajas en modo texto. Pruebas con entrada de datos por teclado
+//
+
+
+vars:
+ a := number
+ matrixBoxPrincipal:=^num.
+ s,t:=string
+ i:=number
+
+algorithm:
+// cls
+// a<-0
+// while a<=255
+//    write a," = ",chr(a),"\n"
+//    ++a
+// wend
+
+ color(1)
+ api "screen="+chr(254)
+
+ color 7
+ api "box=6,85,15,95,DS"
+ api "hline=7,85,95,0,DS"
+ api "hline=9,85,95,1,DS"
+ api "hline=11,85,95,2,DS"
+ api "hline=13,85,95,3,DS"
+
+color 6
+ api "box=20,20,30,60,S"
+ api "hline=23,20,60,0,S"
+ api "hline=25,20,60,1,S"
+ api "hline=27,20,60,2,S"
+ api "hline=28,20,60,3,S"
+ api "vline=25,30,28,S"
+ api "vline=23,50,28,S"
+ api "crux=27,30,25,50,27,50,S"
+
+ color 12
+  api "box=6,62,15,80,SD"
+  api "hline=8,62,80,0,SD"
+  api "hline=10,62,80,1,SD"
+  api "hline=12,62,80,2,SD"
+  api "hline=14,62,80,3,SD"
+  api "vline=6,70,14,SD"
+  api "crux=8,70,10,70,12,70,SD"
+
+ color 31
+ api "box=7,18,18,50,D"
+
+ api "hline=9,18,50,0,D"
+
+ api "hline=12,18,50,1,D"
+ api "hline=14,18,50,2,D"
+ api "hline=16,18,50,3,D"
+ api "vline=12,30,18,D"
+ api "crux=14,30,16,30,D"
+
+
+
+at(31 0)
+goodbye
+  write (at 10 20) "Nombre:"
+  write (at 12 20) "Tasa"
+ i<-1
+ while i<=2
+  t<-((at 10 28) )rawinput t "S:40"
+  //write "\n",lastkey
+  flush
+  s<-(at 13 20)rawinput ( s "N:7")
+  //write "\n",lastkey
+  flush
+  write (at 15 20) "*",s,"*"
+  write (at 13 32) money((#s) " %" 2 4 ) //mask (s " ###.###.###")
+  ++i
+ wend
+
+  at  31 0
+
+ stop

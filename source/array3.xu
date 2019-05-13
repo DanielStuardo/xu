@@ -1,0 +1,25 @@
+
+
+#use math
+
+vars:
+  s,t:=^number
+  i:=number
+
+algorithm:
+
+  dim s(100000)
+  s<-{10,mth.rand(s)}
+
+  ."\nSIZE = ",[[@s] 2]*64
+
+  use s; drop
+
+  dim s(1000,1000)
+  garbage()
+
+  s<-{10,mth.rand(s)}
+  ."\nSIZE = ",[@s]
+  pause
+
+stop

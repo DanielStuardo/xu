@@ -1,0 +1,8 @@
+vars:
+  l,m,r:=^number
+algorithm:
+  l<-^[0,1,2,3,4,5,6,7,8,9]
+  dim m(10,5)  // inicializa en 0.
+  r<-[+| l m]
+  show ($r) 7    // muestra la matriz con 7 columnas
+stop

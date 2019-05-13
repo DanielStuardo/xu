@@ -1,0 +1,114 @@
+#use base, math, bit
+
+//#include
+
+name: numeros con base
+
+vars:
+   n,m,o,i,c:=number
+   aM:=^number
+//functions:
+
+algorithm:
+  n<-2.456E5
+  write "Notacion cientifica: ",n,"\n... + 6: ",2.456E5+6,"\n"
+
+ // como constante, se acepta solo hasta exponente 14.
+ // para obtener un número con exponente mayor(o menor), usar e2d("num")
+  write "9.9E+14=",9.9E14,"\n"
+  n<-1.0E+200
+ // n<-e2d("1.0E+200")  // 2E10 está mal: debe ser 2.0E10
+  write "1.0E200 = ",n,"\n... + 20=",n+20,"\n... / 1.0E+200 = ",n/n,"\n"
+ // n<-e2d("1.0E-200")
+  n<-1.0E-200
+  write "1.0E-200 = ",n,"\n"
+  n<-5.12E105 / 2.2330E105
+  write "\nDivisión 5.12E105 / 2.2330E105 = ",n,"\n"
+
+  n<-5.12E105 / (-2.2330E98)
+  write "\nDivisión 5.12E105 / 2.2330E98 = ",n,"\n"
+  
+  
+  o<-0x1223o
+  write "Octal: ",o,"\n... x 0.25: ",0.25*0x1223o,"\n"
+  m<-0x8AF34h
+  write "Hexadecimal: ",m,"\n"
+  m<-0x0011010b * 2
+  write "Binairo: ",m,"\n"
+  write "chr(): ",0x1101b,", ", chr((32+0x1101b)),"\n"
+
+  n<-0x11111111b
+  write n,"\n" 
+  [.n 3 5]<-0x101b
+  write n,"\n"
+  ."\nSUMA aditiva:\n"
+  n<-0x11111111b + 0x111b
+  write "0x11111111b + 0x111b = ",n
+  write "\nSUMA BINARIA:\n"
+  n<-(OR 0x11111111b 0x111b)
+  write "0x11111111b or 0x111b = ",n,"\n"
+  ."\nNo es lo mismo una suma aditiva que una suma binaria\n"
+  
+  n<-0x1011001b
+  write "\n 0x1011001b? ",n
+  
+  write "\nHEXA: 0xAB12h = ",0xAB12h
+  dim aM(10)
+  aM<-{0x1010b,mth.ceil(mth.rand(aM))*0xAB12h}
+  show [+| aM (aM/0xAB12h)] 0
+  ."\n"
+  aM<-1.0E5
+  show aM 0
+  
+ // operaciones de bits con numeros en base numérica.
+  precision 0
+  sub "print"
+    for i<-31 downto 0
+      c<-xgetbit(o i)
+      write {(%c)?color(15):color(7)}c
+    next
+    color(7)
+    ."\n"
+  back
+  
+  ."\n"*3
+  n<-0
+  o <- (OR n 0x4h)
+  write "\nPone a 1 el bit 2 =",o,"\n"
+  gosub "print"
+  o <- (OR n (<< 1 2))
+  write "\nPone a 1 el bit 2 =",o,"\n"
+  gosub "print"
+  o <- (OR n (OR (<<1 5) (<<1 2) ))
+  write "\nPone a 1 los bits 5 y 2 =",o,"\n"
+  gosub "print"
+  ."\n"
+  
+  n<-0x111111111111111b
+  o<-(AND n (NOT 0x8h))
+  write "\nPone a 0 el bit 3:\n"
+  gosub "print"
+  o<-(AND n (NOT (<<1 3)))
+  gosub "print"
+  write "\nPone a 0 los bits 4 y 3:\n"
+  o<-(AND n (NOT (OR (<<1 4) (<<1 3))))
+  gosub "print"
+
+  n<-0
+  o<-(XOR n (<<1 5))
+  ."\nInvierte el bit 5: ",o,"\n"
+  gosub "print"
+  o<-(XOR n (OR (<<1 5) (<<1 0) ))
+  ."\nInvierte los bits 5 y 0: ",o,"\n"
+  gosub "print"
+
+  ."\n BIT 4 ? ",(AND o (<<1 4)),"\n"
+  ."\n BIT 5 ? ",(AND o (<<1 5)),"\n"
+  
+  if (%(AND o (<<1 4)))
+     ."\nBIT 4 está en 1\n"
+  elseif (%(AND o (<<1 5)))
+     ."\nBIT 5 está en 1\n"
+  endif
+
+stop

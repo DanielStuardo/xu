@@ -1,0 +1,44 @@
+/*
+   TABLA ASCII
+   Es una tabla interna proporcionada por el lenguaje core sobre el
+   cual está hecho XU. Este lenguaje es HARBOUR, y es una maravilla.
+   Además, podemos ver el uso de los castores de conversión de base.
+*/
+
+#use base,string
+vars:
+  a,b,c,i:=number
+
+algorithm:
+  flag("R0")   // flag de STRPAD(): rellena con "0"
+  a<-0
+  ."ASC  DEC HEX OCT BINARIO"; htab(4)
+  ."ASC  DEC HEX OCT BINARIO"; htab(8)
+  ."ASC  DEC HEX OCT BINARIO\n","_"*89,"\n"
+
+  for i<-1 to 85
+    // columna 1
+///  ."ASC  DEC HEX OCT BINARIO"; htab(4)
+    if a=7 or a=8 or a=10 or a=13
+       ." ?"
+    else
+       write " ",chr(a)
+    endif
+    flag "R "
+    ." = ",mask(($a) " ###")," ",strpad((Hx a) 3)," ",strpad((Ox a) 3)," ",(flag("R0"))strpad((Bx a) 8); htab(4)
+
+    // columna 2
+    b<-a+85
+    flag "R "
+    write " ",chr(b)," = ",mask(($b) " ###")," ",strpad((Hx b) 3)," ",strpad((Ox b) 3)," ",flag("R0")strpad((Bx b) 8); htab(8)
+
+    // columna 3
+    c<-b+85
+    flag "R "
+    write " ",chr(c)," = ",mask(($c) " ###")," ",strpad((Hx c) 3)," ",strpad((Ox c) 3)," ",flag("R0")strpad((Bx c) 8),"\n"
+
+    ++a
+  next
+  flag "R "
+  htab(8); write " ?"," = 255 ",strpad((Hx 255) 3)," ",strpad((Ox 255) 3)," ",flag("R0")strpad((Bx 255) 8),"\n"
+stop

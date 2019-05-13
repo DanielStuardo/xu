@@ -1,0 +1,22 @@
+/*
+   Concatena dos matrices, una 2D y otra 3D
+   La primera es una página, por lo tanto,
+   agrega una página a la matriz 3D.
+   No importa si usa "[+| ]" o "[+- ]", porque
+   una de ellas será tratada como página inicial.
+*/
+
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(1000,50)
+  dim m(1000,50,2)
+  l<-10; m<-(-5)
+  r<-[+- l m]
+  ."\nPresione una tecla para ver matriz...\n"
+  garbage()
+  pause
+//  show ($r) 7
+  write "Nuevo size=",[@r],"\n"
+  pause
+stop

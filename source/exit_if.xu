@@ -1,0 +1,33 @@
+name: prueba exit_if
+output: screen      
+memory: normal
+
+vars:
+  {latitud,longitud} := number 
+  {x,y} := number
+  distancia := number
+
+algorithm:
+
+  precision 6
+  {x, y} <- {1 ,1}
+  out "numeros.txt"
+  screen_off
+  x<-0
+  while x<20
+     write "X:", x, "\n"
+     exitif x=6
+     y<-0
+     while y<10
+        exitif x=4
+        write "Y:",y,"\n"
+        exitif y=8
+        ++y
+     endw
+     ++x
+     exitif y=2
+  endw
+  screen_on
+  out_off
+  STOP
+

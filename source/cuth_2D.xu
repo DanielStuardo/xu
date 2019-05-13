@@ -1,0 +1,23 @@
+/*
+   CUT MATRIX 2D, HORIZONTAL (filas)
+   El corte de matriz 2D.
+*/
+
+#use math
+vars:
+  m:=^number
+  l,r:=^number
+algorithm:
+  dim l(10,10)
+  {l,l}<-{10,mth.ceil(mth.rand(l))}
+  m<-^[1,4,6,8,8]  // extraeré estas filas de "l". Se puedes repetir ;)
+  
+  //flag "COPY"  /* con este flag, no se produce el corte, sino, una copia */
+  
+  show ($l) 10
+  ."\n....\n"
+  r<-[-- l m]
+  show ($r) 10
+  ."\n....\n"
+  show ($l) 10
+stop

@@ -1,0 +1,23 @@
+vars:
+   s:= $1: number
+   t:= $2:number
+functions:
+   ackerman:=function:number
+     s:=$1:number
+     t:=$2:number
+   begin:
+     if s=0
+       ."\n",t,"+1"
+       return t+1
+     elseif t=0
+       ."\nACK(",s,"-1, 1)"
+       : return .ackerman((s-1) 1)
+     else
+       ."\nACK(",s,"-1, ACK(",s,", ",t,"-1))"
+       : return .ackerman((s-1) (.ackerman(s (t-1))))
+     endif
+   end
+algorithm:
+   precision 0
+   write "Ackerman(",s,", ",t,") = ",.ackerman(s t),"\n"
+stop

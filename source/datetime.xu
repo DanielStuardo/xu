@@ -1,0 +1,57 @@
+
+//   LIBRERIA DE FUNCIONES PARA XU
+//   Daniel Stuardo. Nov. 2010-2016
+//
+//   Modo de uso:
+//   En el espacio "functions:" se debe escribir, por ejemplo:
+//
+//   #insert library.*
+//       Si se desea cargar todas las funciones.
+//   #insert library.timediff
+//       Si solo se desea la funcion particular.
+//   #insert library.timediff,time2hour,...
+//       Si se desea una lista particular de funciones.
+//
+
+functions:
+
+//
+//  $- TIMEDIFF(horai horaf)
+//  $* diferencia de horas.
+//  $. Devuelve diferencia en formato "00:00:00"
+//     o "0" si una de las horas no es valida.
+//
+   timediff:=function:string
+      ti:=$1:string
+      tf:=$2:string
+   begin:
+      return {istime(ti) and istime(tf)? &
+           sec2time(seconds(tf)-seconds(ti)):"0"}
+   end
+
+//
+//  $- TIME2HOUR(hora)
+//  $* Convierte horas en segundos.
+//  *. Devuelve los segundos transcurridos desde
+//     la medianoche hasta la hora indicada.
+//
+   time2hour:=function:number
+      secs:=$1:string
+   begin:
+      return seconds(secs)/60/60
+   end
+
+//
+//  $- TIME2MIN(hora)
+//  $* Convierte hora en minutos.
+//  $. Devuelve los minutos transcurridos desde
+//     la medianoche hasta la hora indicada.
+//
+   time2min:=function:number
+      secs:=$1:string
+   begin:
+      return seconds(secs)/60
+   end
+algorithm:
+
+stop

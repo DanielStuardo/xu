@@ -1,0 +1,47 @@
+/*
+   OPERACIONES DE CONJUNTO
+   XU cuenta con funciones y un castor para trabajar con conjuntos.
+   En el archivo "sets.xuf" que se inserta, existe una función que
+   toma cualquier matriz y la convierte en un único conjunto con
+   elementos no repetidos. Se puede escribir la misma para matrices
+   de otros tipos, como strings.
+   Las funciones de conjunto solo trabajan con vectores. La función
+   de usuario SETN obtiene un vector de cualquier matriz, con ele-
+   mentos únicos.
+*/
+
+#use set,math
+
+vars:
+   a,b:=^number
+   c:=^number
+   gate:=boolean
+
+//functions:
+ //  #import sets.*
+
+algorithm:
+  precision 0
+
+  a<-^[1,2,3,4,5,6,6,6,7,11,11,12,13,14,14,14,15,16,17,18,19,20]
+ // dim a(10,10)
+
+//  out "./dimcmm.txt"
+//  screen(0)
+//  {a,a}<-{10,(int mth.ceil(mth.rand(a)))}
+  show a 10
+  b<-[=5 15 11]
+  //.SETN(a)     // crea un único conjunto con elementos únicos de A
+  a<-unique(a)   // ESTO ES NECESARIO PARA TRABAJAR CON CONJUNTOS
+  ."\nconjunto A=",a,"\n"
+  ."conjunto B=",b,"\n\n"
+
+  ."A U B=",setunion(a b),"\n"    // UNION
+  ."A *U B=",setinter(a b),"\n"   // INTERSECCION
+  ."A - B=",setdiff(a b),"\n"     // DIFERENCIA DE A CON B
+  ."B - A=",setdiff(b a),"\n"     // DIFERENCIA DE B CON A
+  ."A *- B=",setsdiff(a b),"\n"   // DIFERENCIA SIMETRICA
+  ."B *- A=",setsdiff(b a),"\n"   // DIFERENCIA SIMETRICA
+//  out ""
+//  screen(1)
+stop

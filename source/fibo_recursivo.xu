@@ -1,0 +1,25 @@
+name:    prueba recursiva
+memory:  recursive    // recursive=stack+128, normal=stack+16
+
+
+vars:
+   fibo := $1:num.
+   t    := num.
+
+functions:
+
+  fib:=function:num.
+    n:=$1:num.
+  begin:
+//    write "\nENTRA ",n,"\n"
+    : return {n<=2? 1: ( (.fib (n-2)) + (.fib (n-1)) ) }
+  end
+
+algorithm:
+   if fibo=0
+      write "Ingrese un número para calcular su fibonacci\n"
+   else
+      write "Fibonacci de ", fibo, " es ",(context "notation")(precision 6) .fib(fibo), "\n"
+   endif
+   pause
+stop

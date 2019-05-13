@@ -1,0 +1,34 @@
+name:     Fibonacci iterativo
+output:   screen   
+memory: normal
+
+vars:
+   fibo:= $1:number
+   
+functions:
+   fib := function:number
+     fibo := $1:number
+     {p, s, tmp} := number
+
+   begin:
+     p<-0
+     s<-1
+     while fibo>0
+        tmp <- p+s
+        p <- s
+        s <- tmp
+        --fibo
+     wend
+     return p
+
+   end
+
+algorithm:
+   if fibo=0
+      write "Ingrese un número para calcular su fibonacci\n"
+   else
+      write "Fibonacci de ", fibo, " es ", (context "notation").fib(fibo), "\n"
+   endif
+
+stop
+

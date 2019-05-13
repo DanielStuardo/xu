@@ -1,0 +1,35 @@
+#include "files.def"
+#use matrix
+vars:
+  i,j,k:=number
+  fp:=file
+  s:=string
+  
+algorithm:
+ 
+ /* creamos un archivo de indices */ 
+  fcreate ("./index30_15.txt" CREATE_NORMAL)
+ /* lo abrimos en modo escritura */
+  fp<-fopen("./index30_15.txt" OPEN_WRITE)
+  for i<-1 to 300
+    for j<-1 to 150
+      for k<-1 to 150
+        fwrites (fp ($i)+","+($j)+","+($k)+"\n")
+      next
+    next
+  next
+ /* lo cerramos */
+  fclose(fp)
+  
+ /* abrumos el archivo en modo lectura */
+  fp<-fopen("./index30_15.txt" OPEN_READ)
+  
+  do
+     write freadl(fp),"\n"   // "FREADL()" lee líneas del archivo.
+  until feof(fp)             // "FEOF()" señala fin de archivo.s
+  
+  write "Total lineas=",flc(fp),"\n"
+  
+  fclose(fp)
+  
+stop

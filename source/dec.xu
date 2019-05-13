@@ -1,0 +1,99 @@
+/*
+  DECIMALES.
+  Cuando se trabaja con funciones matemáticas, XU lo hace con todos los decimales.
+  No emplea precision. El resultado se puede redondear, pero la precision seguirá
+  siendo la misma.
+  Esto puede llevar a errores. Por esa razón, se ha separado lo que es la precision
+  numerica de la precision de despliegue. La precision de despliegue solo redondea 
+  el numero en el despliegue y se hace con "precision n", con "n" numero de decimales. 
+  La precision numerica se hace con "fix(v n)", con "v" la variable y "n" los decs.
+  Usted vea como mierda lo hace para que los resultados le salgan buenos y no como
+  la callampa.
+*/
+#use math,matrix
+
+vars:
+  n,w:=^number
+  m,a,b,v:=number
+algorithm:
+
+  #define _LOOP(V,W,CODIGO)  do \\
+                               CODIGO  \\
+                             until V=W
+  
+  _LOOP((++m),10,."Iteración #"+($m)+"\n")
+
+  goodbye
+
+  m<-mth.rand(10)
+  
+  a<-mth.rand(10)
+  b<-mth.rand(10)
+  ."NUMEROS:\n",m,", ",a,", ",b
+  ."\nSUMA = ",m+a+b
+ // ."\n\n/* SE AJUSTA A CINCO DECIMALES CON FIX() */"
+  //m<-fix(m 5)  // se fija a cinco decimales.
+  //."\nNUMERO CON AJUSTE FIX =",m
+  precision 5
+  ."\nNUMEROS CON PRECISION DE DESPLIEGUE 5 decimales:\n",,m,", ",a,", ",b
+  ."\nSUMA = ",m+a+b
+  
+  goodbye  
+
+  dim n(3)
+
+  precision 16  // 16 es la precision por default para los cálculos 
+  n<-{10,mth.rand(n)}
+  ."Cálculo sin precision:\n"
+  show n 0
+  ."\n... x 12:\n"
+  w<-n*12
+  write w,"\nSUMA: "
+  write mat.sum(w),"\n"
+  ."Cálculo sin precision numérica pero con precision de despliegue (3 dec):\n"
+  precision 3
+  show n 0
+  ."\n... x 12:\n"
+  w<-n*12
+  write w,"\nSUMA: "
+  write mat.sum(w),"\n(El resultado puede diferir de la suma real. compruébalo...)\n"  
+
+  ."\nCálculo con precision numerica de 3 decimales:\n"
+  n<-fix(n 3)
+  show n 0
+  ."\n... x 12:\n"
+  w<-n*12
+  write w,"\nSUMA: "
+  write mat.sum(w),"\n"
+    
+  ."\nNumero simple sin Precision:\n"
+  precision 16
+  m<-12.35
+  ."M = ",m,"\n...x0.23+5 = ",
+  write m*0.23+5,"\n... ^ 2.4 = "
+  write m^2.4,"\n"
+ 
+ /* ITEM 3 */
+  m<-12.35
+  write "Con precision de 2 decimales: ",fix((m^2.4) 2),"\n" 
+  ."M = ",m,"\n"
+  v<-fix((m^2.4) 2)
+  write "Más 0.3 = ",v+0.3,"\n","Más 0.03 = ",v+0.03,"\n"
+  
+  precision 2   // precision de mantisa cientifica, y despliegue de numeros. Acepta maximo 12.  
+  m<-12.35
+  write "Con precision y ajuste de despliegue de 2 decimales: ",fix((m^2.4) 2),"\n" 
+  ."M = ",m,"\n"
+  v<-fix((m^2.4) 2)
+  write "Más 0.3 = ",v+0.3,"\n","Más 0.03 = ",v+0.03,"\n"
+  
+  m<-12.78
+  write "Con precision de 0 decimales: ",fix(m 0),"\n" 
+  ."M = ",m,"...^2.4 = ",m^2.4
+  v<-fix(m 0)^2.4
+  ."\nM = ",fix(m 0),"...^2.4 = ",v
+  write "\nMás 0.3 = ",v+0.3,"\n","Más 0.03 = ",v+0.03,"\n"
+  
+  ."\n\nSe recomienda trabajar con una precicion maxima de 12 dec."
+  ."\n¿Pa'qué querí más?\n"
+stop

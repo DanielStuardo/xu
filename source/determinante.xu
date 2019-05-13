@@ -1,0 +1,86 @@
+#use matrix
+vars:
+  M:=^number
+  z,d,p,f,c,aux :=number
+  filas, columnas, pivote, Det:=number
+functions:
+    aLet:=function:void
+     M:=$1:^number (ref)
+     dato:=$2:number
+    begin:
+     use(M);push(dato)
+    end 
+    
+    FilaIntercambio:=function:void
+     F1:=$1:number
+     F2:=$2:number
+     aux,j,k,rango1,rango2:=^number
+     begin:
+       .aLet(j F1) 
+       .aLet(k F2) 
+       rango1<-[*- j [.[@M] 3]]
+       rango2<-[*- k [.[@M] 3]]
+       aux<-[<M rango1]
+       [>M rango1]<-[<M rango2]
+       [>M rango2]<-aux
+       
+     /*  for j<-1 to columnas
+         aux<-[:M F1 j]
+         [:M F1 j]<-[:M F2 j]
+         [:M F2 j]<-aux
+       next*/
+     end
+
+algorithm:
+
+   #define RANGO, 4
+   filas<-columnas<-RANGO
+   //M<-(# ^[[3,4,-7,6],[1,1.333333333,-3,4],[5,6,-7,5],[-8,-9,1,2]])
+   M<-(# ^[[3,4],[2,-5]])  // det=-23
+   //M<-(# ^[[2,-1,3],[4,5,2],[6,-3,7]])   // det=-28
+   //M<-(# ^[[2,1,-1,3],[0,1,4,0],[0,5,-2,6],[0,-3,1,0]])  // det=-156
+   M<-(# ^[[1,3,-2,5],[5,0,3,1],[2,5,6,3],[-1,2,3,2]])  // det=-295
+   Det<-1
+   show(M RANGO)
+   
+   //Convierte en Matriz Triangular Superior
+   z<-1
+   for d<-1 to columnas
+     p<-0
+     if [:M d d]=0
+       p<-(-1)
+       f<-d
+       while f<=filas and p=(-1)
+           if [:M f d]<>0
+               p<-f
+               .FilaIntercambio(d p)
+               z<-z*(-1)
+           endif
+           f<-f+1
+       wend
+     endif
+
+     pivote<-[:M d d]
+
+     if p<>(-1) 
+       for f<-(d+1) to filas
+         aux<-[:M f d]
+         for c<-1 to columnas
+           [:M f c]<-[:M f c]-([:M d c]*(aux/pivote))
+         next
+       next
+     endif
+   next
+
+ //Obtiene el determinante de la Diagonal
+ for d<-1 to columnas 
+    Det<-Det*[:M d d]
+   // ."\nDet(",d,"\,",d,")=",Det,"\n"
+ next
+ //write "\nZ=",z,"\n"
+ Det<-Det*z
+
+ ."\n"
+ show(($M) RANGO)
+ write "\nDeterminante: ",($Det),"\n"
+stop

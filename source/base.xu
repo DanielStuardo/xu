@@ -1,0 +1,50 @@
+#use base,bit,math
+vars:
+   n:=number
+   m:=^number
+   b:=^string
+algorithm:
+   write (Hx 13242342334234),"\n"
+   write (HDx "FFFFFFFFFFFFFFFFFFFF"),"\n"
+   write (>>(<<1 32) 1),"\n"
+   write (<<1 32),"\n"
+   n<-0
+   do
+      write (<< n 1),"\n"
+   until (++n)>10
+
+  precision 0
+   dim m(5,5)
+   {m,m}<-{255,mth.ceil(mth.rand(m))}
+   show m 0
+   show (Bxm) 0
+   show (Hxm) 0
+   show (Oxm) 0
+   
+    b<-(Bx m)
+    ."\nMatriz Binaria:\n"
+    show b 0
+    ."\nMatriz convertida:\n"
+    show (BDxb) 0
+
+    b<-(Hx m)
+    ."\nMatriz Hexadecimal:\n"
+    show b 0
+    ."\nMatriz convertida:\n"
+    show (HDx b) 0
+
+    b<-(Ox m)
+    ."\nMatriz Octal:\n"
+    show b 0
+    ."\nMatriz convertida:\n"
+    show (ODx b) 0
+
+
+   ."\nBIN 749:",(Bx749)
+   ."\nHEXA 749:",(Hx749)
+   ."\nOCTAL 749:",(Ox749),"\n"
+   ."\nDEC 45HCF:",(HDx"45HCF")
+   ."\nDEC 100101:",(BDx"100101")
+   ."\nDEC 25654:", (ODx"25654"),"\n"
+  write (Ox749)," Type:",type( (Ox749) ),"\n"
+stop

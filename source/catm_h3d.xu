@@ -1,0 +1,14 @@
+/*
+   Concatena dos matrices 3D hacia el lado (horizontal)
+   Debe coincidir el número de filas y el número de páginas
+*/
+
+vars:
+  l,m,r:=^number
+algorithm:
+  dim l(5,3,2)
+  dim m(5,4,2)
+  l<-10; m<-(-5)
+  r<-[+| l m]
+  show ($r) 7
+stop

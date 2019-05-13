@@ -1,0 +1,27 @@
+/*
+   ARCHIVOS BINARIOS: FLC
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include", ñoño
+*/
+#include "files.def"
+vars:
+  fp:=file
+  linea:=string
+algorithm:
+ ."\nVeremos cuántas líneas tiene FLC.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/flc.xu" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archivo: ",whatsup()
+    goodbye
+  tend
+  
+ ." OK!\nNúmero de líneas: ",flc(fp)
+  
+  fclose(fp)    // cerramos el archivo 
+ ."\n¡Toma conchetumare! El poder de XU traspasa la\nfrontera de mi wc!\n" 
+ /* IMPORTANTE: para que el archivo pueda ser leído correctamente,
+    debe tener un caracter de fin de línea al final de este */  
+stop

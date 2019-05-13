@@ -1,0 +1,31 @@
+// Programa XU
+//#use
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  n,t,t1,t2:=number
+//functions:
+
+algorithm:
+
+   n<-100000
+   t<-seconds("")
+   while n>(-10)
+    //  write n,"\n"
+      brknz (--n)  // salte si es zero
+   wend
+   t1<-seconds("")-t
+
+   n<-100000
+   t<-seconds("")
+   loop
+    //  write n,"\n"
+      brknz (--n)  // salte si es cero
+   lend
+   t2<-seconds("")-t
+   ."Salio del ciclo WHILE en ",n,"\nTIEMPO=",t1,"\n"
+   ."Salio del ciclo LOOP en ",n,"\nTIEMPO=",t2,"\n"
+stop

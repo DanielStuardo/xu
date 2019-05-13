@@ -1,0 +1,251 @@
+program:     bioritmo
+memory: normal
+
+//
+//    ESTE PROGRAMA CALCULA EL BIORITMO DE UNA PERSONA
+//    DE ACUERDO A SU FECHA DE NACIMIENTO.
+//    EL DESPLIEGUE SE HACE EN MODO TEXTO.
+//
+#use matrix, math,stack,trig,string
+
+vars:
+
+     nombre := $1:string
+     ano := $2: number
+     mess := $3: number
+     dia := $4:number
+     anoexam :=$5: number
+     mesexam:=$6:number
+
+     {etiqueta, mes} := ^string   // es un puntero a un stack
+     fact := ^number
+
+     {i2, x1, x2, x3, x, i } := number
+     PI := number
+     { y, b1, b, k, g, l,
+       ak, n, r, j, j1, i1 } := number
+
+     fi  := number
+     nColor:=^number
+
+functions:
+
+    CALCULO():void
+       i := number
+    begin:
+       i<-mess
+       while i<=x
+          ak<-28+[fact i]+ak    //(^.aget fact i)+ak
+          ++i
+       wend
+    end
+
+    ANALISIS_BISIESTO():void
+    begin:
+       x1<-{{(b-((b\4)*4))=0?1:0 }}
+       x2<-{{((b-((b\100)*100))=0)?1:0}}
+       x3<-{{(b-((b\400)*400)) = 0?1:0}}
+       [fact 2]<-x1-x2+x3
+    end
+
+    ENTRA_FECHAS():void    //Thread udf, es un hilo de ejecuci¢n
+    begin:
+       if strlen(nombre)=0
+          nombre<-"Daniel"
+
+         // Entra tu fecha de nacimiento (aaaa,mm y dd)
+          {ano, mess, dia} <- {1971, 8, 28}
+
+         // Entra la fecha a examinar (aaaa y mm)
+          {anoexam, mesexam }<- {2019, 2}
+       endif
+       { b, k, g, l, fi} <-{ano, b, anoexam, g, 0}
+    end
+
+    FACTORES():void
+    begin:
+       use fact
+       push {3, 0, 3, 2, 3, 2, 3, 3, 2, 3, 2, 3}
+    end
+
+    MESES():void
+    begin:
+       use mes
+       push {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio" }
+       push {"Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"}
+    end
+
+    ETIQUETA():void
+    begin:
+       use etiqueta
+       push {"Físico", "Emocional", "Intelectual"}
+    end
+
+    IDENTIFICACION(i:number):void
+    begin:
+       at ((16+fi) (1+i))
+       write [mes mesexam], " ", mth.int(l), " D.de C.\n"
+       at ((17+fi) (1+i))
+       write "Bioritmo para ", nombre, "\n"
+       at ((18+fi) (1+i))
+       write "Estado: ",(color([nColor i1])) [etiqueta i1],(color(7)) "\n"
+    end
+
+    DESPLIEGUE_DE_BIORITMO(i:number):void
+       n, j:= number
+    begin:
+       use  fact
+       mat.row(mesexam)
+       j<-0
+       color ([nColor i1])
+       while j < ((28+(mat.get))*2)
+          ak<-ak+0.5
+          n<-(10*(-(trg.sin(((2*PI)*ak)/r))))+17
+
+          write {(mth.int((j\2)-(( (j\2) /5)*5)))=5?     &
+                 at ( ( (n\2)+fi) ((j\2)+(i+1)) ) "*":       &
+                 at ( ( (n/2)+fi) ((j/2)+(i+1)) ) "*"}
+          ++j
+       wend   //es un fin de while!!
+       color(7)
+    end
+
+    MALLA(i:number):void
+       w := string
+       j2,ti:=number
+    begin:
+        use fact
+        mat.row(mesexam)
+
+        r<-{{i1=1?23:{i1=2?28:33}}}
+
+        j1<-4
+        ti<-i
+        do
+            j2<-4+i
+            while (j2<(27+(mat.get)+i))
+                at ((j1+fi) j2 )
+                write " +"
+                j2<-j2+5
+            wend
+            at (j1+fi) (28+(mat.get)+i)
+            write  "+ "
+            ++j1
+        until j1>13
+
+        i<-i2<-ti   //1
+        j2<-1
+        while j2 < ((27+ (mat.get) )+1)
+            at ( (8+fi) (i2+1))
+            write "-"
+            ++i2
+            ++j2
+        wend
+
+        at (8+fi)  (5+i)
+        write  "+"
+        at (8+fi) (10+i)
+        write  "+"
+        at (8+fi) (15+i)
+        write  "+"
+        at (8+fi) (20+i)
+        write  "+"
+        at (8+fi) (25+i)
+        write  "+"
+
+        at (14+fi) (1+i)
+        write  "1...5...10...15...20...25..."
+
+        if (28+(mat.get))=29
+            at (14+fi) (29+i)
+            write  "."
+        elseif (28+ mat.get)=30
+            at (14+fi) (29+i)
+            write  "30"
+        elseif (28+(mat.get) )=31
+            at (14+fi) (29+i)
+            write  "30."
+        endif
+    end
+
+    DESPLIEGA_MALLA():void
+      {i,j} := number
+    begin:
+      cls
+      {i1,i,j,fi} <- {1,4,0,3}
+      do
+          .MALLA(i)
+          .IDENTIFICACION(i)
+          .DESPLIEGUE_DE_BIORITMO(i)
+
+          i<-i+34  // añadido
+
+          ak<-y
+          ++i1
+          ++j
+      until j=3
+    end
+
+/*bloque principal*/
+
+algorithm:
+
+ precision 0
+
+ use nColor; push{14,12,11}
+
+ PI<-3.1415926535
+
+ write "Cargando Etiquetas\n"
+ .ETIQUETA
+
+/* carga los meses del año */
+ write "Cargando Meses\n"
+ .MESES
+
+/* carga los factores */
+ write "Cargando Factores\n"
+ .FACTORES()
+
+/* ingresa las fechas */
+ write "Entrando Fechas\n"
+ .ENTRA_FECHAS
+
+/* calculos */
+ do
+    write "Análisis Bisiesto\n"
+    .ANALISIS_BISIESTO
+    use fact
+    mat.row(mess)
+
+    ak<- (mat.get)+28.5-dia
+    ++mess
+    x<-12
+
+    write "Cálculo...\n"
+
+    .CALCULO, if mess<13
+
+    b1<-g-b-1
+    ak<-b1*365+((g-1)\4)-((g-1)\100)+((g-1)\400)-((b\4)-(b\100)+(b\400))+ak
+    y<-ak
+    b<-g
+
+    write "Análisis Bisiesto\n"
+    .ANALISIS_BISIESTO
+
+    x<-mesexam-1
+    mess<-1
+    if x<>0
+        .CALCULO
+        y<-ak
+    endif
+
+    cls
+    .DESPLIEGA_MALLA
+   garbage()
+    pause
+
+ until (++mesexam)=13
+ vtab(17)
+stop

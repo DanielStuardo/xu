@@ -1,0 +1,41 @@
+/*
+   OPERADOR BETWEEN
+   Evalúa si un número está en un rango, y devuelve un valor
+   de verdad.
+   Ejemplo: "X between A B"
+   es lo mismo que "X>=A and X<=B".
+*/
+
+vars:
+   a,b,x:=number
+   B:=boolean
+algorithm:
+  a<-10
+  b<-50
+  x<-32
+  if (x between a b) and a=10
+     ."\nEstá en el rango\n"
+  else
+     ."\nNo está en el rango\n"
+  endif
+  
+  if or (and( (a = 10) (b=50)) b=40)
+    ."\nEs!",a,b,x,"\n"
+  endif
+
+  if   a = 10 and  b = 50 and between(x a (b-20))
+    ."\nEs!",a,b,x,"\n"
+  else
+    ."\nNo es..."
+  endif
+
+ /* uso del operador monario "not" "~" */ 
+  B<-x between a b
+  write "\nValor de verdad =",($~B),"\n"
+ 
+ /* un operador lógico puede ser usado como función*/
+  if =(a 10)
+     write "A es igual a 10\n"
+  endif
+  
+stop

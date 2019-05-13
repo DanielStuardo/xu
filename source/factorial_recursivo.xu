@@ -1,0 +1,25 @@
+memory: recursive
+
+ #use math
+ vars:
+   fact := $1:number
+
+ functions:
+  factorial:=function:number
+    n := $1:number
+  begin:
+    : return {n<=1? 1.0000: (n*.factorial(n-1)) } // con esto ahorro el IF...
+  end
+
+algorithm:
+   precision 0
+   fact<-mth.int(fact)
+   if fact<=0
+      write "Ingrese un número válido para calcular su factorial\n"
+   else
+      //context "notation"
+      write "Factorial de ", fact, " es ",.factorial(fact),"\n"
+   endif
+  pause
+stop
+

@@ -1,0 +1,36 @@
+/*
+   FACTORIAL
+   XU presenta la forma natural del factorial de un número, "!X".
+   Pero como soy choro, presento una aplicación del castor de
+   concatenación de matrices, "[+|", que concatenará dos vectores
+   del mismo tamaño, creando una matriz de nx2.
+*/
+#use math
+vars:
+   a:=^number
+   b:=number
+
+algorithm:
+/*
+  ."\n\nFactorial de un número simple:\n"
+   for b<-1 to 190 step 20
+      write ($b),"! = ",b!,"\n"
+   next
+
+   write true,"\n"
+
+  ."\nFactorial de una expresión:\n"
+   write "(130-(5!))! = ",(130-(5!))!,"\n"
+   //context "notation"
+
+ pause */
+  ."Factorial de una matriz:\n"
+   dim a(90000)
+   {a,a}<-{190,mth.ceil(mth.rand(a))}
+   a<- a!
+   garbage()
+   pause
+   ."\nHice una pausa\n"
+   //show [+| a a!] 0
+pause
+stop

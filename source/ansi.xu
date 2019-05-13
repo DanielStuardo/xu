@@ -1,0 +1,202 @@
+#use date,math,matrix,string,trig
+vars:
+  c,t:=string
+  s1,s2,s3,s4:=string
+  s,w:=^string
+  n,aseg,m:=^number
+  o,seg,i:=number
+algorithm:
+ // #define DAYSINMONTH(X)  
+  
+  c<-datenow
+  ."\nFecha = ",c
+  ."\nAnsi = ", date2ansi(c), ", ",type(date2ansi(c))
+  ."\n"
+//  dim s(5) ; dim n(5)
+//  dim s(5,5); dim n(5,5)
+//  dim s(5,5,2); dim n(5,5,2)
+  dim s(5,5,2,2); dim n(5,5,2,2)
+  s<-"12/02/2016" //datenow
+  show date2ansi(s) 0
+  ."\n"
+  show date.sdweek(s) 0   // nombre del dia de la semana
+  show date.smonth(s) 0   // nombre del mes
+  show date.day(s) 0      // dia
+  show date.month(s) 0    // mes
+  show date.year(s) 0     // año
+  show date.ndweek(s) 0   // numero de dia de la semana
+  show date.dyear(s) 0    // dia del año (204)
+  show date.week(s) 0     // # de semana del año de la fecha indicada
+  show date.dmonth(s) 0   // dias del mes indicado, considera bisiestos
+  ."\nDias del mes de 12/02/2016 = ",date.dmonth("12/02/2016"),"\n"
+  show dateadd(s 10) 0    // suma 10 días a la fecha
+  ."\n"
+  show dateadd(s (-10)) 0    // resta 10 días a la fecha
+  ."\n"
+  
+  n<-5
+  show dateadd(s n) 0    // suma 10 días a la fecha
+  ."\n"
+  show dateadd(s (-n)) 0    // resta 10 días a la fecha
+  ."\n"
+  write "\nAño biciesto? ", isleap(date.year(s)),"\nType: ",type(isleap(date.year(s))),"\n"
+  write "Es biciesto el año 2016? ",isleap(2016),"\n"
+  write "Es biciesto el año 2017? ",isleap(2017),"\n"
+  ."diferencia entre 01/01/2016 y 01/01/2017 =",daysdiff("01/01/2017" "01/01/2016"),"\n"
+  
+ /**** TIME *****/
+#define ADDMIN(X,Y)    X + ( Y * 60)
+#define HOUR(Hs)       mth.int ( Hs / 3600 )
+#define SECOND(X)      X - mth.int( X / 60 ) * 60 
+#define MINUTES(X,Y)   Y<-mth.int( (X - ( ( HOUR(X) ) * 3600 ) - (SECOND(X)) ) / 60 )
+
+  t<-timenow
+  seg<-seconds(t)
+  ."\nsingle: ",t," + 12 mins = ",sec2time(ADDMIN(seg,12)),"\n" 
+  dim w(5,5,3,3)
+  w<-timenow
+  ."\nmatriz: ",w," + 12 mins = \n"
+  show sec2time(ADDMIN(seconds(w),12)) 0
+  ."\n" 
+  ."\nmatriz: ",w," - 12 mins = \n"
+  show sec2time(ADDMIN(seconds(w),(-12))) 0
+  ."\n" 
+  dim n(5,5,3,3)
+  n<-60
+  ."\n",w," + 60 mins = \n"
+  show sec2time(ADDMIN(seconds(w),n)) 0
+  ."\nHora de ",t," = ", HOUR(seg),"\n"
+
+  ."\n***Hora de ",sec2time(ADDMIN(seg,500))," = ", HOUR(seconds(sec2time(ADDMIN(seg,500)))),"\n"
+  t<-sec2time(ADDMIN(seg,500))
+  ."\nHora de ",t," = ",HOUR(seconds(t)),"\n"
+  ."\nSeconds ",t," = ",seconds(t),", ",SECOND(seg),"\n"
+  
+  w<-sec2time(ADDMIN(seg,500))
+  ."\nMinutos = \n"
+  show w 0
+  ."\n"
+  aseg<-seconds(w)
+  MINUTES(aseg,m)
+  write m,"\n\n"
+  ."Es \"",t,"\" una hora valida? ",istime(t)
+  ."\nSon horas válidas las del array?\n(Inserto esta hueá en pos. 3: 27:12:12)\n"
+  
+  o<-[[@w] 1]
+  !{o=1?[w 3]:{o=2?[.w 3 3]:{o=3?[:w 3 3 3]:[_w 3 3 3 3]}}}<-"27:12:12"
+  
+  !{o=1?s1:{o=2?s2:{o=3?s3:s4}}}<-"27:12:12"
+  
+/*  o<-[[@w] 1]  // esto se puede hacer mejor con las líneas de arriba
+  if o=1
+     [w 3]<-"27:12:12"
+  elseif o=2
+     [.w 3 3]<-"27:12:12"
+  elseif o=3
+     [:w 3 3 3]<-"27:12:12"
+  else
+     [_w 3 3 3 3]<-"27:12:12"
+  endif */
+  show istime(w) 0
+  ."\n"
+  
+  /*** ARRAY ESTATICO VARIABLE _() ***/
+  // si vas a poner instrucciones "{}", hazlo con "!" = "!{}"
+  n<-_((2,2,2){ { { !{strlen(t)>0?100:(-100)},400},{2,!{true?1000:(-1000)}}    },&
+                { {(#[_w 3 3 3 3]),  0},           {0,(-1)} } })
+  show n 0
+  ."\n"
+  /*** ARRAY ESTATICO CONSTANTE ***/
+  c<-($10)
+  w<-($^[[0,1,1,0],[1,1,0,1],[1,1,1,0]])
+  show w 0
+  ."\n"
+  /*** ARRAY ESTATICO VARIABLE CON VALOR DE RELLENO ***/
+  n<-_((5,5) { 10 })
+  show n 0
+  
+  n<-_((10,10))
+  show n 0
+  /* La siguiente linea es erronea, porque XU primero separa combinados y luego expande
+     pero esta pretende expandir antes de separar combinados. 
+     EN OTRAS PALABRAS: "{?:}" NO ADMITE EXPRESIONES COMBINADAS*/
+  n<-{{true?!{10,mth.rand(n)}:0}} 
+/*  if true
+     n<-{10,mth.rand(n),n*1000}
+  else
+     n<-0
+  endif */
+  /***/
+  show n 0
+  ."\n"
+  show money(n "" 4 7) 0
+  
+  
+  w<-_((2,2) { {"Hola mundo",[.w 1 1]},{($strlen([.w 2 1])),"Good bye!"} } )
+  show w 0
+  n<-_((4){10})
+  
+  /** SI VAS A USAR SOLO MACRO "?:" EN ESTE CASO, DEBE ESTAR ENTRE "{}" **/
+  {n,m}<-{{true?mth.rand(n):0}} //,n*n*n}
+  
+//  show mask(($[+- n m]) " ####################") 0
+  show money([+- n m] " " 15 20) 0
+
+  
+  show strtrim((flag"A")money([+- n m] " " 9 15)) 0
+  
+  context "notation"
+  precision 6
+  
+  dim m(1)
+  m<-60670345^3
+  write "\n606704^2\n", 606704^2,"\n",money( (606704^2) "" 0 32),"\n"
+  write "\n60670345^2\n", m,"\n",money( m "" 0 32),"\n"
+  n<-_((5){10000000000000000})
+  n<-(double (mth.rand(n)))
+  
+  precision 5
+  show money(n "" 0 16) 0
+  show money((double mat.sum(n)) " $" 0 32) 0
+  ."\n"
+  
+  #define STR(X)  mask(($X) " ################" )
+  
+ // write {999<1000?mask(($999) " #######"):money(990 " " 0 7)}
+ write {999<1000?STR(990):money(990 " " 0 7)}
+  ."\n"
+  context "number"
+  use n
+  drop
+  push {{true?100:0},10,20,{false?(-25):{true?(-100):0}},30}
+  write n
+  
+  //precision 4
+  n<-{5,trg.sin(n)}
+  //n<-_((5){1.234,0.349,0.988,2.3,3.4377})
+  
+  show n 0
+  ."\n\n" 
+  
+  n<-n*6.7
+  show money(n "" 4 10) 0
+  ."\n"
+  o<-trg.sin(20)
+  write o,"\n",mth.log(20),"\n",money(mth.log(20) "" 3 20)
+  n<-20
+  show (trg.sin(n)*4.2) 0
+  
+  dim n(3,3)
+  n<-0
+  mat.col(2)
+  for i<-1 to 3
+     mat.row(i); mat.put(100)
+  next
+  show n 0
+   [>n [* ^[2,2,3,3]] ]<-20
+  show n 0
+  n<-(int n)
+  show n 0
+  //m<-^(n)   // puntero?
+  
+stop

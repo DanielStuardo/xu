@@ -1,0 +1,8 @@
+vars:
+  l,m,r:=^number
+algorithm:
+  l<-^[0,1,2,3,4,5,6,7,8,9]
+  dim m(5,10)  // inicializa en 0.
+  r<-[+- l m]
+  show ($r) 11    // muestra la matriz con 11 columnas
+stop

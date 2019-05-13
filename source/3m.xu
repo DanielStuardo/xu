@@ -1,0 +1,26 @@
+name:  El mayor de 3con 2 comparaciones
+
+ vars:
+  { a, b, c} := number
+  temp := number
+
+algorithm:
+  {a, b, c} <-  { 20, 150, 151}
+
+  if a<b
+     temp<-a
+     a<-b
+     b<-temp
+  endif
+
+  if a<c
+     temp<-a
+     a<-c
+     c<-temp
+  endif
+
+  write "\n\tel mayor es ", a
+
+  write 1/(168!)
+
+stop

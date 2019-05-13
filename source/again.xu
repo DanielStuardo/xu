@@ -1,0 +1,34 @@
+#use string
+vars:
+  l:=boolean
+  f:=string
+  c:=number
+
+algorithm:
+
+  precision 0
+  try
+     f<-strload("noexiste.txt" 0 0)
+     not l    // "l" inicialmente es falso. not l=verdad
+  exception
+     ++c
+     if c<5
+        ."Intento ",c," leer el archivo. Espero 3 segundos...\n"
+        sleep(3)
+        
+        // inserto aparicion del archivo:
+        cmd("echo \"hola cabronazo!\" > noexiste.txt"), if c=4
+        
+        again   // vuelvo a intentarlo.
+     endif
+  tend
+  
+  if l
+     ."\nLectura satisfactoria\n"
+     write (color(14))strupper(f),color(7)"\n"
+     cmd("rm noexiste.txt")
+  else
+     ."\nError al leer el archivo\n"
+  endif
+     
+stop

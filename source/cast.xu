@@ -1,0 +1,12 @@
+#use math
+vars:
+  a,b,c:=^number
+algorithm:
+  dim a(10,2,2,3)
+  {a,a}<-{10000000000000000000,mth.sqrt(a)*a}
+  show a 0
+  show (int a) 0
+  show (long a) 0
+  show (double a) 0
+  write "\n",mth.sqrt(1000000000000000)
+stop

@@ -1,0 +1,70 @@
+#use bit
+
+functions:
+/*
+   LIBRERIA DE FUNCIONES PARA XU
+   Daniel Stuardo. Nov. 2010-2016
+
+   Modo de uso:
+   En el espacio "functions:" se debe escribir, por ejemplo:
+
+   #insert library.*
+       Si se desea cargar todas las funciones.
+   #insert library.T
+       Si solo se desea la funcion particular.
+   #insert library.BIT,T,F,...
+       Si se desea una lista particular de funciones.
+*/
+
+/***********************************************
+  $- T(VAR bit)
+  $* Deja el bit físico de VAR en ON (1)
+  $. VAR se pasa por referencia, por lo que la
+     funcion no devuelve nada.
+ ***********************************************/
+   T:=function:void   
+     v:=$1:number (ref)
+     bit:=$2:number
+   begin:
+     v<-(ON v (bit+1))
+   end
+
+/***********************************************
+  $- F(VAR bit)
+  $* Deja el bit físico de VAR en OFF (0)
+  $. VAR se pasa por referencia, por lo que la
+     funcion no devuelve nada.
+ ***********************************************/
+   F:=function:void   
+     v:=$1:number (ref)
+     bit:=$2:number
+   begin:
+     v<-(OFF v (bit+1))
+   end
+
+/***********************************************
+  $- IS(VAR bit)
+  $* Consulta por el estado de un bit de VAR.
+  $. Devuelve VERDAD si el bit físico de VAR es
+     1; devuelve FALSO si bit es 0.
+ ***********************************************/
+   IS:=function:boolean  
+     v:=$1:number
+     bit:=$2:number
+   begin:
+     return {(BIT v (bit-1))=1?true:false}
+   end
+
+/***********************************************
+  $- BIT(VAR bit)
+  $* Consulta por un bit de VAR
+  $. Devuelve el valor del bit físico pedido.
+ ***********************************************/
+   BIT:=function:number
+     v:=$1:number
+     bit:=$2:number
+   begin:
+     return (BIT v (bit-1))
+   end
+algorithm:
+stop

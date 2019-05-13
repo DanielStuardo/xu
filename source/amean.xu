@@ -1,0 +1,43 @@
+#define <br>, write "\n"
+#use matrix
+vars:
+   c:=^number
+algorithm:
+  // se declara una matriz 4D estáticamente:
+  c<-^[[[[3,5],[21,4],[5,18]],[[10,13],[5,7],[19,9]]],&
+       [[[12,2],[7,9],[17,2]],[[11,2],[12,26],[3,2]]],&
+       [[[1,2],[2,2],[18,21]],[[1,2],[16,45],[53,2]]],&
+       [[[16,12],[4,4],[7,5]],[[15,2],[1,1],[73,12]]]] 
+
+  write "MATRIZ:\n"
+  show c 3
+  <br>
+  write "Promedia todas las filas:\n"
+  show mat.mean ((flag "r") c) 1
+  <br>
+  write "Promedia todas las columnas:\n"
+  show mat.mean ((flag "c") c) 1
+  <br>
+  write "Promedia cada página de todos los bloques:\n"
+  show mat.mean ((flag "p") c) 1
+  <br>
+  write "Promedia filas para cada pagina de todos los bloques:\n"
+  show mat.mean ((flag "rp") c) 2
+  <br>
+  write "Promedia columnas para cada pagina de todos los bloques:\n"
+  show mat.mean ((flag "cp") c) 2
+  <br>
+  write "Promedia cada pagina por bloques:\n"
+  show mat.mean ((flag "pb") c) 4
+  <br>
+  write "Promedia cada fila por pagina por bloques:\n"
+  show mat.mean ((flag "rpb") c) 4
+  <br>
+  write "Promedia cada columna por pagina por bloques:\n"
+  show mat.mean ((flag "cpb") c) 4
+  <br>
+  write "Promedia todo:\n"  // no hay flag o es otra cosa
+  flag ""  // bajo las banderas.
+  show (mat.mean c)  2
+  <br>
+STOP

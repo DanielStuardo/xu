@@ -1,0 +1,25 @@
+ vars:
+   fact:= $1:number
+   i,f:=number
+
+ functions:
+  factorial:= function:number
+    n := $1:number
+    {i,f} := number
+  begin:
+    {i,f}<-1
+    f<-f*i, until (++i)>n
+    return f
+  end
+
+algorithm:
+   precision 5
+   if fact=0  
+      write "Ingrese un número para calcular su factorial\n"
+   else
+      context "notation"
+      write "Factorial de ", fact, " es ", .factorial(fact),"\n"
+   endif
+
+  STOP
+

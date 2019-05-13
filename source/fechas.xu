@@ -1,0 +1,35 @@
+#use date
+vars:
+  d,t:=string
+  mDate:=^string
+algorithm:
+
+  d<-datenow    // obtiene la fecha actual...
+  write "\n\tFecha natural       = ",  d
+  write "\n\tFecha -> ansi       = ", date2ansi(d)
+  write "\n\tAnsi -> fecha       = ", ansi2date(date2ansi(d))
+  write "\n\tQuarto de Año       = ", date.quarter(d), "\tType=", type (date.quarter d)
+  write "\n\t\tInicia    = ", date.bquarter (d)
+  write "\n\t\tfinaliza  = ", date.equarter (d)
+  write "\n\tIndice Día          = ", date.day    (d)
+  write "\n\tIndice Mes          = ", date.month  (d)
+  write "\n\tIndice Año          = ", date.year   (d)
+  write "\n\tIndice Semana       = ", date.week   (d)
+  write "\n\tInd. Día de Semana  = ", date.ndweek (d)
+  write "\n\tDías en el mes      = ", date.dmonth (d),"\ttipo:",type (date.dmonth d)
+  write "\n\tNº día del ANO      = ", date.dyear (d)
+  write "\n\tNombre del día      = ", date.sdweek (d)
+  write "\n\tNombre del Mes      = ", date.smonth (d)
+  write "\n\tActual - 10 días    = ", dateadd (d (-10)),"\ttipo:",type (dateadd d (-126))
+  write "\n\tActual + 10.25 días    = ", dateadd (d 10.25),"\ttipo:",type (dateadd d 126)
+  write "\n\tactual - 12/7/2010  = ", datediff (d "12/07/2010")
+  write "\n\t12/7/2010 - actual  = ", datediff ("12/07/2010" d)
+  mDate<-"10/12/1980,8/4/1991,9/10/2016,20/10/2018"/","  // crea un arreglo
+ // reshape mDate(2,2)                                     // lo convierte en matriz
+  write "\nSEan las siguientes fechas cagonas:"
+  show (mDate 0)
+  write "\n\tResta de fechas Matriz-string = \n",datediff(mDate "21/10/2018") 
+  write "\n\tResta de fechas con ajuste de signo = \n",datediff(mDate "21/10/2018" )*(-1)
+  
+  ."26/3/1984 - hoy",datediff("26/3/2018" datenow),"\n"
+stop

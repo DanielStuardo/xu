@@ -1,0 +1,29 @@
+/*
+  CUT DE MATRICES 3D POR COLUMNAS
+  Como su nombre lo indica, corta una matriz, extrayendo el corte
+  para formar otra matriz o vector fila/columna.
+  El corte es tomado como bloque, es decir, se produce en todas
+  las páginas.
+  ojo! Un vector fila|columna no es lo mismo que un vector
+  Se usa el castor "[-- ]".
+  Además, la matriz nuevo puede ser formado con posiciones
+  repetidas.
+  También es posible realizar solo una copia y no cortar, usando
+  el flag "COPY".
+*/
+#use math
+vars:
+  m:=^number
+  l,r:=^number
+algorithm:
+  dim l(5,5,3)
+  {l,l}<-{10,mth.ceil(mth.rand(l))}
+  m<-^[1,4,5]
+//  flag "COPY"
+  show ($l) 10
+  ."\n....\n"
+  r<-[-| l m]
+  show ($r) 10
+  ."\n....\n"
+  show ($l) 10
+stop

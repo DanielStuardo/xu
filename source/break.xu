@@ -1,0 +1,32 @@
+vars:
+   i:=number
+algorithm:
+  
+  ."Prueba del uso de BREAK\n"
+  ."También puede ser usado en una estructura SELECT (Ver \"select.xu\")\n"
+  
+  while (++i)<10000
+     write "\tWhile..."; htab(3); write i,"\n"
+     if i=5
+       break
+     endif
+  wend
+
+  i<-0
+  do
+     write "\tDo/Until..."; htab(3);write i,"\n"
+     break, if i=5
+  until (++i)>10000
+      
+  i<-0
+  loop
+     write "\tLoop!..."; htab(3);write i,"\n"
+     break, if (++i)=5
+  lend
+  
+  for i<-1 to 10000
+     write "\tFor/next..."; htab(3);write i,"\n"
+     break, if i=5
+  next
+  
+stop

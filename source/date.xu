@@ -1,0 +1,116 @@
+#use date,math
+vars:
+  d,t:=string
+  mDate,mDate2,mTime:=^string
+  hora,minuto,segundo:=number
+  aTime:=^number
+functions:
+  #import datetime.*
+
+algorithm:
+  context "human"
+
+  d<-datenow
+  write "\n\tFecha natural       = ",  d
+  write "\n\tEs año bisiesto?    = ", isleap(date.year(d))
+  write "\n\tFecha -> ansi       = ", date2ansi(d)
+  write "\n\tAnsi -> fecha       = ", ansi2date(date2ansi(d))
+  write "\n\tCuatrimestre        = ", date.quarter(d), "\tType=", type (date.quarter d)
+  write "\n\t\tInicia    = ", date.bquarter (d)
+  write "\n\t\tfinaliza  = ", date.equarter (d)
+
+
+  write "\n\tIndice Día          = ", date.day    (d)
+  write "\n\tIndice Mes          = ", date.month  (d)
+  write "\n\tIndice Año          = ", date.year   (d)
+  write "\n\tIndice Semana       = ", date.week   (d)
+  write "\n\tInd. Día de Semana  = ", date.ndweek (d)
+  write "\n\tDías en el mes      = ", date.dmonth (d),"\ttipo:",type (date.dmonth d)
+  write "\n\tNº día del ANO      = ", date.dyear (d)+1-1
+  write "\n\tNombre del día      = ", date.sdweek (d)
+  write "\n\tNombre del Mes      = ", date.smonth (d)
+  write "\n\tActual - 10 días    = ", dateadd (d (-10)),"\ttipo:",type (dateadd d (-126))
+  
+  write "\n\tActual + 10.25 días    = ", dateadd (d 10.25),"\ttipo:",type (dateadd d 126)
+  write "\n\tactual - 12/7/2010  = ", daysdiff (d "12/07/2010")
+  write "\n\t12/7/2010 - actual  = ", daysdiff ("12/07/2010" d)
+
+  mDate<-"10/12/1980,8/4/1991,9/10/2016,20/10/2018"/","
+  mDate2<-"13/10/1979,18/7/1998,19/3/2014,21/11/2018"/","
+  write "\nArray + 30 días = ",dateadd(mDate 30)
+
+//  goodbye
+  
+  use aTime; drop
+  aTime<-^[20,30,40,50]
+  write "\nArray + 20, 30, 40 y 50 días = ",dateadd(mDate aTime)
+
+  
+
+  reshape mDate(2,2)
+  reshape mDate2(2,2)
+  reshape aTime(2,2)
+  write "\n\tResta de fechas matriz-Matriz = ",daysdiff(mDate mDate2)
+  write "\n\tResta de fechas string-Matriz = ",daysdiff(mDate "12/10/2010")
+  write "\nArray + 20, 30, 40 y 50 días = ",dateadd(mDate aTime)
+  write "\nArray + 30 días = ",dateadd(mDate 30)
+  
+  goodbye
+
+/*
+  ahora se computará funciones de tiempo
+  junto con funciones de fecha, es power la weá!!!
+*/
+  write "\n\a\a\a"
+  t<-timenow
+  write "\n\tHora                = ",  t
+  write "\nDeja pasar un tiempo y luego presione una tecla...\n"
+  flush
+  pause
+
+
+  write "\n\tHora                = ",  timenow
+  write "\n\tElap Time...        = ", elaptime (t timenow)
+  write "\n\tHora es válida?     = ", (istime(timenow))
+  use mTime; drop
+  push {"12:24:10","25:01:00","02:14:89"} 
+  write "\nHoras en array?       = ", istime( mTime )
+  drop
+  push {"12:24:10","21:01:00","02:14:02"} 
+  write "\nSegundos desde medianoche en array = ",seconds(mTime)
+  write "\nSegundos desde medianoche = ",seconds("")
+  write "\nSegundos desde medianoche hasta ",t,"=",seconds(t)
+  write "\nTiempo transcurrido entre array y ",t," = ",elaptime(mTime t)
+  write "\nTiempo transcurrido entre medianoche y hora actual = ",&
+                                 elaptime("00:00:00" t)
+  write "\n\tAño bisiesto?       = ", (isleap(date.year(d)))
+  write "\n\tAños de la lista bisiestos? = ", isleap(date.year(mDate) )
+  write "\n\tdesde medianoche (segundos->time) = ", sec2time( seconds(timenow))  // 1360 segundos= 2 minutos
+  write "\n\tSegundos desde MedN.= ", seconds(timenow)
+  write "\n\tSegundos desde MedN. hasta 12:00:00= ", seconds("12:00:00")
+  write "\nHora actual? ",sec2time(seconds(""))
+  write "\nHora de 68879? ",sec2time(68879)
+  use aTime; drop
+  push {7890,12897,80989}
+  write "\nHora desde segundos en array? ",sec2time(aTime)  
+  write "\n\ttimenow + 50 mins = ",timenow,", ",sec2time(seconds(timenow)+15*60)
+  write "\n\tTimenow en formato normal = ",t
+  write "\n\t timenow en horas         = ",.time2hour(t)
+  write "\n\t timenow en minutos       = ",.time2min(t)
+  write "\n\t timenow en segundos      = ",seconds(t)
+  write "\n\t 08:20:30 - 14:45:03      = ",sec2time(seconds("14:45:03")-seconds("08:20:30"))
+  write "\n\t función timediff         = ",.timediff("08:20:30" "14:45:03")
+
+
+  write "\n"
+  
+  #define HOUR(Hs)       mth.int ( Hs / 3600 )
+  #define SECOND(X)      X - mth.int( X / 60 ) * 60 
+  #define MINUTES(X)     mth.int( (X - ( ( HOUR(X) ) * 3600 ) - (SECOND(X)) ) / 60 )
+  
+  t<-timenow
+  minuto<-0
+  ."\nHora de ",t," = ", HOUR(seconds(t)),"\n"
+  ."\nMinutos de ",t," = ",MINUTES(seconds(t)),"\n"
+  ."\nSegundos de ",t," = ",SECOND(seconds(t)),"\n"
+stop
