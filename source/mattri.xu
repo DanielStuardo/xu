@@ -1,0 +1,402 @@
+#use matrix,math
+#define DIM     1
+#define ROW     2
+#define COLUMN  3
+vars:
+   M,N:=^number
+functions:
+   /**************************************************************************
+      FUNCIONES TRIDIAG.XUF
+
+      Funciones que obtienen diagonal de matriz cuad., y obtienen matrices
+      triangulares cuad., y transpuesta de matrices de cualquier orden.
+      Autor: Daniel L. Stuardo
+    **************************************************************************/
+    
+   /* construiye una matriz de posiciones de la diagonal 
+      (use opción "-wret" en la compilación) */
+   buildDiag:=function:^number
+     fil:=$1:number; pos:=$2:number
+     ldiag:=^number
+     temp:=number
+   begin:
+     temp<-(fil-|pos|+1)
+     if pos>0   // diagonal en triangular superior
+        ldiag<-[= 1 temp temp]
+        return [+| ldiag [= pos fil temp]]
+     else       // diagonal en triangular inferior
+        pos<-|pos|     // solo use "|x|" para variables o números, no expresiones
+        ldiag<-[= pos fil temp]
+        return [+| ldiag [= 1 temp temp]]
+     endif
+   end
+
+
+   build2Diag:=function:^number
+     fil:=$1:number; col:=$2:number; pos:=$3:number
+     ldiag:=^number
+     temp:=number
+   begin:
+     if pos>0   // diagonal en triangular superior
+        if fil>col
+           ldiag<-[= 1 (col-pos+1) (col-pos+1)]
+           return [+| ldiag [= pos col (col-pos+1)] ]
+        else
+           if (col-pos+1)>=fil
+              ldiag<-[= 1 fil fil]
+              return [+| ldiag [= pos (pos+fil-1) fil]]
+           else
+              ldiag<-[= 1 (col-pos+1) (col-pos+1)]
+              return [+| ldiag [= pos col (col-pos+1)]]
+           endif
+        endif
+     else       // diagonal en triangular inferior
+        pos<-|pos|     // solo use "|x|" para variables o números, no expresiones
+        temp<-(fil-pos+1)
+        if temp <= col
+           ldiag<-[= pos fil temp]
+           return [+| ldiag [= 1 temp temp]]
+        else
+           ldiag<-[= pos (pos+col-1) col]
+           return [+| ldiag [=1 col col ]]
+        endif
+     endif
+   end
+   /* MDIAG: devuelve una matriz con la diagonal V, rellena con fill */
+   mdiag:=function:^number
+      m:=$1:^number; fill:=$2:number
+      n,msize:=^number
+      fil:=number
+   begin:
+      msize<-[@m]
+      if [msize DIM]=1
+         fil<-[msize ROW]
+         dim n(fil,fil)
+         n<-fill
+         [>n .buildDiag(fil 1)]<-m
+      else
+         ."ERROR: debe ser un vector!\n"
+         goodbye
+      endif
+      return n
+   end
+   
+   /* VDIAG: devuelve un vector con la diagonal de M */
+   vdiag:=function:^number
+      m:=$1:^number; posd:=$2:number
+      n,msize:=^number
+      fil,col:=number
+   begin:
+      msize<-[@m]
+      if [msize DIM]=2
+         fil<-[msize ROW]
+         col<-[msize COLUMN]
+         if fil=col    // es una matriz cuadrada
+            n<-[<m .buildDiag(fil posd)]
+         else
+            n<-[<m .build2Diag(fil col posd)]
+         endif
+      else
+         ."ERROR: matriz debe ser de dimensión 2!\n"
+         goodbye
+      endif
+      return n
+   end   
+
+   /* TRIUP: devuelve la triangular superior de M */
+   triup:=function:^number
+      m:=$1:^number
+      msize:=^number
+      i,k:=number
+      fil:=number
+   begin:
+      msize<-[@m]
+      fil<-[msize ROW]
+      if [msize DIM]=2 and fil = [msize COLUMN]
+         for i<-1 to fil
+            msize<-[+| [= i fil (fil-i+1)] [=i i (fil-i+1)] ]
+            [>m msize]<-0
+         next
+      else
+         ."ERROR: matriz debe ser cuadrada y con dimensión 2!\n"
+         goodbye
+      endif
+      return m
+   end
+
+   /* TRILO: devuelve la triangular inferior de M */
+   trilo:=function:^number
+      m:=$1:^number
+      msize:=^number
+      i,k:=number
+      fil:=number
+   begin:
+      msize<-[@m]
+      fil<-[msize ROW]
+      if [msize DIM]=2 and fil = [msize COLUMN]
+         for i<-1 to fil
+            msize<-[+| [=i i (fil-i+1)] [= i fil (fil-i+1)]]
+            [>m msize]<-0
+         next
+      else
+         ."ERROR: matriz debe ser cuadrada y con dimensión 2!\n"
+         goodbye
+      endif
+      return m 
+   end
+
+   /* TRANS: Transpuesta de una matriz*/
+   trans:=function:^number
+      m:=$1:^number
+      msize,sizf,sizc,temp,mt:=^number
+      fil,col,i:=number
+   begin:
+      msize<-[@m]
+      fil<-[msize ROW]
+      col<-[msize COLUMN]
+      if [msize DIM]=2 
+         if fil = col
+            dim mt(fil,fil)
+            for i<-1 to col
+               sizf<-[+| [=i i col] [=1 col col] ]
+               sizc<-[+| [=1 col col] [=i i col] ]
+               [>mt sizf]<-[<m sizc]
+            next
+         else
+            dim mt(col,fil)
+            if col>fil
+               for i<-1 to fil
+                  sizf<-[+| [=i i col] [=1 col col] ]
+                  sizc<-[+| [=1 col col] [=i i col] ]
+                  [>mt sizc]<-[<m sizf]
+               next
+            else
+               for i<-1 to col
+                  sizf<-[+| [=i i fil] [=1 fil fil] ]
+                  sizc<-[+| [=1 fil fil] [=i i fil] ]
+                  [>mt sizf]<-[<m sizc]
+               next
+            endif
+         endif
+      else
+         ."ERROR: matriz debe tener dimensión 2!\n"
+         goodbye
+      endif
+      return mt
+   end
+   
+   /* EYES: matriz de 2 dimensiones con 1 en la diagonal */
+   eyes:=function:^number
+      sRow:=$1:number; sCol:=$2:number; sFrom:=$3:number
+      temp:=^number
+   begin:
+      if sRow>0 and sCol>0
+         dim temp(sRow,sCol)
+         if sRow=sCol
+            [>temp .buildDiag(sRow sFrom)]<-1
+         else
+            [>temp .build2Diag(sRow sCol sFrom)]<-1
+         endif
+      else
+         ."ERROR: argumentos inválidos en EYES"
+         goodbye
+      endif
+      return temp
+   end
+   
+   
+   /* ONES: matriz de 1's */
+   ones:=function:^number
+      sRow:=$1:number; sCol:=$2:number
+      sPag:=$3:number; sBlk:=$4:number
+      temp:=^number
+   begin:
+      if sRow>0 
+         dim temp(sRow,sCol,sPag,sBlk)
+         temp<-1
+      else
+         ."ERROR: argumentos inválidos en ONES\n"
+         goodbye
+      endif
+      return temp
+   end   
+
+   /* ZEROS: matriz de 0's */
+   zeros:=function:^number
+      sRow:=$1:number; sCol:=$2:number
+      sPag:=$3:number; sBlk:=$4:number
+      temp:=^number
+   begin:
+      if sRow>0
+         dim temp(sRow,sCol,sPag,sBlk)
+      else
+         ."ERROR: argumentos inválidos en ZEROS\n"
+         goodbye
+      endif
+      return temp
+   end
+
+   /* RANDOM: matriz aleatoria */
+   random:=function:^number
+      sRow:=$1:number; sCol:=$2:number
+      sPag:=$3:number; sBlk:=$4:number
+      temp:=^number
+   begin:
+      if sRow>0
+         dim temp(sRow,sCol,sPag,sBlk)
+         {temp, temp} <- {1, mth.rand(temp)*100}
+      else
+         ."ERROR: argumentos inválidos en RANDOM\n"
+         goodbye
+      endif
+      return temp
+   end
+
+   f(mat:^number(ref),mat2:^number):void
+   begin:
+      mat<- mat^2
+      mat<-[+| mat mat]
+      mat2<- mat2^2
+   end
+   
+algorithm:
+   dim M(5,5)
+   {M,M}<-{10,mth.rand(M)}
+   ."\nMatriz original:\n"
+   show M 5
+   
+   ."\nDiagonal:\n"
+   show ($.vdiag(M 1)) 0 ; ."\n"
+
+   ."\nOtras diagonales sobre triangular superior:\n"
+   show ($.vdiag(M 2)) 0 ; ."\n"
+   show ($.vdiag(M 3)) 0 ; ."\n"
+   show ($.vdiag(M 4)) 0 ; ."\n"
+   show ($.vdiag(M 5)) 0 ; ."\n"
+
+   ."\nOtras diagonales sobre triangular inferior:\n"
+   show ($.vdiag(M (-2))) 0 ; ."\n"
+   show ($.vdiag(M (-3))) 0 ; ."\n"
+   show ($.vdiag(M (-4))) 0 ; ."\n"
+   show ($.vdiag(M (-5))) 0 ; ."\n"
+   ."\nMatriz diagonal rellena con ceros:\n"
+   show ($.mdiag(.vdiag(M 1) 0)) 5
+   ."\nMatriz diagonal con diagonal sup. en tercera posición (rellena con (-1)):\n"
+   show ($.mdiag(.vdiag(M 3) (-1))) 5
+   
+   ."\nTriangular superior:\n"
+   show ($.triup(M)) 5
+   
+   ."\nTriangular inferior:\n"
+   show ($.trilo(M)) 5
+    
+   ."\nCambiar el signo de la triangular superior:\n"
+   
+   show ($( .mdiag(.vdiag(M 1) 0)+(.triup(M)*(-1))+.trilo(M) )) 5
+
+   ."\nTranspuesta de la matriz:\n"   
+   show ($.trans(M)) 5
+   
+   pause
+
+   ."\n"*3,"Transpuesta de matriz no cuadrada:\n"
+   dim M(3,8)
+   {M,M}<-{10,mth.ceil(mth.rand(M))}
+   ."\nMatriz original:\n"
+   show ($M) 8
+   ."\nMatriz transpuesta:\n"
+   show ($.trans(M)) 10
+   
+   dim M(8,3)
+   {M,M}<-{10,mth.ceil(mth.rand(M))}
+   ."\n\n\nMatriz original:\n"
+   show ($M) 8
+   ."\nMatriz transpuesta:\n"
+   show ($.trans(M)) 10
+   
+   ."\nZEROS: matriz de ceros:\n"
+   show ($.zeros(4 0 0 0)) 10
+   ."\nZEROS: matriz de 3x7 con ceros más cinco:\n"
+   M<-.zeros(3 7 0 0) //+5
+   M<-+5
+   show ($M) 10 ; ."\n"
+   ."Matriz 3D 4x4x4 con ceros:\n"
+   show ($.zeros(4 4 4 0)) 10
+  
+   ."\nONES con RANDOM:\n"
+   show ($(.ones(3 7 0 0)*.random(3 7 0 0)*10)) 10 ; ."\n"
+   
+   flag ";"
+   ."\nEYES:\n"
+   show ($ .eyes(5 5 (-2))) 5 ; ."\n"
+   show ($ .eyes(5 5 2)) 5 ; ."\n"
+   show ($ .eyes(5 5 1)) 5 ; ."\n"
+   show ($.eyes(7 4 (-6))) 7 ; ."\n"
+   show ($.eyes(7 4 2)) 7 ; ."\n"
+   show ($.eyes(7 4 1)) 7 ; ."\n"
+   show ($.eyes(7 4 (-5))) 7 ; ."\n"
+   show ($.eyes(7 4 (-4))) 7 ; ."\n"
+   show ($.eyes(7 4 (-3))) 7 ; ."\n"
+   show ($.eyes(7 4 (-2))) 7 ; ."\n"
+   show ($ .eyes(4 9 (-3))) 9 ; ."\n"
+   show ($ .eyes(4 9 (-2))) 9 ; ."\n"
+   show ($ .eyes(4 9 1)) 9 ; ."\n"
+   show ($ .eyes(4 9 3)) 9 ; ."\n"
+   show ($ .eyes(4 9 8)) 9 ; ."\n"
+   
+   ."\nDIAGONAL sobre matriz NO CUADRADA:\n"
+   //dim M(8,3)
+   //{M,M}<-{10,mth.ceil(mth.rand(M))}
+   M<-.random(8 3 0 0)
+   
+   precision 4
+   M<-fix(M 4)
+   
+   ."\n\nMatriz original:\n"
+   show (M 8)                ; ."\n"
+   show ($.vdiag(M 1)) 8      ; ."\n"
+   show ($.vdiag(M 2)) 8      ; ."\n"
+   show ($.vdiag(M (-6))) 8   ; ."\n"
+   show ($.vdiag(M (-7))) 8   ; ."\n"
+
+  // dim M(3,8)
+  // {M,M}<-{10,mth.ceil(mth.rand(M))}
+   M<-.random(3 8 0 0)
+   ."\n\nMatriz original:\n"
+   show ($M) 8                ; ."\n"
+  /// M<-M*10
+   show M 8                ; ."\n"
+
+   show (M^2) 8 ; ."\n\n"
+   show ($.vdiag(M 1)) 8      ; ."\n"
+   show ($.vdiag(M 2)) 8      ; ."\n"
+   show ($.vdiag(M 7)) 8      ; ."\n"
+   show ($.vdiag(M (-2))) 8   ; ."\n"
+   show ($.vdiag(M (-3))) 8   ; ."\n\n"
+  
+   show .vdiag(M 1) 8      ; ."\n"
+   show .vdiag(M 2) 8      ; ."\n"
+   show .vdiag(M 7) 8      ; ."\n"
+   show .vdiag(M (-2)) 8   ; ."\n"
+   show .vdiag(M (-3)) 8   ; ."\n"
+   
+   mat.save(fix((M^2) 4) "./matriz.txt" )
+   
+   write ($100.3),"\n"
+   write ($0.323),"\n"
+
+   dim M(5)
+   M<-5
+   N<-M
+   precision 0
+   [N 3]<-0
+   show M 0
+   ."\n"
+   show N 0
+   .f(N M)
+   show M 0
+   ."\n"
+   show N 0
+   pause
+   
+stop

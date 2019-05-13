@@ -1,0 +1,72 @@
+program:     distancia geografica
+
+// crear metadata de las distancias (euclidiana pura y sobre esfera)
+
+#define PI             3.14159265358979323846
+#define KM_POR_GRADO   111.1107 // medida estandar para latitud y longitud
+                                // es asi porque nuestra distancia entre paralelo 0
+                                // y polo es aproximadamente equidistante. Algo
+                                // parecido pasa con las longitudes. Plop!
+                                // mentira. Hay que diferenciar paralelos en el caso
+                                // de Chile.
+#define DIAMETER       12742
+
+#use math,trig
+
+vars:
+  salida := $1:string
+  {latitud,longitud}:= number  // punto donde est s parado
+  {x,y} := number               // punto hacia donde calculas
+  distancia := number
+
+  { header, page, h} := string
+
+functions:
+
+  distancia_sobre_la_esfera(LAT:number,LONG:number,X:number,Y:number):number
+     {sen1, cos1, sen2} := number
+     {lat, lon} := number
+     {xr, lr} := number
+  begin:
+     xr<-X*PI/180
+     lr<-LAT*PI/180
+
+     lat<-PI/360
+     lon<-PI/360
+
+     sen1<-trg.sin(((X-LAT)*lat))^2
+     cos1<-trg.cos(xr)*trg.cos(lr)
+     sen2<-trg.sin(((Y-LONG)*lon))^2
+
+     return  DIAMETER*(trg.asin (mth.sqrt (sen1+cos1*sen2)))
+  end
+
+
+
+  distancia_sobre_el_plano(LAT:number,LONG:number,X:number,Y:number):number
+     {xr, lr} := number
+  begin:
+
+     xr<-(|(LAT-X)|*KM_POR_GRADO)^2
+     lr<-(|(LONG-Y)|*KM_POR_GRADO)^2
+
+     return (mth.sqrt (xr+lr))    // raiz cuadrada
+
+  end
+
+algorithm:
+
+  precision 9
+
+//  write "Distancia (esfera)= ",.distancia_sobre_la_esfera, " Km \n"
+
+  {latitud, longitud,x,y} <- {(-38.663033333),(-72.819316667),(-38.662766667),(-72.819966667)}
+  write "Distancia (esfera) = ",.distancia_sobre_la_esfera(latitud longitud x y)*1000," mts \n"
+  write "Distancia (esfera) = ",.distancia_sobre_la_esfera(latitud longitud x y)," km \n"
+
+  {latitud, longitud,x,y} <- {(-38.662766667),(-72.819966667),(-38.663683333),(-72.820433333)}
+  write "Distancia (plano) = ",.distancia_sobre_el_plano(latitud longitud x y)*1000," mts \n"
+  write "Distancia (plano) = ",.distancia_sobre_el_plano(latitud longitud x y)," km \n"
+
+stop
+

@@ -1,0 +1,21 @@
+#use math
+vars:
+  n:=^number
+  c:=^string
+algorithm:
+  dim n(500,3,3,3)
+  ."\nCargando...\n"
+  {n,n}<-{100000000,mth.int(mth.rand(n))}
+  
+  ."Enmascarando...\n"
+  c<-mask(($n) "0###-###-###")
+ // show n 0
+  ."\n99980 = ",[_n 199 3 3 3],"\n"
+ // show mask(c "0###-###-###") 0
+
+  ."99980 = ",[_c 199 3 3 3],"\n"
+  
+  write "\nOtros mask...\n"
+  write mask ("CDP001025" "0###-###-###")
+  write "\n",mask("102007C" " ####-###-###")
+stop

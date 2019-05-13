@@ -1,0 +1,42 @@
+/*
+   ARCHIVOS BINARIOS: FREADL y FEOF
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include"
+*/
+#include include/files.def
+vars:
+  fp:=file
+  linea:=string
+  ntmp:=number
+algorithm:
+ ."\nVeremos el contenido de FREADL.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/freadl.xu" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archivo: ",whatsup()
+    goodbye
+  tend
+ ."Tamaño del archivo: ",_BOTTFILE(fp)
+  ntmp<-_TOPFILE(fp)
+ ."(",ntmp,") OK!\nLectüra del archivo: \n"
+  flag "SP"
+  while ~feof(fp)       // FEOF() indica true si es fin de archivo
+     linea<-freadl(fp)  /* FREADL lee una línea hasta fin de línea
+                           y devuelve la línea en formato string.
+                           Omite el caracter fin de línea. */
+     write linea,"\n"
+  wend
+  ."\n\n\nLECTURA BINARIA PURA:\n"
+  ntmp<-_TOPFILE(fp)
+  precision 0
+  while ~feof(fp)       // FEOF() indica true si es fin de archivo
+     ntmp<-freadb(fp)
+     write chr(ntmp)
+  wend
+  fclose(fp)    // cerramos el archivo
+
+ /* IMPORTANTE: para que el archivo pueda ser leído correctamente,
+    debe tener un caracter de fin de línea al final de este */
+stop

@@ -1,0 +1,27 @@
+#use math,matrix
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  s,t:=^number
+  
+//functions:
+
+algorithm:
+  precision 0
+  dim s(5,5,2,2)
+  dim t(3,5,2,2)
+  s<-{10,mth.ceil(mth.rand(s))}
+  t<-100 //{10,mth.ceil(mth.rand(t))}
+  show s 0
+  s<-[^- s t 3]
+  show s 0
+  goodbye
+//  ."\n insertar filas:\n"
+//  dim s(5,5)
+//  s<-[^| s (#^[100,200,300,400,500]) 2]
+//  show s 0
+  
+stop

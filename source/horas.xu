@@ -1,0 +1,31 @@
+#use date
+vars:
+  t:=string 
+  mDate:=string
+functions:
+  #insert ./datetime.*  
+  /* llama a las funciones de la librería creada con el lenguaje XU */
+    
+algorithm:
+  context "human"   /* existen diferentes contextos para mostrar resultados
+                       numéricos y booleanos. "Human" es uno de ellos. */
+  t<-timenow ; mDate<-datenow
+  write "\n\tHora                = ",  t
+  write "\nDeja pasar un tiempo y luego presione una tecla...\n"
+  flush; pause
+
+  write "\n\tHora                = ",  timenow
+  write "\n\tElap Time...        = ", elaptime (t timenow)
+  write "\n\tHora es válida?     = ", certain (istime(timenow))
+  write "\n\tAño bisiesto?       = ", certain (isleap(datenow))  
+  write "\n\tdesde medianoche (segundos->time) = ", sec2time( seconds(timenow))  // 1360 segundos= 2 minutos
+  write "\n\tSegundos desde MedN.= ", seconds(timenow)
+  write "\n\tSegundos desde MedN. hasta 12:00:00= ", seconds("12:00:00")
+  write "\n\ttimenow + 50 mins = ",timenow,", ",sec2time(seconds(timenow)+15*60)
+  write "\n\tTimenow en formato normal = ",t
+  write "\n\t timenow en horas         = ",.time2hour(t)
+  write "\n\t timenow en minutos       = ",.time2min(t)
+  write "\n\t timenow en segundos      = ",seconds(t)
+  write "\n\t 08:20:30 - 14:45:03      = ",sec2time(seconds("14:45:03")-seconds("08:20:30"))
+  write "\n\t función timediff         = ",.timediff("08:20:30" "14:45:03"), "\n"
+stop

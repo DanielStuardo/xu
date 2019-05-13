@@ -1,0 +1,54 @@
+/*
+   MAT.LOAD()
+   Carga un archivo en una matriz de memoria. 
+   La matriz puede ser un vector o 2D.
+   IMPORTANTE: el archivo debe tener mismo número
+   de tokens por registro.
+   Utilizaremos una function para crear el archivo
+   de texto.
+*/
+
+#use matrix,math
+vars:
+   M:=^number
+   
+algorithm:
+
+  ."Primero, crearemos el archivo de texto..\n"
+
+   dim M(10,10,3)
+   {M,M}<-{99999999999999999,mth.ceil(mth.rand(M))} // guardará números grandes
+ //  flag ","  // le diremos que lo guarde con separador ","
+   
+   context "notation"   // guarda en notación científica
+   precision 16   // con esto se controla la mantisa
+   
+   mat.save( M "./prueba2.txt" )
+   
+   
+  /* borramos la matriz */
+   use(M)
+   drop
+   context "number"
+   
+  /* cargamos el archivo como matriz. aprovecharemos que el flag
+     está seteado como "," */ 
+      
+   mat.load ( M "./prueba2.txt")
+   show(M 0)
+  ."\nTamaño=",[@M],"\n"
+  ."Tipo = ",type(M)
+  pause
+  goodbye
+  
+  /* cargamos el archivo como un vector, pero en notación normal */
+   context "number"   // carga como números
+   
+   flag "V,"
+   drop(use M)
+   mat.load ( M "./prueba2.txt")
+   show(M 0)   // si es vector, no importa el número del segundo parametro
+  ."\nTamaño=",[@M],"\n"
+  ."Tipo = ",type(M)
+   
+stop

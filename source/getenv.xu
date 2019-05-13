@@ -1,0 +1,39 @@
+/*
+   GETENV
+   Podemos pasar parámetros al programa a través de las variables de entorno
+   y podemos ver qué variables hay en el sistema.
+   Bacán.
+*/
+#use string
+vars:
+   v:=string
+
+functions:
+   f():boolean
+   begin:
+      ."\nmensaje loco\n"
+      status false
+      return true
+   end
+   
+algorithm:
+  v<-getenv("PATH_XU")
+  write "\nVariable de entorno PATH_XU:\n", {strlz(v)?"Ni una hueá":v},"\n"
+
+  v<-getenv("HOME")
+  write "\nVariable de entorno HOME:\n", {strlz(v)?"Ni una hueá":v},"\n"
+
+  v<-getenv("JUANITO_SAPBE")
+  write "\nVariable de entorno JUANITO_SAPBE:\n", {strlz(v)?"Ni una hueá":v},"\n"
+  
+  status false
+  if ~ok
+     ."\nproblemas...\n"
+  endif   
+  if .f()
+     ."\nLa función se ejecutó correctamente\n"
+     if ~ok
+        ."\n\tPero no fue tan correcta...\n"
+     endif
+  endif
+stop

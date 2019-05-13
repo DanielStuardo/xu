@@ -1,0 +1,151 @@
+// Programa XU
+#use math
+
+//#include
+
+name: indices
+
+vars:
+   n,m,o:=^number
+   s,t:=^string
+   b:=^boolean
+//functions:
+
+algorithm:
+
+/*  dim b(2,5,3)
+   b<-true
+  // show b 0
+   ."\n"
+   ///n<-^[2,3,7]
+   n<-[* ^[1,3,2,4,2,3] ]
+ //  show [<b n] 0
+   ."\n***\n"
+   [>b n]<-~([<b n])
+   show b 0
+   ."\n"
+   [>b n]<-true
+   show b 0
+   goodbye
+   */
+  dim m(10)
+   m<-100
+
+   show m 0
+   pause
+   ."\n"
+   n<-^[2,3,5]
+   //n<-[* ^[1,3,2,4,3,4,2,3] ]
+   show [<m n] 0
+   pause
+   ."\n***\n"
+   show ([<m n]+10.45) 0
+
+//  goodbye 
+   ."\nSIZE=",[@[<m n]+10.45],"\n***\n"
+   [>m n]<-[<m n]+10.45
+   show m 0
+   pause
+   ."\n"
+   [>m n]<-100000
+   show m 0
+   pause
+   ."\nPresione una tecla para ver el garbage...\n"
+   garbage()
+   ."\nPresione otra tecla...\n"
+   pause
+   goodbye
+
+   dim s(2,5,10)
+   s<-"hola"
+   show s 0
+   ."\n"
+   //n<-^[2,3,7]  // 1D
+   n<-[* ^[1,3,2,4,1,2] ]
+   show [<s n] 0
+   ."\n***\n"
+   show ([<s n]+" mundo") 0
+   ."\n***\n"
+   [>s n]<-[<s n]+" mundo"
+   show s 0
+   ."\n"
+   [>s n]<-"HOLA"
+   show s 0
+   pause
+   goodbye
+
+   dim s(5,5,2,2)
+   s<-(flag ".")"HOLA MUNDO HOSTIL"
+   t<-s+" PLANETARIO"
+   show t 0
+   pause
+   t<-t-10+"SACOHUEA"
+   show t 0
+   pause
+   t<-(5+t)*3
+   show t 0
+   pause
+   goodbye
+
+   dim s(10,10,2,2)
+   dim t(10,10,2,2)
+   s<-"Hola"; show s 0
+   t<-"mundo" ; show t 0
+   s<-s+t
+   show s 0
+   pause
+   goodbye
+
+   dim n(100,100,50)
+   dim m(100,100,50)
+   n<-{1.0E10,mth.rand(n)}
+   show n 0
+   pause
+   show (int n) 0
+   pause
+   goodbye
+   m<-20
+   show m 0
+   pause
+   ///[n 99999]<-0
+   o<-m+n
+ /*  ."\nAhora borro m y n\n"
+   use m; drop
+   use n; drop
+   garbage()
+   pause */
+   show o 0
+   pause
+   ///[n 5]<-0
+   o<-(2*o)/n
+   show o 0
+   garbage()
+   pause
+   goodbye
+
+   dim s(1000,1000)
+   s<-"HOLA!!!!"
+   garbage()
+   pause
+   show s 0
+   t<-s
+   use s
+   drop
+   garbage()
+   pause
+   ."SIZE=",[@s],",",[@t]
+   show t 0
+   
+   goodbye
+   
+
+   show [* ^[1,1,100,100]] 0
+   pause
+   
+   show [* ^[1,1,100,100,3]] 0
+   pause
+   
+   show [* ^[1,1,100,100,3,5,5,6]] 0
+   garbage()
+   pause
+stop

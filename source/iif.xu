@@ -1,0 +1,22 @@
+name:   Función IIF
+output:    screen
+memory: normal
+
+vars:
+   c := number
+   {v, w} := string
+
+algorithm:
+
+  cls
+  color(14)
+
+  v<-"hola"
+  c<-12
+  w<-"pepe1"
+  write "Resultado=",iif((c=1) "Largo" iif((w="pepe") "Mediano" "Corto")),"\n"
+  write "Resultado=",{c=1?"Largo":w="pepe1"?"Mediano":"Corto"},"\n"
+  write "Resultado=",{c=12?"Largo":w="pepe1"?"Mediano":"Corto"},"\n"
+
+  ."\nConvengo... es un ejemplo de mierda :D\n"
+stop

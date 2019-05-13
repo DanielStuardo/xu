@@ -1,0 +1,63 @@
+#use math
+vars:
+  a,c:=^number
+  n:=number
+algorithm:
+
+  dim a(100000)
+  a<-32193823.3123
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\nSIZE=",[@c],"\n"
+  write "ELEMENTO 100000 = ",[c 100000],"\n"
+
+  dim a(4000,4000)
+  a<-32193823.3123
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 4000,4000 = ",[.c 4000 4000],"\n"
+
+  dim a(100,100,100)
+  a<-32193823.3123
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 100,100,100 = ",[:c 100 100 100],"\n"
+
+  dim a(100,100,100,10)
+  a<-32193823.3123
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 100,100,100,10 = ",[_c 100 100 100 10],"\n"
+
+stop
+
+/* PRE
+TIME = 0.01                                                                               
+ELEMENTO 100000 = 100
+                     
+TIME = 5.71
+ELEMENTO 4000,4000 = 100
+                        
+TIME = 0.83
+ELEMENTO 100,100,100 = 100
+                          
+TIME = 13.64
+ELEMENTO 100,100,100,10 = 100
+
+POST:
+TIME = 0.01                                                                               
+SIZE=1,100000
+ELEMENTO 100000 = 100
+                     
+TIME = 1.56
+ELEMENTO 4000,4000 = 100
+                        
+TIME = 0.11
+ELEMENTO 100,100,100 = 100
+                          
+TIME = 1.74
+ELEMENTO 100,100,100,10 = 100
+*/

@@ -1,0 +1,53 @@
+#use string
+vars:
+  s,v:=string
+  t:=^string
+  i,j,v_incr:=number
+
+algorithm:
+
+ precision 2
+
+."\nPRUEBA FOR EACH:\n"
+  t<-(flag " ")(queue)"María tenía un corderito y su piel era blanca"
+  for each v inlist t
+     write v,"\n"
+  next
+."\n"
+  s<-"Hola mundo loco y weá!"
+  for each v in s
+     write v,"\n"
+  next
+  s<-"Hola,mundo,loco,y,weá!"
+  flag ","
+  for each v in s
+     write v,"\n"
+  next
+
+
+."\n\nPRUEBA FOR COMUN:\n\n"
+  color 200
+  for i<- 1 to 10 ; write i," ";next
+  color 7
+  ."\n"
+  pause
+  for i<-10 downto 1;write i," ";next
+  ."\n"
+  color 14
+  pause
+  v_incr<-0.5
+  for i<- 1  to  10  step  v_incr
+     write i," "
+  next
+  color 7
+  ."\n"
+  pause
+  for i<-5 downto 1 step 0.25
+     write i,"\n"
+     for j<-1 to (5*i-i) step 1.4
+        write j," "
+     next
+     ."\n"
+  next
+  ."\n"
+stop

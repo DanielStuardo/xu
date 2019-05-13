@@ -1,0 +1,115 @@
+name: mensaje prueba
+//output: screen
+//memory: normal  // no hay que setearla si no es recursivo: asume nivel normal y asigna espacio normal por defecto
+
+#use stack
+objects:
+   vars:
+       {t,u,v,w,x,y} := string
+       {a,b} := ^string
+
+algorithm:
+   write parser "etiqueta" "valor", "\n\n"
+
+   flag "X"
+   u<-parser "etiqueta stat='no pasa na' tipo='10'" "Este valor es de la 'etiqueta'..."
+   write u, "\n\n"
+
+   x<-parser "etiqueta_vacia" ""
+   write  "X = ",x, "\n\n"
+
+   write "Este 'es' un elemento...\n"
+
+   w<- parser "etiqueta_vacia stat='si'   type= 'mode_x' color='#FFC321'" ""
+   write w, "\n\n"
+
+   pause
+
+   y<-parser "meta_leng" "el dijo: 'estoy contento'"
+   write "PARSER: ",y, "\n\n"
+
+/***********************************/
+// primero se deben obtener los atributos de la etiqueta y luego se unparsea
+
+   use a
+
+   push {"stat="," type =","color = ","error="} // se añade una etiqueta que no está en el mensaje "error="
+
+   v<-parsatt "etiqueta_vacia" w a
+   write "leyendo atributos:\n"
+   write "\t",[a 1]," - ",[a 2]," - ",[a 3]," - ",[a 4],"\n"
+   write "valor de etiqueta? [", v,"]\n\n"
+ pause
+
+//*************************************
+
+   use b
+   push {"stat=","tipo="}
+
+   v<-parsatt "etiqueta" u b
+   write "leyendo atributos:\n"
+   write "\t",[b 1]," - ",[b 2],"\n"
+
+   write "valor de etiqueta? ", v,"\n\n"
+
+//*************************************
+
+   write "unparser de etiqueta vacía...\n"
+   write "->", unparser "etiqueta_vacia" x, "\n\n"
+
+//*************************************
+
+   write "unparser con metalenguaje..."
+   write "->", unparser "meta_leng" y,"\n\n"
+
+/****************************************
+   mensaje con tags repetidos. prueba
+   de duplicidad: la idea es que consuma
+   de a un tag.
+*****************************************/
+   w<- parser "textbox" "hola"
+   w<-w+parser "textbox1" "chao"
+   w<-w+parser "button1" "aceptar"
+   w<-w+parser "button2" "cancelar"
+   t<-parser "NOMBRE" "Daniel Stuardo Soto"
+   t<-t+parser "DIRECCION" "Tarapac\&acute 1324"
+   w<-w+parser "meta_form" t
+   w<-w+parser "index" "1"
+   w<-w+parser "button3" "consultar"
+   w<-w+parser "index" "2"
+   v<-parser "form" w
+
+   write (color 11) "Mensaje completo:\n", v,"\n"
+
+   w<- unparser "form" v
+
+   write (color 14) w,"\n\n"
+   color 6
+   write unparser "index" w, "\n"
+   write w,"\n"
+   write unparser "index" w, "\n\n"
+   write w,"\n"
+   write unparser "textbox1" w, "\n\n"
+   write w,"\n"
+   write unparser "button3" w, "\n"
+   write w,"\n\n"
+//   write unparser "textbox1" w, "\n\n"
+
+   try
+       write unparser("textbox1" w)
+   exception
+       write "No existe el tag \"textbox1\"!!\n\n"
+   tend
+   ."\n\n"
+
+   write unparser "button1" w, "\n"
+
+   write w,"\n"*3
+   color 12
+   t<- unparser "meta_form" w
+   write t,"\n"
+   write "QUEDA: ",w,"\n"*2
+
+   color 11
+   write unparser "NOMBRE" t,"\n", unparser "DIRECCION" t
+stop

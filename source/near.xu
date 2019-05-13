@@ -1,0 +1,31 @@
+#use math
+
+vars:
+  {m, n}:=number
+  v:=^number
+
+algorithm:
+
+  m<-1
+  n<-0.3456
+
+  mth.setdelta(0.05)
+
+  write ($n)," está cerca de ",($m),"?...",isnear( m n)
+  write "\n\n0.7 está cerca de 0.68?...",isnear(0.7 0.68)
+
+  mth.setdelta(0.00001)
+
+  if isnear(0.8 0.7999997)
+     write "\n0.8 está aproximado a 0.79997\n"
+  else
+     write "\n0.8 está fuera de alcance de 0.79997\n"
+  endif
+
+  dim v(5)
+  v<-{1,mth.rand(v)}
+  write v,"\n"
+  write isnear(v v),"\n"
+  write isnear(v 0.5)
+stop
+

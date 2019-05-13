@@ -1,0 +1,86 @@
+/*************************
+  Este encabezado es por
+  completo opcional
+ *************************/ 
+name:     SELECT sencillo 
+output:   screen          
+memory: normal        
+
+
+#use string,math
+#include <prueba.def>
+
+  #define KUP   3123
+  
+vars:
+  a:=^number
+  n:=number
+  x,y,z:=number
+  s:=string
+algorithm:
+  #insert set.* 
+ /*  use a
+  push 10*/
+  PUSH(a,10) 
+  PRINT "Hola loco"
+   n<-100*0.1+VECTOR(a,1); IMPRIME_LA_HUEA(n,"\n")
+  [a 2]<-5+KUP
+//  .chupaelpeneger()
+  PRINT [a 2],"\n"
+  PRNVECTOR(a,n,2)
+  pause
+  V(x,y,z, 1, x*2, mth.ceil(mth.rand(y)))
+  pause    /************************/
+  
+  PUSH(a,10)
+  PUSH(a,"hola")
+  PUSH(a,x*KUP)
+ /**************************/ 
+  
+  LET(x,y,z,0)
+  x<-y<-0
+  {x,y}<-100
+
+  [a 1]<-[a 2]<-20; x<-/(y-2); [a 2]<-*0.45
+  [a 1]<-/*[a 2]<-*/20
+  {x,[a 2],[a 1]}<-30, if x=10
+  {[a 1],x,y}<-{10,[a 1]*x,x-1}, while(++y)<=100
+  PRINT "x=", &
+         x,"=",&
+         mth.sqrt(x),"\n", while (++x)<100,if y>0
+  
+  PRINT "x=",x,"=",mth.sqrt(x); ."\n";++x, while x<100
+  {y,x}<-{[a 1],z}
+  
+  ESTRUCT(y)
+  push {1,2,3,4,"hola",KUP,true}
+  push {1,2,3,4,"hola",KUP,true}, while (++x)<10
+  for x<-1 to |100-z|
+     write x,",",x+1,"\n"
+  next
+  for x<-1 to 100 step 2
+     write x,",",x+1,"\n"
+  next
+  for x<-100 downto 1 
+     write x,",",x+1,"\n"
+  next
+  for x<-100 downto 1 step 1 //(-5)
+     for y<-2 to 10
+        write x,",",x+1*y,"\n"
+     next
+  next
+  x<-*y
+  x<-\y
+  x<--y+6
+  x<-/|(y-2)|
+  x<-%(y/2)
+  x<-^2
+  {x,y,z}<-{10,|(z-mth.rand(x))|,|x*|(y-x)||+|y|}
+  x<->y;x<-*3
+  {x,y,z}<-{x+1,y*x,{y>0?(x-1):(x*2)}}
+  x<-{x<0?|x|*5:x-2}
+  color( {x=12 ? 12 : {x<12 ? 9 : 0}} )
+  s<-strload( {x=1 ? "datos.txt" : {x=2 ? "datos1970.txt" : "datos1960.txt"}} )
+  s<-strload("datos.txt" {x = 1 ? 0 : 10}  {y = 1 ? 100 : 200} )
+  write {x=1?{y=2?"MENSAJE--1":{z=0?"MENSAJE++3":"MENSAJE |2|"}:"MENSAJE ERROR"}
+stop

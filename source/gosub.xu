@@ -1,0 +1,51 @@
+#use math
+vars:
+   n,t,i:=number
+
+functions:
+   f():void
+   begin:
+      n<-+1
+   end
+
+algorithm:
+
+  sub "label"
+    n<-+1
+//    sub "comanchero"
+//       n<-*100
+//    back
+  back
+
+  sub "comanchero"
+    n<-*100
+  back
+
+  n<-0
+
+  t<-seconds("")
+  for i<-1 to 100000
+     .f()
+  next
+  ."(Funcion) N=",n,"  TIME=",seconds("")-t,"\n"
+  
+  n<-0
+  
+  t<-seconds("")
+  for i<-1 to 100000
+     gosub "label"
+  next
+  ."(Gosub) N=",n,"  TIME=",seconds("")-t,"\n"
+
+  n<-0
+  
+  t<-seconds("")
+  for i<-1 to 100000
+     n<-+1
+  next
+  ."(For directo) N=",n,"  TIME=",seconds("")-t,"\n"
+  
+  gosub "comanchero"
+  
+  ."N=",n,"\n"
+stop

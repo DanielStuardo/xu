@@ -1,0 +1,17 @@
+vars:
+  n:=number
+algorithm:
+  n<-123456789
+  context "notation"
+  precision 0
+  write n,"\n"
+  precision 1
+  write n,"\n"
+  precision 5
+  write n,"\n"
+  precision 6
+  write n,"\n"
+  precision 7
+  write n,"\n"
+  
+stop

@@ -1,0 +1,48 @@
+#use math
+vars:
+   n:=^number
+   w:=^string
+   b:=^boolean
+algorithm:
+   dim n(10)     // al dimensionar, rellena "n" con "0"
+   dim w(10,10)  // rellena con ""
+   dim b(5)      // rellena con "FALSE"
+   
+   {n,n}<-{10,mth.rand(n)}
+   [.n 4]<-0
+
+   /* dos formas de uso de la función */
+
+   /* FORMA 1: */
+   show(n 10)
+   if isany(n 0)
+      ."\n--->Existe al menos un cero\n"
+   else
+      ."\n--->Todo es cero\n"
+   endif
+
+   /* FORMA 2: */
+   write {isany(n 0)?"--->Existe al menos un cero\n":"--->No todo es cero\n"}
+
+   /* comparación con matriz de strings */
+   w <- "Hola!"
+   [:w 3 4]<-""
+   show(w 10)
+   if isany(w "")
+      ."\n--->La matriz tiene al menos un vacío!\n"
+   else
+      ."\n--->La matriz no está vacía\n"
+   endif
+   
+   /* Matriz boolean */
+   [.b 5]<-true
+   show(b 5)
+   if ~isany(b true)
+      ."\n--->La matriz booleana es falsa...\n"
+   else
+      ."\n--->La matriz booleana tiene al menos un true"
+   endif
+   
+   write "\n...", certain(isany("" "")),"\n"
+   
+stop

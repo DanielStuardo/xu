@@ -1,0 +1,43 @@
+#use math
+
+functions:
+  funFor(limite:number):void
+    i,n:=number
+    m:=^number
+  begin:
+    n<-seconds("")
+    dim m(limite)
+    for i<-1 to limite
+      [m i]<-i*2+mth.sqrt(i)
+    next
+    ."TIME=",seconds("")-n,"VALOR=",[m (limite\2)],"\n"
+    use(m); drop   // eliminamos el array
+  end
+  
+  funSeq(limite:number):void
+    n:=number
+    m:=^number
+  begin:
+    n<-seconds("") //  time n
+    m<-[= 1 limite limite] // con esto nos saltamos el ciclo for
+    m<-m*2+mth.sqrt(m)
+    // etime "TIME="
+    ."TIME=",seconds("")-n,"VALOR=",[m (limite\2)],"\n"
+    use(m);drop
+  end
+
+vars:
+  i:=number
+  
+algorithm:
+  .funFor(100)
+  .funSeq(100)
+  
+  for i<-2 to 12 step 1
+     write i,","
+  next
+  ."\n"
+  for i<-1 to 12 step 1
+     write i,","
+  next
+stop  

@@ -1,0 +1,26 @@
+#use matrix,math
+vars:
+   m:=^string
+   n:=^number
+   i,j:=number
+   
+algorithm:
+   queue
+   m<-(flag " ")"Nadie sabe para quien trabaja"
+   show m 0
+   use m
+   mat.row(5)
+   ."\nMaría ",mat.get," en la rotonda...\n"
+
+   precision 0
+   dim n(5,5)
+   n<-{10,mth.ceil(mth.rand(n))}
+   show n 0
+   ."\n"
+   use(n)
+   mat.col(2)
+   for i<-1 to 5
+      mat.row(i)
+      write mat.get
+   next   
+stop

@@ -1,0 +1,103 @@
+#use string
+name: Lectura de nodos de un archivo XML
+
+vars:
+  s,campo,atributo,cualquierHuevada:=string
+  tag,lista,heads:=^string
+  i:=number 
+  sel, traza:=boolean
+
+functions:
+  showTrace:=function:void
+    traza:=$1:boolean
+    arg:=$2:string
+    begin:
+      if traza
+         write arg
+         goodbye
+      endif
+    end
+
+algorithm:
+  
+  /* vector de ATRIBUTOS */
+  dim tag(2)
+
+  /* SEL controlará la generación del ENCABEZADO del archivo final */
+  not sel 
+
+  /* una variable AL PEO */
+  i<-1
+
+  /* guardará los ENCABEZADOS */
+  push(use( heads ) "id")
+
+  /* inicializa a TRUE la variable TRAZA */
+  not traza
+
+  /* carga el archivo a procesar */
+  #define INI 0
+  #define FIN 0
+  s<-strload("source/sotox_90.gexf" INI FIN)
+
+  /* consume todo el registro NODES */
+  campo<- unparser("nodes" s)
+  s<-""
+
+  loop
+    [tag 1]<-"label="
+
+    /* consume un registro NODE y rescata sus atributos */
+    atributo<- unparser("attvalues" parsatt("node" campo tag) )
+
+//    .showTrace(traza ([tag 1] + "\n" + atributo) )
+
+    /* quita los espacios remanentes de CAMPO que deja el consumo
+       del registro NODE */
+    campo<-strtrim((flag "A")campo)
+    
+    /* guardo el LABEL para añadir la primera columna del archivo final */
+    push(use(lista) [tag 1])  // el label 
+
+    /* LOOP de consumo de los sucesivos registros */
+    loop
+      /* guardo los atributos que quiero rescatar del registro a leer */
+      {[tag 1],[tag 2]}<-{"for=","value="}
+
+      /* consume el registro ATTVALUE y guarda los atributos en TAG */
+      cualquierHuevada <- parsatt("attvalue" atributo tag) 
+      atributo<-strtrim((flag "A")atributo)
+ 
+      /* solo sirve para extraer el encabezado que será añadido al 
+         archivo final como la primera fila */
+      if sel
+         push(use(heads) [tag 1]); ++i
+      endif
+      /* hasta aquí */
+     
+      /* guarda VALUE en la lista */
+      push(use(lista) [tag 2])
+
+      /* si ya no queda más por consumir, salga de LOOP */
+      exitif strlen(atributo)=0
+    lend
+
+    exitif strlen(campo)=0
+    
+    /* al salir del primer LOOP, ya no quedan más encabezados que rescatar
+       por lo que negando SEL anula el IF SEL */
+    not sel, if sel
+  lend
+
+  /* como los valores se guardaron en LISTA como un stack o array de nx1,
+     redefine LISTA a una matriz */
+  flag "RR"
+  reshape lista(([[@ lista] 2]/i),i)
+
+  /* concatena HEADS como una fila sobre la LISTA */
+  lista<-[+- heads lista] 
+
+  write lista
+  ."\n"
+  stop
+

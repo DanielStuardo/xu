@@ -1,0 +1,7 @@
+vars:
+  n:=^number
+algorithm:
+  precision 7
+  n<-[= 1 10 1000000]
+  write n,"\n"
+stop

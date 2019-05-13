@@ -1,0 +1,89 @@
+/**************************************************
+ *  Prorama   : mensaje2.xu
+ *  Autor     : Dalien
+ *  Sistema   : Linux 4.15.0-45-generic x86_64
+ *  Fecha ini : Marzo 19, 2019; 01:05:21
+ *  Descripción:
+ *   
+ *   Comunicación asíncrona de mensajes entre un programa emisor de mensajes (mensaje2.xu)
+ *   y un programa servidor de mensajes (server.xu)
+ *   No hace falta que uno u otro esten activos. Ambos pueden quedar a la espera cuando
+ *   su contraparte está "durmiendo".
+ *   
+ **************************************************/
+
+#use string,math
+
+#include /home/xu/Proyectos/xuesp/LINUX-64bits/include/process.def
+
+vars:
+  s:=^string
+  n,c:=number
+  b:=boolean
+  tiempo,tlocal,suma:=number
+  
+algorithm:
+
+
+  cls
+  ."\nINICIANDO ENVIO DE MENSAJES AL SERVIDOR DE MENSAJES...\n\n"
+  /* Debe ir "n", dado que el usuario podría querer hacer algo con ese valor,
+     como por ejemplo, guardarlo junto con alguna metadata */
+  c<-1
+  tiempo<-seconds("")
+
+  while c<=1000
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($mth.int(c))))
+
+     ++c
+     // haga algo aquícon "n", quizás, algun metadata
+     write "último PID = ",n
+
+    ."\nA LA ESPERA DE LOS MENSAJES SERVIDOS...\n\n"
+
+    tlocal<-seconds("")
+
+    try
+       process(PROC_LST b 50)  // 0=todo; n=PID. Usar TRY cuando no encuentra PID
+       exitif ~ok()  // internamente, LST indica que no hay listas en el stack de mensages,
+                     // y declara la variable STATUS como Falso.
+                     // OK() obtiene dicho valor.
+    exception
+       ."\nTerminado el proceso LST. No existe el PID\n"
+       break
+    tend
+    room b
+       ."\nEncontró un mensaje procesado\n"
+       try
+          process(PROC_REQ s 50) // 0=todo; n=numero de mesgs; S=ARRAY STRING: {"PID","MESS-RESP"}
+          exitif ~ok()
+       exception
+          ."\nTerminado el proceso REQ. No existe el PID\n"
+          break
+       tend
+       show s 0
+    rend
+    suma<-+seconds("")-tlocal
+  wend
+  // remanentes
+  tlocal<-seconds("")
+  
+  process(PROC_LST b 50)
+  if b
+    process(PROC_REQ s 50)
+    show s 0
+    suma<-+seconds("")-tlocal
+
+  endif
+  ."\nTIEMPO PROMEDIO POR SERVICIO: ",suma/1000," segundos"
+  ."\nTIEMPO DE SERVICIO TOTAL: ",seconds("")-tiempo," segundos\n"
+stop

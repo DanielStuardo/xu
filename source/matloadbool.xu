@@ -1,0 +1,65 @@
+/*
+   MAT.LOAD()
+   Carga un archivo en una matriz de memoria. 
+   La matriz puede ser un vector o 2D.
+   Utilizaremos una function para crear el archivo
+   de texto.
+*/
+
+#use matrix,math
+vars:
+   B:=^boolean
+   M:=^number
+algorithm:
+
+  ."Primero, crearemos el archivo de texto..\n"
+
+   dim M(10,10,3)
+   
+   M<-2 // guardará 0 o 1
+   
+   M<-mth.floor(mth.rand(M))
+   
+   B<-(%M)
+   
+  /* el castor "(% )" convierte a boolean "false" un 0, y a
+     "true" cualquier otro número, sea positivo o negativo */ 
+   
+   flag ","  // le diremos que lo guarde como matriz, con separador ","
+   
+   context "ROBOT"   // guarda en 0 y 1.
+  /* pruebe otros contextos: "robot", "human", "logic" */
+   
+   mat.save( B "./prueba3.txt" )
+   
+  /* borramos la matriz */
+   use(B)
+   drop
+  
+  /* cargamos el archivo como matriz. aprovecharemos que el flag
+     está seteado como "M," */
+  
+  /* IMPORTANTE: Leerá el contenido según lo seteado en CONTEXT() */
+  
+   flag ","
+  
+   mat.load ( B "./prueba3.txt")
+   show(B 0)
+  ."\nTamaño=",[@B],"\n"
+  ."Tipo = ",type(B)
+  
+  goodbye
+  
+  /* cargamos el archivo como un vector, pero debe cargarse con
+     el contexto adecuado, en este caso, "bool".
+     Si se guardó con contexto "human", debe cargarse de igual manera */
+   
+   
+   flag "V,"
+   drop(use B)
+   mat.load ( B "./prueba3.txt")
+   show(B 0)   // si es vector, no importa el número del segundo parametro
+  ."\nTamaño=",[@B],"\n"
+  ."Tipo = ",type(B)
+   
+stop

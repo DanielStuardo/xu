@@ -1,0 +1,74 @@
+#use math
+vars:
+  m:=^number
+  c:=^string
+  n:=string
+algorithm:
+
+  n<-money(2899238 " US$" 2 20)
+  write n,"\n"
+  n<-money((-2899238) " US$" 2 20)
+  write n,"\n"
+  n<-money(2811929238.78 " $" 3 20)
+  write n,"\n"
+  n<-money(2811929238.78 " $" 2 20)
+  write n,"\n"
+  n<-money(2811929238.78 " $" 1 20)
+  write n,"\n"
+  n<-money(2811929238.78 " $" 0 20)
+  write n,"\n"
+  n<-money((-2811929238.78) " $" 0 20)
+  write n,"\n\n"
+  n<-money(1.25 " $" 2 20)
+  write n,"\n\n"
+  
+  n<-money(2899238 " " 2 16)
+  write n,"\n"
+  n<-money((-2899238) " " 2 16)
+  write n,"\n"
+  n<-money(2811929238.78 " " 3 16)
+  write n,"\n"
+  n<-money(2811929238.78 " " 2 16)
+  write n,"\n"
+  n<-money(2811929238.78 " " 1 16)
+  write n,"\n"
+  n<-money(2811929238.78 " " 0 16)
+  write n,"\n"
+  n<-money((-2811929238.78) " " 0 16)
+  write n,"\n\n"
+
+  n<-money(2899238 "" 2 16)
+  write n,"\n"
+  n<-money((-2899238) "" 2 16)
+  write n,"\n"
+  n<-money(2811929238.78 "" 3 16)
+  write n,"\n"
+  n<-money(2811929238.78 "" 2 16)
+  write n,"\n"
+  n<-money(2811929238.78 "" 1 16)
+  write n,"\n"
+  n<-money(2811929238.78 "" 0 16)
+  write n,"\n"
+  n<-money((-2811929238.78) "" 0 16)
+  write n,"\n\n"
+
+  dim m(500,3,3)
+  ."\nCargando...\n"
+  {m,m}<-{100000000,mth.int(mth.rand(m))}
+  ."Enmascarando...\n"
+  c<-money(m " US$" 2 20)
+
+  if [[@m]1]=1
+     ."\n500 = ",[m 500],"\n"
+     ."500 = ",[c 500],"\n"
+  elseif [[@m]1]=2
+     ."\n500,3 = ",[.m 500 3],"\n"
+     ."500,3 = ",[.c 500 3],"\n"
+  elseif [[@m]1]=3
+     ."\n500,3,3 = ",[:m 500 3 3],"\n"
+     ."500,3,3 = ",[:c 500 3 3],"\n"
+  else
+     ."\n500,3,3,3 = ",[_m 500 3 3 3],"\n"
+     ."500,3,3,3 = ",[_c 500 3 3 3],"\n"
+  endif
+stop

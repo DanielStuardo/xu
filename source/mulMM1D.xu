@@ -1,0 +1,32 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+algorithm:
+
+  dim a(10); dim b(10)
+  a<-100
+  b<-(-90)
+  c<-(a*b)*0.2+1
+  write c,"\n"
+
+  c<-b*a
+  write c,"\n"
+  
+  n<-seconds("")
+  c<-a*b
+  write "\nTIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"
+
+  write c,"\n"
+  
+  c<-(b+0.8)*a
+  write c,"\n"
+  
+  c<-(b+1.5)*a
+  write c,"\n"
+
+  c<-a*(a-b)
+  write c,"\n" 
+
+stop

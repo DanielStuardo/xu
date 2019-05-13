@@ -1,0 +1,42 @@
+#use matrix,stack
+vars:
+   a,b:=^number
+   i,j:=number
+algorithm:
+   dim a(10,10,4)
+   a<-10
+   show(($a) 10)
+   
+   color(14)
+   ."\nCopia un array 2D desde la fila 8, col 8, en la pagina 2:\n"
+   b<-^[ [0,0,0],[1,1,1],[2,2,2]] 
+   
+   use(a)
+   mat.row(8); mat.col(8); mat.pg(2)
+   mat.put(b)
+   show(($a) 10)
+   pause
+   
+   color(3)
+   ."\nCopia un vector de 9 elementos en la fila 4, col 2 página 1:\n"
+   b<-^[8,8,8,8,8,8,8,8,8]
+   write "\nSIZE B=",[@b],"\n"
+   use(a)
+   mat.row(4); mat.col(2); mat.pg(1)
+   mat.put(b)
+   show(($a) 10)
+   pause
+   
+   color(10)
+   ."\nCopia un vector 3D desde la fila 2, col 1 y página 3"
+   b<-^[ [ [4,4,4,4],[4,4,4,4] ], &
+         [ [4,4,4,4],[4,4,4,4] ] ]
+   write "\nSIZE B=",[@b],"\n"
+   use(a)
+   mat.row(2); mat.col(1); mat.pg(3)
+   mat.put(b)
+   show(($a) 10)
+   ."\n"
+
+stop
+ 

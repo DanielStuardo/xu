@@ -1,0 +1,22 @@
+#use math,stack
+
+vars:
+  a,b,c,d := ^number
+  t:=string
+
+algorithm:
+  dim a(5,5,2,2); dim b(5,5,2,2)
+  {a,a}<-{10,mth.ceil(mth.rand(a))}
+  {b,b}<-{10,mth.ceil(mth.rand(b))}
+
+."MATRIZ A:\n"
+show(a 0)
+."\nMATRIZ B:\n"
+show(b 0)
+
+."\nMINIMO A:\n"
+write stk.min(a)  
+."\nMAXIMO B:\n"
+write stk.max(b)  
+
+stop

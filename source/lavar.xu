@@ -1,0 +1,13 @@
+#use date,math
+vars:
+   hora:=$1:string
+   minutos:=$2:number
+   hfinal:=string
+algorithm:
+   ."Hora de inicio de lavado: ",hora,"\nDuración (en mins.): ",minutos
+   hfinal<-sec2time(seconds(hora)+minutos*60)
+   write "\n\n¡Anda a buscar la ropa a las ",hfinal,"!\n"
+   
+  // write 266%60,"\n266/60=",mth.int(266/60),"\n"
+stop
+

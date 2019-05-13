@@ -1,0 +1,32 @@
+/* Algoritmo:  Metodo de Newton-Raphson para e^2x+2x+x^2
+   Autor(es):  Daniel Stuardo
+   Fecha    :  14-03-2010     */
+#use math
+program: Newton-Raphson
+
+vars:
+  x,xa,error,y,k:=number
+  
+  functions:
+    NEWTON:=function:void
+       tope:=number
+    begin:
+     {k, tope}<-{1, 0}
+     Do
+       x <- x - (y/(2* (mth.exp (2*x))+2+2*x)) 
+       y <- (mth.exp (2*x))+2*x+x^2
+       write "\t",($k),"\t",($x),"\n"
+       ++k
+       error <- (mth.abs((x-xa)/x))*100
+       xa <- x
+     Until error<0.00000001
+  end
+  
+algorithm:
+   precision 10
+   x <- 0 
+   y <- (mth.exp (2*x))+2*x+x^2 
+   write "\t",($0),"\t",($x),"\n"
+   xa <- x
+   .NEWTON()
+stop

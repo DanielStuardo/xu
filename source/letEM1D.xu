@@ -1,0 +1,28 @@
+#use math
+vars:
+  a:=^number
+  b:=^boolean
+
+algorithm:
+
+  dim a(10); dim b(10)
+  a<-100
+  write a,"\n"
+
+  precision 8
+  a<-10*0.35
+  write a,"\n"
+  
+  a<-23231313232.232213
+  write a,"\n"
+  
+  b<-true
+  context("bool")
+  write b,"\n"
+
+  not b   // esto trabaja OK
+ // not [b 7]  // no trabaja, porque "not" no trabaja con castores.
+  [b 7]<-true
+  context("robot")
+  write b,"\n"
+stop

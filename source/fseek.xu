@@ -1,0 +1,27 @@
+/*
+   ARCHIVOS BINARIOS: FOPEN, FCLOSE y FSEEK
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include"
+*/
+#include "files.def"
+vars:
+  fp:=file
+  tamano:=number
+algorithm:
+ ."\nVeremos el tamaño del archivo FSEEK.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/fseek.xu" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archivo: ",whatsup()
+    goodbye
+  tend
+  
+ ." OK!\nTamaño del archivo: "
+  tamano<-fseek(fp 0 2)   // ubicamos el puntero del archivo al final de este
+  write tamano," bytes; ",tamano/1024," Kbytes; ",(precision 7)tamano/1024/1024," Mbytes\n"
+  
+  fclose(fp)    // cerramos el archivo 
+    
+stop

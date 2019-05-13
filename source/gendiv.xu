@@ -1,0 +1,139 @@
+// Programa XU
+#use string, matrix, math
+
+//#include
+
+name: gen data diversidad
+
+vars:
+   s,l1,l2,l3,l4,l5,l6,l7,lini:=string
+   cl1,cl2,cl3,cl4,cl5,cl6,cl7:=^string
+   tokns:=^string
+   linea:=^string
+   i:=number
+
+algorithm:
+
+precision 3
+   //mat.load((flag ",")tokns "tratamientos.txt")
+   tokns<-strload("tratam.txt") / "\n"
+   tokns<-strchg(tokns "\n" "")
+//   tokens
+   show tokns 0
+   ."\nTIPE = ",type(tokns)," NUM = ",[@tokns],"\n"
+     pause
+   //dim linea([[@tokns] 2])
+ 
+   l1<-"POOL=$2  ESP=$3  PARCHES=$4  DM=$5  A=$6  B=$7\n" //+ & 
+   l2<-"                                PROMEDIO                                                DESVIACION ESTANDAR\n" //+ & 
+   l3<-"                     BETA    BETA    BETA    BETA                                  BETA    BETA    BETA    BETA\n" //+ & 
+   l4<-"            ALPHA     WT     TOTAL   NEST    REP     GAMA    BIOMASA      ALPHA     WT     TOTAL   NEST    REP     GAMA    BIOMASA\n" //+ & 
+   l5<-"            =============================================================|===========================================================\n" //+ & 
+//                    xxxxxxx xxxxxxx xxxxxxx xxxxxxx xxxxxxx xxxxxxx  xxxxxxxxx    xxxxxxx xxxxxxx xxxxxxx xxxxxxx xxxxxxx xxxxxxx xxxxxxxxx
+   l6<-"  BEFORE    $8:7R $9:7R $10:7R $11:7R $12:7R $13:7R $14:9R   $22:7R $23:7R $24:7R $25:7R $26:7R $27:7R $28:9R\n" //+ & 
+   l7<-"  AFTER     $15:7R $16:7R $17:7R $18:7R $19:7R $20:7R $21:9R  $29:7R $30:7R $31:7R $32:7R $33:7R $34:7R $35:9R\n\n"
+
+//   write "\nLINEA1 = ",l1,"\n"
+
+   //tokns<-($ mth.round((#tokns),4))
+   //show tokns 0
+   cl1<-satura(tokns "," l1)
+ //  show cl1 0
+ //  pause
+   cl6<-satura(tokns "," l6)
+   cl7<-satura(tokns "," l7)
+   linea<-cl1 + l2 + l3 + l4 + l5 + cl6 + cl7
+   
+   
+/*   i<-1
+   while i<=[[@tokns] 2]
+      s <- "POOL="+[.tokns  i 3]+" ESP="+[.tokns i 4]+" PARCHES="+[.tokns i 5]+" DM="+[.tokns i 6]+" A="+[.tokns i 7]+" B="+[.tokns i 8]+"\n"
+      s <- s + l2 + l3 + l4 + l5
+      cl6<-"  BEFORE    "+[.tokns i 9]+"   "+[.tokns i 10]+"   "+[.tokns i 11]+"    "+[.tokns i 12]+"   "+[.tokns i 13]+"  "+[.tokns i 14]+"  "+[.tokns i 15]
+  cl6<-cl6+"        "+[.tokns i 23]+"    "+[.tokns i 24]+"    "+[.tokns i 25]+"    "+[.tokns i 26]+"   "+[.tokns i 27]+"   "+[.tokns i 28]+"   "+[.tokns i 29]+"\n"
+      cl7<-"  AFTER     "+[.tokns i 16]+"   "+[.tokns i 17]+"   "+[.tokns i 18]+"    "+[.tokns i 19]+"   "+[.tokns i 20]+"  "+[.tokns i 21]+"  "+[.tokns i 22]
+  cl7<-cl7+"    "+[.tokns i 30]+"    "+[.tokns i 31]+"    "+[.tokns i 32]+"    "+[.tokns i 33]+"   "+[.tokns i 34]+"   "+[.tokns i 35]+"   "+[.tokns i 36]+"\n"
+
+      [linea i]<-s+cl6+cl7
+      ++i
+   wend
+*/
+ 
+//          
+//      show cl6 0 ; pause
+//      cl7<-satura(tokens  "," l7)
+//       show cl1 0 ; pause
+   
+//   
+
+out "./diversidad.txt"
+   show linea 0
+out ""
+   
+stop
+
+/*
+POOL=15, ESP=8, PARCHES=20, DM=2, A=50, B=0 
+                                PROMEDIO                                                DESVIACION ESTANDAR
+                     BETA    BETA    BETA    BETA                                 BETA     BETA     BETA    BETA
+            ALPHA     WT     TOTAL   NEST    REP    GAMA    BIOMASA      ALPHA     WT      TOTAL    NEST    REP     GAMA   BIOMASA
+            ===========================================================|===========================================================
+  BEFORE    8.4475  1.771   1.5525  1.1923  0.8425  14.95   0.94258      0.23646 0.055189 0.23646 0.095806 0.38637 0.22361 0.056543
+  AFTER     5.0075  6.5025  4.95    0.9925  0.15    6       6.5453e+05   0.59962 0.31767  0.22361 0.56342  0.36635 1.0761  2.4396e+05
+
+*/
+/*
+
+             ,-...  ..";";; / / ;  ;  \"'`.
+              .``"";;; ; ;;/ ; :;"';;/    `
+           ..::.  ;;;;;/   ;  :  .;""'"b;;,`.
+            .     . ; ; ,,;  : ."        \;; '
+         ..     . ;,:/  ; : , .           \;;`
+  .  .. .. . .. . : : ,, ; : , ,'""-.  .-'| ;'
+     .     . ..  .::/,,/  ;: ,   .o".   o"/ ' ; '
+   . ..      .. /, ,  ;  : ,          \  |'`` '  '
+     . /,, ;  : , ,                  ,.p / '' \' '
+       ./ ` , ;; ; ;:  ,"||               '\   \   ''
+      / . ,, , ,_, , , ";"| \      -==- / ' ' '     ''
+  / ;,;';           ;;;; |.  ,       - / "'; ; '    /
+= ...                ,,,/;;;:.=-  "'-./|\ '';':;    '
+                    ;;''.              `"|/   /
+                 ;; ;/"   .'           . | | '/
+                  ;'."                   ;\   '
+                  ; '  . .    ,         . |  '
+                ;.'     . .             .|/\/
+                ;.     .    /           .|/
+               ;.      .   /          .   \.
+               . \     .  '           .     `\
+                   .     .'           .'      "\
+             /      .    .|           '         '=
+            /        .   .|          '           "
+           /        / .   |          '           /
+          /        '     '           \.         /
+         /        /    . "            .        |
+         /       /      . '            .       \
+        /       |        . '             .      ;
+        O        \          `.            .     |
+         \        \       .   `.           ..   |
+          \\       \       .    `.          ..  |
+            \       \\       .     `.         ../
+              \      \\     .        `.        ..
+                \      \\ .            ` .       ..
+                 \      \\                `        .
+                   \    /                   `.      .
+                    =\ /                      ` .    .
+                   // "                         /    .
+                  //"                         /      .
+                  u"    "                  //"\      .
+                  "    "                       \  |  .
+                 "     "                        \ |  .
+                 "     "                         \/  .
+                        "                        / /.
+                 "       "                      /// /
+                 \        "                    /// //
+                 "         "                   u"| /u
+                  "         "                    u |
+
+Baby girl by Faux_Pseudo
+
+*/

@@ -1,0 +1,35 @@
+/*
+   ARCHIVOS BINARIOS: FREADS
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include", ñoño
+*/
+#include include/files.def
+vars:
+  fp:=file
+  linea:=string
+algorithm:
+ ."\nVeremos el contenido de FREADS.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/freads.xu" OPEN_READ)  // abrimos el archivo
+//    fp<-fopen("./clave.txt" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archívo: ",whatsup()
+    goodbye
+  tend
+
+ ." OK!\nLectüra del archivo: \n"
+  flag "SP"  // habilita lectura de caracteres con acentos y mierdas así.
+  while ~feof(fp)       // FEOF() indica true si es fin de archivo
+     linea<-freads(fp 10)  /* FREADS lee un grupo de caracteres
+                              de forma binaria. Si quiere leer
+                              caracteres especiales, use flag "SP" */
+     write linea,"\n"  // quítele el salto de línea y vea que pasa.
+  wend
+
+  fclose(fp)    // cerramos el archivo
+
+ /* IMPORTANTE: para que el archivo pueda ser leído correctamente,
+    debe tener un caracter de fin de línea al final de este */
+stop

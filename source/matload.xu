@@ -1,0 +1,11 @@
+#use matrix
+vars:
+   M:=^number
+algorithm:
+   mat.load ((flag ",") M "./prueba.csv")
+   show(M 6)
+   drop(use M)
+   mat.load ((flag ",") M "./prueba.csv")
+   show(M 6)
+//   write [:M 1 1]*100,"\n"
+stop

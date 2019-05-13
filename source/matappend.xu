@@ -1,0 +1,18 @@
+/*
+   MAT.APPEND()
+   Se creará un archivo con números random llamado "aleatorio2.txt", y luego se le añadirá
+   una matriz de ceros.
+*/
+
+#use matrix,math
+vars:
+  m:=^number
+algorithm:
+  dim m(7,7)
+  {m,m}<-{10,mth.ceil(mth.rand(m))}
+
+  mat.save((flag ",") m "./aleatorio2.txt")
+  
+  m<-0
+  mat.append(m "./aleatorio2.txt")
+stop

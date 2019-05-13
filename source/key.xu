@@ -1,0 +1,30 @@
+//Fri Jan 18 17:51:15 CLST 2019
+//
+//#include
+name: teclado ascii
+
+vars:
+  p:=$1:string
+  c:=number
+  n,m:=^number
+/* un programa de teclas */
+
+algorithm:
+
+  write "PARAMETRO INGRESADO=",p,"\n"
+
+  do
+     c<-0  // adora
+     readkey(c), while c=0
+     write "KEY  = ", c, " - ",chr(c),"\n"
+  until c=27
+
+//  pause
+//  readkey(c)
+//  write "Tecla presionada: ",c,"\n"
+//     if c=13
+//       keyput(256,512)  // habilita un espacio de 512 bytes en buffer.
+//     endif
+
+stop
+

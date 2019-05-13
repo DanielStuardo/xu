@@ -1,0 +1,10 @@
+name:  Maximo comun denominador y minimo comun multiplo
+
+#use math
+algorithm:
+
+  write "GCD(12,18)=",mth.gcd 12 18, "\n"
+  write "LCM(12,18)=",mth.lcm 12 18, "\n"
+
+STOP
+

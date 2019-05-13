@@ -1,0 +1,35 @@
+#use matrix,math
+vars:
+   lista:=^string
+   b:=^boolean
+   n:=^number
+   v:=string
+   m:=number
+algorithm:
+   mat.load( lista "./files.txt")
+   show(lista 0)
+
+   drop(use lista)
+
+   context "bool"  // true=1 y false=0
+   mat.load((flag ",") b "./datos.txt")
+   ."\n....\n"
+   show(b 10)
+   write "\nTipo de B=",type(b),"\n"
+  
+   precision 0
+   mat.load((flag ",") n "./aleatorio1.txt")
+   ."\n....\n"
+   show(n 0)
+   write "\nTipo de N=",type(n),"\nDimensiones=",[@n],"\n"
+
+   precision 0
+   mat.load((flag ",") n "./aleatorio2.txt")
+   ."\n....\n"
+   show(n 0)
+   write "\nTipo de N=",type(n),"\nDimensiones=",[@n],"\n"
+   
+
+   write "\nLOG 2,345=",mth.log(2.345),"\n"
+
+stop

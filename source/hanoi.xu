@@ -1,0 +1,32 @@
+ vars:
+     discos := $1:num.
+    
+ functions:
+
+   hanoi := function:void
+     discos:= $1:number
+     inicio := $2:string
+     aux := $3:string      
+     fin := $4:string
+   begin:
+
+     if discos=1 
+        write inicio, "->", fin, "\n"
+     else
+        :.hanoi ((discos-1) inicio fin aux)  // ":" llamada recursiva
+        write inicio, "->", fin,  "\n"
+        : .hanoi ((discos-1) aux inicio fin)
+     endif     
+   end
+
+algorithm:
+
+  if discos>0 
+     .hanoi (discos "A" "B" "C")
+  else
+     write "Debe ingresar un número de discos mayor que cero\n"
+  endif
+
+ 
+stop
+

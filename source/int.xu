@@ -1,0 +1,34 @@
+#use math,trig
+vars:
+  a:=^number
+  n,m:=number
+algorithm:
+
+ precision 7
+
+ dim a(100,100,100,5)
+ //dim a(500,500,20) 
+ //dim a(2000,2000)
+ //dim a(10000000)
+ n<-seconds("")
+ {a,a}<-{10.0,mth.rand(a)}
+ 
+// write [.a 3 3],"\n"
+// show a 5
+ m<-seconds("")
+ a<-mth.ceil(a)
+// show a 5
+// write [.a 3 3],"\n"
+
+  ."\nSIZE = ",[@a],"\n"
+  if [[@a] 1]=1  
+     write [a 1],", ",[a 4567],",",[a 10000000],"\n"
+  elseif [[@a] 1]=2
+     write [.a 1 1],", ",[.a 1567 1678],",",[.a 2000 2000],"\n"
+  elseif [[@a] 1]=3
+     write [:a 1 1 1],", ",[:a 256 267 14],",",[:a 500 500 20],"\n"
+  else
+     write [_a 1 1 1 1],", ",[_a 25 67 99 4],",",[_a 100 100 100 5],"\n"
+  endif
+ ."\nTIME = ",seconds("")-m,"; ",seconds("")-n,"\n"
+stop

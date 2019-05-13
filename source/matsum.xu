@@ -1,0 +1,45 @@
+#define BR write "\n"
+#use matrix
+vars:
+   c:=^number
+algorithm:
+
+  // se declara una matriz 4D estáticamente:
+  c<-^[[[[3,5],[21,4],[5,18]],[[10,13],[5,7],[19,9]]],&
+       [[[12,2],[7,9],[17,2]],[[11,2],[12,26],[3,2]]],&
+       [[[1,2],[2,2],[18,21]],[[1,2],[16,45],[53,2]]],&
+       [[[16,12],[4,4],[7,5]],[[15,2],[1,1],[73,12]]]]
+
+  precision 0
+
+  write "MATRIZ:\n"
+  show c 3
+  BR
+  write "Suma de todas las filas:\n"
+  show mat.sum( (flag "r") c) 1
+  BR
+  write "Suma de todas las columnas:\n"
+  show mat.sum( (flag "c") c) 1
+  BR
+  write "Suma de cada página de todos los bloques:\n"
+  show mat.sum( (flag "p") c) 1
+  BR
+  write "Suma filas para cada pagina de todos los bloques:\n"
+  show mat.sum( (flag "rp") c) 2
+  BR
+  write "Suma columnas para cada pagina de todos los bloques:\n"
+  show mat.sum( (flag "cp") c) 2
+  BR
+  write "Suma cada pagina por bloques:\n"
+  show mat.sum( (flag "pb") c) 4
+  BR
+  write "Suma cada fila por pagina por bloques:\n"
+  write mat.sum( (flag "rpb") c)(flag ",")
+  BR
+  write "Suma cada columna por pagina por bloques:\n"
+  show mat.sum( (flag "cpb") c) 4
+  BR
+  write "Suma todo:\n"  // no hay flag o es otra cosa
+  show (flag "") mat.sum(c)  1
+  BR
+stop

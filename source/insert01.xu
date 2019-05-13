@@ -1,0 +1,22 @@
+
+#use math
+
+vars:
+  M:=^number
+functions:
+  // las funciones deben ser insertadas en orden de invocacion
+  #import mattri.{buildDiag,build2Diag,trans,vdiag}
+ // #import mattri.*
+algorithm:
+   dim M(5,5)
+   {M,M}<-{10,mth.ceil(mth.rand(M))}
+   ."\nMatriz original:\n"
+   show ($M) 5
+   
+   ."\nTranspuesta:\n"
+   show ($.trans(M)) 0 ; ."\n"
+   
+   ."\nDiagonal:\n"
+   show ($.vdiag(M 1)) 0; ."\n"
+   
+stop

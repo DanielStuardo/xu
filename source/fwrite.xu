@@ -1,0 +1,42 @@
+/*
+   ARCHIVOS BINARIOS: FWRITEL
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include"
+*/
+#include "files.def"
+vars:
+  fp,ft:=file
+  linea:=string
+algorithm:
+ ."\nCopiaremos el archivo FWRITEL.XU a FWRITEL_01.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/fwritel.xu" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archivo: ",whatsup()
+    goodbye
+  tend
+ ."\nCreamos el archivo target:"
+  try
+    fcreate("source/fwritel_01.xu" CREATE_NORMAL)
+    ft<-fopen("source/fwritel_01.xu" OPEN_WRITE)
+  exception
+    ."\nError de creación o de apertura de archivo: ",whatsup()
+    goodbye
+  tend
+  
+ ." OK!\nLectura del archivo: \n"
+  while ~feof(fp)       // FEOF() indica true si es fin de archivo
+     linea<-freadl(fp)  /* FREADL lee una línea hasta fin de línea
+                           y devuelve la línea en formato string.
+                           Omite el caracter fin de línea. */
+     fwritel(ft (linea+"\n") )  // si no ponemos "()", XU se marea
+  wend
+  
+  fclose(ft)
+  fclose(fp)    // cerramos el archivo 
+ 
+ /* IMPORTANTE: para que el archivo pueda ser leído correctamente,
+    debe tener un caracter de fin de línea al final de este */  
+stop

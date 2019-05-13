@@ -1,0 +1,16 @@
+/*
+   MAT.SAVE()
+   Se creará un archivo con números random llamado "aleatorio1.txt".
+*/
+
+#use matrix,math
+vars:
+  m:=^number
+
+algorithm:
+  dim m(700,700)
+  {m,m}<-{10,mth.ceil(mth.rand(m))}
+
+  mat.save((flag ",") m "./aleatorio1.txt")
+
+stop

@@ -1,0 +1,66 @@
+vars:
+  a,c:=^string
+  n:=number
+algorithm:
+
+  n<-seconds("")
+  dim a(1000000)
+  ."TIME DIMENSION=",seconds("")-n,"\n"
+  n<-seconds("")
+  a<-"hola"
+  ."\nTIME CARGA = ",seconds("")-n,"\n"
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\nSIZE=",[@c],"\n"
+  write "ELEMENTO 100000 = ",[c 100000],"\n"
+
+  n<-seconds("")
+  dim a(4000,4000)
+  ."TIME DIMENSION=",seconds("")-n,"\n"
+  n<-seconds("")
+  a<-"hola"
+  ."\nTIME CARGA = ",seconds("")-n,"\n"
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 4000,4000 = ",[.c 4000 4000],"\n"
+
+  n<-seconds("")
+  dim a(100,100,100)
+  ."TIME DIMENSION=",seconds("")-n,"\n"
+  n<-seconds("")
+  a<-"hola"
+  ."\nTIME CARGA = ",seconds("")-n,"\n"
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 100,97,20 = ",[:c 100 97 20],"\n"
+
+  n<-seconds("")
+  dim a(100,100,100,10)
+  ."TIME DIMENSION=",seconds("")-n,"\n"
+  
+  n<-seconds("")
+  a<-"HolaLoquillo"
+  ."\nTIME CARGA = ",seconds("")-n,"\n"
+  n<-seconds("")
+  c<-a
+  ."\nTIME = ",seconds("")-n,"\n"
+  write "ELEMENTO 100,100,100,10 = ",[_c 100 100 100 10],"\n"
+
+  dim a(3)  // no importa: el array será reinicialazado.
+  queue  // con deque lo hace al revés.
+  a<-"Hola mundo creado por el Creador de todaas las cosas. Es bacán ese loco!"
+  write a,"\n"
+  c<-a
+  [a 3]<-[a 3]+" poderoso"
+  write c,"\n"
+  write a,"\n"  
+
+  flag "\n"  // tokenizará por "\n"
+  ."\nAHORA CARGARÉ EL ARCHIVO \"COPIA.TXT\" QUE ESTÁ EN DIRECTORIO \"DATOS\"\n"
+  n<-seconds("")
+  a<-strload("datos/copia.txt" 0 0)
+  //write a,"\n"
+  ."\nTIME CARGA = ",seconds("")-n,"\nSIZE= ",[@a]
+stop

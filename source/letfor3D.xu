@@ -1,0 +1,36 @@
+vars:
+   a:=^number
+   s:=^string
+   b:=^boolean
+   i,j,k,n:=number
+algorithm:
+
+   dim b(90,20,20)
+
+   n<-seconds("")
+   for i<-1 to 90
+     for j<-1 to 20
+        for k<-1 to 20
+           [:b i j k ]<-true
+        next
+     next
+   next
+   ."\nTIME = ",seconds("")-n,"\n"
+   ."\nELEMENTO = ",certain([:b 10 4 2])
+   ."\nELEMENTO = ",certain([:b 1 1 1])
+   ."\nELEMENTO = ",certain([:b 90 20 20])
+
+   n<-seconds("")
+   b<-true
+   ."\nTIME = ",seconds("")-n,"\n"
+   ."\nELEMENTO = ",certain([:b 10 4 2])
+   ."\nELEMENTO = ",certain([:b 1 1 1])
+   ."\nELEMENTO = ",certain([:b 90 20 20])
+   
+   dim a(90,20,20)
+   a<-[= 1 36000 36000]  // esta asignación se pasa por la raja la dimension previa de "a"
+   reshape a(90,20,20)
+   ."\nELEMENTO = ",[:a 10 4 2]
+   ."\nELEMENTO = ",[:a 1 1 1]
+   ."\nELEMENTO = ",[:a 90 20 20]  
+stop      

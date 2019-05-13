@@ -1,0 +1,24 @@
+vars:
+   a:=^number
+   s:=^string
+   i,j,k,l,n:=number
+algorithm:
+
+   dim s(90,20,20,20)
+
+   n<-seconds("")
+   for i<-1 to 90
+     for j<-1 to 20
+        for k<-1 to 20
+           for l<-1 to 20
+              [_s i j k l]<-"HolaPeludo"
+           next
+        next
+     next
+   next
+
+   ."\nELEMENTO = ",[_s 10 4 2 9]
+   ."\nELEMENTO = ",[_s 1 1 1 1]
+   ."\nELEMENTO = ",[_s 20 20 20 20]
+   ."\nTIME = ",seconds("")-n,"\n"
+stop      

@@ -1,0 +1,60 @@
+#use matrix,math
+vars:
+   a,b:=^number
+algorithm:
+   dim a(10,10)
+   a<-10      // llena con "10"
+   show(a 0)
+   ."\n"
+
+   use(a)
+   /* se ubica en la fila 3, columna 3 */
+   mat.row(3); mat.col(3)
+   /* desde esa posición modifica el pedazo copiado por el castor "[%]" (copia de bloque)
+      dicho pedazo está dado por el array estático ^[3,3,7,8] */
+   mat.put( [%a (# ^[3,3,7,8]) ] * 0.1)
+   show( ($a) 10); 
+   ."\n"
+
+   dim a(5,5,5)
+   {a,a}<-{10,mth.ceil(mth.rand(a))}
+   use a
+   mat.row(2);mat.col(2);mat.pg(3)
+   mat.put ( [%a (#^[2,2,4,4,3,4]) ] * 0 )
+   show a 0
+   
+   ."\n"
+   dim a(5,5,5)
+   {a,a}<-{10,mth.ceil(mth.rand(a))}
+   b<-[* ^[2,2,4,4,3]]
+   write "SIZEB=",[@b],"\n"
+   show b 0
+   [>a b]<-[<a b]*100
+   show a 0
+
+   ."\n"
+   dim a(5,5,5,3)
+   {a,a}<-{10,mth.ceil(mth.rand(a))}
+   b<-[* ^[2,2,4,4,3,3,2]]
+   write "SIZEB=",[@b],"\n"
+   show b 0
+   [>a b]<-[<a b]*0
+   show a 0
+stop
+/*
+  Comentarios:
+  
+  Se declara una matriz de 2 dimensiones, y se llena con el valor 10.
+  Se muestra el contenido.
+  Luego, se copia un bloque de esa matriz, desde las coordenadas 3,3,7,8 (30 elementos).
+  Ese bloque se multiplica por 0.1, y, dado que se seleccionó el punto dentro de la
+  matriz (gracias a use(a)), desde la fila 3, columna 3, se copia el resultado de la
+  operación a la matriz "a".
+  El operador de copia de bloque [%...] requiere argumentos de tipo number, pero el
+  array estático ^[3,3,7,8] se define sin tipo; luego, es necesario el operador de
+  cast (#...), que declara el tipo del array estático como number.
+  El array estático se define sin tipo, porque se resuelve en tiempo de ejecución. Por
+  esa razón, para que el compilador pueda reconocer el tipo de ese array se usa el
+  operador de casteo señalado. La máquina virtual no hace nada cuando un operador de
+  casteo trabaja sobre un stack del tipo que se quiere castear.
+ */

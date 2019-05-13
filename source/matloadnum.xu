@@ -1,0 +1,62 @@
+/*
+   MAT.LOAD()
+   Carga un archivo en una matriz de memoria. 
+   La matriz puede ser un vector o 2D.
+   Utilizaremos una function para crear el archivo
+   de texto.
+*/
+
+#use matrix,math
+vars:
+   M:=^number
+   
+algorithm:
+
+/*  ."Primero, crearemos el archivo de texto..\n"
+
+   dim M(10)
+   {M,M}<-{10,mth.rand(M)}
+   
+   mat.save( M "./prueba.txt" )
+   
+  // borramos la matriz 
+   use(M)
+   drop
+  
+  // cargamos el archivo como matriz. aprovecharemos que el flag
+  //   está seteado como "," 
+   flag ","   // separador ","
+   //flag "\n"
+   mat.load ( M "./prueba.txt")
+   show(M 0)
+  ."\nTamaño=",[@M],"\n"
+  ."Tipo = ",type(M)
+  pause
+  */
+  ."\nCreamos un archivo de numeros con salto de linea\n"
+  dim M(10)
+   {M,M}<-{99999999999999999,mth.ceil(mth.rand(M))}
+   flag ","
+   mat.save( M "./prueba1.txt" )
+
+  /* borramos la matriz */
+   use(M)
+   drop
+
+   flag ","   // separador "\n"
+   mat.load ( M "./prueba1.txt")
+   context "notation"
+   show(M 0)
+  ."\nTamaño=",[@M],"\n"
+  ."Tipo = ",type(M)
+  goodbye
+  
+  /* cargamos el archivo como un vector */
+   flag "V,"
+   drop(use M)
+   mat.load ( M "./prueba.txt")
+   show(M 0)   // si es vector, no importa el número del segundo parametro
+  ."\nTamaño=",[@M],"\n"
+  ."Tipo = ",type(M)
+  ."DATO pos 22=",[M 22],"\n" 
+stop

@@ -1,0 +1,25 @@
+#use math
+vars:
+  a,b:=number
+  c,d:=^number
+  s:=^string
+algorithm:
+  while (++a)<100
+     write a,","
+  wend
+  dim c(10,10)
+  c<-100
+  ++c
+  show c 0
+  --c
+  show (--c) 0
+  show c 0
+  dim s(10)
+  dim c(10)
+  s<-(flag ".")"Cadena larga y pesada"
+  {c,c}<-{10,mth.ceil(mth.rand(c))}
+  s<-s+c
+  s<-s-c
+  show c 0
+  show s 0
+stop

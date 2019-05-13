@@ -1,0 +1,29 @@
+#use matrix
+#include "types.def"
+
+vars:
+   a:=^number
+   b:=^string
+   c:=^boolean
+   A:=number
+   B:=string
+   C:=boolean
+algorithm:
+  dim a(5); dim b(4); dim c(7)
+  a<-10
+  b<-"hola"
+  c<-true
+  
+  write "Es A tipo stack number? ",certain(istype(a STKNUMBER)),"\n"
+  write "Es B tipo stack string? ",certain(istype(b STKSTRING)),"\n"
+  write "Es C tipo stack boolean? ",certain(istype(c STKBOOLEAN)),"\n"
+  write "Es C tipo stack string? ",certain(istype(c STKSTRING)),"\n"
+  
+  A<-10.78
+  B<-"hola mundo"
+  C<-false
+  write "Es variable común A tipo number? ",certain(istype(A NUMBER)),"\n"
+  write "Es variable común B tipo string? ",certain(istype(B STRING)),"\n"
+  write "Es variable común C tipo boolean? ",certain(istype(C BOOLEAN)),"\n"
+  write "Es variable común C tipo number? ",certain(istype(C NUMBER)),"\n"
+stop

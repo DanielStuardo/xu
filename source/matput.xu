@@ -1,0 +1,18 @@
+#use matrix
+vars:
+   m:=^string
+   n:=^number
+algorithm:
+   queue
+   m<-(flag " ")"Nadie sabe para quien trabaja"
+   show m 0
+   use m
+   mat.row(1); mat.put("Juanito")
+   write "\n",join(m),"\n"
+   
+   dim n(10,10)
+   use(n)
+   mat.row(3);mat.col(3)
+   mat.put( (#^[ [1,2],[3,4]]) )
+   show(n 10)
+stop

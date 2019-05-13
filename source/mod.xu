@@ -1,0 +1,88 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+
+functions:
+   /* RANDOM: matriz aleatoria */
+   random:=function:^number
+      sRow:=$1:number; sCol:=$2:number
+      sPag:=$3:number; sBlk:=$4:number
+      temp:=^number
+   begin:
+      if sRow>0
+         dim temp(sRow,sCol,sPag,sBlk)
+         {temp, temp} <- {1, mth.rand(temp)}
+      else
+         ."ERROR: argumentos inválidos en RANDOM\n"
+         goodbye
+      endif
+      return temp
+   end
+
+algorithm:
+  
+  write 0%(-3),"\n"
+//  write 0%0, "\n"
+//  write 1%0,"\n"
+
+  dim a(10)
+  n<-seconds("")
+  a<-100
+  ."CARGA=",seconds("")-n
+  
+  c<-a%2
+  ."\nELEMENTO n%2(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-2%a
+  ."\nELEMENTO 2%n(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-1%a
+  ."\nELEMENTO 1%n(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a%1 
+  ."\nELEMENTO n%1(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a%(-1) 
+  ."\nELEMENTO n%-1(5) = ",[c 5]," SIZE=",[@c],"\n"  
+
+  c<-0%a 
+  ."\nELEMENTO 0%n(5) = ",[c 5]," SIZE=",[@c],"\n"
+
+  c<-a%.random(10 0 0 0) 
+  ."\nELEMENTO n%random (5) = ",[c 5]," SIZE=",[@c],"\n"
+  write c,"\n"
+
+  a<-1
+  c<-a%10 
+  ."\nELEMENTO 1%e(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a%(-10) 
+  ."\nELEMENTO 1%-e(5) = ",[c 5]," SIZE=",[@c],"\n"
+  a<-0
+  c<-a%10 
+  ."\nELEMENTO 0%e(5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a%(-10) 
+  ."\nELEMENTO 0%-e(5) = ",[c 5]," SIZE=",[@c],"\n"
+
+  a<-10
+  try
+     c<-((-1)*a)%0 + 0.5
+     write c
+     ."\nELEMENTO -dec%dec (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE NUM % 0 = ",whatsup()
+  tend
+  
+  a<-0
+  try
+    c<-a%0 
+    ."\nELEMENTO 0%0(5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE 0 % 0 = ",whatsup()
+  tend 
+
+  a<-10
+  [a 5]<-0
+  try
+    c<-0 % a 
+    ."\nELEMENTO 0%0(5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE 0 % 0 = ",whatsup()
+  tend 
+stop

@@ -1,0 +1,33 @@
+#use matrix,math
+vars:
+   m,n:=^number
+algorithm:
+   dim m(10)
+   write "El vector está en cero:\n",m,"\n"
+   use m
+   mat.row(3); mat.put(100)
+   show m 1
+   write "\nDato en posición 3: ",mat.get,"\nAhora ponemos un tren de datos desde la posición 4:\n"
+   flag "ARRAY"   // asume vector y no stack.
+
+   /* diferencia:
+      MAT.PUT y MAT.GET, aplicados sobre un vector simple, asumen que este vector es un stack puro.
+      Esto significa que MAT.PUT no guardará el vector en el stack, sino, un puntero a la matriz, junto con
+      la metadata de esta, igual como lo hace PUSH.
+      MAT.GET, aplicado a un vector, asumirá la misma cosa, y no leerá el contenido, sino, la metadata.
+      La metadata es usada cuando se guarda un array que quiere ser recuperado en su misma dirección
+      de memoria. Una hueá complicada. Cuando lo hice, estaba drogado o acababa de tener sexo con mi mano.
+      En fin. Para resolverlo, y guardar el contenido en el vector, se debe usar este flag:"ARRAY".
+      No es necesario este flag para matrices de dimensiones mayores que 1.
+   */ 
+   mat.row(4)  
+   try
+      mat.put( (#^[10,20,30,40,50,60,70,80,90,100]) )  // se guarda el contenido del vector estático
+   exception
+      write "\nTe fuiste a la mierda con error = ",whatsup()
+      ."\nMoveré MAT.ROW a la primera posicion...\n"
+      mat.row(1)
+      again    /* esta hueá es chora */
+   tend
+   
+stop

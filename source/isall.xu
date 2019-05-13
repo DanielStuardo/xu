@@ -1,0 +1,43 @@
+vars:
+   n:=^number
+   w:=^string
+   b:=^boolean
+algorithm:
+   dim n(10)     // al dimensionar, rellena "n" con "0"
+   dim w(10,10)  // rellena con ""
+   dim b(5)      // rellena con "FALSE"
+   
+   /* dos formas de uso de la función */
+
+   /* FORMA 1: */
+   show(n 10)
+   if isall(n 0)
+      ."\n--->Todo es cero\n"
+   else
+      ."\n--->No todo es cero\n"
+   endif
+
+   /* FORMA 2: */
+   write {isall(n 0)?"\n--->Todo es cero\n":"\n--->No todo es cero\n"}
+
+   /* comparación con matriz de strings */
+   [:w 2 2] <- "Hola!"
+   show(w 10)
+   if isall(w "")
+      ."\n--->La matriz está vacía!\n"
+   else
+      ."\n--->La matriz no está vacía\nLa posición ",[\w "<>" ""]," tiene algo...\n"
+   endif
+   
+   /* Matriz boolean */
+   [.b 5]<-true
+   show(b 5)
+   if ~isall(b false)
+      ."\n--->La matriz booleana tiene algo de verdad...\n"
+   else
+      ."\n--->La matriz booleana es falsa"
+   endif
+   
+   write "\n...", certain(isall("" "")),"\n"
+   
+stop

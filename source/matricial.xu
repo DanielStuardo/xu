@@ -1,0 +1,48 @@
+#use math
+vars:
+  a,b,c:=^number
+  i,j:=number
+  B:=^boolean
+algorithm:
+
+  //dim a(2,10); dim b(10,4)
+  //a<-3
+  //b<-2
+  precision 0
+  a<-^[[2,3,4],[5,6,7]]
+  b<-^[[2,3],[4,5],[5,7]]
+  show a 0
+  ."\n * \n"
+  show b 0
+  c<-xmat(a b)
+  ."\nSIZE=",[@c],"\n"
+  show(c [[@c] 3])
+  
+  dim c(100,100)
+  c<-50
+  ++c
+  show c 0
+  --c
+  show c 0
+  show (--c) 0
+  show (++c) 0
+  ."\n"
+  show (c*2) 0
+  ."\n"
+  show (++(c*2)) 0
+  ."\n"
+  show (c*2) 0
+
+  use c
+  drop
+  garbage()
+  pause
+  ."\n"
+  B<-^[true,true,false,false,true,false]
+  show B 0
+  ."\n"
+  show (~B) 0
+  ."\n"
+  not B
+  show B 0
+stop

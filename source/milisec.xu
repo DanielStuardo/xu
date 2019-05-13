@@ -1,0 +1,9 @@
+vars:
+  n:=number
+algorithm:
+  write "Espera de 1 segundo..."
+  n<-seconds("")
+  millisec(1000)
+  write seconds("")-n," secs.\n"
+  write "listeilor!!"
+stop

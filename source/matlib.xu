@@ -1,0 +1,249 @@
+/******
+   REPMAT
+   Repite una matriz según lo indicado en un flag.
+ ******/
+ #use matrix,math
+ 
+ vars:
+   M:=^string
+   N:=^number
+   L:=^boolean
+
+ functions:
+
+    nrepmat:=function:^number   //^variant no funciona aquí
+      M:=$1:^number
+      tipo:=$2:string
+      repite:=$3:number
+      //
+      msize,r,rtmp:=^number
+      retorno,tmp:=^number
+      i,nDim:=number
+    begin:
+      use retorno; drop  // porque todas las vars son estáticas
+      msize<-[@M]
+      nDim<-[msize 1]
+      
+      if tipo="="
+         retorno<-M
+         if nDim=1
+            reshape retorno(1,[msize 2])
+         endif
+         for i<-1 to repite-1 
+            retorno<-[+- retorno M]
+         next
+      elseif tipo="||"
+         retorno<-M
+         for i<-1 to repite-1 
+            retorno<-[+| retorno M]
+         next
+      elseif tipo="\\"
+         if nDim=2
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite))
+         elseif nDim=3
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite), [msize 4])
+         else
+            ."ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+            goodbye
+         endif
+         for i<-1 to repite
+            mat.row(([msize 2]*(i-1)+1))
+            mat.col(([msize 3]*(i-1)+1));mat.pg(1),if nDim=3
+            mat.put(M)
+         next
+      elseif tipo="//"
+         if nDim=2
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite))
+         elseif nDim=3
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite), [msize 4])
+         else
+            ."ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+            goodbye
+         endif
+         for i<-1 to repite
+            mat.row(([msize 2]*(i-1)+1))
+            mat.col(([msize 3]*(repite-i)+1));mat.pg(1),if nDim=3
+            mat.put(M)
+         next
+      endif
+      return retorno
+    end
+ /*****/    
+    srepmat:=function:^string   //^variant no funciona aquí
+      M:=$1:^string
+      tipo:=$2:string
+      repite:=$3:number
+      //
+      msize,r,rtmp:=^number
+      retorno,tmp:=^string
+      i,nDim:=number
+    begin:
+      use retorno; drop  // porque todas las vars son estáticas
+      msize<-[@M]
+      nDim<-[msize 1]
+      
+      if tipo="="
+         retorno<-M
+         if nDim=1
+            reshape retorno(1,[msize 2])
+         endif
+         for i<-1 to repite-1 
+            retorno<-[+- retorno M]
+         next
+      elseif tipo="||"
+         retorno<-M
+         for i<-1 to repite-1 
+            retorno<-[+| retorno M]
+         next
+      elseif tipo="\\"
+         if nDim=2
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite))
+         elseif nDim=3
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite), [msize 4])
+         else
+            ."ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+            goodbye
+         endif
+         for i<-1 to repite
+            mat.row(([msize 2]*(i-1)+1))
+            mat.col(([msize 3]*(i-1)+1));mat.pg(1),if nDim=3
+            mat.put(M)
+         next
+      elseif tipo="//"
+         if nDim=2
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite))
+         elseif nDim=3
+            dim retorno( ([msize 2]*repite), ([msize 3]*repite), [msize 4])
+         else
+            ."ERROR: no puedo hacerlo con dimensiones mayores que 3\n"
+            goodbye
+         endif
+         for i<-1 to repite
+            mat.row(([msize 2]*(i-1)+1))
+            mat.col(([msize 3]*(repite-i)+1));mat.pg(1),if nDim=3
+            mat.put(M)
+         next
+      endif
+      return retorno
+    end
+  /******/
+   // enumera una matriz de tipo string o numerica de 1D y 2D, no booleana.
+   // para esta ultima, es conveniente convertirla a string antes.
+    enumstr(SOURCE:^string(*),FROM:number):void
+      nsize,Tmp:=^number
+    begin:
+       nsize<-[@SOURCE]
+       if [nsize 1]<=2
+          Tmp<-[= FROM ([nsize 2]+FROM-1) [nsize 2]]
+          if type(SOURCE)="<string>"   // es string
+             //."SIZE T=",[@Tmp],"\nSIZE S=",[@SOURCE],"\n"
+             SOURCE<-[+| ($(int Tmp)) SOURCE] 
+          endif
+       endif
+    end
+    enumnum(SOURCE:^number(*),FROM:number):void
+      nsize,Tmp:=^number
+    begin:
+       nsize<-[@SOURCE]
+       if [nsize 1]<=2
+          Tmp<-[= FROM ([nsize 2]+FROM-1) [nsize 2]]
+          if type(SOURCE)="<number>"   // es number
+            // ."SIZE T=",[@Tmp],"\nSIZE S=",[@SOURCE],"\n"
+             SOURCE<-[+| (int Tmp) SOURCE]
+          endif
+       endif
+    end
+
+   // enumera con incremento una matriz de tipo string o numerica de 1D y 2D, no booleana.
+   // para esta ultima, es conveniente convertirla a string antes.
+    enumistr(SOURCE:^string(*),FROM:number,INCR:number):void
+      nsize,Tmp:=^number
+    begin:
+       nsize<-[@SOURCE]
+       if [nsize 1]<=2
+          Tmp<-seq(FROM INCR [nsize 2])
+          
+          if type(SOURCE)="<string>"   // es string
+             //."SIZE T=",[@Tmp],"\nSIZE S=",[@SOURCE],"\n"
+             SOURCE<-[+| [$Tmp "" 2 10] SOURCE] 
+          endif
+       endif
+    end
+    enuminum(SOURCE:^number(*),FROM:number,INCR:number):void
+      nsize,Tmp:=^number
+    begin:
+       nsize<-[@SOURCE]
+       if [nsize 1]<=2
+          Tmp<-seq(FROM INCR [nsize 2])
+          if type(SOURCE)="<number>"   // es number
+            // ."SIZE T=",[@Tmp],"\nSIZE S=",[@SOURCE],"\n"
+             SOURCE<-[+| Tmp SOURCE]
+          endif
+       endif
+    end    
+ algorithm:
+
+    M<-"a,b,c,d,e,f,g,h,i"/","
+    show .srepmat(M "=" 5) 0
+    ."\n"
+    show .srepmat(M "||" 5) 0
+    
+    //M<-.srepmat(M "=" 5)
+    dim N(3,3)
+    N<-{10,mth.ceil(mth.rand(N))}
+
+    ."\n****\n"
+    show N 0
+    ."\n"
+    show .nrepmat(N "=" 4) 0
+    ."\n"
+    show .nrepmat(N "||" 4) 0
+    
+    show .nrepmat(N "\\" 4) 0
+    
+    show .nrepmat(N "//" 4) 0
+    
+    ."\n****\n"
+    dim L(3,3)
+    L<-true
+    show L 0
+    ."\n"
+    L<- (% .nrepmat((#L) "\\" 4))
+    show L 0
+   
+   // enumerate:
+    ."\nENUMERATE STRING:\n"
+
+    .enumstr(M 0)
+    show M 0
+    M<-"a,b,c,d,e,f,g,h,i"/","
+    .enumstr(M 1)
+    show M 0
+    M<-"a,b,c,d,e,f,g,h,i"/","
+    .enumstr(M 10)
+    show M 0
+    
+    ."\nENUMERATE NUMBER:\n"
+    dim N(10,4)
+    N<-{10,mth.ceil(mth.rand(N))}
+    
+    .enumnum(N 0)
+    show N 0
+    N<-{10,mth.ceil(mth.rand(N))}
+    .enumnum(N 1)
+    show N 0
+    N<-{10,mth.ceil(mth.rand(N))}
+    .enumnum(N 10)
+    show N 0
+    N<-{10,mth.ceil(mth.rand(N))}
+    .enumnum(N 5)
+    show N 0
+    ."\n\n"
+    
+    M<-"a,b,c,d,e,f,g,h,i"/","
+    .enumistr(M 10 0.5)
+    show M 0
+    N<-{10,mth.ceil(mth.rand(N))}
+    .enuminum(N 5 0.25)
+    show [$ N "" 2 4] 0   // [$ ] formato. idem "money()"
+ stop

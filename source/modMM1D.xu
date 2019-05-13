@@ -1,0 +1,47 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+algorithm:
+
+  dim a(10); dim b(10)
+  a<-100
+  b<-(-90)
+  
+  n<-seconds("")
+  c<-a%(b*(-1))
+  write "\nMOD TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"
+
+  n<-seconds("")
+  c<-a%((-1)*b)
+  write "\nMOD TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"
+  
+  n<-seconds("")
+  c<-b%a
+  write "\nMOD TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",[c 10],"\n"  
+
+  [a 5]<-0
+  try
+     n<-seconds("")
+     c<-b%a
+     write "\nMOD TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 = ",[c 10],"\n"
+  exception
+     ."\nERROR CODIGO (NUM % ZERO) = ",whatsup()
+  tend
+  
+  [a 5]<-0
+  [b 5]<-0
+  try
+     n<-seconds("")
+     c<-a%b
+     write "\nMOD TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 = ",[c 10],"\n"
+  exception
+     ."\nERROR CODIGO (0 % 0) = ",whatsup()
+  tend  
+  
+stop

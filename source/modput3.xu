@@ -1,0 +1,61 @@
+#use matrix,stack
+vars:
+   a,b:=^number
+   i,j:=number
+   
+algorithm:
+   dim a(5,5,2,2)
+   a<-10
+   show(a 10)
+   
+   color(14)
+   write "\nCopiara un array 2D en un array 4D,"
+   write "\ndesde la posicion fila 3, col 2, de la pagina 2, bloque 1:\n"
+   
+   b<-^[ [0,0,0],[1,1,1],[2,2,2]] 
+   
+   use(a)
+   mat.row(3); mat.col(2); mat.pg(2); mat.bk(1)
+   mat.put(b)
+   show(($a) 10)
+   pause
+   
+   color(13)
+   ."\n\nCopia un vector de 5 elementos en la fila 1, col 1, pagina 1 del bloque 2:\n"
+   b<-^[8,8,8,8,8]
+   write "\nSIZE B=",[@b],"\n"
+   use(a)
+   mat.row(1); mat.col(1); mat.pg(1); mat.bk(2)
+   mat.put(b)
+   show(($a) 10)
+   pause
+   
+   color(3)
+   ."\n\nCopia un array 3D en la fila 2, col 1, pagina 1 del bloque 2:\n"
+   b<-^[ [ [4,4,4,4],[4,4,4,4] ], &
+         [ [4,4,4,4],[4,4,4,4] ] ]
+   write "\nSIZE B=",[@b],"\n"
+   use(a)
+   mat.row(2); mat.col(1); mat.pg(1); mat.bk(2)
+   mat.put(b)
+   show(($a) 10)
+   pause
+   
+   color(12)
+   ."\n\nCopia un array 4D en otro array 4D,"
+   ."\ndesde la fila 4, col 2, pagina 1 y bloque 1:\n"
+   
+   b<-^[ [ [ [1,1,1,1],[1,1,1,1] ], &
+           [ [1,1,1,1],[1,1,1,1] ] ], &
+         [ [ [1,1,1,1],[1,1,1,1] ], &
+           [ [1,1,1,1],[1,1,1,1] ] ] ]
+           
+   write "\nSIZE B=",[@b],"\n"
+   use(a)
+   mat.row(4); mat.col(2); mat.pg(1); mat.bk(1)
+   mat.put(b)
+   show(($a) 10)
+   ."\n"
+
+stop
+ 

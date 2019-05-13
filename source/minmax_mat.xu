@@ -1,0 +1,139 @@
+#use matrix,math,string,stack
+
+vars:
+  a,b,c,d := ^number
+  t,i:=number
+  s:=string
+
+algorithm:
+
+/*  write 1/(100!)
+  precision 3
+  write 1/(100!)
+  
+  write 200!
+  i<-1
+  do
+     write strcpy("La blanca navidad" i (--strlen("La blanca navidad")) )
+     ."\n"
+  until (++i)=18
+  write 198900023,"\n"
+  write 168!,"\n"
+  write (#"hola mundo"),"\n"
+  write (#"120"),"\n"
+  write (#true),"\n"
+  write ($true),"\n"
+  write (% "hola mundo"),"\n" 
+  write (% 200),"\n"
+  write (% (-2)),"\n"
+  write (% 0),"\n"
+  write (%""),"\n"
+ 
+  s<-crypt("Mensaje secreto" "ks8734nkso")
+  write s,"\n"
+  s<-crypt(s "ks8734nkso")
+  write s,"\n"
+  
+  goodbye
+*/
+  precision 0
+  dim a(10);dim b(10);dim d(10)
+  a<-{50,mth.ceil(mth.rand(a))}
+  b<-{100,mth.ceil(mth.rand(b))}
+  d<-{10,mth.ceil(mth.rand(d))}
+
+  show [+| [+| a b] d] 0
+  show mat.min(a b) 0
+  show mat.min( 50 b) 0
+  show mat.min(a d) 0
+
+  show ("min "+($a)+","+($b)+"="+($mat.min(a b)) ) 0
+
+//  show (flag "C")mat.min(a a) 0
+//  write "\n",stk.min(a),"\n\n\n"
+
+  dim a(5,2); dim b(5,2)
+  a<-{50,mth.ceil(mth.rand(a))}
+  b<-{100,mth.ceil(mth.rand(b))}
+
+  show [+| [+| a b] mat.min(a b)] 0
+
+  show mat.min(a 25) 0
+  ."\nMINIMO POR FILAS:\n"
+
+  flag "P"
+  show a 0
+  show b 0
+  show mat.min(a a) 0
+  ."\n\n"
+
+  [.a 1 1]<-(-1)
+  show a 0
+  write "ISPOS = ",ispos(a),"\n"
+  write "ISNEG = ",isneg(a),"\n"
+  write "ISALL PAR = ",isall( (a%2) 0 ),"\n"
+  write "ISANY PAR = ",isany( (a%2) 0 ),"\n"
+
+
+  goodbye
+
+//  dim a(5,5,2,2); dim b(5,5,2,2);dim d(5,5,2,2)
+  dim a(3,2,2,4); dim b(2000); dim d(3,2,2,4)
+
+ // {a,a}<-{10,mth.ceil(mth.rand(a))}
+
+  {b,b}<-{100,mth.ceil(mth.rand(b))}
+
+ // {d,d}<-{10,mth.ceil(mth.rand(d))}
+
+  //show(b 10)
+  write "\n"
+  t<-seconds("")
+  write stk.max(b),": ",seconds("")-t,"\n"
+  t<-seconds("")
+  write stk.min(b),": ",seconds("")-t,"\n"
+  goodbye
+pause
+
+  dim b(3,2,2,4)
+  a<-{10,mth.ceil(mth.rand(a))}
+  b<-{100,mth.ceil(mth.rand(b))}
+  d<-{5,mth.ceil(mth.rand(d))}
+// goodbye
+
+
+  flag "R"   // esto me permite obtener minimos o maximos por filas, col, pag y blo.
+  show(a 0)
+  c<-mat.min(a a)   // solo se considera el primer array cuanfo se usa flag
+  show(c 0)
+
+ pause
+  flag ""
+ // write a,"\n"
+//  write b,"\n\n"
+
+  c<-mat.min(a b)
+  show c 0
+  ."\n"
+ pause
+  c<-mat.max(a b)
+  show c 0
+  ."\n"
+ pause
+  c<-mat.min(b 2)
+  show c 0
+  ."\n"
+ pause
+  c<-mat.max(a 2)
+  show c 0
+  ."\n"
+ pause
+  c<-mat.equal(a d)
+  write "\n\n"
+  show c 0
+  ."\n SIZE:",[@c],"\n"
+ pause
+  c<-mat.equal(a 2)
+  show c 0
+  ."\n"
+stop

@@ -1,0 +1,21 @@
+#use matrix, math
+vars:
+  m:=^number
+  i,j:=number
+algorithm:
+  dim m(4,4,2)
+  {m,m}<-{10,mth.int(mth.rand(m))*10}
+ ."\nMatriz original:\n"
+  show m 4
+  
+ ."\nMatriz alterada en la página 2:\n" 
+  use m
+  mat.pg(2)
+  for i<-1 to 4
+     for j<-1 to 4
+        mat.row(i);mat.col(j)
+        mat.put(mat.get*100)
+     next
+  next
+  show m 4
+stop

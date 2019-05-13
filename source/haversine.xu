@@ -1,0 +1,84 @@
+program: Haversine
+
+// *  This program calculates the distance between two points on
+// *  Earth. Its uses the Haversine formula and gives results in
+// *  meters (this is easy to change however). Pascal (and XU) has not the
+// *  atan2 function implemented so it was to be defined explicitly. Here
+// *  we have used the one provided by Paul Schlyter
+// *  http://stjarnhimlen.se/comp/tutorial.html#Pcode
+// *
+// *  More info: http://en.wikipedia.org/wiki/Haversine_formula
+
+// XU se parece sospechosamente a Pascal, que xuxa...
+
+// Esta fórmula de Haversine no es precisa para distancias menores a 20 km.
+
+#use trig,math
+
+  #define  HALF_PI  1.57079632679489661923
+  #define  PI       3.14159265358979323846
+  #define  RAD      3.14159265358979323846/180 // conversion factor for degrees
+                                               // into radians
+functions:
+  atan2(y:number,x: number): number
+    atan2:=number
+    begin:
+      if x = 0.0
+        if y = 0.0
+            // Error! Give error message and stop program 
+            ."ERROR ATAN2!!"
+            stop
+        elseif y > 0.0
+            atan2 <- HALF_PI
+        else
+            atan2 <- (-HALF_PI)
+        endif
+      else
+        if x > 0.0
+            atan2 <- trg.atan(y/x)
+        elseif x < 0.0
+            if y >= 0.0
+                atan2 <- trg.atan(y/x)+PI
+            else
+                atan2 <- trg.atan(y/x)-PI
+            endif
+        endif
+      endif
+      return atan2
+    end //atan2
+
+vars:
+   radius,lon1,lon2,lat1,lat2,dlon,dlat,a,distance := number
+
+algorithm: //{of the main program}
+
+   radius <- 6378.137 //{Earth equatorial radius in Km; as used in most GPS}
+
+//   {Input here coordinates of the two points:}
+
+  {lat1, lon1,lat2,lon2} <- {(-38.662766667),(-72.819966667),(-38.663683333),(-72.820433333)}
+
+//   lon1 <- (-72.819966667)
+//   lat1 <- (-38.662766667)
+//  
+//   lon2 <- (-72.820433333)
+//   lat2 <- (-38.663683333)
+//   lon1 <- (-99.133333) //{The Zocalo square, Mexico City}
+//   lat1 <- 19.432778
+//  
+//   lon2 <- (-99.1862)  // {The National Museum of Anthropology, Mexico City}
+//   lat2 <- 19.4260
+
+// {The Haversine formula}
+
+   dlon <- (lon2-lon1)*RAD
+   dlat <- (lat2-lat1)*RAD
+   a <- (trg.sin(dlat/2))^2 + trg.cos(lat1*RAD)*trg.cos(lat2*RAD)* (trg.sin(dlon/2))^2
+   distance <- radius*(2*.atan2(mth.sqrt(a),mth.sqrt(1-a)))
+
+   write "\nDistance:\n"
+   write mth.round((distance*1000) 9), "   Meters\n"
+   write distance, "  Km"
+stop
+
+

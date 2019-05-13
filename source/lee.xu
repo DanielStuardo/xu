@@ -1,0 +1,37 @@
+
+#use matrix, string
+vars:
+  msg:=string
+  s,files:=^string
+algorithm:
+  mat.load((flag ",") s "datos.txt")
+  show s 0
+  ."\n"
+//  msg<-strload("xued.help" 100 110)
+//  msg<-strload("datos.txt" 0 0)
+//  msg<-strload("xu.bak" 0 0)
+  use(files)
+  push {"datos.txt","xued.help","xu.help"}
+  msg<-strload(files 0 0)
+  ."LEN = ",strlen(msg),"\n"
+  write msg,"\n"
+
+  goodbye
+  msg<-"\nHola cabro culiao.\nSupe que estás hueveando conmigo, y esa hueá no me gusta\n"+&
+       "Espero que te vaya bien...\n¡cabro culiao!"
+  write msg,"\n"
+
+  msg<-crypt(msg "nigeria")
+  
+  strsave("saludos.txt" msg)  // MALO. debe guardarse en binario.
+  msg<-""
+  msg<-strload("saludos.txt" 3 4)
+  //msg<-msg-1
+  write "\n",msg,"\n"
+
+ // lo hace mal, porque se debe guardar como binario. Probar eso.  
+//  msg<-crypt(msg "nigeria")
+  msg<-crypt(msg "nigeria")
+  write msg,"\n"*3
+
+stop

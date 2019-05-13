@@ -1,0 +1,67 @@
+#use matrix
+ #define FILAS   100000
+ #define AMARILLO 14
+ #define TIC(V)  V<-seconds("")
+ #define TOC(V)  seconds("")-V
+ #define __putrow(dato,fila)  mat.row(fila);mat.put(dato)
+ #define print(fila,columna,clr,mensaje) { at(fila columna) 
+                                             color(clr) 
+                                             write mensaje; color(7)}
+ /* #define __RANGE(R,SIGNO,X1,X2,X3,X4) { use(tmp);drop
+                                        push X1;push X2; push X3; push X4
+                                        R<-[SIGNO tmp]}
+*/
+ #define __RANGE(R,SIGNO,X1,X2,X3,X4) { use(tmp);drop
+                                        push {X1,X2,X3,X4}
+                                        R<-[SIGNO tmp]}
+ #define __LET(MAT,RANGO,DATO)  [>MAT RANGO]<-DATO
+ #define   FOR(ASIGNA,EXPRESION,INCREMENTO) { ASIGNA-1
+                                              while EXPRESION-1
+                                                 INCREMENTO }
+ #define _nl(V)  write "\n"*V
+
+vars:
+  l,m,r,tmp:=^number
+  i,t:=number
+algorithm:
+
+  cls
+  print(2,2,AMARILLO,"Pruebas de matrices\n")
+  
+  
+  dim l(FILAS,10)
+  use (l)         // necesario si voy a usar funciones "mat's"
+  mat.col(5)
+  ."\nUso de FOR/NEXT con funciones MAT's:\n"
+  TIC(t)
+  for i <- 1 to FILAS
+     __putrow(10,i)
+  next
+  //show l 0
+  ."TIME=",TOC(t)
+ 
+ ."\n"*2
+  dim l(FILAS,10)
+  ."\nUso FOR/NEXT con castor de matriz [.M i j]:\n"
+  TIC(t)
+  FOR( i<-1, i<=FILAS,++i)
+//  for i <- 1 to FILAS
+     [.l i 5]<-10
+  next
+  //show l 0  
+  ."TIME=",TOC(t)
+  
+ //."\n"*2 
+  _nl(2)
+ 
+  dim l(FILAS,10)
+  ."\nUso de ITERADORES. Rango [* ] y asignación [>M rango]<-dato:\n"
+  TIC(t)
+  __RANGE(r,*,1,5,1000*100,5)
+  __LET(l,r,10)
+ // r<-[* ^[1,5,FILAS,5]]
+ // r<-[* __RANGO(tmp,1,5,1000*100,5) ]
+ // [>l r]<-10  
+  //show l 0
+  ."TIME=",TOC(t)
+stop

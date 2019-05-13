@@ -1,0 +1,48 @@
+/*
+    MAT.EQUAL()  a diferencia de mat.min y mat.max, devuelve la posición de los elementos que
+    son iguales entre ambos arrays, o entre un array y un número.
+*/
+
+#use matrix,math
+
+vars:
+  a,b,c := ^number
+  d:=^string
+
+algorithm:
+  precision 0
+  dim a(3,10); dim b(3,10)
+  {a,a}<-{10,mth.ceil(mth.rand(a))}
+  {b,b}<-{10,mth.ceil(mth.rand(b))}
+ ."ARRAYS: \n"
+  show(a 0)
+ ."\n"
+  show(b 0)
+
+ ."\n"
+
+/* ahora veremos cuáles son los iguales entre ambos arrays, y entre un array y un número */
+
+  c<-mat.equal(a b)
+  write c,"\n"
+
+  c<-mat.equal(b 2)
+  write c,"\n"
+
+  if isall(($ (b%2)) "0.00")
+     ."\nTodos son pares y string\n"
+  elseif isany(($ (b%2)) "0.0")
+     ."\nHay algunos pares...\n"
+  else
+     ."\nparece que no hay nada..."
+     show ($ (b%2)) 0
+     write "\nTipo de B = ",type(b)
+     if istype(b "<number>")
+        ."\nEs una matriz NUMBER..."
+        if istype([.b 1 1] "number")
+           ."\nY tiene tipos NUMBER..."
+        endif
+     endif
+  endif
+  ."\n"*5
+stop

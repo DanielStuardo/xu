@@ -1,0 +1,49 @@
+name:   minutos a centesimas
+output: screen     
+memory: normal
+
+// crear metadata de las distancias (euclidiana pura y sobre esfera)
+
+#define KM_POR_GRADO,   111.1107    // medida estandar para latitud y longitud
+                                // es asi porque nuestra distancia entre paralelo 0
+                                // y polo es aproximadamente equidistante. Algo
+                                // parecido pasa con las longitudes. Plop!
+vars:
+  valor := number
+  lat,lon,xx,yy := number
+
+functions:
+
+  traduce:=function:number
+     grados := $1:number 
+     minutos := $2:number
+  begin:
+    return grados+(minutos/60)
+  end
+
+  distancia_sobre_el_plano:=function:number
+     latitud :=$1:number
+     longitud := $2:number
+     x := $3:number
+     y := $4:number
+     xr, lr := number
+  begin:
+     
+     xr<-(|(latitud-x)|*KM_POR_GRADO)^2
+     lr<-(|(longitud-y)|*KM_POR_GRADO)^2
+
+     return (mth.sqrt (xr+lr))    // raiz cuadrada
+  end
+
+algorithm:
+
+  precision 9
+
+  write .traduce(38 39.782), " - ",.traduce(72 49.159),"\n"
+  write .traduce(38 39.766), " - ",.traduce(72 49.198),"\n"
+  write .traduce(38 39.821), " - ",.traduce(72 49.226),"\n"
+  write .traduce(38 39.830), " - ",.traduce(72 49.186),"\n"
+
+  write .distancia_sobre_el_plano (latitud longitud x y)*1000
+
+stop

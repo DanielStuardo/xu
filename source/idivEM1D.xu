@@ -1,0 +1,39 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+algorithm:
+
+  dim a(10)
+  n<-seconds("")
+  a<-100
+  ."CARGA=",seconds("")-n
+  precision 0  
+  c<-(a+10)\2
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-(2\a)+10
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-1\a
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a\1 
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-0\a 
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a\2 
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  try
+     c<-(a*(-1))\0 
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE div por cero = ",whatsup()
+  tend 
+  
+  [a 4]<-0
+  try
+     
+     c<-10\(a*(-1)) 
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE div por cero = ",whatsup()
+  tend
+stop

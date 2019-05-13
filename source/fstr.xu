@@ -1,0 +1,16 @@
+#use string
+vars:
+  s:=string
+  w:=^string
+  pos:=^number
+algorithm:
+  s<-"COD0010-COD0201-COD3405-COD9088-COD0010-COD6780-COD0010"
+  write "\nCADENA:\n",s,"\nCOD A BUSCAR: COD0010\n"
+  pos<-[\s "@" "COD0010"]
+  ."\nPOSICIONES:\n"
+  show pos 0
+  w<-strcpy(s (pos+8) strlen(s))
+  show w  0 
+  write "\n\nEliminaré solo la segunda ocurrencia:\n",strcpy(s 1 ([pos 2]-1))+strcpy(s ([pos 2]+8) strlen(s) ),"\n"
+
+stop

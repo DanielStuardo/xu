@@ -1,0 +1,30 @@
+#use trig,math
+vars:
+  n:=number
+  m:=^number
+algorithm:
+  n<-200!
+  if isinf(n)
+     ."\nEs infinito: ",n,"\n"
+  else
+     write n
+  endif
+  n<-trg.asin(89)
+  if isnan(n)
+     ."\nNo es un número: ",n,"\n"
+  else
+     write n
+  endif  
+  
+  dim m(100)
+  {m,m}<-{89,trg.asin(mth.ceil(mth.rand(m)))}
+  if isnan(m)
+     ."\nHay valores NAN en la matriz\n"
+  endif
+  {m,m}<-{200,mth.ceil(mth.rand(m))!}
+  if isinf(m)
+     ."\nHay valores INF en la matriz\n"
+  endif
+  [m 100]<-4*(-1)
+  write [m 100]
+stop

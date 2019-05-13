@@ -1,0 +1,18 @@
+#use matrix,math
+vars:
+  m:=^number
+  i,j:=number
+algorithm:
+  dim m(2,4,2,2)
+  {m,m}<-{10,mth.int(mth.rand(m))*10}
+  show m 4
+  use m
+  mat.row(2);mat.col(4)
+  for i<-1 to 2
+     mat.pg(i)
+     for j<-1 to 2
+        mat.bk(j);mat.put(mat.get*1000)
+     next
+  next  
+  show m 4 
+stop

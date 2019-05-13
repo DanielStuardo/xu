@@ -1,0 +1,44 @@
+/*
+   ARCHIVOS BINARIOS: FWRITES
+   Uso de archivos binarios.
+   Para ver modos de apertura, ver el archivo "files.def"
+   dentro del directorio "include", ñoño
+*/
+#include include/files.def
+vars:
+  fp,ft:=file
+  linea:=string
+algorithm:
+ ."\nCopiaremos el contenido de FWRITES.XU en FWRITES_01.XU:\n"
+ ."1) Abrimos el archivo:"
+  try
+    fp<-fopen("source/fwrites.xu" OPEN_READ)  // abrimos el archivo
+  exception
+    ."\nError de archivo: ",whatsup()
+    goodbye
+  tend
+ ." OK!\nCreamos el archivo target:"
+  try
+    fcreate("source/fwrites_01.xu" CREATE_NORMAL)
+    ft<-fopen("source/fwrites_01.xu" OPEN_WRITE)
+  exception
+    ."\nError de creación o de apertura de archivo: ",whatsup()
+    goodbye
+  tend
+  
+ ." OK!\nCopiamos el archivo: "
+  flag "SP"     // con esto leerá caracteres especiales desde los
+                // archivos de texto plano.
+  while ~feof(fp)       // FEOF() indica true si es fin de archivo
+     linea<-freads(fp 10)  /* FREADS lee un grupo de caracteres
+                              de forma binaria. Si quiere leer
+                              caracteres especiales, use flag "SP" */
+     fwrites(ft linea)    // grabará en el target lo leído del source.
+  wend
+  
+  fclose(fp)    // cerramos el archivo 
+  ."OK!\n"
+  
+ /* IMPORTANTE: para que el archivo pueda ser leído correctamente,
+    debe tener un caracter de fin de línea al final de este */  
+stop

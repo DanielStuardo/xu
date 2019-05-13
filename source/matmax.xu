@@ -1,0 +1,28 @@
+/*
+    MAT.MAX()  devuelve el más grande comparando dos arrays numéricos de la misma dimensión
+*/
+
+#use matrix,math
+
+vars:
+  a,b,c := ^number
+
+algorithm:
+  dim a(3,3); dim b(3,3)
+  {a,a}<-{10,mth.ceil(mth.rand(a))}
+  {b,b}<-{10,mth.ceil(mth.rand(b))}
+ ."ARRAYS: \n" 
+  show(a 3)
+ ."\n"
+  show(b 3)  
+
+ ."\n"
+
+/* ahora veremos cuáles son los menores entre ambos arrays, y entre un array y un número */
+
+  c<-mat.max(a b)
+  write c,"\n"
+
+  c<-mat.max(b 2)
+  write c,"\n"
+stop

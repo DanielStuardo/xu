@@ -1,0 +1,30 @@
+#use bit,matrix
+vars:
+  n,o:=^number
+  i,j,m:=number
+  s:=^string
+algorithm:
+  
+  dim n(2000000)//,200)
+  m<-seconds("")
+  for i<-1 to 2000000
+    [n i]<-i*2
+   // [n i]<-(<< i 1)
+//    for j<-1 to 100
+//      [.n i j]<-i*2
+//    next
+  next
+  ."\nTIME=",seconds("")-m,"\nultimo dato=",[n 2000000],"\n" // 3.34 segs.
+  
+  m<-seconds("")
+  o<-[=1 2000000 2000000]
+  n<-o*2
+  ."\nTIME=",seconds("")-m,"\nultimo dato=",[n 2000000],"\n"  // 0.13 segs.
+  
+  m<-seconds("")
+  o<-seq(1 1 2000000) // parte desde 1, incrementa 2.3 y genera 1000 números
+  n<-o*2
+  ."\nTIME=",seconds("")-m,"\nultimo dato=",[n 2000000],"\n"  // 0.13 segs.
+
+  //show n 0
+stop

@@ -1,0 +1,57 @@
+/*
+   JOIN
+   Junta los elementos de una matriz de string en un string simple.
+   Tiene 2 flags: "T"=como linea, y "D", como documento.
+*/
+
+#use string
+#define procedure  function:void
+
+vars:
+   M:=^string
+
+functions:
+   junta:=procedure
+      matrix:=$1:^string;token:=$2:string
+      s:=string
+   begin:
+      matrix<-"hola"
+      show(matrix 0)
+      ."\nToken en una linea:\n", (flag ("T"+token))join(matrix)
+      ."\n\nToken en documento:\n"
+      s<-(flag ("D"+token))join(matrix)
+      write s,"\n"
+   end
+
+algorithm:
+    
+   video(33,100)
+
+   dim M(10)
+   ."\nPRIMERO\n"
+   .junta(M "")
+
+   // matriz multidimensional 2D:
+   dim M(3,5)
+   ."\nSEGUNDO\n"
+   .junta(M ",")
+
+   // matriz multidimensional 3D:
+   ."\n",30*"*","\n"
+   dim M(3,5,3)
+   ."\nTERCERO\n"
+   .junta(M ",")
+
+   // matriz multidimensional 4D:
+   ."\n",30*"*","\n"
+   dim M(3,5,3,2)
+   ."\nCUARTO\n"
+   .junta(M "*")
+
+   pause
+   write "key pause: ",lastkey
+   write "\nOtra pausa, pero con flush..."
+   pause
+   flush()
+   write "\nkey pause: ",lastkey
+stop

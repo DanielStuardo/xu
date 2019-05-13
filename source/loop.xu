@@ -1,0 +1,29 @@
+vars:
+   a,n:=number
+   b:=boolean
+algorithm:
+   b<-true
+   precision(16)
+   a<-100000
+   n<-seconds("")
+   loop
+     brkz (--a)
+   lend 
+   ."TIEMPO=",(seconds("")-n),"\n"
+   a<-0
+   n<-seconds("")
+   while (++a)<=100000
+   wend 
+   ."TIEMPO=",(seconds("")-n),"\n"
+   a<-0
+   n<-seconds("")
+   do
+   until (++a)=100000
+   ."TIEMPO=",(seconds("")-n),"\n"
+   
+   n<-seconds("")
+   for a<-1 to 100000
+   next
+   ."TIEMPO=",(seconds("")-n),"\n"
+
+stop

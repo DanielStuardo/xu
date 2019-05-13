@@ -1,0 +1,86 @@
+/*
+   MAT.LOAD()
+   Carga un archivo en una matriz de memoria. 
+   La matriz puede ser un vector o 2D.
+*/
+
+#use matrix,string
+vars:
+   S:=^string
+   s,t:=string
+   n,i:=number
+algorithm:
+
+  ."Leeremos un archivo en directorio datos..\n"
+  flag "\n"   // lee un vector de strings
+  //flag ","   // lee una matriz
+  n<-seconds("")
+  mat.load(S "datos/copia.txt")
+  //mat.load(S "xu.prg") 
+  ."\nTIME=",seconds("")-n,"\n" 
+  // show(S [[@S] 3])  
+  ."\nTamaño=",[@S],"\n"
+  ."Tipo = ",type(S)
+  //."VALOR RANDOM=",[S 4500],"\n"
+  pause
+  show S 0
+
+  goodbye
+
+  ."Leeremos un archivo en directorio datos..\n"
+  flag ","   // lee una matriz de strings. asume saltos de lineas
+  n<-seconds("")
+  mat.load(S "datos/copia.txt")
+  //mat.load(S "xu.prg") 
+  ."\nTIME=",seconds("")-n,"\n" 
+  // show(S [[@S] 3])  
+  ."\nTamaño=",[@S],"\n"
+  ."Tipo = ",type(S)
+  //."VALOR RANDOM=",[S 4500],"\n"
+  pause
+ // show S 0
+ goodbye
+ 
+ /* borramos la matriz para cargar como vector */
+/*  use(S)
+  drop
+   
+  flag ","
+  mat.load(S "datos/copia.txt") */
+  
+  flag ""
+  n<-seconds("")
+  S<-strload("datos/copia.txt" 0 0)/"\n"
+  ."\nTIME=",seconds("")-n,"\n" 
+ //  show(S 6)  
+  ."\nTamaño=",[@S],"\n"
+  ."Tipo = ",type(S)
+  ."VALOR RANDOM=",[S 4500],"\n" 
+
+  n<-seconds("")
+  s<-strload("datos/copia.txt" 10 10044)
+  ."\nTIME=",seconds("")-n,"\n" 
+  ."\nTamaño=",strlen(s),"\n"
+  ."Tipo = ",type(s)
+
+  n<-seconds("")
+  s<-strload("datos/copia.txt" 0 0)
+  ."\nTIME=",seconds("")-n,"\n" 
+  ."\nTamaño=",strlen(s),"\n"
+  ."VALOR RANDOM=",strlin(s 4500),"\n"
+  ."Tipo = ",type(s)
+  
+  n<-seconds("")
+  s<-strload("datos/copia.txt" 0 0)
+  ."\nTIME=",seconds("")-n,"\n" 
+  ."\nTamaño=",strlen(s),"\n"
+  ."Tipo = ",type(s),"\n"
+  
+  n<-seconds("")
+  for i<-10 to 10044
+     t<-t+strlin(s i)+"\n"
+  next
+  ."\nTIME FOR=",seconds("")-n,"\n" 
+  ."\nTamaño=",strlen(t),"\n"
+  ."Tipo = ",type(t),"\n"  
+stop

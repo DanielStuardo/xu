@@ -1,0 +1,34 @@
+#define <br> write "\n"
+#use math,matrix
+
+vars:
+   m,n:=^number
+
+   s:=^string
+
+algorithm:
+
+  dim m(5,5,3,2)
+
+  m<-{10,mth.int( mth.rand m)*0.005}
+  m<-m*100
+  show m 20
+  <br>
+  context "notation"
+  mat.save /*(flag ",")*/ m "./matrizn.txt"
+//  s<-^tostring m
+//  mat.save /*(flag ",")*/ ($ m) "./matrizs.txt"
+  mat.save (flag "M,") ($m) "./matrizs.txt"
+
+  drop (use m) //--> la mejor manera de limpiar una matriz
+  write "dimensiones matriz limpiada: ",[@ m],"\n"
+
+  context "number"
+
+  mat.load n "./matrizn.txt"
+  show n 20
+  <br>
+  write [.n 1 1]*10
+  <br>
+
+stop

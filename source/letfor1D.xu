@@ -1,0 +1,18 @@
+vars:
+   a:=^number
+   s:=^string
+   i,n:=number
+algorithm:
+
+   dim s(900)
+
+   n<-seconds("")
+   for i<-1 to 900
+           [s i]<-"HolaPeludo"
+   next
+
+   ."\nELEMENTO = ",[s 10 ]
+   ."\nELEMENTO = ",[s 1  ]
+   ."\nELEMENTO = ",[s 900]
+   ."\nTIME = ",seconds("")-n,"\n"
+stop     
