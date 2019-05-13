@@ -1,0 +1,69 @@
+#use stack
+vars:
+  s:=stack
+  S:=^number
+  i,v,tab:=number
+  r:=string
+  l:=boolean
+algorithm:
+  
+  precision 0 
+
+  ."\nPRUEBA DE POP()...\n"
+
+  sub "tabula"
+   ++tab
+    htab(tab); vtab(-10)
+    pause
+  back
+
+  use(s)
+  drop
+  push {1,2,3,4,"cinco",6,7,true(),9,10}
+ 
+  deque   // saca como pila
+  while [[@s] 2]>0
+     if type(stk.top)="string"   // "stk.top" desde el punto de vista de "deque"
+        r<-($pop)
+        write r,"\n"
+     elseif type(stk.top)="boolean"
+        l<-(%pop) // hola  
+        write l,"\n"
+     else 
+        v<-(#pop)
+        write v,"\n"
+     endif
+  wend
+
+  //htab(1); vtab(-10) 
+  //htab(1); vtab(-10) 
+ 
+  //pause
+  gosub "tabula"
+  
+  push {1,2,3,4,"cinco",6,7,true(),9,10}
+  
+  queue   // saca como cola
+  while ~isempty()
+     v<-(#pop)
+     htab(tab)
+     write v,"\n"   // al no identificar el tipo de "pop", "cinco" queda como "0", y "true", 1.
+  wend
+
+  //htab(2); vtab(-10)
+  //pause 
+ 
+  gosub "tabula"
+  
+ /* también podemos  definir una lista con castor [=]
+    pero aquí debemos usar un stack tipado */
+  S<-[= 1 10 10]
+  use S
+  
+  while ~isempty()
+     v<-pop      // si usamos stack tipado, no necesitamos castear el "pop"
+     htab(tab)
+     write v,"\n"
+  wend  
+
+stop

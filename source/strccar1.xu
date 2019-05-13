@@ -1,0 +1,23 @@
+#use string
+vars:
+  m,r:=^string
+  s:=string
+  n:=^number
+algorithm:
+  dim m(100000)
+  m<- (flag ".") "Esta es una cadena que será reemplazada en sus caracteres"
+//  show m 0
+  
+  m<-strccar(m "Eealsz" "334152")
+  write [m 100000],"\n"
+//  show m 0
+
+  s<-"Esta es una cadena que será reemplazada en sus caracteres"
+  dim r(5)
+  r<-"Eealsz"
+  dim m(5)
+  m<- (flag ".") "Esta es una cadena que será reemplazada en sus caracteres"
+
+  show strccar(m r "334152") 0
+  
+stop

@@ -1,0 +1,14 @@
+#use string
+vars:
+   s:=string
+algorithm:
+   s<-"El partido estuvo tan entretenido\n" + &
+      "como cumpleaños de caracoles.\n" + &
+      "El arquero se untó mantequilla en\n" + &
+      "las manos, lo que promovió la gran\n" + &
+      "ventaja del equipo contrario.\n"
+   strsave("./texto3.txt" s)
+   
+   flag "A"   // append
+   strsave("./texto3.txt" s)
+stop

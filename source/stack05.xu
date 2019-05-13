@@ -1,0 +1,91 @@
+/*
+  extracción de los elementos de un stack.
+  además, veremos el uso de "drop", que no borra las matrices, sino que las deja en blanco.
+  Se nota el uso de los castores de conversión:
+  "($ )" = castea a string (aunque pop devuelva un string: eso el compilador no tiene como saberlo
+           y da un voto de desconfianza al programador con este castor).
+  "(# )" = castea a número.
+  "(% )" = castea a booleano.
+  "(^ )" = castea a un stack. El tipo del receptor será el determinante en esta conversión, creo.
+
+*/
+
+#use stack,matrix
+
+vars:
+  w:=stack
+  n:=^number
+  s:=^string
+  b:=^boolean
+  c:=string
+  m:=number
+  h:=boolean
+
+algorithm:
+  use(w)
+  push("Hola mundo!")
+  push(120.3)
+  push(true)
+
+  dim b(10)   // vector de 10 booleanos
+  b<-true
+
+  use(w)  // es necesario esto, porque "dim" dejó "n" en uso :P
+  push(b)
+
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10
+
+  use(w)
+  push(n)
+
+  dim s(3)   // vector de 3 strings
+  s<-"CADENA" // si quiere asignar una cadena más elaborada, use un "for" con "[.]" u otra cosa.
+
+  use(w)
+  push(s)
+
+/* borramos las matrices */
+  use(b); drop
+  use(s); drop
+  use(n); drop
+/*  hasta aquí */
+
+  use(w)
+
+  ."Tamaño de matrices: \nB=",[@b],"\nN=",[@n],"\nS=",[@s],"\n"
+
+  ."Tamaño stack: ",[@w],"\n"
+
+  do
+
+    write "\nDATO (tipo ",type(stk.top),"): "
+    if type(stk.top)="string"
+       c<-($pop)
+       write c
+    elseif type(stk.top)="number"
+       m<-(#pop)
+       write m
+    elseif type(stk.top)="boolean"
+       h<-(%pop)
+       write h
+    elseif type(stk.top)="<string>"
+      // s<-(^ pop)
+       write pop
+    elseif type(stk.top)="<number>"
+       n<-(^pop)
+       write n
+    elseif type(stk.top)="<boolean>"
+       b<-(^pop)
+       write b
+
+    endif
+
+    ."\n"
+  until isempty
+
+  ."\nLas matrices que estaban en cero, vuelven a tener datos:\n"
+  ."Tamaño de matrices: \nB=",[@b],"\nN=",[@n],"\nS=",[@s],"\n"
+
+  ."Tamaño stack: ",[@w],"\n"
+stop

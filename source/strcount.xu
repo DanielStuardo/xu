@@ -1,0 +1,41 @@
+#use string
+vars:
+  c1:=string; x1,x2:=number
+
+algorithm:
+  c1<-"Cadena de pruebas: (123) se contarán, sistemáticamente, los caracteres\nde este ejemplo."
+  ."Cadena original: \n\"",c1,"\"","\n"*3  
+  
+  flag "LU"           //cuenta letras mayusculas y minusculas
+  write "C1 tiene ", (strcount c1), " letras mayusculas y minusculas\n"
+
+  flag "L"           //cuenta solo minusculas
+  x2<-(strcount c1)
+  write "C1 tiene ", x2, " letras minusculas\n"
+
+  flag "U"            //cuenta solo minusculas
+  x2<-strcount(c1)
+  write "C1 tiene ", x2, " letras mayusculas\n"
+
+  flag " "           //cuenta solo espacios
+  x2<-strcount( c1)
+  write "C1 tiene ", x2, " Espacios\n"
+
+  write "C1 tiene ",strcount((flag "\n") c1)," saltos de linea\n" 
+
+  flag "N"          //cuenta d¡gitos
+  x1<-(strcount c1)
+  write "C1 tiene ", x1, " digitos\n"
+
+  x1<-(flag ".")(strcount c1)   //cuenta el s¡mbolo "."
+  write "C1 tiene ", x1, " punto(s)\n"
+
+  x1<-(flag "(")(strcount c1)   
+  write "C1 tiene ", x1, " paréntesis abierto(s)\n"
+
+  x1<-(flag ")")(strcount c1)   
+  write "C1 tiene ", x1, " paréntesis abierto(s)\n"
+  
+  write "C1 tiene ", (strlen c1), " caracteres totales\n"
+
+stop

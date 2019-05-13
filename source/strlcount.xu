@@ -1,0 +1,12 @@
+#use string
+vars:
+   s:=string
+   w:=^string
+algorithm:
+   s<-"\t\"Esta es una línea múltiple.\n\tSu única función es demostrar\n\tel uso de la función STRLCOUNT.\""
+   write "La línea:\n",s,"\ntiene: ",strlcount(s)," líneas\n"
+   
+   w<-"AAA\nBBB\nCCC.DDD\nEEE\nFFF\nGGG\nHHH.III"/"."
+   show(w 10)
+   write "\nLíneas por fila de la matrix: ",strlcount(w),"\n"
+stop

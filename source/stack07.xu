@@ -1,0 +1,86 @@
+/*
+  Al igual que en "stack06.xu", se guardan matrices dentro de un stack, pero no se usa flag "recover".
+  Para recupear las matrices originales, hay que situarse en la posición de dicha matriz con "mat.row"
+  y luego asignar a la variable matriz del tipo indicado.
+  Se puede asignar a otra variable que tenga el mismo tipo.
+  La "gracia" de usar flag "recover" es que la recuperación se hace de manera automática. El problema con
+  eso es que solo funciona con "pop".
+*/
+
+#use stack,matrix
+
+vars:
+  w:=stack
+  n,m:=^number
+  s:=^string
+  b:=^boolean
+  i:=number
+
+algorithm:
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10
+  dim b(10)
+  b<-true
+  dim s(10)
+  s<-"Hola"  // si se quiere añadir un string más elaborado, no puede hacerse de este modo
+             // se debe hacer por otro medio de asignación, ya sea con castores o push.
+
+  use(w)
+  push(n)
+  push(b)
+  push(s)
+
+/* mostramos el stack */
+  for i<-1 to [[@w] 2]
+     write (mat.row(i)) mat.get,"\n"
+  next
+
+  ."\nAhora borramos las matrices...\n"
+/* borramos las matrices */
+  use(n); drop
+  use(s); drop
+  use(b); drop
+/*  hasta aquí */
+
+  use(w)
+
+  ."\nTamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+  mat.row(1)
+  n<-(^mat.get)
+
+
+  ."Tamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+  mat.row(2)
+  b<-(^mat.get)
+
+  ."Tamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+  mat.row(3)
+  s<-(^mat.get)
+
+  ."Tamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+  mat.row(1)
+  m<-(^mat.get)
+  ."Tamaño de matriz \"M\" asignada con datos de la matriz \"N\":\n"
+  ."M=",[@m],"\n"
+  show(m 5)
+stop

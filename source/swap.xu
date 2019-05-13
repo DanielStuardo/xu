@@ -1,0 +1,50 @@
+name:     prueba swap    
+output:   screen
+memory:   normal
+
+vars:
+  x1, x2 := number
+  c1, c2 := string
+  a1, a2 := ^number   //puntero a un stack de n£meros
+  s1, s2 := ^string
+
+algorithm:
+  x1<-23
+  x2<-0.4567
+
+  write x1, " - ", x2, "\n"
+  x1<->x2
+  write x1, " - ", x2, "\n"
+
+  c1<-"Maria tenia "
+  c2<-"un corderito"
+
+  write c1, " - ", c2, "\n"
+  c1<->c2
+  write c1, " - ", c2, "\n"
+
+  use(a1); push {0,1,2,3,4,5,6,7,8,9,10}
+  use(a2); push {100,200,300}
+
+  ."\nMatrices antes del swap:"
+  ."\nA1:\n"; write a1
+  ."\nA2:\n"; write a2
+  a1<->a2       
+  ."\nA1:\n"; write a1
+  ."\nA2:\n"; write a2,"\n"
+
+ dim s1(10,20)
+ dim s2(15)
+ s1<-"Hola!"
+ s2<-"Chupalo!"
+
+  ."\nMatrices antes del swap:"
+  ."\nS1:\n"; write s1
+  ."\nS2:\n"; write s2
+  s1<->s2       
+  ."\nS1:\n"; write s1
+  ."\nS2:\n"; write s2   
+
+
+stop
+

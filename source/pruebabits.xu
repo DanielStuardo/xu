@@ -1,0 +1,50 @@
+
+ vars:
+   {i, j, m} := number
+   w := string
+
+algorithm:    
+
+ m<-1000       // mil...
+ j<-0
+ write "\nDesplazamiento de bits a la izquierda y a la derecha\n"
+
+ while (++j)<=10
+    write  m, " << ", 1, " = "
+    m<-(bit.shl m 1)
+    write m, "\n"
+    write m, " >> ", 2, "=", (bit.shr m 2), "\n"
+          
+ endw
+
+ write "\nEl número: 255, bit nº 7:"
+ write "\n\tEncendido bit posición 7 = ", (bit.on 255 7)
+ write "\n\tApagado bit posición 7   = ", (bit.off 255 7)
+
+ j<-255
+ i<-7
+ j<-bit.and j i
+ if ¬(isbit j 7) then
+    write "\n\nbit 7 de",j," está apagado...\n"
+ endif
+
+ write "\n"
+
+ write "\n200 AND 5 = ", (bit.and 200 5)
+ write "\n200 OR 5  = ", (bit.or 200 5)
+ write "\nNOT 200   = ", (bit.not 200 )
+ write "\n200 XOR 126 = ", (bit.xor 200 126)
+
+ i<-0
+ write "\nNúmero ",j," en binario = ",base.bin j 8,"\n"
+ if (isbit j 3)
+    write "bit 3 encendido?\n"
+ endif
+ while i<=16
+    write "el bit ",i," está ",{(bit.bit j i)=0?"apagado":"encendido"},"\n"
+    ++i
+ endw 
+
+
+STOP
+

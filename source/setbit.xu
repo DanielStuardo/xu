@@ -1,0 +1,148 @@
+#use base,bit
+name:prueba de bits y cambio de base
+
+#define ESCRIBE write
+
+vars:
+  n:=number
+  i,c:=number
+  b:=string
+
+algorithm:
+
+  precision 0
+
+  sub "print"
+    for i<-31 downto 0
+      c<-xgetbit(n i)
+      ESCRIBE {(%c)?color(15):color(7)}c
+    next
+    color(7)
+    ."\n"
+  back
+
+
+  n<-255
+  ESCRIBE "Número = ",n,"\n"   // imprime 255
+
+  xsetbit(n 4 0)  // pondremos un cero en la posición 4 analizaremos hasta donde llega la hueá (7 6 5 4  3 2 1 0 = 8 bits)
+  ESCRIBE "Ponemos un 0 en la posición 4 = ",n,"\n"   // imprime 247 (1111 0111)
+  gosub "print"
+  //xsetbit(n 4 1)  // volvemos a poner ese bit en 1
+
+  [n 4]<-1
+  ESCRIBE "Volvemos a poner 1 en posición 4 = ",n,"\n"   // imprime 255
+  gosub "print"
+  n<-8926
+  ESCRIBE "Otro numerito = ",n,"\n"
+  gosub "print"
+  context("ROBOT")
+  ESCRIBE "BIT posicion 4 = ",(BIT n 4)," Estado = ",(%xgetbit(n 4)),"\n"
+  ESCRIBE "BIT posicion 5 = ",[n 5]," Estado = ",(%[n 5])
+  ."\n"
+
+  n<-8926
+  write "Número=",n
+  ESCRIBE "BITS desde posicion 3, 4 bits hacia la derecha = ", [.n 3 4]
+  ESCRIBE "\nBITS desde posicion 6, 3 bits hacia la derecha = ", getgbit(n 6 3)
+  ."\n\nOtra prueba...Modificamos el bit 3, 4 y 5:\n"
+  n<-255
+   ESCRIBE n,"\n"
+  gosub "print"
+  [.n 3 5]<-0
+    ESCRIBE n,"\n"
+  gosub "print"
+  ."\n"
+  [.n 3 5]<-1
+    ESCRIBE n,"\n"
+  gosub "print"
+  ."\n"
+  setgbit(n 3 5 0)
+    ESCRIBE n,"\n"
+  gosub "print"
+  ."\n"
+  setgbit(n 3 5 1)
+    ESCRIBE n,"\n"
+  gosub "print"
+  ."\n"
+
+// prueba de modificación de grupo de bits.
+  ."\nMODIFICAREMOS un grupo de bits:\n"
+
+  n<-255 
+   ESCRIBE n,"\n"
+  gosub "print"
+  ."\nNúmero asignado: 69 = ",(Bx69)," desde pos 0 hasta 6\n"
+  [.n 0 6]<-69
+   ESCRIBE n,"\n"
+  gosub "print"
+  n<-255
+  gosub "print"
+  ."\nNúmero asignado: 4 = ",(Bx4)," desde pos 3 hasta 5\n"
+  [.n 3 5]<-4
+  gosub "print"
+  
+  pause
+// hasta aquí
+
+
+//  ."Número = 1234567890\n"
+//  ESCRIBE "BIN = ",(Bx 1234567890),  " DEC = ",(BDx (Bx 1234567890))
+//  ESCRIBE "\nHEX = ",(Hx 1234567890)," DEC = ",(HDx (Hx 1234567890))
+//  ESCRIBE "\nOCT = ",(Ox 1234567890)," DEC = ",(ODx (Ox 1234567890))
+//  ."\n"
+
+  //   1001001100101100000001011010010
+
+/* LOS SIGUIENTES CASTORES TRABAJAN CON MATRICES TAMBIEN, EN TODOS SUS ARGUMENTOS.
+   TODO LO ANTERIOR SOLO TRABAJA CON VARIABLES SIMPLES */
+
+  ."\nUSO DE CASTORES...\n"
+  n<-255
+  gosub "print"
+  n<-(OFF n 4)
+  gosub "print"
+  n<-(ON n 4)
+  gosub "print"
+
+  sub "inicial"
+    n<-34
+    i<-12
+  back
+
+  gosub "inicial"
+  ESCRIBE "N=",n,"\n"
+  gosub "print"
+  i<-12
+  ESCRIBE "I=",i,"\n"
+  n<-12
+  gosub "print"
+  n<-34
+
+  n<-(AND n i)
+  ESCRIBE "AND = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(OR n i)
+  ESCRIBE "OR  = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(XOR n i)
+  ESCRIBE "XOR = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(NOT n)
+  ESCRIBE "NOT = ",n,"\n"
+  gosub "print"
+  ESCRIBE "Bit 5 está...",(BIT n 5),"(",{(%(BIT n 5))?color(14):color(12)}(%(BIT n 5)),color(7) ")\n"
+  ESCRIBE "Bit 0 está...",(BIT n 0),"(",{(%(BIT n 0))?color(14):color(12)}(%(BIT n 0)),color(7) ")\n"
+
+  gosub "inicial"
+  n<-(>>n 1)
+  ESCRIBE "Desplazamiento a la derecha 1 bit = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(<<n 1)
+  ESCRIBE "Desplazamiento a la izquierda 1 bit = ",n,"\n"
+  gosub "print"
+stop

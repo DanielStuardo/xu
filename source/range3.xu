@@ -1,0 +1,58 @@
+
+vars:
+  n:=^number
+  w:=string
+  m:=number 
+
+algorithm:
+ 
+ w<-"Hola mundo!!"
+  
+dim n(11,2)
+[>n [* ^[1,1,11,2]] ]<- ^[10,20,30,121,34,210,200,&
+                          30,10,30,21,65,65,65,66,&
+                          100,101,23,21,100,12,22]
+show (int n) 0
+//m<-[.n 2 2]
+
+/*
+// esta porcion de codigo va al final del programa binario.
+// se procesa luego de procesado el programa completo.
+xu_asm label01: 
+  pushd {w,"hola"}
+  mov
+  pushd {m,n,2,2}
+  mget
+  mov
+endxu   // pone un jmp a exec_data
+
+exec_data label01  // jmp a porcion de codigo de data. guarda la direccion en una pila:
+
+jmp label01
+*/
+/* // o bien: (se inserta al final del programa)
+// aqui inserta un JMP a "cend"+1
+sub label01:
+   dim n(10,10)  // aqui llega el jmp label01
+   n<-{10,mth.ceil(mth.rand(n))}
+back   // aqui va un return especial que toma la direccion de salto+1 guardada en una pila.
+
+sub label02:  //jmp back+1
+
+back
+
+*/
+// gosub label01 ==> jmp label01 (guarda direccion+1 en pila de ejecucion)
+// la idea es que existe codigo que se repite, pero no vale la pena dejarlo en una funcion.
+write w,"\n"
+write m,"\n"
+
+/* OJO: arreglar FOPEN: que devuelva un stack con los datos del archivo abierto,
+   así me ahorro las funciones de conteo de lineas, y obtengo inormacion adicional 
+   El tipo file sería un tipo stack.
+   fp={identificador, tamaño de archivo en bytes, num de lineas, fecha y hora de creacion}
+   */
+
+
+
+stop

@@ -1,0 +1,40 @@
+/*
+   STRLOAD()
+   Carga un archivo en una variable de memoria. 
+   Es una buena opción a MAT.LOAD para cargar en matriz
+   de string, porque es más rápida. Luego, puede convertirse
+   a matriz dividiendo por "\n" y luego por ","
+   Para esto, ver el video en youtube.
+*/
+
+#use matrix,string
+vars:
+   S:=string
+   n:=^number
+   m:=number
+
+algorithm:
+
+  ."Leeremos un archivo en directorio datos..\n"
+  flag "\n"
+//  n<-flc("xu.prg")
+
+  n<-flc("datos/copia.txt")
+  write (flag ",")n,"\n"
+  pause
+  flag "\n"
+  S<-strload("datos/copia.txt")
+  m<-seconds("")
+  write "TIME=",seconds("")-m,"\n"
+  m<-seconds("")
+  strsave("datos/copia2.txt" S)
+  write "TIME=",seconds("")-m,"\n"
+  
+/*   write S,"\n"
+  ."\nTamaño=",strlen(S),"\n"
+  ."Tipo = ",type(S),"\n"
+ */
+ pause
+goodbye 
+
+stop

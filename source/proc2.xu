@@ -1,0 +1,79 @@
+// Programa XU
+#use matrix, string
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  s,t,u:=^string
+  r,v,w:=string
+  n,i,j:=number
+  nt:=^number
+//functions:
+
+algorithm:
+
+// Preparación de archivo de búsqueda
+   precision 0
+   flag "\n"
+   if ~fexist("T04347.txt")
+      mat.load(  t "T04347.pep")  
+      nt<-[\t "@" ">dpx"] 
+      [> t nt]<-[<t nt]+"&&&&"
+      mat.save(t "T04347.txt")
+      r<-strload("T04347.txt")
+      r<-strchg(r "\n" "" )
+      r<-strchg(r ">dpx:" "\n>" )
+   //   r<-strchg(r "&&&&" "\n")
+      strsave("T04347.txt" r) 
+   endif
+// Carga archivo de codigos a buscar:
+   mat.load( t "T04347.txt")   
+   mat.load( s "proc.txt")
+//   i<-1
+//   n<-[[@r] 2]
+//   loop
+//       strat([s i],t)
+//   lend 
+   u<-[<t [\t "@" s]  ]
+   u<-strchg(u "&&&&" "\n")
+   mat.save(u "mierda.txt")
+   
+//   r<-join( (flag "D") t) 
+//   strsave("T04347.txt" r)
+//   show t 0
+//   r<-strload("T04347.pep")
+//   
+//   i<-1
+//   n<-
+//   while  i<=n
+//      v<-strlin(r i)
+//      if ">dpx:" @ v
+//         v<-strchg(v "\n" "&&&&")
+//      endif
+//      w <-+ v
+//      ++i
+//   wend
+//   
+//   r<-strchg(r "\n" "" )
+//   r<-strchg(r ">dpx:" "\n" )
+//   r<-strchg(r "&&&&" "\n")
+//strsave("T04347.txt" r)
+//   
+//
+//   mat.load( (flag "\n") t "T04347.txt") 
+//   write [t [[@ t] 2]],"\n SIZE()=",[@t],"\n"
+//   i<-1
+//   n<-[[@s] 2]
+//   while  i<=n
+//      u<-
+//      
+//      ++i
+//   wend
+//  
+   
+//   show u 0
+//   pause
+//   goodbye
+stop

@@ -1,0 +1,28 @@
+// Programa XU
+//#use
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  a:=^string
+  r:=^number
+//functions:
+
+#define _range(V,FIL,TOTC)  use V; drop \\
+                            push TOTC \\
+                            V<-[*| FIL V]
+ 
+algorithm:
+   while true()
+     ."\nEsperando mensajes...\n"
+     a<-server(50)
+     show a 0
+     _range(r,[[@a] 2],2)
+    // show r 0
+     [>a r]<-"Esto ha sido procesado"
+     response(a)
+     ."Servido...\n"
+   wend
+stop

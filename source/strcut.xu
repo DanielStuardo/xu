@@ -1,0 +1,50 @@
+#use string
+vars:
+   S,T:=^string
+   s:=string
+   pos,porcion:=^number
+   
+algorithm:
+   s<-"María tenía un corderito"
+   write "Juanito "+strcut(s 7 8)+" cadillac","\n"
+   write "Variable original (lo que quedó): ",s,"\n"
+   
+   write strcut(s 0 5),"\n"
+/*   
+   dim S(40)
+   S<-(flag ".") "María tenía un corderito"
+  ."\nMatriz con cadena original:\n",[S 40],"\n" 
+//   show(S 0)
+   T<-strcut(S 0 5)
+  ."\nCorte!\n",[T 40],"\n" 
+   show (("juanito "+S) 0)
+   write "\nMatriz original (lo que quedó):\n",[S 40],"\n"
+   show (T 0)
+ */  
+   dim pos(40,4)
+   pos<-16
+   dim S(40,4)
+   S<-(flag ".") "María tenía un corderito"
+
+ // ."\nMatriz con cadena original:\n",[S 40],"\n" 
+   T<-strcut(S pos 5)
+ // ."\nCorte!\n",[T 40],"\n" 
+ //  write "\nMatriz original (lo que quedó):\n",[S 40],"\n"  
+   show (T 0)
+   
+   goodbye 
+   
+   dim porcion(40)
+   porcion<-9
+   S<-(flag ".") "María tenía un corderito"
+  ."\nMatriz con cadena original:\n",[S 40],"\n" 
+   T<-strcut(S pos porcion)
+  ."\nCorte!\n",[T 40],"\n" 
+   write "\nMatriz original (lo que quedó):\n",[(S+"pichulón" ) 40],"\n"
+   
+   S<-(flag ".") "María tenía un corderito"
+  ."\nMatriz con cadena original:\n",[S 40],"\n" 
+   T<-strcut(S 16 porcion)
+  ."\nCorte!\n",[T 40],"\n" 
+   write "\nMatriz original (lo que quedó):\n",[(S+"pichulón" ) 40],"\n"  
+stop

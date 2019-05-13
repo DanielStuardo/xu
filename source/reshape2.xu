@@ -1,0 +1,12 @@
+#use math
+vars:
+   m:=^number
+algorithm:
+   dim m(1000,100)
+   {m,m}<-{10,mth.ceil(mth.rand(m))}
+   ."\nSIZE=",[@m]
+   ."\nELEMENTO=",[.m 1000 100]
+   reshape m(50,200,10)
+   ."\nSIZE=",[@m]
+   ."\nELEMENTO=",[:m 50 200 10]
+stop

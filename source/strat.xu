@@ -1,0 +1,41 @@
+#use string
+vars:
+   t,r:=^string
+   s:=string   
+algorithm:
+  s<-"María tenía un corderito"
+  flag "L"    // busca desde el principio del string
+
+/* el modificador \" permite imprimir comillas */
+  write "Posición de \"tenía\" en \"",s,"\" = ",strat("tenía" s),"\n" 
+  
+  dim r(4)
+  queue   // con esto me aseguro de meter los datos en el orden requerido
+  r<-(flag "\n") "Cuando termine este manual, será uno \n"+&
+                 "que hasta manolo podrá usar, porque \n"+&
+                 "manuel pudo hacerlo, entonces, su primo \n"+&
+                 "También lo hará."
+  show (strat("man" r)  0)
+  ."\n"
+  
+  use t; push {"termine","porque","conspicuo","será","primo"}
+  s<-"Cuando termine este manual, será uno \n"+&
+     "que hasta manolo podrá usar, porque \n"+&
+     "manuel pudo hacerlo, entonces, su primo \n"+&
+     "También lo hará."
+  show strat(t s) 0
+  
+/* ejemplo full string */
+  dim r(4)
+  r<-(flag ".")"María tenía un corderito"
+  
+/* la siguiente asignación resetea la matriz t */
+  t<-"María tenía un corderito" / " "
+
+  ."\nMatriz original:\n"
+  show r 0
+  
+  flag "R"   // busca desde el final del string
+  ."\nMatriz de posiciones:\n"
+  show(strat(t r) 0)
+stop

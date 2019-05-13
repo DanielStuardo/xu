@@ -1,0 +1,19 @@
+vars:
+   i:=number
+algorithm:
+
+  out "./out.txt"   // la salida será a un archivo "out.txt"
+  
+  screen(0)     // inhabilita la salida por pantalla
+  
+  ."Esto es una lista cagona que NO SE VERÁ por pantalla\n"
+  ."Pero se guardará en un archivo...\n"
+  
+  while (++i)<10000
+     write "\t\t",i,"\n"
+  wend
+  
+  out ""            // desactiva la salida al archivo
+  
+  screen(1)         // habilita la salida por pantalla
+stop

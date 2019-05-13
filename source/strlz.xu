@@ -1,0 +1,34 @@
+#use string
+vars:
+   S,T:=^string
+   s:=string
+   n:=^number
+
+algorithm:
+  /* "s" estará inicialmente vacía */
+   write {strlz(s)?"La cadena está vacía\n":s}
+   s<-"\nMaría tenía un corderito bebedor de tinto\n"
+   write {strlz(s)?"La cadena está vacía\n":s}
+
+  ."\n"*2,"Veamos con un vector (funciona tb para matrices):\n"
+
+   dim S(2,2,2,2)
+   write {isall(strlz(S) true)?"La matriz tiene cadenas vacías\n":S}
+   S<-(flag ".")(queue) "María tenía un corderito"
+   write "\n",{isall(strlz(S) true)?"La matriz tiene cadenas vacías\n":S}
+
+  ."\nMatriz de booleanos\n"
+   show S 0 ; ."\n"
+   show strlz(S) 0
+
+   use S;drop S
+   S<-"hola hola hola hola"/" "
+   write S+" numdo!!","\n\n"
+   write "Ey! "+S,"\n\n"
+   T<-"linda! menso! Joaco! Merme!"/" "
+  
+   use n; push{5,3,1,0}
+   write (S+" "+T)+n,"\n\n"
+   
+   write S*n,"\n\n"
+stop

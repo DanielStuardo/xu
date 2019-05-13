@@ -1,0 +1,16 @@
+#use string
+vars:
+  s,t:=^string
+  v:=string
+  n:=number
+algorithm:
+  dim s(1000,1000)
+  s<-(flag".")"Hola Amermelao!"
+  write [.s 450 100],"\n"
+  ."\nSIZE=",[@s]
+  n<-seconds("")
+  t<-strcut(s 6 strlen(s))
+  ."\nTIME STRCUT = ",seconds("")-n,"\n"
+  write [.s 450 100],"\n"
+  write [.t 450 100],"\n"
+stop

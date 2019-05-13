@@ -1,0 +1,19 @@
+#use string
+vars:
+   S:=^string
+   s:=string
+algorithm:
+   s<-"CADENA A CONVERTIR"
+   write s,"\n",strlower(s)
+   ."\n"*2
+   dim S(10)
+  /* con Flag="." se evita que la cadena se tokenee.
+     Así, la cadena completa rellenará el array */ 
+   S<-(flag ".") "CADENA A CONVERTIR"
+   show strlower(S) 0
+ 
+  ."\nRedimensionemos la matriz...:\n"
+   reshape S(5,2)
+   show(strlower(S) 2)
+
+stop

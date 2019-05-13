@@ -1,0 +1,33 @@
+#use string, matrix
+vars:
+   t:=^string
+   r:=^number
+   i,j:=number
+   s:=string
+algorithm:
+   dim t(5,5)
+   
+   use t
+   for i<-1 to 5
+     mat.row(i);mat.col(1)
+     mat.put( ^["  hola  ","  hola  ","  hola  ","  hola  ","  hola  "])
+   next
+   
+  ."\nPrueba con un array de string:\n" 
+   show(t 5)
+   r<-[* ^[2,3,4,5]]   // seleccionamos el rango a aplicar. No es necesario, solo un ejemplo
+   flag "A"
+   write "\nAplica STRTRIM solo al rango 2,3-4,5:\n",strtrim([<t r]),"\n"*2
+   [>t r] <- strtrim([<t r])
+   show (t 5)
+   ."\n\nPrueba con una variable simple:\n"
+   
+  /* un string simple */
+   s<-"    María tenía un corderito marihuanero    "
+   write "[",s,"]\n"
+   write "[",strtrim( (flag "A") s),"]\n"
+   write "[",strtrim( (flag "L") s),"]\n"
+   write "[",strtrim( (flag "R") s),"]\n"
+   
+    
+stop

@@ -1,0 +1,37 @@
+#use stack,matrix
+
+vars:
+  s:=^number
+  t:=^string
+  n:=number
+  
+algorithm:
+  queue
+  precision 0
+  use(s)
+  n<-200
+  push {100,n*2,n/2,0}
+/* la siguiente linea debe meter un vector en el stack
+   indicado */
+//  spush{1,2,3,4,5,6,7}
+/* mejor uso esto?: */
+  mat.row(3);stk.ins; mat.put( ^[1,2,3,4,5,6,7])
+/* NO. esto sirve, pero no es el caso. Necesito un push especial que
+   me permita insertar un vector o matriz al final del stack 
+   MEJOR NO. Yo puedo declarar una matriz, y pushearla. Ejemplo:
+   dim h(i,j,k...) // la lleno de alguna manera.
+   use s
+   push h   // y listo!!
+   */  
+  use(t)
+  push {"hola","loco"}
+  do
+     write pop,"\n"
+  until isempty
+  ."\n"
+  use s
+  do
+     write pop(),"\n"
+  until isempty
+  ."\n"
+stop

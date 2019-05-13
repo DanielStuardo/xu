@@ -1,0 +1,74 @@
+#use string
+
+name: Calculo de la distancia de Levensthein
+
+vars:
+  s,t := string
+  n,m := ^number
+  r := number
+
+//functions:
+
+/* aqui funciones */
+
+algorithm:
+
+//  s<-"Este es un string"
+//
+//  write [s 1],"\n"
+//  write [.s 6 10],"\n"
+//  [s 6]<-"E"
+//  write s,"\n"
+//
+//  [.s 6 10]<-"mamotreto"
+//  write s,"\n"
+//  write strcpy(s 6 5),"\n"
+// y write [.($"Este es un string") 12 17] --> "string"
+
+//  s<- 7 + "Este es un string"
+//  write s,"\n"
+//
+//  s<- "Este es un string"+7
+//  write s,"\n"
+//  s<- 7-"Este es un string"
+//  write s,"\n"
+//  s<- "Este es un string"-7
+//  write s,"\n"
+//  goodbye
+
+//  r<-50
+//  write "Negativo de ",r," = ",(-r),"\n"
+//
+//  dim n(10); dim m(5,5)
+//  n<-10
+//  m<-(-10)
+//  show n 0
+//  show m 0
+//  n<->m
+//  show n 0
+//  show m 0
+//
+//  goodbye
+
+  precision 0
+#define OFFSET 6
+  s<-"cadena"
+  //t<-"cadera y caden es cadena"
+  t<-"esta es una cadena muy corta. Esta cadena será comparada con caderas flacas"
+  n<-strdiff(s t OFFSET) // con offset=6 se encuentra un match
+//  show n 0
+  write n
+  ."SIZE N=",[@n],"\n"
+  ."len = ",strlen(t),"\n"
+//  try
+//     r<-[[\n "=" 0] 1]  // ojo: la prueba arroja solo un elemento. Cambiela, y cambie esta línea
+//  exception
+//     r<-0
+//  tend
+//
+//  if r > 0
+//     ."\nCadena detectada = ",r," : ",t+(OFFSET*r-OFFSET)-(strlen(t)-(strlen(t)-OFFSET)),"\n"
+//  else
+//     ."\nCadena no encontrada bajo este desplazamiento"
+//  endif
+stop

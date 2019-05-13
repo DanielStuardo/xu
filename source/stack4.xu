@@ -1,0 +1,128 @@
+/*
+  Esta rutina es rutilante: todas las matrices en XU pueden ser usadas como un stack, es decir, puedo
+  jugar con PUSH, POP, QUEUE, DEQUE, DROP, USE, STK.TOP, y otras weás rancias por el estilo (#use stack).
+  Pero cuando declaro una matriz con tipo (^tipo, o array of tipo), el stack solo aceptará ese tipo.
+  */
+#define DOWN, 0
+#use stack,matrix  // para usar stk.top
+vars:
+   r:=variant
+   t:=stack   // se asegura un stack con elementos de variados tipos. idem a ^variant
+   n,e:=^number
+   m:=number
+algorithm:
+   use t
+   push "hola"
+   push 123.56
+   push false
+   dim n(10,10)   // ojo: con esto, dejo en uso el array "n": debo volver al stack t
+   n<-100.5
+   
+   flag "recover"
+   push( use (t) n)    // guardo la matriz!!!
+   flag DOWN  // bajo la bandera
+   
+   drop (use(n))  // limpio el array n para probar si puedo hacer un POP 
+   use t   // ojo: usaste "n", debes volver a "t"
+   //queue   // modo de consulta y extracción: cola
+   deque     // modo de consulta y extracción: pila
+   
+   /**** GET *****/
+   mat.row(4); write mat.get,"\n"
+   stk.ins
+   //mat.put (? "data insertada")
+   write "\nSIZE N=",[@ t],"\n"
+   
+   for m<-1 to [.[@ t] 2] 
+     mat.row(m)
+     write mat.get,"\n"
+   next
+ //  ."Alterando posicion 5 donde se guardó un array:\n"
+ //  mat.put (?"TE BORRE ARRAY MARICON!!")
+ //  pause
+   
+   /**************/
+   // que me gusta esta instrucción qlá: TRY. Se puede anidar, se puede usar raise(<cod-error-inventado>),
+   // y cuando se lanza una excepcion solo limpiará el stack de trabajo de XU solo desde que se inició TRY.
+   // bueno, en estricto rigor, el stack de trabajo solo tendrá las direcciones de los datos que aún no
+   // hayan sido procesados por una función o instrucción final, por lo que nada se pierde.
+   // todo calculado, todo tiene su lógica, aunque rancia, lógica al fin y al cabo.
+   // Claro que aquí el TRY vale callampa.
+   try
+      ."\n TIPO del dato en TOP: ", type(stk.top),"\n"
+   exception
+      if whatsup()=1191  // error de STK.TOP consultando un elemento stack. 
+                         // el error de overflow/underflow o stack no usado es 1190
+         ."Error?\n"
+      endif
+   tend
+
+   r<-pop   // con "deque", sacará el stack que está al final, pero lo devolverá a su dueño original, "n"
+   write "\nDATO:",r,"\t tipo=",type(r)  // y para no ser descortes, "pop" devolverá un "0" a "r" para que te
+                                         // lo metas en el orto.
+   r<-pop
+   write "\nDATO:",r,"\t tipo=",type(r)
+   r<-pop
+   write "\nDATO:",r,"\t tipo=",type(r)
+    
+   if isempty()
+      ."\nEl stack quedó vacío...\n"
+   else
+      ."\nAún queda algo en el stack!\n"
+   endif
+   
+   /****** GET DE STACK *****/
+   mat.row(1)
+   e<-(^ mat.get)   // lo que sea lo lleva a stack
+   write "\nDATO mirado: ",e,"\n tipo=",type(e),"\n"
+   r<-pop  // no sirve sacar el dato así, si se trata de un array. Hay que sacarlo con la instruccion POP
+   //pop       // esto saca el dato del stack, y lo devuelve a su direccion original, es decir, a "n"
+
+   ."\t tipo=",type(n)
+   write "\nDATO:",n  // "n" fue borrado, pero al ser recuperado del stack, vuelve a la Bitda!!
+
+   if isempty()
+      ."\nEl stack quedó vacío...\n"
+   else
+      ."\nAún queda algo en el stack!\n"
+   endif
+   
+   /***** OTRA PRUEBA, CON UN STACK CON TIPO *****/
+   drop (use(n))
+   push 2783877474748474888884888
+ //  push "hola"   // esto genera un error en la traducción
+ //  push true     // esto también, por que el tipo del stack en number
+   push 0.00000456
+   push 0.0000000000000000000023456
+   push n    // estoy guardando el mismo stack en el stack. Solo muestra el stack con los elementos que
+             // tenía hasta ese momento, sobreescribien los mismos elementos que aún están en el stack,
+             // suponiendo que no se ha usado STK.INS ni STK.DEL.
+   push 126
+   
+   /*** GET ***/
+   mat.row( 4); write mat.get,"\nSIZE N=",[@ n],"\n"
+   pause
+   /*** PUT ***/
+   mat.row(2); mat.put 900
+   
+   /*** DEL ****/
+   mat.row(3); stk.del   // se borra el elemento de la pos. 3
+   
+   queue
+ //  r<-pop   // pop exije una variable recipiente del mismo tipo del stack; ergo, ERROR DE TRADUCCION!!.
+   ."\nEstack con tipo:\n"
+   while ~isempty()
+      write "\nTipo del dato que viene: ",type(stk.top),"\n"   
+      if type(stk.top)="<SN>"
+         e<-(^ pop)*1000  // también puedo asignar el (^pop) a t, que es stack
+         write "\n--es un stack--\n",e
+         
+      else
+         write "\n--",pop,"--\nSIZE=",[@ n],"\n"
+      endif
+         
+      
+   wend
+   ."\nFIN\n"
+stop
+

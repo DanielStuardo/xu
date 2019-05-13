@@ -1,0 +1,19 @@
+#use string
+vars:
+   S:=^string
+   s:=string
+algorithm:
+   s<-"cadena a mayusculizar"
+   write s,"\n",strupper(s)
+   ."\n"*2
+   dim S(10)
+  /* con Flag="." se evita que la cadena se tokenee.
+     Así, la cadena completa rellenará el array */ 
+   S<-(flag ".") "cadena a mayusculizar"
+   show strupper(S) 0
+ 
+  ."\nRedimensionemos la matriz...:\n"
+   reshape S(5,2)
+   show(strupper(S) 2)
+
+stop

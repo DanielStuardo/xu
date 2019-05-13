@@ -1,0 +1,130 @@
+#use string, matrix
+vars:
+  s,t:=string
+  i,tamano:=number
+  texto,tex:=^string
+  k:=^number
+  
+algorithm: 
+
+//  s<-strload("datos/copia.txt")
+//
+//  write "EXISTEN : ",strlcount(s)," LINEAS EN EL STRING\n"
+//  pause
+//  for i<-10000 to 10044
+//    t<-strlin(s i)
+//    write t,"\n" 
+//  next
+//  ."\n"
+//  t<-""
+//  k<-[=10000 10044 45]
+//  write k,"\n"
+//  t<-strlin(s k)
+//  write t,"\n"
+//
+//  ."\n"
+//  t<-""
+//  k<-^[10000,10044,11000,10021,0, 3, 2, 1]  
+//  t<-strlin(s k)
+//  write t,"\n"
+//
+//  t<-""
+//  t<-strlin(s 0)
+//  write "[",t,"]\n"
+//
+  ."\n"
+  queue
+  flag "\n"
+  s<-strload(^["DEFINICIONES_MATH_H.txt","texto.txt"])
+  
+  write s,"\n"
+
+// goodbye
+
+  dim texto(2)
+   flag "\n"
+   [texto 1]<-strload("DEFINICIONES_MATH_H.txt") 
+   [texto 2]<-strload("texto.txt")
+
+  write "\nARRAY DE STRINGS:\n",texto,"\n"
+  
+  tex<-strlin(texto 10)
+  write   tex,"\n"
+  
+  ."\nDEL TEXTO, SACARE CON UN VECTOR MATRICIAL\n"
+  dim k(2,5)
+  [.k 1 1]<-10
+  [.k 2 1]<-5
+  [.k 2 2]<-6
+
+  tex<-strlin(texto k)
+  show   tex 0
+  ."\n"  
+  
+  goodbye
+
+/* prueba con un string simple */
+  s<-"Esta línea es múltiple\npara probar la instrucción strlin\ny ver si funciona...\nFunciona?"
+  for i<-1 to strlcount(s)
+     write strlin(s i),"\n"
+  next
+    
+/* prueba con una matriz de textos, accediendo a cada línea de esta matriz */
+  dim texto(4)
+  texto<-(flag "$") s
+  show texto 0
+
+  ."\n" *2 
+  for i<-1 to [[@ texto] 2]
+     write "--->",strlin([texto i] i),"\n"
+  next
+  ."\n"
+
+/* otra prueba con matrices */
+  show strlin(texto 2) 0
+  ."\n"
+  tamano<-[[@ texto] 2]
+  show strlin(texto [= 1 tamano tamano]) 0
+  
+stop
+
+/* SALIDAS:
+
+Esta línea es múltiple                                                                                             
+para probar la instrucción strlin
+y ver si funciona...             
+Funciona?           
+         
+    1 : Esta línea es múltiple
+para probar la instrucción strlin
+y ver si funciona...
+Funciona?
+    2 : Esta línea es múltiple
+para probar la instrucción strlin
+y ver si funciona...
+Funciona?
+    3 : Esta línea es múltiple
+para probar la instrucción strlin
+y ver si funciona...
+Funciona?
+    4 : Esta línea es múltiple
+para probar la instrucción strlin
+y ver si funciona...
+Funciona?
+         
+--->Esta línea es múltiple
+--->para probar la instrucción strlin
+--->y ver si funciona...             
+--->Funciona?           
+             
+
+    1 : para probar la instrucción strlin
+    2 : para probar la instrucción strlin
+    3 : para probar la instrucción strlin
+    4 : para probar la instrucción strlin
+                                         
+    1 : Esta línea es múltiple
+    2 : para probar la instrucción strlin
+    3 : y ver si funciona...             
+    4 : Funciona?  
+*/

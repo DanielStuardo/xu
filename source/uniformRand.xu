@@ -1,0 +1,21 @@
+#use math
+
+vars:
+  mu,fvar,m,n,o,p:=number
+  x:=^number
+  
+functions:
+   #import mattri./*random*/random ///
+   #import mattri.{buildDiag,/*ones*/build2Diag,eyes}
+
+algorithm:
+  mu<-0.1
+  fvar<-0.25
+  {m,n,o,p}<-{200000,0,0,0}
+  x<-mu*(1+fvar*(2*.random(m n o p)-1))
+  //x=mu*(1+fvar*(2*rand(m,n)-1))
+  //show x 0
+  write [x 120000]
+stop
+
+//{rand,buildDiag,build2Diag,eyes}

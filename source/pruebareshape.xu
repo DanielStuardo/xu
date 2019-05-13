@@ -1,0 +1,20 @@
+#use matrix
+vars:
+   s:=^number
+algorithm:
+   mat.load((flag "M,")s "./util/prueba.txt")
+   show(s 10)  // si prueba.txt contiene solo una hilera de datos, el flag "M" se lo mete en la raja
+   reshape s:2,5
+   show(s 10)
+   reshape s:5,2
+   show(s 10)
+   ."\n"
+   reshape s:1,1,10
+   show(s 10)
+   ."\n"
+   reshape s:1,1,2,5
+   show(s 10)
+   ."\n"
+   reshape s:1,1,5,2
+   show(s 10)
+   stop

@@ -1,0 +1,59 @@
+#use string
+
+#include /home/xu/Proyectos/xuesp/LINUX-64bits/include/process.def
+
+functions:
+   KILLPROC():void
+     PID:=string
+   begin:
+     PID<-fcmd("pidof xu")
+     cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1 &")
+   end
+
+vars:
+  s:=^string
+  n,c:=number
+  b:=boolean
+
+algorithm:
+
+  precision 0
+  /* Debe ir "n", dado que el usuario podría querer hacer algo con ese valor,
+     como por ejemplo, guardarlo junto con alguna metadata */
+  c<-0;while c<=0
+     process(PROC_MSG n ("Hola mundo! MENSAJE #"+($c)))
+     ++c
+     // aqui haga algo con "n"
+  wend
+
+  write "último PID = ",n
+//  c<-0
+  while true()
+    try
+       process(PROC_LST b n)  // 0=todo; n=PID. Usar TRY cuando no encuentra PID
+    exception
+       ."\nTerminado el proceso LST. No existe el PID\n"
+       break
+    tend
+    room b
+       ."\nEncontró un mensaje procesado"
+       try
+          process(PROC_REQ s n) // 0=todo; n=PID; S=ARRAY STRING: {"PID","MESS-RESP"}
+       exception
+          ."\nTerminado el proceso REQ. No existe el PID\n"
+          break
+       tend
+
+       show s 0
+       
+       //write "\nMENSAJE= ",s,"\n"
+//       c<-0
+ /*   else
+       ."\nEl mensaje aún no ha sido procesado"
+       exitif (++c)=10
+    endif*/
+    rend
+    //sleep(1)
+  wend
+//  .KILLPROC()  
+stop

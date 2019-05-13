@@ -1,0 +1,20 @@
+#use string
+vars:
+   S:=^string
+   s:=string
+algorithm:
+   s<-"Hola mundo!"
+   write strlen(s)
+   
+   ."\n"
+   
+  /* FLAG separará la cadena en tokens creando un vector */ 
+   S<-(flag " ")(queue) "hola mundo! Este es un nuevo día para freír sopaipillas"
+   show S 0
+  ."\nCon STRLEN...:\n"
+   show (strlen(S) 0)
+ 
+  ."\nRedimensionando la matriz...:\n"
+   reshape S(5,2)
+   show(strlen(S) 2)
+stop

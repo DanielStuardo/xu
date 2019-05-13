@@ -1,0 +1,10 @@
+vars:
+  c:=number
+algorithm:
+  while c<>27
+    readkey(c)
+    if c<>0
+       write "\nCódigo XU de tecla presionada: ", c
+    endif
+  wend
+stop

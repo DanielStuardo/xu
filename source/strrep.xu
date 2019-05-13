@@ -1,0 +1,39 @@
+#use string
+vars:
+  c1:=string
+  s,t,w:=^string
+algorithm:
+c1<-"Esta cadena será alterada por la ciencia"
+write strrep (c1 "será" "fue" 1 0 ),"\n","\n"
+
+c1<-"Esta cadena es una cadena ñunga y no define una cadena"
+write "CADENA ORIGINAL: \n",c1,"\n"*2
+
+write strrep (c1 "cadena" "frase" 1 1),"\n"
+write strrep (c1 "cadena" "frase" 1 2),"\n"
+write strrep (c1 "cadena" "frase" 1 3),"\n"
+write strrep (c1 "cadena" "frase" 2 1),"\n"
+write strrep (c1 "cadena" "frase" 2 2),"\n"
+write strrep (c1 "cadena" "frase" 2 3),"\n"
+write strrep (c1 "cadena" "frase" 3 1),"\n"
+write strrep (c1 "cadena" "frase" 3 2),"\n"
+write strrep (c1 "cadena" "frase" 3 3),"\n"
+
+dim s(5)
+s<-(flag ".")"Esta cadena es una cadena ñunga y no define una cadena"
+s<-strrep (s "cadena" "frase" 0 0)
+show s 0
+
+dim t(5); dim w(5)
+s<-(flag ".")"Esta cadena es una cadena ñunga y no define una cadena"
+t<-"cadena"
+w<-"frase.MANZANA.naranja.plátano.lúcuma"
+show (strrep(s t w 2 1) 0)
+show (strrep(s t "manzana" 2 1) 0)
+show (strrep(s "cadena" w 1 2) 0)
+
+."\nVOVAMOS CON LA CADENA SIMPLE:\n"
+write strrep (c1 t w 1 1),"\n"
+write strrep (c1 t "manzana" 1 1),"\n"
+write strrep (c1 "cadena" w 1 1),"\n"
+stop

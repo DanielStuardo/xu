@@ -1,0 +1,62 @@
+#use string
+
+vars:
+  tokns,tokns1,linea,linea1:=string
+  s:=^string
+  pos:=^number
+algorithm:
+
+   tokns <- "0.73786,9,15,8,5,0,1,0,8.41,1.7451,6.24,1.34,4.9,14.65,0.2347,7.86,1.3755,2.94,1.14,1.8,10.8,31047,0.15699,0.042841,0.27069,0.18232,0.34539,0.21447,0.0058603,0.39723,0.03236,0.2831,0.25452,0.41699,0.56162,2290.1,84.674,78.427"
+   write strntok((flag",") tokns),"\n"
+   
+//   pause
+//   
+//   goodbye
+   
+//   linea <- "  BEFORE    $8:7R $9:7R $10:7R $11:7R $12:7R $13:7R $14:9R   $22:7R $23:7R $24:7R $25:7R $26:7R $27:7R $28:9R"
+   linea<-"Yo, $0, RUT n° $1, declaro bajo juramento que vivo en $2, comuna de $3.\n\tY créanlo, porque soy $0, y gano $$4!!"
+   linea1<-satura(tokns "," linea)
+   write linea1,"\n"
+   pause
+  
+   goodbye
+
+
+   tokns<-"Juanito Pérez,5.334.234-K,Av. El Desguesadero S/N,Pedro Aguirre Cerda,300.000"
+   tokns1<-"Juanito Pérez       5.334.234-K Av. El Desguesadero S/N  Pedro Aguirre Cerda    300.000"
+   linea<-"Yo, $0, RUT n° $1, declaro bajo juramento que vivo en $2, comuna de $3.\n\tY créanlo, porque soy $0, y gano $$4!!"
+   linea1<-"$0:30L$1:15L$2:25L$3:20L$4:10R"
+   use pos
+   push {20,12,25,20,10}
+
+   write satura(tokns "," linea)
+   ."\n"
+   write satura(tokns1 pos linea)
+   ."\n"
+   write satura(tokns1 pos linea1)
+   ."\n"
+   write satura(tokns "," linea1)
+  ."\n***********************************\n"
+  pause
+/*   write satura(tokns "," linea1)
+  ."\n"
+  goodbye
+
+   write satura(tokns1 pos linea1)
+  ."\n"
+
+  goodbye */
+
+  dim s(500,5,5)
+  s<-(flag "__")tokns1
+  show s 0
+pause
+  show satura(s pos linea1) 0
+ ."\n","*"*20,"\n"
+pause
+  s<-(flag "_")tokns
+  show s 0
+pause
+  show satura(s "," linea1) 0
+pause
+stop

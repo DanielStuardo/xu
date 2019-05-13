@@ -1,0 +1,72 @@
+#use math
+vars:
+   i,a,b:=number
+   v:=^number
+algorithm:
+  
+  ."Prueba del uso de TRY/EXCEPTION\n"
+  ."También se verá el uso de AGAIN para volver a ejecutar el cuerpo de TRY\n"
+  ."Y el uso de RAISE() para levantar una función falsa\n"
+  
+  try
+     write "\n\nEsto dará error: 100/0 = ",100/0
+  exception
+     write "Error! Código=",whatsup()
+  tend
+ ."\nEl error fue atrapado\n"
+ 
+ ."\nHabrá error de tipo overflow:\n"
+  dim v(5)
+  v<-10
+  try 
+     for i<-1 to 6
+        write "\nElemento ",i,": ",[v i]  
+     next
+  exception
+     write "Error! Código=",whatsup()
+  tend
+  
+ ."\nMismo error anterior, pero se añadirá el elemento y se intentará otra vez:\n"
+  dim v(5)
+  v<-10
+  try 
+     for i<-1 to 6
+        write "\nElemento ",i,": ",[v i]  
+     next
+  exception
+     write "Error! Código=",whatsup()
+     use(v);push(10)
+     again
+  tend 
+  
+ ."\nError falso (uso de RAISE()):\n"
+  try
+     ."Ingresa un número entre 1 y 10:"
+     a<-(#rawinput( ($a) "N:3"))      // todo lo que se ingresa es string, luego, debe castorearse
+     raise(3000), if a<0 or a>10
+  exception
+     write "\tError aweonao! Código=",whatsup()
+     htab(0)   // se ubica en la primera columna
+     again
+  tend
+ ."\nIngresaste: ",a 
+ 
+ ."\n\nTRY dentro de otro TRY:\n"
+  a<-10
+  b<-0
+  try
+     write "\nLogaritmo de ",b," = ",mth.log(b)
+     try
+        write "\nAhora, logaritmo de ",(-b)," = ",mth.log(-b)
+     exception
+        write "Error! Código=",whatsup()
+        b<-(-5)
+        again
+     tend
+  exception
+     write "Error! Código=",whatsup()
+     b<-5
+     again
+  tend
+ ."\nPracticamente todas las funciones de XU pueden ser blindadas con TRY (o casi todas :P)\n"
+stop

@@ -1,0 +1,16 @@
+#use string
+vars:
+   s:=string
+   t:=^string
+algorithm:
+   s<-"123.456.789"
+   
+   write "DE \"",s,"\", limpiará los puntos:\n",strerac((flag ".") s),"\n"
+   
+   t<-"123.456.789,ABC.tr,verga.larga,8...==.......D~ (...)..*..%\&$..(.....)"/","
+   show(t 0)
+   // ya viene el flag levantado, ojo! ;)
+  ."\nCon la \"limpieza\" hecha:\n"
+   flag ".$%\&"  // indica lo que borrará
+   show strerac(t) 0
+stop

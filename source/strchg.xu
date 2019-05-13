@@ -1,0 +1,75 @@
+#use string
+vars:
+   t,r,w,c:=^string
+   s:=string
+   n:=^number
+   
+algorithm:
+
+  dim c(3,2,2,2)
+  c<-(flag ".")"María María tenía un corderito llamado María"
+  use r; drop; push {"María","tenía","corderito","cocina"}
+  use t; drop; push {"Conchita","hacía","asadito","mezcla"}
+  
+  //c<-strchg(c r t)
+  //c<-strrep(c r t 1 0)
+  //c<-strchg(c r "XXX")
+  //c<-strrep(c r "XXX" 1 0)
+  //c<-strchg(c "María" r)
+  //c<-strrep(c "María" r 1 0)
+  //c<-strchg(c "María" "Juanita")
+  //c<-strrep(c "María" "Juanita" 1 0)
+  c<-strrep(c "María" "Juanita" 1 1)
+
+   ."SIZE=",[@c],"\n"
+  show c 0
+   pause
+  goodbye
+  
+ ."\nCASO SIMPLE:\n"
+  s<-"María tenía un corderito"
+  write strchg(strchg(s "tenía" "acariciaba al") "un corderito" "negro de wasap"),"\n" 
+  
+  /* casos especiales */
+ ."\nCASOS ESPECIALES: string-vector-string y string-vector-vector:\n"
+  use w; push {"María","corderito"}  // reemplaza cada palabra de la lista por "conjunto"
+  write strchg(s w "conjunto"),"\n"
+  
+  use r; push {"Juanito","perrito"} // reemplaza uno a uno
+  write strchg(s w r),"\n"
+
+  /* Ejemplo full matrices */
+  
+  /* IMPORTANTE: las dimensiones y rangos de las matrices involucradas deben ser
+     las mismas a las de la matriz fuente */
+  
+  ."\nCASOS MATRIZ: FULL matriz-matriz-matriz\n"
+  /* MATRIZ FUENTE*/                     dim r(50)
+  /*VECTORES DE BUSQUEDA Y REEMPLAZO*/   dim t(5); dim w(5)
+  r<-(flag ".")"Cuando él la miraba, creía haber mirado todo, en el mirador"
+  t<-"mir"
+  w<-(deque)"lore ipse toc me cule"/" "
+  ."\nMatriz original:\n"
+  show r 0
+  ."\n"
+  show t 0
+    ."\n"
+  show w 0
+  ."\nMatriz procesada:\n"
+  show(strchg(r t w) 0)
+
+  /* MATRIZ FUENTE*/                     dim r(5)
+  /*VECTORES DE BUSQUEDA Y REEMPLAZO*/   dim t(5); dim w(5)
+  r<-(flag ".")"Cuando él la miraba, creía haber mirado todo"
+  t<-"mir"
+  w<-"me"
+  ."\nCASO matriz-matriz-string:\n"
+  show(strchg(r t "lore") 0)
+  
+  ."\nCASO matriz-string-matriz:\n"
+  show(strchg(r "mir" w) 0)
+  
+  ."\nCASO matriz-string-string:\n"
+  t<- strchg( [<r [\r "@" "creía"]] "mir" "lore")
+  show t 0
+stop

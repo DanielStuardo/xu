@@ -1,0 +1,39 @@
+#use string,matrix
+vars:
+   S,T:=^string
+   s:=string
+   pos,pps:=^number
+   i:=number
+algorithm:
+   s<-"María tenía un corderito"
+   write strcpy(s 1 5)+" acariciaba "+strcpy(s 13 12),"\n"
+
+   use pos; push {5,11,15,strlen(s)}
+   flag "\n"  // esto hace que WRITE separe los elementos del vector
+              // a desplegar con un salto de línea
+   write strcpy(s 1 pos) /* Por el hecho de usar un vector en uno de los
+                            argumentos, el resultado es un vector.
+                            Chula la hueá */
+
+   ."\n\n"
+
+   use pps;       push {7,16}
+   use pos; drop; push {5,9}
+   write strcpy((flag ",")s pps pos),"\n"
+
+   dim S(4,4)
+   S<-(flag ".") "María tenía un corderito"
+   show (strcpy(S 1 5) 0)
+   ."\n"
+   use pps; drop; push {5,11,15,strlen([.S 1 1])}
+   dim pos(4,4)
+   use pos
+   i<-0
+   while (++i)<=4
+      mat.row(i);mat.col(1);mat.put(pps)
+   wend
+   show (strcpy(S 1 pos) 0)
+   T<-strcut(S 1 pos)
+   show S 0
+   show T 0
+stop                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

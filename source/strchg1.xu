@@ -1,0 +1,29 @@
+#use string
+vars:
+  c,s,t:=^string
+  n:=number
+algorithm:
+  dim c(1000,2)
+  c<-(flag ".")"El ejemplo de un condenado"
+  s<-strchg(c "ejemplo" "pichula")
+  //s<-strchg(c "cadena" "pichula")
+/*  for n<-1 to 500
+     [c n]<-strchg([c n] "ejemplo" "cadalzo")
+  next */
+  show s 0
+goodbye  
+   s<- ^["cadena larga",&
+         "Esta cadena es muy corta",&
+         "Nadie sabe para quien trabaja",&
+         "Cuando fui a New Yorw",&
+         "Hola mundo!!",&
+         "",&
+         "Una Cadena de oro",&
+         "Hola Mundo!!",&
+         "Podría ser o no podría ser" ]
+
+   write "\nLEN s=",strlen(s),"\n"
+  ."\nReemplazamos \"cadena\" por otra palabra, y buscamos sus filas:\n"
+  t<-strchg(s "cadena" "pichula")
+  show t 0
+stop

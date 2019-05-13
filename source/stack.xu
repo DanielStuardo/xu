@@ -1,0 +1,22 @@
+#use stack, matrix
+vars:
+  s:=stack
+  r:=^string
+
+algorithm:
+precision 0
+use s
+push "hola"
+dim r(10) ; r<-"cadena"
+use s ; push r
+push {10,20,30}
+write "\nSIZE stack = ",[@s],"\n"
+mat.row(2)
+stk.ins
+write "Posición insertada hay :",mat.get,"\n"
+mat.put( ^[10,20,30,40,50] )
+write "Ahora hay un vector :",mat.get,"\n"
+do
+   write "\nDATO (tipo ",type(stk.top),"): ",pop,"\n"
+until isempty
+stop

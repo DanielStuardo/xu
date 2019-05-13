@@ -1,0 +1,54 @@
+#use math
+vars:
+   l:=^boolean
+   n,m:=^number
+   i:=number
+algorithm:
+  dim l(10,10)
+  l<-true
+  for i<-1 to 10 step 2
+     write at(i i) [.l i i]
+  next
+  show(~(l) 10)
+  show(l 10)
+  not( l)
+  show(l 10)
+
+  dim n(3,6)
+  n<-10
+  show(n 0)
+  show((++n) 0)
+  show((--n) 0)
+
+  ++n
+  show(n 0)
+  --n
+  show(n 0)
+
+  /********* test mth.gcd y mth.lcm **********/
+  write "\nMaximo comun divisor entre 5 y 15: ",mth.gcd(5 15)
+  write "\nMinimo comun multiplo entre 4 y 24: ",mth.lcm(4 24),"\n"
+
+  write "LCM: \n"
+  dim n(3,4)
+  dim m(3,4)
+  n<-4
+  m<-24
+  show(mth.lcm(n m) 0)
+  show(mth.lcm(4 m) 0)
+  show(mth.lcm(n 24) 0)
+
+  write "\nGCD: \n"
+  dim n(3,4)
+  dim m(3,4)
+  n<-5
+  m<-15
+  show(mth.gcd(n m) 0)
+  show(mth.gcd(5 m) 0)
+  show(mth.gcd(n 15) 0)
+
+  i<-[.n 1 1]*[.n 2 3]+1
+  write "\nI=",i,"\n"
+  write mth.cels(n)," "
+  write mth.fahr(n),"\n"
+stop

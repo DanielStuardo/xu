@@ -1,0 +1,114 @@
+#use string
+vars:
+   n:=^number
+   w:=string
+   s,v:=^string
+   m:=^number
+algorithm:
+   dim n(4)
+   w<-"Este mensaje será copiado de múltiples formas"
+   [n 1]<-19
+   [n 2]<-30
+   [n 3]<-6
+   [n 4]<-14
+   v<-strcpy( (flag ";") w n strlen(w))
+   write v,"\n"
+   
+   dim s(4)
+   flag "$"
+   [s 1]<-"María tenía un corderito"
+   [s 2]<-"Nadie sabe por qué María tenía el pelo blanco"
+   [s 3]<-""
+   [s 4]<-"Es posible que Juanita lo sepa"
+   show s 0
+   show (strfind(s "María" 1) 0)
+   show strlen(s) 0
+   s<-strcpy(s strfind(s "María" 1) strlen(s))
+   show s 0
+
+   [s 1]<-"María tenía un corderito"
+   [s 2]<-"Nadie sabe por qué María tenía el pelo blanco"
+   [s 3]<-""
+   [s 4]<-"Es posible que Juanita lo sepa"
+
+   show (strfind(s ($^["María","María","Juanita","blanco"]) 1) 0)
+   s<-strcpy(s strfind(s ($^["María","María","Juanita","blanco"]) 1) strlen(s))
+   show s 0
+ 
+    [s 1]<-"María tenía un corderito"
+   [s 2]<-"Nadie sabe por qué María tenía el pelo blanco"
+   [s 3]<-""
+   [s 4]<-"Es posible que Juanita lo sepa"
+
+   v<-(^ ^["María","María","Juanita","blanco"])
+   show (strfind(s v 1) 0)
+   s<-strcpy(s strfind(s v 1) strlen(s))
+   show s 0 
+   
+   ."\n"
+   w<-"hola"
+   write 2-w,"\n",w-2,"\n"
+   write 2+w,"\n",w+2,"\n"
+   
+   [s 1]<-"María tenía un corderito"
+   [s 2]<-"Nadie sabe por qué María tenía el pelo blanco"
+   [s 3]<-""
+   [s 4]<-"Es posible que Juanita lo sepa"
+   show s 0
+   show strfind(s "María" 1) 0
+   show (s+strfind(s "María" 1)) 0
+   show (s-strfind(s "María" 1)) 0
+      show (strfind(s "María" 1)+s) 0
+   show (strfind(s "María" 1)-s) 0
+   write "\n\n",($(%(# n)))+" pelao culiao" /*-6*/,"\n" // implementar suma y resta para matrices.
+   ///seguir probando los castores de conversion
+   n<-10
+   m<-0.5*(# (n+10))+(1/7)
+   write m
+
+   ."\n"
+   w<-"*"
+   write w*10,"\n"
+   write 10*w,"\n"
+   s<-"ABCDEFGHI"
+   show s 0
+   ."\n"
+  room true; ."\nADD POS:\n"
+   write s+5,"\n"
+   write 5+s,"\n\n-----------------\n"
+  rend
+  room true; ; ."\nSUB POS:\n"
+   write s-5,"\n"
+   write 5-s,"\n\n-----------------\n"
+  rend
+  room true; ."\nREPL:\n"
+   write s*2,"\n"
+   write 2*s,"\n" 
+   ."\n-----------------\n" 
+  rend
+   [n 1]<-5
+   [n 2]<-5
+   [n 3]<-5
+   [n 4]<-5 
+   write s*n,"\n"
+   write n*s,"\n" 
+   ."\n-----------------\n"  
+   write s+n,"\n"
+   write n+s,"\n"
+   ."\n-----------------\n"  
+   write s-(n-1),"\n"
+   write (n-1)-s,"\n"
+   
+   dim s(2,2,2)
+   dim n(2,2,2)
+   s<-"ABCDEFGHI"
+   show (s-4) 0
+   ."\n...\n"
+   show (6+s) 0
+   ."\n...\n"
+   show(4*s) 0
+   ."\n"
+   n<-4
+   show (s*n) 0
+   ."\n"
+stop

@@ -1,0 +1,20 @@
+#use string
+vars:
+  c1:=string
+  s:=^string
+algorithm:
+  c1<-"este manual es mantenido por manolo manriquez"
+  write "CADENA: \"", c1, "\"\ntiene: ", strwcount (c1), " palabras\n"
+
+  /* ejemplo con matrices */
+  s<-"Este ejemplo es un mensaje\nque contiene varias líneas\nlas que serán metidas\nen un vector."/"\n"
+  flag "\n"
+  write "\nCADENA:\n"
+  show(s 0)
+ ."\n"
+  write "\nPalabras en cada línea:",strwcount(s),"\n"
+  c1<-"Línea múltiple\ncuya función es mostrar \n cómo trabaja STRLCOUNT, mijo."
+  write "\npalabras en string multilinea: ",    strwcount(c1),"\n"*3
+  write strwcount("Aquí hay 4 palabras..."),"\n\n"
+
+stop

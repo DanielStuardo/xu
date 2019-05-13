@@ -1,0 +1,48 @@
+/*
+  lectura de los elementos de un stack, sin sacarlos.
+*/
+
+#use stack,matrix
+
+vars:
+  w:=stack
+  n:=^number
+  s:=^string
+  b:=^boolean
+  i:=number
+
+algorithm:
+  use(w)
+  push("Hola mundo!")
+  push(120.3)
+  push(true)
+  
+  dim b(10)   // vector de 10 booleanos
+  b<-true
+  
+  use(w)  // es necesario esto, porque "dim" dejó "n" en uso :P
+  push(b)
+
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10  
+  
+  use(w)  
+  push(n)
+
+  dim s(3)   // vector de 3 strings
+  s<-"CADENA"
+  
+  use(w)
+  push(s)
+
+  ."Tamaño stack: ",[@w],"\n"
+
+  i<-1
+  do
+    mat.row(i)
+    write "\nDATO (tipo "
+    write type(mat.get),"): "
+    write mat.get,"\n"
+  until (++i)>[[@w] 2]
+
+stop

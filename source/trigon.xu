@@ -1,0 +1,65 @@
+// ** Este encabezado es tremendamente opcional
+name:   prueba trigonometria
+// ********************************************
+
+#use trig,matrix,math
+#define nl  "\n"
+vars:
+  arg:=$1:number
+
+  {m,x,y} := number
+  termina := boolean
+
+  g:=^number
+
+algorithm:
+
+  precision 15
+
+     dim g(5)
+     {g,g}<-{89,trg.d2r(mth.ceil(mth.rand (g)))}
+     write "\nMatrices:\n"
+     write "SIN  = ",  trg.sin(g), nl
+     write "COS  = ",  trg.cos(g), nl
+     write "TAN  = ",  trg.tan(g), nl
+     write "COT  = ",  trg.cot(g), nl
+     write "NUMS=",g,"\nASIN = ", trg.asin(g), nl
+     write "NUMS=",g,"\nACOS = ", trg.acos(g), nl
+     write "ATAN = ", trg.atan(g), nl
+     write "SINH = ", trg.sinh(g), nl
+     write "COSH = ", trg.cosh(g), nl
+     write "TANH = ", trg.tanh(g), nl
+
+    ."\n"
+
+  write arg,"\n"
+  m<- {{ (arg=0) ? 30 : arg }}
+  // si no ingresó un parámetro, se asigna 30
+  m<-30
+
+  write "Numero = ", m
+  write "\nEn Rads = ", trg.d2r(m),nl
+
+  m<-trg.d2r(m)       // grados a radianes
+
+     write "SIN  = ",  trg.sin  (m), nl
+     write "COS  = ",  trg.cos  (m), nl
+     write "TAN  = ",  trg.tan  (m), nl
+     write "COT  = ",  trg.cot  (m), nl
+     write "ASIN = ", trg.asin (m), nl
+     write "ACOS = ", trg.acos (m), nl
+     write "ATAN = ", trg.atan (m), nl
+     write "SINH = ", trg.sinh (m), nl
+     write "COSH = ", trg.cosh (m), nl
+     write "TANH = ", trg.tanh (m), nl
+
+     write nl
+
+     write "LOG = ", mth.log (m), nl
+     write "LN = ", mth.ln (m), nl
+     write "RAIZ CUADRADA = ", mth.sqrt (m), nl
+
+   write "\nFIN\n"
+
+stop
+

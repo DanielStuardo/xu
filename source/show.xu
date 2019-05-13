@@ -1,0 +1,8 @@
+#use math
+vars:
+   m:=^number
+algorithm:
+   dim m(3,10,3,2)
+   {m,m}<-{10,mth.int(mth.rand(m))}
+   show m 10  // 10=número de columnas de la matriz
+stop

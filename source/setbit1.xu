@@ -1,0 +1,144 @@
+#use base,bit,matrix
+name: prueba de bits y cambio de base
+
+vars:
+  n := number
+  i,c:=number
+  b:=string
+  s:=^number
+
+functions:
+   F(v:number):boolean
+   r:=boolean
+   begin:
+      r<-true, if v=1
+      return r
+   end
+
+algorithm:
+
+ // Pedrito SE PAJEA DE LO LINDO con todo
+ // Pedrito SE PAJEA DE LO LINDO con todo Juanito
+
+  if .F(1)
+     ."Es verdad...\n"
+     goodbye
+  endif
+
+  precision 0
+
+  s <- _((2,2,2) {{{1,1},{2,2}},{{3,3},{4,4}}})
+  show s 0
+  goodbye
+  
+  sub "print"
+    for i<-31 downto 0
+      c<-xgetbit(n i)
+      write {(%c)?color(15):color(7)}c
+    next
+    color(7)
+    ."\n"
+  back
+ // Pedrito SE PAJEA DE LO LINDO con todo
+ // Pedrito SE PAJEA DE LO LINDO con todo
+
+  n<-255
+  write  "Número = ",n,"\n"   // imprime 255
+  xsetbit(n 4 0) // jaja pondremos un cero en la posición 4 analizaremos hasta donde llega ( 7  6  5  4  3  2  1  0 = 8 bits) Y esta línea la cagó pa'ser LARGUIRUCHIENTA la hueá... Y más LARGUIRUCHIENTA todavía
+  write "Ponemos un 0 en la posición 4  = ",n,"\n"     // imprime "247" raw = (1111 0111) Esta línea es LARGUIRUCHIENTA también, pero no tanto... 
+  gosub "print"
+  //xsetbit(n 4 1)  // volvemos a poner ese bit en 1
+  [n 4]<-1
+  write "Volvemos a poner 1 en posición 4 = ",n,"\n"   // imprime 255
+  gosub "print"
+  n<-8926
+  write "Otro numerito = ",n,"\n"
+  gosub "print"
+  context("ROBOT")
+  write "BIT posicion 4 = ",xgetbit(n 4)," Estado = ",(%xgetbit(n 4)),"\n"
+  write "BIT posicion 5 = ",[n 5]," Estado = ",(%[n 5])
+  ."\n"
+
+  write "BITS desde posicion 3, 4 bits hacia la derecha = ", [.n 3 4]
+  write "\nBITS desde posicion 6, 3 bits hacia la derecha = ", getgbit(n 6 3)
+  ."\n\nOtra prueba...Modificamos el bit 3, 4 y 5:\n"
+  n<-255
+   write n,"\n"
+  gosub "print"
+    [.n 3 5]<-0
+    write n,"\n"
+  gosub "print"
+  ."\n"
+  [.n 3 5]<-1
+    write n,"\n"
+  gosub "print"
+  ."\n"
+  setgbit(n 3 5 0)
+    write n,"\n"
+  gosub "print"
+  ."\n"     // xgetbit
+  setgbit(n 3 5 1)
+    write n,"\n"
+  gosub "print"
+  ."\n"
+  
+  ."Número = 1234567890\n"
+  write "BIN = ",(Bx 1234567890),  " DEC = ",(BDx (Bx 1234567890))
+  write "\nHEX = ",(Hx 1234567890)," DEC = ",(HDx (Hx 1234567890))
+  write "\nOCT = ",(Ox 1234567890)," DEC = ",(ODx (Ox 1234567890))
+  ."\n"
+  
+  //   1001001100101100000001011010010 xgetbit      xgetbit
+  
+/* LOS SIGUIENTES CASTORES TRABAJAN CON MATRICES TAMBIEN, EN TODOS SUS ARGUMENTOS. 
+   TODO LO ANTERIOR SOLO TRABAJA CON VARIABLES SIMPLES */  
+
+  ."\nUSO DE CASTORES...\n"
+  n<-255
+  gosub "print"
+  n<-(OFF n 4)
+  gosub "print"
+  n<-(ON n 4)
+  gosub "print"
+  
+  sub "inicial"
+    n<-34
+    i<-12
+  back
+  
+  gosub "inicial"
+  write "N=",n,"\n"
+  gosub "print"
+  i<-12
+  write "I=",i,"\n"
+  n<-12
+  gosub "print"
+  n<-34
+  
+  n<-(AND n i)
+  write "AND = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(OR n i)
+  write "OR  = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(XOR n i)
+  write "XOR = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(NOT n)
+  write "NOT = ",n,"\n"
+  gosub "print"
+  write "Bit 5 está...",(BIT n 5),"(",{(%(BIT n 5))?color(14):color(12)}(%(BIT n 5)),color(7) ")\n"
+  write "Bit 0 está...",(BIT n 0),"(",{(%(BIT n 0))?color(14):color(12)}(%(BIT n 0)),color(7) ")\n"
+
+  gosub "inicial"
+  n<-(>> n 1)
+  write "Desplazamiento a la derecha 1 bit = ",n,"\n"
+  gosub "print"
+  gosub "inicial"
+  n<-(<< n 1)
+  write "Desplazamiento a la izquierda 1 bit = ",n,"\n"
+  gosub "print"
+stop

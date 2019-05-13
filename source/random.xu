@@ -1,0 +1,24 @@
+/*
+  RANDOM
+  necesita un argumento para multiplicarlo por el número aleatorio elegido
+  entre 0 y 1. Si este argumento es un number, entregará un número cagón.
+  Si este argumento es una matriz, entregará una matriz con aleatorios
+  multiplicados por el numero en cada celda de la matriz.
+  Si le pones "1", entregará "0". Si quieres un decimal, debes poner "1.0".
+  La gracia de meter una matriz con el multiplicador en RAND, es que puedes
+  manejar el tipo de número que deseas de vuelta sectorizado por regiones de
+  la matriz en el caso de que la verdad no se me ocurre que puta razón podrías
+  tener, pero ahí está.
+*/
+#use math
+vars:
+  a:=^number
+  n:=number
+algorithm:
+
+  dim a(500,500)
+  n<-seconds("")
+  {a,a}<-{1.0,mth.rand(a)}
+  ."\nTIME RANDOM = ",seconds("")-n,"\n"
+  ."\nELEMENTO 450,66 = ",[.a 450 66],"\nSIZE= ",[@a],"\n"
+stop

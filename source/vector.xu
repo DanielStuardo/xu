@@ -1,0 +1,22 @@
+/*
+   VECTORES EN XU
+   Los vectores, a diferencia de otros lenguajes, se acceden con un castor "["
+   de la siguiente forma:
+      [var indice]
+   que es semejante a:
+       var[indice], o a var(indice)
+   Simplemente corrí el corchete a la izquierda, porque soy choro.      
+*/
+#use math
+vars:
+  a:=^number
+  i:=number
+algorithm:
+  write [a 1]
+  dim a(10)
+  a<-10
+  for i<-1 to 10
+     [a i]<-[a i]*mth.rand(10)
+  next
+  write a
+stop

@@ -1,0 +1,58 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+  xdim:=number
+algorithm:
+
+  dim a(100,5,5,5); dim b(100,5,5,5)
+  a<-10
+  b<-(-2)
+  xdim<-[[@a] 1]
+  
+  n<-seconds("")
+  c<-a^(b*(-1))
+  write "\nPOW TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"
+
+  n<-seconds("")
+  c<-a^((-1)*b)
+  write "\nPOW TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"
+  
+  n<-seconds("")
+  c<-b^a
+  write "\nPOW TIME=",seconds("")-n,"\n"
+  write "ELEMENTO 10 = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"  
+
+  a<-0.5
+  try
+     n<-seconds("")
+     c<-b^a
+     write "\nPOW TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"
+  exception
+     ."\nERROR CODIGO (NEG ^ DEC) = ",whatsup()
+  tend
+
+  a<-(-0.5)
+  try
+     n<-seconds("")
+     c<-b^a
+     write "\nPOW TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 B^-neg = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"
+  exception
+     ."\nERROR CODIGO (NEG ^ -DEC) = ",whatsup()
+  tend
+  
+  a<-0
+  try
+     n<-seconds("")
+     c<-a^b
+     write "\nPOW TIME=",seconds("")-n,"\n"
+     write "ELEMENTO 10 0^B = ",{xdim=1?[c 10]:{xdim=2?[.c 10 5]:{xdim=3?[:c 10 5 5]:[_c 10 5 5 5]}}},"\n"
+  exception
+     ."\nERROR CODIGO (ZERO ^ NEG) = ",whatsup()
+  tend
+  
+stop

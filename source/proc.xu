@@ -1,0 +1,38 @@
+// Programa XU
+#use matrix, string
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  s,t:=^string
+  n,i,j:=number
+  nt:=^number
+//functions:
+
+algorithm:
+   mat.load( (flag "\n") s "DPX_proc.txt")
+//   show s 0
+   nt<-strntok( (flag " ") s)
+   
+   show nt 0
+   pause
+   n<-[[@s] 2]
+   i<-1
+   while i<=n
+      if [nt i]=1
+         use t
+         push [s i]
+      else
+         j<-1
+         while j<=strntok([s i])
+            use t
+            push strtok([s i] j)
+            ++j
+         wend
+      endif
+      ++i
+   wend  
+   mat.save( (flag "\n") t "proc.txt") 
+stop

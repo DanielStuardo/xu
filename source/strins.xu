@@ -1,0 +1,29 @@
+#use string
+vars:
+  v:=string
+  s,t:=^string
+  n:=^number
+algorithm:
+
+/* prueba con una cadena simple */
+  v<-"Hola mundo!!"
+  write "\nCADENA ORIGINAL:\n\"",v,"\"\n"
+  write strins(v 11 " bastardo"),"\n"
+  write strins(v strat((flag "l")"!" v) " amistoso")
+  ."\n"
+
+/* prueba con una matriz de string */
+  
+  dim s(4)
+  s<-"María tenía un corderito"
+  show (strins(s 15 " sanito") 0  )
+    
+  ."\n"
+  use(n); push {6,12,15,strlen([s 1])+1}
+  show strins(s n " ()*()") 0
+  
+  ."\n"
+  use(t); push {" Catalina"," botado"," caprichoso"," maricón"}
+  show strins(s n t) 0
+  
+stop

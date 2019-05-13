@@ -1,0 +1,37 @@
+#use string
+vars:
+  c:=string
+  n:=number
+  s:=^string
+algorithm:
+  c<-"Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo"
+  n<-(flag " ")strntok( c)      // cuento los tokens " "
+  write "\nCADENA:\n\"",c,"\"\n"
+  write "Número de tokens: ", n,"\n"
+  
+  dim s(5)
+  s<-(flag "%")c  // "%" hace que no tokenice y que rellene con la cadena completa
+  show s 0
+  
+  // para calcular los tokens, debo levantar otra bandera:
+  flag " "
+  show strntok(s) 0
+stop
+
+/* SALIDAS:
+
+Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo                                   
+Número de tokens:         13                                                    
+                            
+    1 : Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo
+    2 : Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo
+    3 : Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo
+    4 : Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo
+    5 : Nueve meses pasaron nueve pasajeros en el cohete espacial rumbo al planeta nuevo
+    1 :         13                                                                      
+    2 :         13
+    3 :         13
+    4 :         13
+    5 :         13
+
+*/

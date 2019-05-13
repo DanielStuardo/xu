@@ -1,0 +1,52 @@
+#use string
+vars:
+   t,r:=^string
+   pos,w:=^number
+   s:=string   
+algorithm:
+    s<-"Esta cadena es bien larga, cadena que será evaluada"
+    ."\nCADENA: ",s
+    ."\nStrfind \"larga\" (primera ocurrencia): ",strfind(s "larga" 1),"\n"
+    ."\nStrfind \"cadena\" (sin ocurrencia): ",strfind(s "cadena" (-1)),"\n"   // devuelve 0
+    ."\nStrfind \"cadena\" (segunda ocurrencia): ",strfind(s "cadena" 2),"\n"
+    
+    /* ejemplo caso especial */
+    use t; push {"cadena","evaluada","será"}
+    ."\nBusca la primera ocurrencia de \"cadena\",\"evaluada\" y \"será\":\n"
+    show (strfind(s t 1) 0)
+    ."\nBusca la segunda ocurrencia de \"cadena\",\"evaluada\" y \"será\":\n"
+    show (strfind(s t 2) 0)
+    
+    /* ejemplos full matrix */
+    dim t(5)
+    t<-(flag ".")"La película \"Miss Peregrine y los niños peculiares\" es una película medio buena"
+    ."\nStrfind \"película\": \n"
+   ."\nCADENA ORIGINAL (EN VECTOR): \n"
+    show(t 1)
+    show ( strfind(t "película" 1) 0)  // entrega la posición de la primera ocurrencia
+    ."\n"
+    show ( strfind(t "película" 2) 0)  // entrega la posición de la segunda ocurrencia
+    ."\n"
+    show ( strfind(t "película" 3) 0)  // entrega 0
+    
+    ."\nStrfind de un stack de strings a buscar: \n"
+    r<-"película Miss Peregrine peculiares buena" / " "
+    show ( strfind(t r 1) 0)
+    
+    /* ejemplo full full matrix */
+    ."\n\nBúsqueda de diferentes ocurrencias de \"COD\":\n"
+    use t; drop   // es necesario borrar "t", dado que ya está dimensionado
+                  // y la siguiente línea aprovechará la dimensión previa de "t"
+                  // lo que podría redundar en un dimnesion fenomenal error 
+    queue 
+    t<-(flag "\n")"JUANITO ESCARCHA COD01020 COD2098 COD304\n"+ &
+                  "MARIA CALFUQUEO COD10023 COD3098 COD234\n"+ &
+                  "ARNOLD CHUARSENEGER COD90087 COD10234 COD111\n"+ &
+                  "RAQUEL TICOTIN COD87644 COD11203 COD872"
+
+    show t 0
+    use w; drop; push{1,3,2,2}
+    pos<-strfind(t "COD" w)   // "W" es un stack de posiciones.
+    show pos 0
+    
+stop

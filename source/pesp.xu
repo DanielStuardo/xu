@@ -1,0 +1,14 @@
+/* 
+  Progrma de prueba
+*/
+
+#include include/espac.def
+
+//#define _TIC(V)  V<-seconds("")                                                
+//#define _TOC(V)  seconds("")-V
+vars:
+  n:=number
+algorithm:
+  _TIC(n)
+  write "TIEMPO=",_TOC(n),"\n"
+stop

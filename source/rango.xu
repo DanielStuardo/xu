@@ -1,0 +1,57 @@
+#use math,string
+vars:
+   n,rango:=^number
+   s:=^string
+   b:=^boolean
+algorithm:
+
+  precision 0
+  
+  dim n(10,10)
+  n<-10
+  rango<-[* ^[3,3,9,5]]
+  [>n rango]<-[<n rango]*mth.sqrt([<n rango])
+  show(n 10)
+  pause
+  n<-25
+  rango<-[*| [[@ n] 2] ^[3,4,8]]
+//  write [@ rango],"\n"*2
+  [>n rango]<-[<n rango]*mth.sqrt([<n rango])
+  show(n 10)
+  pause
+  n<-25
+  rango<-[*- ^[2,4,5,9,10] [[@ n] 3]]
+//  write [@ rango],"\n"*2
+  [>n rango]<-[<n rango]*mth.sqrt([<n rango])
+  show(n 10)
+  ."\n"*2
+
+  dim n(5,5,2,2)
+  {n,n}<-{10,mth.int(mth.rand(n))}
+  rango<-[\n "<" 5]
+
+ // [.rango 5 3]<-100   // out of range!
+
+  show n 0
+  [>n rango]<-100+[<n rango]
+  n<-mth.int(n)    // mth.ceil y mth.floor hacen su trabajo, pero mantienen el tipo double.
+  show strpad((flag "R ") ($n) 8) 0
+
+  dim s(5,5)
+  s<-"cuneta"
+  [.s 2 2]<-"merengue"
+  [.s 3 3]<-"luna"
+  rango<-[\s "~@" "un"]
+  show s 0
+  show [<s rango] 0
+
+  dim b(5,5)
+  not b
+  [.b 2 2]<-false
+  [.b 5 5]<-false
+  rango<-[\b "is" false]
+  show b 0
+  show [<b rango] 0
+
+stop
+

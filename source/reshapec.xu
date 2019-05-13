@@ -1,0 +1,14 @@
+vars:
+  c:=^string
+algorithm:
+  c<-(queue)"mensaje escrito en una botella encontrado en playa de Huasco"
+  flag "RR"
+  reshape c(5,2)
+  show c 0
+  flag "RR"
+  reshape c(2,5)
+  show c 0
+  flag "RC"
+  reshape c(10)
+  show c 0
+stop

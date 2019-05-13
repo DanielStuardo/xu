@@ -1,0 +1,69 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+algorithm:
+
+  dim a(10); dim b(10)
+  a<-100
+  b<-57
+  ."1D\n"
+  n<-seconds("")
+  c<-a ^ b
+  ."\nTIME COMPUTE = ",seconds("")-n," secs"
+//  show(c 0)
+  write "\nELEMENTO 9=",[c 9],", SIZE C = ",[@c],"\n"  
+
+  dim a(100000); dim b(100000)
+  a<-(-10)
+  b<-0.25
+  ."1D\n"
+  try
+     n<-seconds("")
+     c<-a ^ b
+     ."\nTIME COMPUTE = ",seconds("")-n," secs"
+//  show(c 0)
+     write "\nELEMENTO 9000=",[c 9000],", SIZE C = ",[@c],"\n"
+  exception
+    ."\nERROR CODIGO (NEG ^ DECIMAL)=",whatsup()
+  tend  
+  
+  dim a(1000,1000); dim b(1000,1000)
+  a<-0
+  b<-(-3)
+  ."2D\n"
+  try
+    n<-seconds("")
+    c<-a ^ b
+    ."\nTIME COMPUTE = ",seconds("")-n," secs"
+//  show(c 10)
+    write "\nELEMENTO 900,900=",[.c 900 900],", SIZE C = ",[@c],"\n"
+  exception
+    ."\nERROR CODIGO (ZERO ^ NEG)=",whatsup()
+  tend
+
+  dim a(100,100,100); dim b(100,100,100)
+  a<-0
+  b<-0
+  ."3D\n"
+  try
+    n<-seconds("")
+    c<-a ^ b
+    ."\nTIME COMPUTE = ",seconds("")-n," secs"
+//  show(c 2)
+    write "\nELEMENTO 90,90,90=",[:c 90 90 90],", SIZE C = ",[@c],"\n"
+  exception
+    ."\nERROR CODIGO (ZERO ^ ZERO)=",whatsup()
+  tend
+  
+  dim a(100,100,100,2); dim b(100,100,100,2)
+  a<-(-5)
+  b<-5  
+  ."\n4D\n"
+  n<-seconds("")
+  c<-a ^ b
+  ."\nTIME COMPUTE = ",seconds("")-n," secs"
+ // show(c 2)
+  write "\nELEMENTO 90,90,90 2=",[_c 90 90 90 2],", SIZE C = ",[@c],"\n"
+  
+stop

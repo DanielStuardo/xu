@@ -1,0 +1,94 @@
+/*
+  Este encabezado es por
+  completo opcional
+*/ 
+name:     SELECT sencillo 
+output:   terminal          
+memory: normal        
+
+// Esto es lo que voy a usar
+#use string,math
+
+// declaro las variables
+vars:
+  i := number
+  j := number
+  k := number
+  x := number
+  s,y := string
+
+// declaro funciones, de haberlas
+functions:
+
+  menu:=function:string
+     w:=$1:string
+     c:=number
+
+  begin:
+     write "\nOpcion anterior:",w
+     write "\n\n\tMENU DE OPCIONES\n\t", 16*"-"
+     write "\n\t1) Opción 1"
+     write "\n\t2) Opción 2"
+     write "\n\tQ) Salir\n\n\t Elija opción: "
+
+     readkey(c), until c<>0
+     return chr(c)
+  end
+
+/***********************
+   Programa principal
+ **********************/
+algorithm:
+  i<-5
+  j<-0                   
+  cls
+
+  eval x for i*j+10
+     case x = 10 
+        write "Es 10!!"
+        j<-2
+        continue                   // vuelve a evaluar
+
+     case x=(4*i):
+        s<-"?"
+        eval y for .menu(s)
+           case y="1" : 
+                        write "\nEligio la opcion:",y
+                        s<-y
+                        y<-"1.1"
+
+           case strupper(y)="Q" : 
+                        write "\nEs el valor!!",y
+                        x<-mth.int(14.4)
+                        write "\n",x
+                        break 
+
+           case y="1.1":
+                write "\n\tViene con yapa!!!"
+                s<-  s+y 
+                continue
+
+           case y="2"                
+                write "\nEligio la opcion 2..."
+                s<-y
+                continue
+
+           otherwise: 
+                write "\nOpcion incorrecta...intente otra vez"
+                continue
+        evend
+        ."\nAcaba de salir del menú...\n"
+     case x=14
+        write "\nSigo en SELECT..."
+        i<-1
+        j<-1
+        continue
+     case x=11
+        write "\nEsta es la ultima evaluacion"
+        
+     otherwise   // esto nunca se ejecutará!!
+        write "\nAdiós!"
+  evend
+
+stop
+

@@ -1,0 +1,34 @@
+#use string
+vars:
+  v,list_dir:=string
+  i:=number
+  alist_dir:=^string
+  n:=^number
+  
+algorithm:
+  list_dir <- fcmd( "ls" ) // lista de archivos en Linux (en Win8=Dows use "dir")
+
+  for i<-1 to strntok ((flag "\n")list_dir)
+     write strtok( list_dir i),"; "
+  next
+  
+  ."\n"
+  /* una alternativa a strntok() y strtok() que genera la misma salida. 
+     Solo pa' que sepai y no seai GIL!! */
+
+  for each v in list_dir
+     write v,"; "
+  next 
+  
+  ."\n"
+  /* obtiene los tokens de una matriz de strings */
+  alist_dir<-fcmd("ls -l *.csv")
+  // asignó cada línea automáticamente a la matriz, porque ya existía el flag "\n"
+  show alist_dir 10
+  n<-strntok((flag ":")alist_dir)
+  show n 0
+  
+  show (strtok (alist_dir n)) 10
+  show (strtok (alist_dir 1)) 10
+stop
+

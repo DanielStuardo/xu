@@ -1,0 +1,59 @@
+vars:
+   p,q:=^number
+   n,m:=number
+functions:
+   vert:=function:void
+     t:=$1:^number (ref)
+   begin:
+     use t
+     push {1000,2000,3000,4000} 
+   end  
+   vart:=function:number  ///void
+     f:=$1:^number(*)
+   begin:
+     use f
+     push {10,20,30,40,50,60,70,80,90}
+     .vert(f)
+     return [[@f] 2]
+   end
+   vurt:=function:void
+      g:=$1:^number
+   begin:
+     use g
+     ."\n--- estoy en VURT:\n"
+     write pop,";", while ~isempty
+   end
+   virt:=function:void
+     d:=$1:number(*)
+     e:=$2:number
+   begin:
+     d<-100
+     e<-100
+   end
+algorithm:
+   use p
+   n<-10
+   m<-2
+   push {n=10?{(n%m)=0?100:{n>m?50:10}}}  // no agregué un ":" para n!=10
+  // si n!=10, la siguiente linea debe mandar error overflow:
+   write pop,"\n"
+   use q
+   push {(-1),(-2),(-3)}
+   n<-.vart(p)
+   m<-.vart(q)
+   use p
+   write "\nSIZE p=",n,"\n"
+   write pop,",", while ~isempty
+   
+   .vurt(q)
+   ."\nVuelvo a main:\n"
+   use q
+   write "\nSIZE q=",m,"\n"
+   write pop,",", while ~isempty
+   
+   m<-20
+   n<-20
+   write "\nm=",m,", n=",n,"\n"
+   .virt(m,n)   // m pasa por referencia.
+   write "m=",m,", n=",n,"\n"
+stop

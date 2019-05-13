@@ -1,0 +1,15 @@
+vars:
+   i:=number
+algorithm:
+
+  out "./out.txt"   // la salida será a un archivo "out.txt"
+  
+  ."Esto es una lista cagona que se verá por pantalla\n"
+  ."Y se guardará en un archivo...\n"
+  
+  while (++i)<10000
+     write "\t\t",i,"\n"
+  wend
+  
+  out ""            // desactiva la salida al archivo
+stop

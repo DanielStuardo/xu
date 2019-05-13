@@ -1,0 +1,39 @@
+// Programa XU. Obtener el dígito verificador de un rut chileno.
+#use matrix, string
+
+//#include
+
+name: obtencion de digito verificador de RUT chileno.
+//functions:
+
+vars:
+  rut:=$1:string
+  r,d:=^number
+  s:=number
+  dv:=string
+
+#define _USE(V)   use V;drop
+ 
+algorithm:
+
+   if rut=""
+      ."\nIngresa un RUT sin dígito verificador como parámetro\n"
+      goodbye
+   endif
+
+   precision 0
+   
+   s<-1
+   _USE(r)
+   do
+      push (#[rut s] )
+   until (++s)>strlen(rut)
+
+   _USE(d)
+   push {3,2,7,6,5,4,3,2}
+   s<-[mat.sum(r*d) 1]
+   s<-11-(s%11)
+   dv<-{{s between 1 9? ($s):{s=10?"K":"0"}}}
+   ."Dígito verificador: (",s,")\n\nRUT=",mask((rut+dv) " ##.###.###-#"),"\n\n"
+   
+stop

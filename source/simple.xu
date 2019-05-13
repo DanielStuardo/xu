@@ -1,0 +1,34 @@
+#use math,matrix
+vars:
+  a,b,c,d:=number
+  s:=string
+
+functions:
+  vert:=function:void
+    t:=^number
+  begin:
+    use t
+    push 10
+  end
+algorithm:
+  
+cls
+//write (10*"\n")
+       color(15); cls
+       api "box=8,6,17,66,D"
+       
+       at(10 10);write "Ahora, ¡acaba con la amenaza Phoenix desde el origen!"
+       at(12 10);write "   Debes traspasar el campo de fuerza de la nave"
+       at(13 10);write " madre y disparar a la cabeza, el centro de mando."
+       at(15 10);write "    Podrás detener el tanque con flecha arriba."
+       goodbye
+  b<-6
+  a<-10+{b=5?0:{b>5?1:(-1)}} *mth.sqrt(25) + {false?100:200}
+  b<-10 
+  write {(b%2)=0?"ES PAR":b},",",a,"\n"
+  {a,c,d}<-{10+{b=5?0:{b>5?1:(-1)}} *mth.sqrt(25) + {false?100:200}, a-0.8,{a<c?(-1):1}}
+  write a,",",c,",",d,"\n"
+  .vert
+  use t
+  mat.row(1); write mat.get
+stop

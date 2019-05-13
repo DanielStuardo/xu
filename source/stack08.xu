@@ -1,0 +1,47 @@
+/*
+  Si se asigna una cadena a un array, esta se dividirá por lo que indique el flag y será asignada
+  al array con sus componentes como elementos.
+  Aquí no necesitamos inicializar "#use"
+*/
+
+vars:
+  s:=^string
+
+algorithm:
+  dim s(5)
+  s<-"Hola mundo vanidoso!"  // por defecto hace un deque
+  show(s 1)
+ ."\n" 
+
+/* si lo anterior se hace con un array con dimensión menor al esperado por la tokenización
+   XU te mandará a la mierda. Prueba con arrays multidimensionales */
+ 
+  dim s(5)   // con esto eliminamos lo que antes había
+  queue
+  s<-"Hola mundo vanidoso!"  
+  show(s 1)
+ ."\n" 
+ 
+  dim s(5)   // con esto eliminamos lo que antes había
+  queue
+  flag ","   // la cadena será dividida considerando separador de token ","
+  s<-"Hola,mundo,vanidoso!"  
+  show(s 1)
+ ."\n"
+  
+  use(s)
+  drop   // borramos la matriz y la dejamos como stack.
+  
+  queue
+  flag " "   // volvemos a setear el flag, porque sino solo guarda la cadena completa como elemento
+             // ya que no puede hacer ninguna tokenización. Si no me cree, comente el "flag".
+             
+  s<-"Hola mundo vanidoso!"  
+  show(s 1)   // podemos usar "show" con este stack porque es de un mismo tipo
+              // de lo contrario, hay que usar "write"
+ ."\n"
+ /* otra forma de tokenizar una cadena y guardarla en un stack con tipo, es usando "/" */
+  drop
+  s<-"Hola mundo vanidoso!"/" "
+  show(s 1)
+stop

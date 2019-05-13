@@ -1,0 +1,17 @@
+#use string
+vars:
+   s:=string
+   i:=number
+algorithm:
+   s<-"hola mundo!!"
+   for i<-1 to strlen(s)
+      ."\nstrrepc: ",strrepc(s ":" i) 
+   next 
+  ."\n (next...)"
+   // las siguientes líneas no causarán ninguna puta excepción:
+    ."\nstrrepc: ",strrepc(s "\&:::" 0)  // bueno, si pones "&" sin "\", habrá error.
+   /* el ejemplo anterior: si pones "0", remplaza la última */ 
+    ."\nstrrepc: ",strrepc("Perico sin miedo" "$,.:" 0)
+    ."\nstrrepc: ",strrepc(s "%:" (-3))
+    ."\nstrrepc: ",strrepc(s "%:" 3)
+stop

@@ -1,0 +1,62 @@
+/*
+  Mismo que "stack01.xu", pero ahora insertará un elemento del stack.
+*/
+
+#use stack,matrix
+
+vars:
+  w:=stack
+  n:=^number
+  s:=^string
+  b:=^boolean
+
+algorithm:
+  use(w)
+  push("Hola mundo!")
+  push(120.3)
+  push(true)
+
+  dim b(10)   // vector de 10 booleanos
+  b<-true
+
+  use(w)  // es necesario esto, porque "dim" dejó "n" en uso :P
+  push(b)
+
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10
+
+  use(w)
+  push(n)
+
+  dim s(3)   // vector de 3 strings
+  s<-"CADENA"
+
+  use(w)
+  push(s)
+
+/* insertará un elemento en la posición 4
+   correrá el resto de los elementos una posición */
+
+  mat.row(4)   // se debe colocar en "#use" el "matrix"
+  stk.ins
+ // ahora puede meterle la hueá que quiera. si no le mete nada
+ // dejará el espacio como "<null>". pruebe comentando la siguiente línea:
+ // mat.put(10000)    // un vector estático de 6 numeros
+  mat.put ^[0,1,2,3,4,5,6,7,8,9,10]
+  write type(w)
+  pause
+
+/* si "mat.row" ubica el puntero fuera del rango del stack, XU te mandará
+   a la soberana mierda */
+
+  ."Tamaño stack: ",[@w],"\n"
+
+  queue   /* sacará los datos como una "cola". Para sacarlos como "pila",
+             escriba "deque" sin comillas */
+  do
+    /* "stk.top" verá el elemento que está en el top del stack, según "queue" o "deque" */
+
+    write "\nDATO (tipo ",type(stk.top),"): ",pop,"\n"
+  until isempty
+
+stop

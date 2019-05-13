@@ -1,0 +1,48 @@
+/*
+  Prueba de stack con método de extracción de cola (con opción de "pila").
+  un stack puede almacenar cualquier tipo de dato.
+*/
+
+#use stack
+
+vars:
+  w:=stack
+  n:=^number
+  s:=^string
+  b:=^boolean
+
+algorithm:
+  use(w)
+  push("Hola mundo!")
+  push(120.3)
+  push(true)
+  
+  dim b(10)   // vector de 10 booleanos
+  b<-true
+  
+  use(w)  // es necesario esto, porque "dim" dejó "b" en uso :P
+  push(b)
+
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10  
+  
+  use(w)  
+  push(n)
+
+  dim s(3)   // vector de 3 strings
+  s<-"CADENA"
+  
+  use(w)
+  push(s)
+
+  ."Tamaño stack: ",[@w],"\n"
+  
+  queue   /* sacará los datos como una "cola". Para sacarlos como "pila", 
+             escriba "deque" sin comillas */
+  do
+    /* "stk.top" verá el elemento que está en el top del stack, según "queue" o "deque" */
+  
+    write "\nDATO (tipo ",type(stk.top),"): ",pop,"\n"
+  until isempty
+
+stop

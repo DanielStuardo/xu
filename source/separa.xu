@@ -1,0 +1,100 @@
+#use matrix,string,set
+
+vars:
+  u,v,w,t:=^string
+  i,j:=number
+  sw:=boolean
+  
+  /*
+     variables fantasmas:
+       @(#T) = numero
+       @($T) = string
+       @(%T) = boolean
+       @(^^W) = stack 
+       @(^#W) = stack numero
+       @(^%W) = stack boolean
+       @(^SW) = stack string
+       #define __swapn(A,B)   @(#TMP)<-A; A<-B; B<-TMP
+  */
+algorithm:
+  
+  //cls
+  
+  flag "\n"
+  mat.load(v "lout")
+  mat.load(w "pout")
+  mat.load(u "lagain")
+
+
+  flag "A"
+  sort(u 1 "" 0 0)
+  sort(v 1 "" 0 0)
+  sort(w 1 "" 0 0)
+  
+  t<-setdiff(v w)
+
+out "./out.txt"
+  screen(0)
+  
+  ."META V=",flc("lout"),"\n"
+  
+  ."SIZE U=",[@u]," SIZE* U=",[@[@u]]
+   ."\n"
+  ."SIZE T=", [@t]," SIZE* T=",[@[@t]]
+   ."\n"  
+  t<- [+| t u]
+  
+  
+  write t,"\n"
+  
+  ."Show..."
+  show t 0
+  ."\n"
+
+  dim t(5)
+  t<-"()*()"
+  show t 0
+  ."\n"
+  write t,"\n"
+  
+  dim t(5,5,3)
+  t<-"100"
+  show t 0
+  ."\n"
+  write t,"\n"
+
+  dim t(5,7,3,4)
+  t<-"3.14"
+  show t 0
+  
+  ."\n"
+  write t,"\n"
+  
+  use t; drop
+  show t 0
+  
+  write t,"\n"
+
+  out ""
+  screen(1)
+
+
+/*  show u 0
+  ."\n"
+  show t 0 */
+/*
+ @(#i)
+  for i<-1 to [[@v] 2] 
+    sw<-false
+    for j<-1 to [[@w] 2] 
+      if [v i]=[w j]
+         sw<-true
+         break
+      endif    
+    next
+    if ~sw
+      write [v i],"\n"
+    endif
+  next
+*/
+stop

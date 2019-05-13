@@ -1,0 +1,22 @@
+#use string 
+
+//#include
+
+name: <descripcion del programa>
+
+vars:
+  files:=$1:^string
+  v:=string
+
+functions:
+  f(v:string,nul:number):void
+  begin:
+    write "Archivo #",nul," [",v,"]\n"
+  end
+  
+algorithm:
+  precision 0
+  for each v inlist files
+     .f(v strlen(v))
+  next
+stop

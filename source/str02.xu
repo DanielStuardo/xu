@@ -1,0 +1,14 @@
+#use string
+vars:
+  v,w,x:=^string
+algorithm:
+
+  dim v(10);dim w(10)
+  v<-(flag ".")"Hola guatón "
+  w<-"  culiao!!   "
+  //x<- v+w  //
+  //x<-strupper(v) + strtrim(flag("R")w)
+  x<-v + strtrim(flag("R")w)
+  show x 0
+  ."\n"
+stop

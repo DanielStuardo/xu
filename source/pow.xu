@@ -1,0 +1,62 @@
+#use math
+vars:
+  a,b,c:=^number
+  n:=number
+
+algorithm:
+
+  dim a(10)
+  n<-seconds("")
+  a<-100
+  ."CARGA=",seconds("")-n
+  
+  c<-(a+1)^2
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-2^a
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-1^(2*a)+1
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  c<-a^1 
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  
+  try
+     c<-0^((-1)*a) 
+     write c,"\n"
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE 0 ^ neg = ",whatsup()
+  tend
+    
+  c<-a^0 
+  ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  try
+     c<-0^(a*(-1)) 
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE 0 ^ neg = ",whatsup()
+  tend
+  cleartry
+  try
+    [a 3]<-0
+    c<-a^0 
+    ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE 0 ^ 0 = ",whatsup()
+     [a 3]<-100
+  tend
+  cleartry
+  try
+     c<-(a*(-1)) ^ 0.5 
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE neg ^ dec = ",whatsup()
+  tend
+  cleartry
+  try     
+     c<-(a*(-1))^(-0.5) 
+     ."\nELEMENTO (5) = ",[c 5]," SIZE=",[@c],"\n"
+  exception
+     ."\nERROR CODE neg ^ dec(neg) = ",whatsup()
+  tend
+ 
+stop

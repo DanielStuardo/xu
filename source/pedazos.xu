@@ -1,0 +1,151 @@
+     if (++retardoK1)=600 //RETARDOF
+        retardoK1<-0
+        if ~sw_azul
+           sw_death<-false
+           for i<-1 to 4
+              if mPx=[.FANx i] and mPy=[.FANy i]
+              
+                 at(14 23); write (color(12)) "TRAPPED!"
+                 flush()
+                 .poneEstrella(79)
+                 //sleep(2)
+                 .wrongEtapa()
+                 sw_death<-true
+                 break
+              endif
+           next
+           exitif sw_death
+        endif
+     endif
+
+    /* verifica si come o no */
+    if (++retardoA1)=600  
+        retardoA1<-0
+        room sw_azul
+           for i<-1 to 4
+              if Px=[.Fx i] and Py=[.Fy i]
+                 ++cntPuntos
+                 score<-+[.Fpuntos cntPuntos]
+                 
+                 at(8 9);color(143);write [.Fpuntos cntPuntos]
+                 .poneScore()
+                 .poneEstrella(104)
+                 at(8 9);color(0);write "    "
+                 [.fdireccion i]<-"X"
+                 use(Frecupera); push(i)
+                 if i=1
+                    [.FANx i]<-10; [.FANy i]<-18; [.Fx i]<-11; [.Fy i]<-25
+                 elseif i=2
+                    [.FANx i]<-10; [.FANy i]<-20; [.Fx i]<-11; [.Fy i]<-27
+                 elseif i=3
+                    [.FANx i]<-11; [.FANy i]<-18; [.Fx i]<-12; [.Fy i]<-25
+                 else
+                    [.FANx i]<-11; [.FANy i]<-20; [.Fx i]<-12; [.Fy i]<-27
+                 endif 
+                 
+              endif
+           next
+        rend
+     endif
+     
+     
+     if (++retardoK2)=600 //RETARDOF
+        retardoK2<-0
+        if ~sw_azul
+           sw_death<-false
+           for i<-1 to 4
+              if mPx=[.FANx i] and mPy=[.FANy i]
+                 at(14 23); write (color(12)) "TRAPPED!"
+                 flush()
+                 .poneEstrella(79)
+                 //sleep(2)
+                 .wrongEtapa()
+                 sw_death<-true
+                 break
+              endif
+           next
+           exitif sw_death
+        endif
+     endif
+
+    /* verifica si come o no */
+     if (++retardoA2)=600 
+        retardoA2<-0
+        room sw_azul
+           for i<-1 to 4
+              if Px=[.Fx i] and Py=[.Fy i]
+                 ++cntPuntos
+                 score<-+[.Fpuntos cntPuntos]
+                 
+                 at(8 9);color(143);write [.Fpuntos cntPuntos]
+                 .poneScore()
+                 .poneEstrella(104)
+                 at(8 9);color(0);write "    "
+                 [.fdireccion i]<-"X"
+                 use(Frecupera); push(i)
+                 if i=1
+                    [.FANx i]<-10; [.FANy i]<-18; [.Fx i]<-11; [.Fy i]<-25
+                 elseif i=2
+                    [.FANx i]<-10; [.FANy i]<-20; [.Fx i]<-11; [.Fy i]<-27
+                 elseif i=3
+                    [.FANx i]<-11; [.FANy i]<-18; [.Fx i]<-12; [.Fy i]<-25
+                 else
+                    [.FANx i]<-11; [.FANy i]<-20; [.Fx i]<-12; [.Fy i]<-27
+                 endif 
+                 
+              endif
+           next
+        rend
+     endif
+     
+     
+     
+     if c>0
+           {tPx,tPy,tmPx,tmPy,tdireccion,tboca}<-{Px,Py,mPx,mPy,direccion,boca} 
+           if c=KUP  
+             --Px;--mPx;direccion<-"N"; .verificaBoca("V" "|")
+           elseif c=KDOWN
+             ++Px;++mPx;direccion<-"S"; .verificaBoca("^" "|")
+           elseif c=KLEFT
+             --Py;--mPy;direccion<-"E"; .verificaBoca(">" "-")
+           elseif c=KRIGHT
+             ++Py;++mPy;direccion<-"O"; .verificaBoca("<" "-")
+           endif
+           pdireccion<-direccion  // respaldo nueva direccion
+           if [:dots mPx mPy]=0
+              {Px,Py,mPx,mPy,direccion,boca}<-{tPx,tPy,tmPx,tmPy,tdireccion,tboca}
+              
+           else
+              pdireccion<-"X"    // no existe posible direccion 
+           endif
+        else
+     {tPx,tPy,tmPx,tmPy,tdireccion}<-{Px,Py,mPx,mPy,direccion} 
+           if pdireccion<>"X"   // existe direccion posible: prepara direccion
+              if pdireccion="N"
+                 --mPx; --Px
+              elseif pdireccion="S"
+                 ++mPx; ++Px 
+              elseif pdireccion="E"
+                 --mPy; --Py 
+              elseif pdireccion="O"
+                 ++mPy; ++Py 
+              endif
+              if [:dots mPx mPy]<>0
+                 direccion<-pdireccion
+              endif
+              {Px,Py,mPx,mPy}<-{tPx,tPy,tmPx,tmPy}
+           endif 
+           if direccion="N"
+              --mPx; --Px; .verificaBoca("V" "|")
+           elseif direccion="S"
+              ++mPx; ++Px; .verificaBoca("^" "|")
+           elseif direccion="E"
+              --mPy; --Py; .verificaBoca(">" "-")
+           elseif direccion="O"
+              ++mPy; ++Py; .verificaBoca("<" "-")
+           endif
+           if [:dots mPx mPy]=0
+              direccion<-"X"    // no se mueve
+              {Px,Py,mPx,mPy}<-{tPx,tPy,tmPx,tmPy} 
+           endif
+        endif

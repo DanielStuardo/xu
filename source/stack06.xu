@@ -1,0 +1,78 @@
+/*
+  Guardar matrices de diferente tipo en un stack con modo "recover". Este modo hace que se guarde
+  la data de dichas matrices en el stack, y que quede enganchada la memoria de la matriz original,
+  de tal manera que cuando se haga "pop", se extraiga el elemento del stack y se recupere la matriz
+  original a la cual perteneció dicho elemento.
+*/
+
+#use stack,matrix
+
+vars:
+  w:=stack
+  n:=^number
+  s:=^string
+  b:=^boolean
+  i:=number
+
+algorithm:
+
+  precision 0
+  
+  dim n(5,5)  // matriz 2D de 25 números
+  n<-10
+  dim b(10)
+  b<-true
+  dim s(10)
+  s<-"Hola"  // si se quiere añadir un string más elaborado, no puede hacerse de este modo
+             // se debe hacer por otro medio de asignación, ya sea con castores o push.
+
+  use(w)
+  flag "recover"
+  push{n,b,s}
+  flag ","   // baja la bandera de "recovery" y lo dejamos listo para "write"
+
+/* mostramos el stack */
+  ."Contenido del stack W:\n"
+  for i<-1 to [[@w] 2]
+     write (mat.row(i)) mat.get,"\n"
+  next
+
+  ."\nAhora borramos las matrices...\n"
+/* borramos las matrices */
+  use(n); drop
+  use(s); drop
+  use(b); drop
+/*  hasta aquí */
+
+  use(w)
+
+  ."\nTamaño de matrices:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+/* cuando se usa el flag "recover", la función "pop" no solo extrae el elemento matriz del stack
+   sino que recupera la matriz a la cuál pertenece ese elemento.
+   sirve para resguardar la integridad de una matriz usando un stack */
+
+  queue   // recuperará la matriz "n". si una "deque", recuperará la matriz "b"
+  pop
+
+  ."Tamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+
+/* recuperará el resto de las matrices en orden "queue" */
+
+  pop
+  pop
+
+  ."Tamaño de matriz:\n"
+  ."N=",[@n],"\n"
+  ."B=",[@b],"\n"
+  ."S=",[@s],"\n"
+  ."Tamaño stack: ",[@w],"\n"
+stop

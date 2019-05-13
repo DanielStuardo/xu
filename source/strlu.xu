@@ -1,0 +1,18 @@
+#use string
+vars:
+  s:=^string
+algorithm:
+  write strupper("cadena convertida María Zúñiga"),"\n"
+  write strlower("MARÍA ZÚÑIGA CADENA CONVERTIDA"),"\n"
+  dim s(3)
+  s<-(flag ".")"cadena convertida María Zúñiga"
+  show strupper(s) 0
+  ."\n"
+  /* IMPORTANTE: tiene problemas con los caracteres especiales
+     en mayúscula: no los convierte bien.
+     Quizás lo arregle en el futuro. Quizás.
+      */
+  s<-(flag ".")"MARÍA ZÚÑIGA CADENA CONVERTIDA"
+  show strlower(s) 0
+  show s 0
+stop

@@ -1,0 +1,19 @@
+//#include
+#use math
+name: prueba de semilla
+vars:
+   s:=number
+   n:=^number
+algorithm:
+   precision 0
+   seed(1200)
+   dim n(3,7)
+   n<-10
+   show mth.ceil(mth.rand(n)) 0
+   ."\n\n"
+   show mth.ceil(mth.rand(n)) 0
+   seed(1200)
+   ."\n\n"
+   show mth.ceil(mth.rand(n)) 0
+
+stop

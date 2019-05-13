@@ -1,0 +1,26 @@
+#use math
+vars:
+  n:=^number
+  m:=number
+algorithm:
+  
+  precision 5
+  dim n(10)
+  n<-{10,mth.rand(n)}
+  write n
+."\n"
+  write "\n",mth.round(n 1)
+  write "\n",mth.round(n 2)
+  write "\n",mth.round(n 3)
+  write "\n",mth.min(4 5)
+  write "\n",mth.min([n 1] ([n 2]*2))
+."\n"
+  m<-13.7674
+  write "\nRound escalar de : ",m," = ",mth.round(m 0),"\n"
+  m<-13.4674
+  write "\nRound escalar de : ",m," = ",mth.round(m 0),"\n"
+
+  ."\nCeil y floor: ",mth.ceil(m),"; ",mth.floor(m)," sign=",mth.sgn(m)
+  ."\n"
+
+stop

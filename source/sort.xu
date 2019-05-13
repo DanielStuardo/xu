@@ -1,0 +1,112 @@
+/****
+  SORT
+  Es una primitiva de ordenación de XU. Solo se puede ordenar de a una
+  columna. Si se desea ordenar por más columnas, es necesario aprontar
+  el ojete, porque no hace subordenaciones. Para eso, hay que cachar
+  el lenguaje y lo que ofrece, y combinar esfuerzos con otras funciones
+  y castores.
+  USA FLAG. Ergo, hay que declarar "#use stack" y una variable global "stack_flag:=stack"
+ ****/
+#use matrix, math,stack
+vars:
+  s,c:=^string
+  n:=^number
+  t:=number
+  stack_flag:=stack  // debe ir si usará .flag y .unflag. Tambien la declaración y el #use
+functions:
+  #import find.find
+  #import flag.*
+
+algorithm:
+/*s<-_( (8,5) {{"Amadeus","15","1","LOS PLATANOS 456","21/10/1999"},&
+             {"Juanito","25","0","EL SALTO 120","12/08/1997"},&
+             {"Fulano","45","0","EL MAZANO 345","10/10/1967"},&
+             {"Ernesto","45","1","EL PERAL 345","27/10/1985"},&
+             {"Andres","120","0","LAS ACACIAS 323","23/10/2000"},&
+             {"Marión","24","1","ENCINAS 980","09/10/1945"},&
+             {"Jaime","35","0","LA NARANJA 345","11/11/1959"},&
+             {"Elizabeth","27","1","DORSAL 6209","02/12/1989"}} )
+
+  show s 0
+  */
+
+  dim n(10)
+  n<-{10,mth.ceil(mth.rand(n))}
+  show n 0
+  flag "A"
+  sort(n 1 "N" 0 0)
+  show n 0
+  flag "D"
+  sort(n 1 "N" 0 0)
+  show n 0
+  
+  goodbye
+  
+  t<-seconds("")
+    mat.load(s "./files2.txt")
+   ."\nTIME=",seconds("")-t
+
+  t<-seconds("")
+  .flag("A")
+  sort( s 5 "D" 0 0)  // "D"=subtipo fecha, columna 5, todo, ascendente
+  t<-seconds("")-t
+
+  .unflag
+  show s 0
+  ."\n"
+  ."\nTIME=",t
+  ."\n"
+
+  goodbye
+
+  ."\n\n"
+  .flag("A")
+  sort( s 5 "D" 0 0)  // "D"=subtipo fecha, columna 5, todo, ascendente
+  show s 0
+
+  ."\n\n"
+  sort( s 2 "N" 3 6)  /* "N"=subtipo numero, columna 2, desde fila 3, 6 registros
+                                    ascendente */
+  show s 0
+
+  ."\n\n"
+  .flag("D")
+  sort( s 1 "" 0 0)   // ""=tipo del array, columna 1, todo, descendente
+  show s 0
+  .unflag()
+
+  ."\n\n"
+  sort( s 1 "" 0 0)   // ""=tipo del array, columna 1, todo, ascendente
+  show s 0
+
+  ."\n\n"
+  dim n(10)
+  n<-{10,mth.ceil(mth.rand(n))}
+  show n 0
+  ."\n"
+  sort( n 1 "" 0 0)  // cuando es un vector, la columna te la metes en la raja.
+  show n 0
+
+  ."\n\n"
+  dim n(3,3)
+  n<-{10,mth.ceil(mth.rand(n))}
+  show n 0
+  ."\n"
+  .flag "D"
+  sort( n 3 "N" 0 0)  // subtipo "N" está de más porque es del mismo tipo.
+  show n 0
+  .unflag
+
+  ."\nFIND (Funcion de usuario):\n\n"
+  .flag "RR"
+  c<-.find(s 2 "N" ">" 40)  // altera el flag. se recupera con .flag ""
+  .unflag
+  sort( c 2 "N" 0 0)
+  show c 0
+  ."\n"
+  .unflag
+  .flag "hola"
+  .flag "chao"
+  write .getflag,"\n"
+  write .getflag,"\n"
+stop

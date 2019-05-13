@@ -1,0 +1,12 @@
+#use trig
+#include include/prec.def
+
+name: prueba de pernos
+
+vars:
+  n:=number
+
+algorithm:
+   F(n)   // obtiene segundos desde la medianoche
+   ."Hola mundo\n",n,"\n","SIN(",n,")=",trg.sin(trg.d2r(n)),"\n"
+stop

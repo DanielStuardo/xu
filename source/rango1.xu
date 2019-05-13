@@ -1,0 +1,16 @@
+/*
+  ESTA PRUEBA SE VA A LA MIERDA.
+  VER QUE SUCEDE CUANDO LO REESCRIBA EN C
+*/
+vars:
+  m:=^number
+  n:=number
+algorithm:
+  n<-seconds("")
+  m<-[* ^[1,1,300,150,1,150]]
+  ."\TIME = ",seconds("")-n
+  //show(m 0)
+  ."\nSIZE=",[@m]
+  
+  
+stop

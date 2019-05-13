@@ -1,0 +1,28 @@
+#use string
+vars:
+  m:=string
+  s,t:=^string
+  
+algorithm:
+
+  /********** prueba strccar reemplazo de caracteres **********/
+  m<-"Pedro tiene 1234 casas repartidas de 1 en 1, con el número 23 y 47"
+  write "\nCADENA:\n\"",m,"\""
+  write "\n",strccar(m "12345" "./$%#")
+  
+  ."\n"*2,strccar(m "123456789" "000051111")
+  ."\n"
+  
+  ."\nMatriz hecha con división:\n"
+  
+  /* prueba con matrices */
+  s<-(flag ",")(queue)"Juan vive en Romeral nº 1289, Esquina 5 Norte, a 10 Kms de Pedro"
+  show(strccar(s "123456789" "#.:;/%·!|") 0)
+  
+  ."\nLa misma matriz, pero dimensionada:\n"
+  dim t([.[@ s] 2])
+  t<-"#.:;/%·!|"
+  
+  show(strccar(s "123456789" t) 0)
+  
+stop
