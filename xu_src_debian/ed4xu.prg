@@ -9675,9 +9675,10 @@ DX:=strtran(DX,"range{","RANGE(#,")
 DX:=strtran(DX,"ins{","INS(#,") 
 DX:=strtran(DX,"#{","LIN(")  // linea
 DX:=strtran(DX,"tre{","TRE(#,")
-DX:=strtran(DX,"!{","VAL(")
-DX:=strtran(DX,"'{","CH(")  // chr
-DX:=strtran(DX,"&{","ASC(")  // asc
+DX:=strtran(DX,"(&","VAL(")
+DX:=strtran(DX,"($","STR(")
+//DX:=strtran(DX,"'{","CH(")  // chr
+//DX:=strtran(DX,"&{","ASC(")  // asc
 DX:=strtran(DX,"{*","CP(#,")
 DX:=strtran(DX,"rp{","RP(#,")
 DX:=strtran(DX,"{+","PTRP(#,")  // avanza puntero del string
@@ -10106,7 +10107,7 @@ cFUN:={"FNA","FNA","FNA","FNA","FNA",;
        "FNF","FNF","FNF","FNF",;
        "FNG","FNG","FNG","FNG","FNG","FNG",;
        "FNH","FNH","FNH","FNH","FNH",;
-       "FNI","FNI","FNI","FNI","FNI","FNI","FNI",;
+       "FNI","FNI","FNI","FNI","FNI","FNI","FNI","FNI",;
        "FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ",;
        "FNK","FNK","FNK","FNK",;
        "FNL","FNL","FNL","FNL","FNL","FNL","FNL","FNL",;
@@ -10121,7 +10122,7 @@ DICC:={"NT","I","VAR","MOV","~",;   // A
        "TK","LETK","LET","COPY",;    // F     
        "RP","TRI","LTRI","RTRI","UP","LO",;    // G
        "TRE","INS","DC","RPC","ONE",;       // H
-       "VAL","CH","ASC","LIN","PC","PL","PR",;    // I
+       "VAL","STR","CH","ASC","LIN","PC","PL","PR",;    // I
        "MSK","MON","SAT","DEFT","IF","IFLE","IFGE","CLEAR","SAVE","LOAD",; // J
        "NOP","AND","OR","XOR",;    // K
        "NOT","BIT","ON","OFF","BIN","HEX","DEC","OCT",; // L
@@ -10420,10 +10421,10 @@ aadd(pila2,"(")
          elseif m=="POOL" .or. m=="CLEAR" .or. m=="JNZ" .or. m=="ELSE" .or. m=="ENDIF"
             ;
             
-         elseif m=="CH"
+         elseif m=="CH" .or. m=="STR"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
+               _ERROR("SINTAXIS: ESPERO UN ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C") // solo para que pase el analisis
@@ -10579,15 +10580,15 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      AADD(pila,o+n)
                   else
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, substr(o,n,len(o)))
+                     AADD(pila, substr(o,n,len(o))+chr(0))
                   end
                elseif vo=="N"
                   n:=strtran(n,chr(0),"")
-                  AADD(pila, substr(n,o,len(n)))
+                  AADD(pila, substr(n,o,len(n))+chr(0))
                else // sea numeros o strings
                   n:=strtran(n,chr(0),"")
                   o:=strtran(o,chr(0),"")
-                  AADD(pila,o+n)  // concatena
+                  AADD(pila,o+n+chr(0))  // concatena
                end
             elseif m=="-"
                if vn=="N" 
@@ -10595,12 +10596,12 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      AADD(pila,o-n)
                   else
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, substr(o,1,len(o)-n))
+                     AADD(pila, substr(o,1,len(o)-n)+chr(0))
                   end
                else
                   if vo=="N"
                      n:=strtran(n,chr(0),"")
-                     AADD(pila, substr(n,1,len(n)-o))
+                     AADD(pila, substr(n,1,len(n)-o)+chr(0))
                   else   // elimina TRE con ""
                      n:=strtran(n,chr(0),"")
                      o:=strtran(o,chr(0),"")
@@ -10633,7 +10634,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      end
                      end
                   //   ??" O=",o; inkey(0)
-                     aadd(pila,o)
+                     aadd(pila,o+chr(0))
                   end
                end
             elseif m=="*"
@@ -10642,17 +10643,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      AADD(pila,o*n)
                   else
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, replicate(o,n))
+                     AADD(pila, replicate(o,n)+chr(0))
                   end
                else
                   if vo=="N"
                      n:=strtran(n,chr(0),"")
-                     AADD(pila, replicate(n,o))
+                     AADD(pila, replicate(n,o)+chr(0))
                   else
                      n:=strtran(n,chr(0),"")
                      o:=strtran(o,chr(0),"")
                     /// ? ">>",CHARMIX(n,o) ; inkey(0)
-                     AADD(pila, CHARMIX(o,n))
+                     AADD(pila, CHARMIX(o,n)+chr(0))
                   end
                end
             elseif m=="/"
@@ -10665,16 +10666,16 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      end
                   else
                      o:=strtran(o,chr(0),"")
-                     AADD(pila,substr(o,n,len(o)))
+                     AADD(pila,substr(o,n,len(o))+chr(0))
                   end
                else
                   if vo=="C"
                      n:=strtran(n,chr(0),"")
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, CHARONLY(n,o)) // solo deja en "n" los caracteres de "o"
+                     AADD(pila, CHARONLY(n,o)+chr(0)) // solo deja en "n" los caracteres de "o"
                   else
                      n:=strtran(n,chr(0),"")
-                     AADD(pila,substr(n,1,o))
+                     AADD(pila,substr(n,1,o)+chr(0))
                   end
                end
             elseif m=="\"
@@ -10687,7 +10688,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      end
                   else 
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, atadjust(o,par,n,1,," "))
+                     AADD(pila, atadjust(o,par,n,1,," ")+chr(0))
                   end
                else
                   AADD(pila,"TYPE-\-ERROR")
@@ -10698,7 +10699,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      AADD(pila,o^n)
                   else
                      o:=strtran(o,chr(0),"")
-                     AADD(pila, posins(par,o,n))
+                     AADD(pila, posins(par,o,n)+chr(0))
                   end
                else
                   if vo=="C"   // AF busca exacta
@@ -10709,8 +10710,15 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                         j:=1
                         while j<=id
                            ids:=atnum(n,o,j)
-                           c1:=substr(o,ids-1,1)
+                           if ids>1
+                              c1:=substr(o,ids-1,1)
+                           else
+                              c1:="."
+                           end
                            c2:=substr(o,len(n)+ids,1)
+                           if len(c2)==0
+                              c2:="."
+                           end
                            if !isalpha(c1) .and. !isdigit(c1) .and. !isalpha(c2) .and. !isdigit(c2)
                               AADD(pila, ids )
                               exit
@@ -10927,13 +10935,16 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                         c1:="."
                      end
                      c2:=substr(o,c3+len(ids),1)
+                     if len(c2)==0
+                        c2:="."
+                     end
                      if !isalpha(c1) .and. !isdigit(c1) .and. !isalpha(c2) .and. !isdigit(c2)
                         ++xvar
                      end
                   end
                   ++j
                end
-               aadd(pila,alltrim(str(xvar-id)))
+               aadd(pila,alltrim(str(xvar-id))+chr(0))
 
             elseif m=="CAT"
                o:=SDP(pila)
@@ -10947,11 +10958,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                n:=strtran(n,chr(0),"")
                o:=strtran(o,chr(0),"")
                if len(n)==0
-                  AADD(pila,o)
+                  AADD(pila,o+chr(0))
                elseif len(o)==0
-                  AADD(pila,n)
+                  AADD(pila,n+chr(0))
                else
-                  AADD(pila,n+o)
+                  AADD(pila,(n+o)+chr(0))
                end
             
             elseif m=="SUB"
@@ -10970,7 +10981,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                if n==0 .or. m==0
                   AADD(pila,"")   // opcion: no pone nada.
                else
-                  AADD(pila,substr(o,n,m))
+                  AADD(pila,substr(o,n,m)+chr(0))
                end
 
             elseif  m=="AT"
@@ -11072,7 +11083,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                n:=strtran(n,chr(0),"")
                m:=strtran(m,chr(0),"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,strtran(o,n,m))
+               AADD(pila,strtran(o,n,m)+chr(0))
             
             elseif m=="CP"
                o:=SDP(pila)
@@ -11086,7 +11097,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   n:=alltrim(str(n))
                end
                n:=strtran(n,chr(0),"")
-               AADD(pila,replicate(n,o))
+               AADD(pila,replicate(n,o)+chr(0))
 
             elseif  m=="RAT"
                o:=SDP(pila)
@@ -11112,7 +11123,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   o:=val(o)
                end
                n:=strtran(n,chr(0),"")
-               AADD(pila, substr(n,o,len(n)))
+               AADD(pila, substr(n,o,len(n))+chr(0))
 
             elseif  m=="PTRM"
                o:=SDP(pila)
@@ -11125,7 +11136,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
              //  n:=strtran(n,'"',"")
                n:=strtran(n,chr(0),"")
-               AADD(pila, substr(n,1,len(n)-o))  
+               AADD(pila, substr(n,1,len(n)-o)+chr(0))  
             end
 
          elseif m=="FNF"
@@ -11159,7 +11170,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   elseif ISNOTATION(n)==1
                      AADD(pila,e2d(n))
                   else
-                     AADD(pila,n)
+                     AADD(pila,n+chr(0))
                   end
                end               
 
@@ -11202,7 +11213,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                         str+=alltrim(token(o,DEFTOKEN,xvar))+DEFTOKEN
                      end
                   end
-                  AADD(pila,substr(str,1,len(str)-1))
+                  AADD(pila,substr(str,1,len(str)-1)+chr(0))
                else    // cambia el token n por el string h
                   j:=numtoken(o,DEFTOKEN)
                   str:=""
@@ -11215,7 +11226,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                         str+=alltrim(token(o,DEFTOKEN,xvar))+DEFTOKEN
                      end
                   end
-                  AADD(pila,substr(str,1,len(str)-1))
+                  AADD(pila,substr(str,1,len(str)-1)+chr(0))
                end
                
             elseif m=="COPY"
@@ -11230,7 +11241,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      _ERROR("EVALUADOR: NO ENCUENTRO UN DATO VALIDO PARA COPIAR EN BUFFER <<COPY(null)>>")
                      RETURN .F.
                   elseif len(n)>0 .and. n!="0"
-                     AADD(tBUFFER,alltrim(n))
+                     AADD(tBUFFER,alltrim(n)+chr(0))
                      //SW_HAYBUFFER:=.T.
                   end
                else
@@ -11248,21 +11259,21 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   n:=str(n)
                end
                n:=strtran(n,chr(0),"")
-               AADD(pila,alltrim(n))
+               AADD(pila,alltrim(n)+chr(0))
             elseif m=="LTRI"
                n:=SDP(pila)
                if valtype(n)=="N"
                   n:=str(n)
                end
                n:=strtran(n,chr(0),"")
-               AADD(pila,ltrim(n))
+               AADD(pila,ltrim(n)+chr(0))
             elseif m=="RTRI"
                n:=SDP(pila)
                if valtype(n)=="N"
                   n:=str(n)
                end
                n:=strtran(n,chr(0),"")
-               AADD(pila,rtrim(n))
+               AADD(pila,rtrim(n)+chr(0))
 
             elseif m=="UP".or. m=="LO"
                n:=SDP(pila)
@@ -11273,9 +11284,9 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
                n:=strtran(n,chr(0),"")
                if m=="UP"
-                  AADD(pila,upper(n))
+                  AADD(pila,upper(n)+chr(0))
                else
-                  AADD(pila,lower(n))
+                  AADD(pila,lower(n)+chr(0))
                end
             
             elseif m=="RP"
@@ -11286,7 +11297,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
              //  o:=strtran(o,'"',"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,o)
+               AADD(pila,o+chr(0))
             end
 
          elseif m=="FNH"
@@ -11332,7 +11343,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                      ++j
                   end
                end
-               aadd(pila,o)
+               aadd(pila,o+chr(0))
 
             elseif m=="INS"
                m:=SDP(pila)
@@ -11353,9 +11364,9 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   xvar:=substr(o,m+1,len(o))
                   n:=strtran(n,chr(0),"")
                   
-                  AADD(pila,substr(o,1,m)+n+xvar)
+                  AADD(pila,substr(o,1,m)+n+xvar+chr(0))
                else
-                  AADD(pila,o)
+                  AADD(pila,o+chr(0))
                end
                
             elseif m=="RPC"
@@ -11374,7 +11385,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                n:=strtran(n,chr(0),"")
                m:=strtran(m,chr(0),"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,CHARREPL(n,o,m))
+               AADD(pila,CHARREPL(n,o,m)+chr(0))
                
             elseif m=="ONE"
                n:=SDP(pila)  // caracter a reducir
@@ -11387,7 +11398,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
                n:=strtran(n,chr(0),"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,CHARONE(n,o))
+               AADD(pila,CHARONE(n,o)+chr(0))
                
             elseif m=="DC"
                n:=SDP(pila)  // caracteres a eliminar
@@ -11400,7 +11411,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
                n:=strtran(n,chr(0),"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,CHARREM(n,o))
+               AADD(pila,CHARREM(n,o)+chr(0))
             end
          
          elseif m=="FNI"
@@ -11429,21 +11440,37 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                   if n<=0 .or. n>255
                      AADD(pila,"null")
                   else
-                     AADD(pila,chr(n))
+                     AADD(pila,chr(n)+chr(0))
                   end
                else
-                  AADD(pila,chr(n))
+                  AADD(pila,chr(n)+chr(0))
                end
 
             elseif m=="VAL"
                n:=SDP(pila)
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
-                  AADD(pila,val(n))
+                  if ISTNUMBER(n)==1
+                     AADD(pila,val(n))
+                  elseif ISNOTATION(n)==1
+                     AADD(pila,e2d(n))
+                  else
+                     _ERROR("EVALUADOR: CONVERSION NO VALIDA EN VAL <<VAL( STRING-NO-NUMERIC )>>")
+                     RETURN .F.
+                  end
                else
                   AADD(pila,n)
                end
 
+            elseif m=="STR"
+               n:=SDP(pila)
+               if valtype(n)=="N"
+                  AADD(pila,alltrim(str(n))+chr(0))
+               else
+                  n:=strtran(n,chr(0),"")
+                  AADD(pila,n+chr(0))
+               end
+               
             elseif  m=="PC".or.m=="PL".or.m=="PR"
                o:=SDP(pila)
                n:=SDP(pila)
@@ -11455,11 +11482,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                end
                n:=strtran(n,chr(0),"")
                if m=="PC"
-                  AADD(pila, padc(n,o))
+                  AADD(pila, padc(n,o)+chr(0))
                elseif m=="PL"
-                  AADD(pila, padl(n,o))
+                  AADD(pila, padl(n,o)+chr(0))
                else
-                  AADD(pila, padr(n,o))
+                  AADD(pila, padr(n,o)+chr(0))
                end               
 
             elseif m=="ASC"
@@ -11490,7 +11517,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                n:=strtran(n,chr(0),"")
                c1:=substr(n,1,1)    // relleno
                c2:=substr(n,2,len(n)) // mascara
-               AADD(pila,XFUNMASK(o,c2,c1))
+               AADD(pila,XFUNMASK(o,c2,c1)+chr(0))
                
             elseif m=="MON"
                h:=SDP(pila)  // decimales
@@ -11513,7 +11540,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                if valtype(o)!="N"
                   o:=val(o)
                end
-               AADD(pila,XFUNMONEY(o,c2,c1,h,m))
+               AADD(pila,XFUNMONEY(o,c2,c1,h,m)+chr(0))
                
             elseif m=="SAT"
                o:=SDP(pila)
@@ -11528,7 +11555,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                o:=strtran(o,"\n",HB_OSNEWLINE())
                n:=strtran(n,chr(0),"")
              //  n:=strtran(n,'"',"")
-               AADD(pila, XFUNCCCSATURA(n, DEFTOKEN, o))
+               AADD(pila, XFUNCCCSATURA(n, DEFTOKEN, o)+chr(0))
 
             elseif m=="IF" .or. m=="IFLE" .or. m=="IFGE"
                h:=SDP(pila)
@@ -11719,19 +11746,19 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                if valtype(n)!="N"
                   n:=val(n)
                end
-               AADD(pila,DECTOBIN(n))
+               AADD(pila,DECTOBIN(n)+chr(0))
             elseif m=="HEX"   // convierte a hexadecimal
                n:=SDP(pila)
                if valtype(n)!="N"
                   n:=val(n)
                end
-               AADD(pila,DECTOHEXA(n))
+               AADD(pila,DECTOHEXA(n)+chr(0))
             elseif m=="OCT"   // convierte a OCTAL
                n:=SDP(pila)
                if valtype(n)!="N"
                   n:=val(n)
                end
-               AADD(pila,DECTOOCTAL(n))
+               AADD(pila,DECTOOCTAL(n)+chr(0))
 
             elseif m=="DEC"
                n:=SDP(pila)
@@ -12238,7 +12265,7 @@ DICC:={"LN","LOG","SQRT","ABS","INT","CEIL","FLOOR","SGN","ROUND","SIN","COS","T
        "EXP","INV","RP","CAT","LEN","SUB","AT","AF","RAT","PTRP","PTRM","CP","TR","TK","VAL","CH","LIN","PC","PL","PR","IF",;
        "TRE","INS","DC","RPC","ONE","ASC","TRI","LTRI","RTRI","I","INC","DEC","IFLE","IFGE","LETK","MATCH","LET","DEFT",;
        "NT","POOL","LOOP","MOV","VAR","NOP","COPY","AND","OR","XOR","NOT","BIT","ON","OFF","BIN","HEX","OCT","~",;
-       "JNZ","ELSE","ENDIF","CLEAR","RANGE",;
+       "JNZ","ELSE","ENDIF","CLEAR","RANGE","STR",;
        "FNA","FNB","FNC","FND","FNE","FNF",;
        "FNH","FNI","FNJ","FNK","FNL","FNM","FNN"}
        
