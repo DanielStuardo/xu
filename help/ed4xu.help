@@ -1165,7 +1165,7 @@ $$BEGIN Sobrecarga de operadores
         S1^N         Inserta S1 dentro de la línea procesada, en la posición N.
                      Ejemplo:
                      si #="base(100)"
-                     ".string"\at{"("} ==> "base.string(100)"
+                     ".string"^at{"("} ==> "base.string(100)"
                      
                <<IMPORTANTE>>
                      Esta operación tomará la línea desde el BUFFER, no desde
@@ -1265,23 +1265,28 @@ $$BEGIN Funciones basicas de texto
                      Ejemplo:
                      ch(65) ==> "A"
 
-      '{N}           Idem.
-
    ASC(S)            Devuelve el valor ASCII de "S".
                      Ejemplo:
                      asc("A") ==> 65
 
-      &{S}           Idem.
-
    VAL(V)            Convierte "V" a tipo número para calcular. Si "V" es un
-                     string alfanumérico, "val(V)" devolverá "0". Cuidado!, 
-                     porque esto puede conducir a errores.
+                     string alfanumérico y no-numérico (no contiene dígitos),
+                     VAL producirá un error.
 
-      !{V}           Idem.
+      (&V)           Idem.
+
+   STR(V)            Convierte "V" a tipo string.
+   
+      ($V)           Idem.
 
    CP(V,N)           Repite "V", "N" veces. Ejemplo:
                      cp("*",10)  ==> "**********"
       {*N}           Repite la línea del BUFFER, "N" veces.
+
+
+$$END Funciones basicas de texto
+$$BEGIN Modificacion de BUFFER
+
 
    LIN(N)            Devuelve el contenido de la línea del BUFFER
                      indicada por "N". Si "N" es 0, devuelve la línea
@@ -1296,12 +1301,7 @@ $$BEGIN Funciones basicas de texto
                      las llaves, ejemplo: #{(2+sgn(#10)*sgn(#10))}. En
                      cambio, #N requiere que "N" sea una constante
                      numérica.
-
-
-$$END Funciones basicas de texto
-$$BEGIN Modificacion de BUFFER
-
-
+                     
    LET(N,S)          Cambia el contenido de la línea de BUFFER "N", por "S".
                      El cambio es permanente.
                      Este comando sirve para emular variables.
@@ -1405,6 +1405,21 @@ $$BEGIN Funciones avanzadas de texto
                      La búsqueda se realiza de derecha a izquierda.
 
       AF{S}          Idem, pero usando el BUFFER.
+
+   RANGE(V,C,D)      Busca en "V" los caracteres que están en el rango
+                     entre "C" y "D". "C" y "D" son números ASCII. Si
+                     encuentra alguno de ellos, devuelve su posición.
+                     Si no encuentra nada, devuelve "0".
+                     Si se usa dentro de POOL/LOOP, RANGE buscará más
+                     caracteres omitiendo el último hallazgo.
+                     Una aplicación de esta función se puede ver como
+                     un comando de CTRL-NN (e.g: "R 100, 120").
+                     Ejemplo:
+                        range(#,1,8)
+                     busca en "#" algún caracter ubicado entre ASCII 1
+                     y ASCII 8, y devuelve su posición.
+     
+     RANGE{C,D}      Idem, pero usa el BUFFER.
 
    PTRP(V,N)         Avanza el inicio del string "V", "N" caracteres.
                      Ejemplo:
