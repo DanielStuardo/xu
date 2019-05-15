@@ -1261,7 +1261,9 @@ $$BEGIN Funciones basicas de texto
 
       PR{N}          Idem, pero usa el BUFFER.
 
-   CH(N)             Devuelve el caracter ASCII de "N".
+   CH(N)             Devuelve el caracter ASCII de "N". Si "N" está fuera del
+                     rango, ya sea que fuese un valor negativo o mayor que 254,
+                     se aplicará módulo 255 y devolverá el caracter respectivo.
                      Ejemplo:
                      ch(65) ==> "A"
 
@@ -1289,8 +1291,8 @@ $$BEGIN Modificacion de BUFFER
 
 
    LIN(N)            Devuelve el contenido de la línea del BUFFER
-                     indicada por "N". Si "N" es 0, devuelve la línea
-                     actual.
+                     indicada por "N". Si "N" está fuera del rango,
+                     se devuelve un error.
 
       #{N}           Idem.
 
