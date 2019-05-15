@@ -32,7 +32,7 @@
 #include "inkey.ch"
 #include "achoice.ch"
 #include "memoedit.ch"
-
+//#include "hbextcdp.ch"
 
 
 REQUEST HB_LANG_ES
@@ -9432,10 +9432,10 @@ FUNCTION PONEFECHA()
 LOCAL meses:={"Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"}
 LOCAL dias:={"Domingo", "Lunes","Martes",hb_utf8tostr("Miércoles"),"Jueves","Viernes",hb_utf8tostr("Sábado")}
 LOCAL fecha,sFec
-
+//hb_langSelect( "es" )
 fecha:=date()
 sFec:=dias[DOW(fecha)]+" "+alltrim(str(DAY(fecha)))+" de "+meses[MONTH(fecha)]+" de "+alltrim(str(YEAR(fecha)))+", "+time()
-
+//sFec:=cDow(fecha)+" "+alltrim(str(Day(fecha)))+" de "+cMonth(fecha)+" de "+alltrim(str(YEAR(fecha)))+", "+time()
 RETURN sFec
 
 PROCEDURE _CTRL_L_INSHEADER(BUFFER,ARCHIVO)
@@ -11426,8 +11426,6 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
 
                   if n>0 .and. n<=LEN(tBUFFER)
                      AADD(pila,strtran(tBUFFER[n],chr(127),""))
-                  elseif n==0
-                     AADD(pila,strtran(tBUFFER[ITERACION],chr(127),""))
                   else
                      _ERROR("EVALUADOR: NO EXISTE LA LINEA PEDIDA EN EL TEXTO (LIN)")
                      RETURN .F.
@@ -11437,14 +11435,15 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,SWEDIT:=.F.,num,LENP,pilaif,tm
                n:=SDP(pila)
                if valtype(n)!="N"
                   n:=val(n)
-                  if n<=0 .or. n>255
-                     AADD(pila,"null")
-                  else
-                     AADD(pila,chr(n)+chr(0))
-                  end
-               else
-                  AADD(pila,chr(n)+chr(0))
+                //  if n<=0 .or. n>255
+                //     AADD(pila,"null")
+                //  else
+                //     AADD(pila,chr(n)+chr(0))
+                //  end
+               //else
                end
+                  AADD(pila,chr(n)+chr(0))
+              // end
 
             elseif m=="VAL"
                n:=SDP(pila)
