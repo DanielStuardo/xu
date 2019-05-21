@@ -243,7 +243,7 @@ CTRL-F / Fin
 
 
 $$END Comandos de movimiento de cursor
-$$BEGIN Ayuda ^P (Compilacion y vista)
+$$BEGIN Menu ^P (Compilacion y vista)
 
 CTRL-P      MENU de opciones de ejecución y configración.
             Estas son sus opciones:
@@ -369,7 +369,7 @@ donde:
 La declaración de un segmento "colours" debe terminar con "keywords=\".
 
 
-$$END Ayuda ^P (Compilacion y vista)
+$$END Menu ^P (Compilacion y vista)
 $$BEGIN Menu ^V (Insercion de codigo)
 
 
@@ -953,6 +953,26 @@ $$BEGIN Introduccion a las macros ED4XU - OPE
    
    +, -, *, /, \(div. entera), %(resto modulo), ^(potencia).
 
+   Operadores lógicos:
+   
+   =, <, >, <=, >=, <>, ~ (negación).
+            
+            Devolverán "0" si la condición se cumple; de lo contrario,
+            devolverán "1".
+            Operaciones lógicas y aritméticas deben ir entre paréntesis.
+      
+      "~"   Niega un resultado numérico: si "n" es 0, "~n" es 1, y si
+            "n" es distinto de "0" (puede ser negativo), "~n" es 0. 
+            Util.
+
+   Los siguientes operadores y funciones trabajan con números de 32 bits.
+   
+   &        AND binario. Ejemplo 0x100101b & 25, 0xFFh & 0x00101b
+   |        OR BINARIO.
+   !        XOR BINARIO.
+   >>       Desplazamiento hacia la derecha. Ejemplo: 1>>2
+   <<       Desplazamiento hacia la izquierda, Ejemplo: 1<<2.
+   
    Números negativos:
    
             Deben ser escritos entre paréntesis.
@@ -969,7 +989,11 @@ $$END Introduccion a las macros ED4XU - OPE
 $$BEGIN Sentencias del encabezado
 
 
-   Sentencias de operación y configuración:
+   Modificadores globales:
+   
+                     Las siguientes sentencias pueden colocarse al inicio
+                     del programa, de preferencia, y solo se ejecutarán una
+                     vez.
    
    NULL              Puesta al principio de la expresión, provoca que
                      la iteración termine cuando encuentre una línea
@@ -992,21 +1016,19 @@ $$BEGIN Sentencias del encabezado
                      Ejemplo:
                         keep $1/log($2)
 
-   I                 Variable que contiene el número de la línea que se
-                     está procesando.
-   
-   NT                Número total de tokens de la línea procesada. Su valor
-                     depende de DEFTOK o de la función DEFT(), descrita más
-                     adelante.
-
    VOID              Indica a OPE que si un resultado es vacío, lo añada a
                      la pila de resultados. Sin este flag, los resultados
                      vacíos no son considerados.
-   
-   NOP               Instrucción pedorra cuyo único objetivo es dejar un
-                     caracter nulo en la pila de resultados. Es muy útil
-                     para usarlo con IFxx(), porque, a veces, no se necesita
-                     un "ELSE". 
+
+   NOSEN             Define búsquedas case insensitive, es decir, insensible
+                     a mayúsculas y minúsculas. Si busca "Ana", será un match
+                     "ANA", "ana", "aNa", etc.
+                     Las siguientes funciones y operadores son influenciados
+                     por este modificador.
+
+                   * operadores "-" y "^" sobrecargados.
+                   * operadores "&" y "|" sobrecargados.
+                   * funciones AT, RAT, AF, y MATCH.
 
    NOBUFF            OPE considera si existen datos en el BUFFER para operar.
                      Si no hay datos, devolverá el resultado de una operación.
@@ -1015,8 +1037,30 @@ $$BEGIN Sentencias del encabezado
                      el BUFFER en sus cálculos u operaciones, y no puede 
                      prescindir de lo que hay en el BUFFER, use esta opción
                      para que solo devuelva un resultado.
+   
+   SEED(N)           Establece una semilla para el generador de números
+                     aleatorios.
 
 
+   Variables globales de tolin:
+ 
+   I                 Variable que contiene el número de la línea que se
+                     está procesando.
+                     
+   L                 Variable que contiene la longitud de la línea original
+                     que se está procesando. Dicho valor no será alterado
+                     por subsguientes alteraciones de esa línea.
+
+   NOP               Instrucción pedorra cuyo único objetivo es dejar un
+                     caracter nulo en la pila de resultados. Es muy útil
+                     para usarlo con IFxx(), porque, a veces, no se necesita
+                     un "ELSE". 
+
+   NT                Número total de tokens de la línea procesada. Su valor
+                     depende de DEFTOK o de la función DEFT(), descrita más
+                     adelante.
+
+   
 
 $$END Sentencias del encabezado
 $$BEGIN Registros de memoria
@@ -1186,6 +1230,18 @@ $$BEGIN Sobrecarga de operadores
                      "?" indica que se espera un solo caracter.
                      "*" indica que se espera una secuencia de caracteres.
 
+        S1|S2        Devuelve "0" si S1 está contenido como substring en S2;
+                     de lo contrario, devuelve "1".
+                     Ejemplo:
+                     "carbon"|"Kirk es una unidad de carbono" ==> 0
+                     "carbon"|"hola mundo" ==> 1
+        
+        S1&S2        Devuelve "0" si S1 está contenido exactamente como un
+                     substring en S2. De lo contrario, devuelve "1".
+                     Ejemplo:
+                     "carbon"&"Kirk es una unidad de carbono" ==> 1
+                     "unidad"&"Kirk es una unidad de carbono" ==> 0
+
 
 $$END Sobrecarga de operadores
 $$BEGIN Funciones de archivo
@@ -1222,6 +1278,10 @@ $$BEGIN Funciones aritmeticas
 
    ROUND{dec}        Idem, pero en el BUFFER
 
+   RND(n)            Devuelve un número aleatorio entre 0 y 1. "n" es un
+                     factor multiplicador. Si no quiere alterar el número
+                     devuelto, use rnd(1).
+
    SGN(n)            -1 si n<0; 1 si n>0; 0 si n=0.
 
    EXP(n)            Exponencial.
@@ -1232,7 +1292,8 @@ $$BEGIN Funciones aritmeticas
 $$END Funciones aritmeticas
 $$BEGIN Funciones basicas de texto
 
-      
+
+                     
    RP(#,V)           Reemplaza línea de BUFFER por "V".
 
       RP{V}          idem.
@@ -1275,11 +1336,7 @@ $$BEGIN Funciones basicas de texto
                      string alfanumérico y no-numérico (no contiene dígitos),
                      VAL producirá un error.
 
-      (&V)           Idem.
-
    STR(V)            Convierte "V" a tipo string.
-   
-      ($V)           Idem.
 
    CP(V,N)           Repite "V", "N" veces. Ejemplo:
                      cp("*",10)  ==> "**********"
@@ -1289,6 +1346,9 @@ $$BEGIN Funciones basicas de texto
 $$END Funciones basicas de texto
 $$BEGIN Modificacion de BUFFER
 
+   El BUFFER tiene caracter utilitario. Cualquier modificación que haga en
+   él, si no está editando líneas marcadas con CTRL-K4, se perderá al
+   terminar el proceso.
 
    LIN(N)            Devuelve el contenido de la línea del BUFFER
                      indicada por "N". Si "N" está fuera del rango,
@@ -1474,6 +1534,23 @@ $$END Tokens
 $$BEGIN Funciones utilitarias
 
 
+   GLOSS(N)          Convierte un número en palabras. Si "N" es un string,
+                     acepta un número de 69 dígitos (mil decillones).
+                     Si "N" es un número "numérico", el máximo aceptado
+                     oscila en una potencia de 10 elevado a 19.
+                     Acepta como máximo 2 decimales, y si hay más, trunca.
+                     Ejemplo:
+                       gloss(2001)    ==> dos mil uno
+
+                       gloss(1023890201.189)
+                   ==> mil veintitres millones ochocientos noventa mil 
+                       docientos uno con dieciocho
+                       
+                       gloss(9.9E19)  ==> noventa y nueve trillones.
+                   
+                       gloss(9.9E20)
+                   ==> ** no se puede convertir [****************] **
+
    MON(V,S,M,N)      Da formato moneda al número en "V", con un signo 
                      monetario "S", un ancho "M", y "N" decimales. El
                      primer caracter de "S" es un relleno.
@@ -1637,11 +1714,7 @@ $$BEGIN Funciones utilitarias
                         if( and(match{"word"}, (sgn($1)-1)), ..., ...)
                         if( or(match{"word"},  (sgn($1)-1)), ..., ...)
                         if( xor(match{"word"}, (sgn($1)-1)), ..., ...)
-                     Se permite anidar dichas funciones. Obvio.
-     
-    "~" (negación)   Niega un resultado numérico: si "n" es 0, "~n" es 1, y si
-                     "n" es distinto de "0" (puede ser negativo), "~n" es 0. 
-                     Util.        
+                     Se permite anidar dichas funciones. Obvio.    
 
 
 $$END Funciones utilitarias
@@ -1661,35 +1734,18 @@ $$BEGIN Operadores de bits
                      desea convertir una cadena formada dentro de la expresión.
                      Los números de base diferente son, y se deben escribir, así:
    
-   BINARIA           Prefijo: "0x", dígitos "0" y "1", y sufijo "b". Ejemplo:
+   forma BINARIA     Prefijo: "0x", dígitos "0" y "1", y sufijo "b". Ejemplo:
                      0x10100101b 
                      
-   HEXADECIMAL       Prefijo: "0x", dígitos 0-9, caracteres mayúsculas A,B,C,D,E,F,
+   forma HEXADECIMAL Prefijo: "0x", dígitos 0-9, caracteres mayúsculas A,B,C,D,E,F,
                      y sufijo "h". Ejemplo:
                      0xA0389FFh
    
-   OCTAL             Prefijo "0x", dígitos 0-7, y sufijo "o". Ejemplo
+   forma OCTAL       Prefijo "0x", dígitos 0-7, y sufijo "o". Ejemplo
                      0x7165o
 
-   Los siguientes operadores y funciones trabajan con números de 32 bits.
-   
-   &                 AND binario. Ejemplo 0x100101 & 25, 0xFF & 0x00101
-
-   |                 OR BINARIO.
-
-   !                 XOR BINARIO.
-
-   >>                Desplazamiento hacia la derecha. Ejemplo: 1>>2
-
-   <<                Desplazamiento hacia la izquierda, Ejemplo: 1<<2.
-   
-   Los operadores anteriores aceptan argumentos de strings, donde realizan operaciones
-   sobre el equivalente valor ASCII de cada caracter de estos. En los operadores ">>"
-   y "<<", el primer operando puede ser un string, pero el segundo operando debe ser
-   un número, porque decide el número de bits a desplazar. En los demás operadores,
-   ambos operandos deben ser del mismo tipo, ya sea números, ya sea strings.
-   El operador "~", operado con strings, sirve para cifrar cosas.
-   
+   Funciones:
+      
    BIT(N,P)          Devuelve el bit de "N" ubicado en la posición "P".
 
    ON(N,P)           Enciende el bit "P" de "N" (lo deja en "1").
