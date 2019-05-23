@@ -10121,18 +10121,18 @@ end
 RETURN {Q,R}
 
 FUNCTION _CTRLL_EVALUA(q,r)
-LOCAL pila,pila2,p,p2,sw,l,l2,m,m2,swv,j,DICC,cFUN
+LOCAL pila,pila2,p,p2,sw,l,l2,m,m2,swv,j,DICC,cFUN,posPila,x,y
 
 /* codigo de funcion */
 
 cFUN:={"FNA","FNA","FNA","FNA","FNA","FNA",;
        "FNB","FNB","FNB",;
        "FNC","FNC","FNC",;
-       "FND","FND","FND","FND","FND","FND",;
-       "FNE","FNE","FNE","FNE","FNE","FNE",;
+       "FND","FND","FND","FND","FND","FND","FND",;
+       "FNE","FNE","FNE","FNE","FNE","FNE","FNE","FNE","FNE",;
        "FNF","FNF","FNF","FNF","FNF",;
        "FNG","FNG","FNG","FNG","FNG","FNG",;
-       "FNH","FNH","FNH","FNH","FNH","FNH","FNH",;
+       "FNH","FNH","FNH","FNH","FNH","FNH","FNH","FNH","FNH",;
        "FNI","FNI","FNI","FNI","FNI","FNI","FNI","FNI",;
        "FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ","FNJ",;
        "FNK","FNK","FNK","FNK",;
@@ -10143,11 +10143,11 @@ cFUN:={"FNA","FNA","FNA","FNA","FNA","FNA",;
 DICC:={"NT","I","VAR","MOV","~","L",;   // A
        "JNZ","ELSE","ENDIF",;   // B
        "POOL","LOOP","ROUND",;           // C
-       "CAT","MATCH","LEN","SUB","AT","RANGE",;  // D
-       "AF","RAT","PTRP","PTRM","CP","TR",;  // E
+       "CAT","MATCH","LEN","SUB","AT","RANGE","AT1",;  // D
+       "AF","RAT","PTRP","PTRM","CP","TR","TR1","TR2","AF1",;  // E
        "TK","LETK","LET","COPY","GLOSS",;    // F     
        "RP","TRI","LTRI","RTRI","UP","LOW",;    // G
-       "TRE","INS","DC","RPC","ONE","RND","SEED",;       // H
+       "TRE","INS","DC","RPC","ONE","RND","SEED","TRE1","TRE2",;       // H
        "VAL","STR","CH","ASC","LIN","PC","PL","PR",;    // I
        "MSK","MON","SAT","DEFT","IF","IFLE","IFGE","CLEAR","SAVE","LOAD",; // J
        "NOP","AND","OR","XOR",;    // K
@@ -10184,6 +10184,7 @@ aadd(pila2,"(")
             if l=="("
                aadd(pila,l)
                aadd(pila2,l2)
+            
             elseif l $ "+*-/^%\&|!>><<" .or. es_funcion(l) .or. es_Lsimbolo(l)
                while !sw
                   m:=SDP(pila)
@@ -10331,9 +10332,11 @@ aadd(pila2,"(")
       ?? p2[i],", "
    end
    inkey(0) 
-*/
+*/ 
+   posPila:=0
    while !empty(p)
       m:=SDC(p)
+      ++posPila
    //   ? "P = ",m; inkey(0)
       if m=="N" .or. m=="C" 
          aadd(pila,m)
@@ -10367,7 +10370,71 @@ aadd(pila2,"(")
                RETURN .F.
             end
             aadd(pila,"C")
-         elseif m=="SUB".or.m=="TR" .or. m=="INS" .or. m=="TRE" .or. m=="RPC".or. m=="IF".or. m=="IFLE".or.;
+
+         elseif m=="TR"
+            h:=SDP(pila)
+            n:=SDP(pila)
+            o:=SDP(pila)
+            y:=SDP(pila)  // ocurrencia
+            x:=SDP(pila)  // reemplazos
+            if h==NIL .or. n==NIL .or. o==NIL
+               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               RETURN .F.
+            end
+            if y!=NIL
+               if x!=NIL
+                  p2[posPila]:="TR1"  // ocurrencia y reemplaza
+               else
+                  p2[posPila]:="TR2"  // solo ocurrencia
+               end
+            end
+            aadd(pila,"C")
+         elseif m=="TRE"
+            h:=SDP(pila)
+            n:=SDP(pila)
+            o:=SDP(pila)
+            y:=SDP(pila)  // ocurrencia
+            x:=SDP(pila)  // reemplazos
+            if h==NIL .or. n==NIL .or. o==NIL
+               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               RETURN .F.
+            end
+            if y!=NIL
+               if x!=NIL
+                  p2[posPila]:="TRE1"  // ocurrencia y reemplaza
+               else
+                  p2[posPila]:="TRE2"  // solo ocurrencia
+               end
+            end
+            aadd(pila,"C")
+         elseif m=="AT"
+            o:=SDP(pila)
+            n:=SDP(pila)
+            x:=SDP(pila)  // ocurrencia
+            if o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
+               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               RETURN .F.
+            else
+               if x!=NIL  // ocurrencia
+                  p2[posPila]:="AT1"
+               end
+            end
+            aadd(pila,"N")        
+         elseif m=="AF"
+            o:=SDP(pila)
+            n:=SDP(pila)
+            x:=SDP(pila)  // ocurrencia
+            if o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
+               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               RETURN .F.
+            else
+               if x!=NIL  // ocurrencia
+                  p2[posPila]:="AF1"
+               end
+            end
+            aadd(pila,"N")
+         
+         elseif m=="SUB".or. m=="INS" .or. m=="RPC".or. m=="IF".or. m=="IFLE".or.;
                 m=="IFGE" .or.m=="LETK"
             h:=SDP(pila)
             n:=SDP(pila)
@@ -10398,7 +10465,8 @@ aadd(pila2,"(")
             else
                aadd(pila,"C")
             end
-         elseif m=="AT" .or. m=="AF".or. m=="MATCH" .or. m=="AND" .or. m=="OR".or.m=="XOR".or.m=="RAT".or.;
+            
+         elseif m=="MATCH" .or. m=="AND" .or. m=="OR".or.m=="XOR".or.m=="RAT".or.;
                 m=="BIT".or.m=="ON".or.m=="OFF"
             o:=SDP(pila)
             n:=SDP(pila)
@@ -10534,7 +10602,7 @@ RETURN p2
 
 
 FUNCTION _EVALUA_EXPR(p,par,ITERACION,SWEDIT)
-LOCAL res,pila,m,n,o,h,i,j,id:=0,ids:=0,c1,c2,c3,fp,str,nLength,xvar,NUMTOK:=0,ope:=0,vtip
+LOCAL res,pila,m,n,o,h,k,x,y,i,j,id:=0,ids:=0,c1,c2,c3,fp,str,nLength,xvar,NUMTOK:=0,ope:=0,vtip
 LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound,tmpo,tmpn
    pila:={}
    pilaif:={}
@@ -10605,44 +10673,50 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             if m=="="
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o==n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))==n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)==n,0,1))
                end
             elseif m=="<="
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o<=n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))<=n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)<=n,0,1))
                end
             elseif m==">="
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o>=n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))>=n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)>=n,0,1))
                end
             elseif m=="<"
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o<n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))<n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)<n,0,1))
                end
             elseif m==">"
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o>n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))>n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)>n,0,1))
                end
             elseif m=="<>"
                if vtip=="NN" .or. vtip=="CC"
                   AADD(pila,iif(o!=n,0,1))
-               else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION LOGICA ("+m+")")
-                  RETURN .F.
+               elseif vtip=="NC"
+                  AADD(pila,iif(alltrim(str(o))!=n,0,1))
+               elseif vtip=="CN"
+                  AADD(pila,iif(val(o)!=n,0,1))
                end
 
             elseif m=="+"
@@ -10677,7 +10751,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      n:=strtran(n,chr(0),"")
                      o:=strtran(o,chr(0),"")
                      //?"N=",n," O=",o
-                     
+                     tmpo:=""
                      if len(n)>0 .and. len(o)>0
                      if len(o)>=len(n)
                      tmpo:=o; tmpn:=n
@@ -11191,8 +11265,33 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if !SWSENSITIVE
                   o:=upper(o); n:=upper(n)
                end
-//               tmpAt:=at(o,n)
                AADD(pila, at(o,n) )
+
+            elseif  m=="AT1"
+               x:=SDP(pila)  // ocurrencia
+               o:=SDP(pila)
+               n:=SDP(pila)
+               if valtype(x)!="N"
+                  x:=strtran(x,chr(0),"")
+                  x:=val(x)
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               if !SWSENSITIVE
+                  o:=upper(o); n:=upper(n)
+               end
+               y:=numat(o,n)
+               if x>y  // si se pasa de la ultima, deja la ultima
+                  x:=y
+               end
+               AADD(pila, atnum(o,n,x) )
+               
                
             elseif m=="LEN"
                n:=SDP(pila)
@@ -11253,35 +11352,66 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      end
                      ++j
                   end
-               /*
-               id:=numat(o,n)
-               if id>0
-                  j:=1
-                  while j<=id
-                     ids:=atnum(o,n,j)
-                   //  c1:=substr(n,ids-1,1)
-                   //  c2:=substr(n,len(o)+ids,1)
-                     if ids>1
-                        c1:=substr(n,ids-1,1)
-                     else
-                        c1:="."
-                     end
-                     c2:=substr(n,len(o)+ids,1)
-                     if len(c2)==0
-                        c2:="."
-                     end
-                     if !isalpha(c1) .and. !isdigit(c1) .and. !isalpha(c2) .and. !isdigit(c2)
-                        AADD(pila, ids )
-                        exit
-                     end
-                     ++j
-                  end */
                   if j>id
                      aadd(pila,0)
                   end
                else
                   aadd(pila,0)
                end
+
+            elseif  m=="AF1"   // busca full
+               x:=SDP(pila)  // ocurrencia
+               n:=SDP(pila)
+               o:=SDP(pila)
+               if valtype(x)!="N"
+                  x:=strtran(x,chr(0),"")
+                  x:=val(x)
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               
+               if !SWSENSITIVE   
+                  o:=upper(o);n:=upper(n)
+               end
+               id:=numat(n,o)
+              /* if x>id
+                  x:=id
+               end*/
+               if id>0
+                  j:=1
+                  y:=0
+                  while j<=id
+                     ids:=atnum(n,o,j)
+                     ids:=BUSCACOMPLETA(ids,o,len(n))
+                     if ids>0
+                        if j==x
+                           AADD(pila, ids )
+                           exit
+                        else
+                           y:=ids
+                        end
+                     else
+                        ++x
+                     end
+                     ++j
+                  end
+                  if j>id
+                     if y>0
+                        AADD(pila, y )
+                     else
+                        aadd(pila,0)
+                     end
+                  end
+               else
+                  aadd(pila,0)
+               end
+
             
             elseif m=="TR"
                m:=SDP(pila)
@@ -11300,6 +11430,58 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=strtran(m,chr(0),"")
                o:=strtran(o,chr(0),"")
                AADD(pila,strtran(o,n,m)+chr(0))
+
+               
+            elseif m=="TR2"
+               h:=SDP(pila)  // omite
+               m:=SDP(pila)
+               n:=SDP(pila)
+               o:=SDP(pila)
+               if valtype(h)!="N"
+                  h:=strtran(h,chr(0),"")
+                  h:=val(h)
+               end
+               if valtype(m)=="N"
+                  m:=alltrim(str(m))
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               m:=strtran(m,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               AADD(pila,strtran(o,n,m,h)+chr(0))
+            elseif m=="TR1"
+               x:=SDP(pila)  // omite y reemplaza
+               h:=SDP(pila)  // omite
+               m:=SDP(pila)
+               n:=SDP(pila)
+               o:=SDP(pila)
+               if valtype(x)!="N"
+                  x:=strtran(x,chr(0),"")
+                  x:=val(x)
+               end
+               if valtype(h)!="N"
+                  h:=strtran(h,chr(0),"")
+                  h:=val(h)
+               end
+               if valtype(m)=="N"
+                  m:=alltrim(str(m))
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               m:=strtran(m,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               AADD(pila,strtran(o,n,m,h,x)+chr(0))            
+ 
             
             elseif m=="CP"
                o:=SDP(pila)
@@ -11385,13 +11567,20 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   _ERROR("EVALUADOR: NO ACEPTO UN INDICE DE TOKEN NEGATIVO")
                   return .F.
                else
+                 /* if m>NUMTOK
+                     AADD(pila,""+chr(0))
+                  else*/
                   n:=alltrim(token(o,DEFTOKEN,m))
-                  if ISTNUMBER(n)==1
-                     AADD(pila,val(n))
-                  elseif ISNOTATION(n)==1
-                     AADD(pila,e2d(n))
+                  if len(n)>0 
+                     if ISTNUMBER(n)==1
+                        AADD(pila,val(n))
+                     elseif ISNOTATION(n)==1
+                        AADD(pila,e2d(n))
+                     else
+                        AADD(pila,n+chr(0))
+                     end
                   else
-                     AADD(pila,n+chr(0))
+                     AADD(pila,""+chr(0))
                   end
                end                
 
@@ -11534,7 +11723,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                end
              //  o:=strtran(o,'"',"")
                o:=strtran(o,chr(0),"")
-               AADD(pila,o)
+               AADD(pila,o+chr(0))
             end
 
          elseif m=="FNH"
@@ -11566,6 +11755,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                         c1:=substr(o,1,ids-1)
                         c2:=substr(o,ids+len(n),len(o))
                         o:=c1+m+c2
+                        --j
                      end
               /*       
                      ids:=atnum(n,o,j)
@@ -11586,6 +11776,116 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                         o:=c1+m+c2
                      end */
                      ++j
+                  end
+               end
+               aadd(pila,o+chr(0))
+
+            elseif m=="TRE2"  // desde ocurrencia
+               h:=SDP(pila)
+               m:=SDP(pila)
+               n:=SDP(pila)
+               o:=SDP(pila)
+               if valtype(h)!="N"
+                  h:=strtran(h,chr(0),"")
+                  h:=val(h)
+               end
+               if valtype(m)=="N"
+                  m:=alltrim(str(m))
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               m:=strtran(m,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               id:=numat(n,o)
+               if id>0   // encontré ocurrencias 
+                  if id>=h   // hay mas de las que debo omitir,
+                     j:=1
+                     while j<=h-1
+                        ids:=atnum(n,o,j)
+                        ids:=BUSCACOMPLETA(ids,o,len(n))
+                        if ids==0
+                           ++h
+                        end
+                        ++j
+                     end
+                     j:=h
+                     while j<=id
+                     ids:=atnum(n,o,j)
+                     ids:=BUSCACOMPLETA(ids,o,len(n))
+                     if ids>0
+                        c1:=left(o,ids-1)   //substr(o,1,ids-1)
+                        c2:=substr(o,ids+len(n),len(o))
+                        o:=c1+m+c2
+                        --j
+                     end
+                     ++j
+                     end
+                  end
+               end
+               aadd(pila,o+chr(0))
+            elseif m=="TRE1"  // desde ocurrencia, numero de ocurrencias
+               x:=SDP(pila)
+               h:=SDP(pila)
+               m:=SDP(pila)
+               n:=SDP(pila)
+               o:=SDP(pila)
+               if valtype(x)!="N"
+                  x:=strtran(x,chr(0),"")
+                  x:=val(x)
+               end
+               if valtype(h)!="N"
+                  h:=strtran(h,chr(0),"")
+                  h:=val(h)
+               end
+               if valtype(m)=="N"
+                  m:=alltrim(str(m))
+               end
+               if valtype(n)=="N"
+                  n:=alltrim(str(n))
+               end
+               if valtype(o)=="N"
+                  o:=alltrim(str(o))
+               end
+               n:=strtran(n,chr(0),"")
+               m:=strtran(m,chr(0),"")
+               o:=strtran(o,chr(0),"")
+               id:=numat(n,o)
+               if id>0   // encontré ocurrencias 
+                  if id>=h   // hay mas de las que debo omitir,
+                     j:=1
+                     while j<=h-1
+                        ids:=atnum(n,o,j)
+                        ids:=BUSCACOMPLETA(ids,o,len(n))
+                        if ids==0
+                           ++h
+                        end
+                        ++j
+                     end
+                     j:=h
+                     if id>x+h
+                        id:=x+h
+                     end
+                     k:=0
+                     while j<=id
+                        ids:=atnum(n,o,j)
+                        ids:=BUSCACOMPLETA(ids,o,len(n))
+                        if ids>0
+                           c1:=left(o,ids-1)   //substr(o,1,ids-1)
+                           c2:=substr(o,ids+len(n),len(o))
+                           o:=c1+m+c2
+                           --j
+                           ++k
+                           if k==x
+                              exit
+                           end
+                        end
+                        ++j
+                     end
                   end
                end
                aadd(pila,o+chr(0))
@@ -12536,11 +12836,13 @@ FOR I:=XFIL1EDIT TO XFIL2EDIT
       TEXTO[I]:=RX
       SWTEXTOMODIFICADO:=.T.
    else
+      RX:=strtran(RX,chr(0),"")
       if len(RX)>0 .and. !("load" $ DX) .and. !("save" $ DX) .and. !("clear" $ DX)
          if TEXTO[I]!=RX .or. len(TEXTO[I])!=len(RX)
             AADD(BUFFER_CTRLZ,TEXTO[I])
             AADD(LINBUFFCTRLZ,I)
          end
+         
          TEXTO[I]:=RX
          SWTEXTOMODIFICADO:=.T.
       else
@@ -12636,9 +12938,10 @@ if cLEN>0 .and. !SWNOBUFFER
             //BUFFER[i]:=RX+chr(127)
             AADD(tmpBUFF,RX+chr(127))
          else
+            RX:=strtran(RX,chr(0),"")
             if len(RX)>0
                if !("load" $ DX) .and. !("save" $ DX) .and. !("clear" $ DX)
-                  //BUFFER[i]:=RX+chr(127)
+                  //BUFFER[i]:=RX+chr(127)      
                   AADD(tmpBUFF,RX+chr(127))
                else
                   return {"<command-success>"}
@@ -12646,7 +12949,7 @@ if cLEN>0 .and. !SWNOBUFFER
             else  // si es linea vacía, no 
                if SWKEEPVACIO
                //return {}
-                  AADD(tmpBUFF,RX+chr(127))
+                  AADD(tmpBUFF,""+chr(127))
                end
             end
          end
@@ -12673,16 +12976,18 @@ else
       end
       AADD(tmpBUFF,RX+chr(127))
    else
+      RX:=strtran(RX,chr(0),"")
       if len(RX)>0 
          if !("load" $ DX) .and. !("save" $ DX) .and. !("clear" $ DX)
             //AADD(BUFFER,RX+chr(127))
+            
             AADD(tmpBUFF,RX+chr(127))
          else 
             return {"<command-success>"}
          end
       else
          if SWKEEPVACIO
-            AADD(tmpBUFF,RX+chr(127))
+            AADD(tmpBUFF,""+chr(127))
          end
       //   ? "RX es 0" ; inkey(0)
       //    return {}
@@ -13959,7 +14264,7 @@ RETURN nRetVal
 
 
   FUNCTION FUNFSHELL(AX,TIPO)    // 148 X<-FCMD
-  LOCAL EAX,BX,DX,EX,RX,CX
+  LOCAL EAX,BX,DX,EX,RX,CX,TX
  
     EX:=hb_ntos(int(hb_random(1000000000)))
     // prepara respuesta
@@ -13978,9 +14283,20 @@ RETURN nRetVal
     // Ejecuta el Batch
     RX:=CMDSYSTEM(BX+".sh",0) // </dev/null >/dev/null 2>&1 &")
   
-    
+    TX:=SECONDS()
     while !file(BX+".tmp")
-       ;//? "Aun no existe..."
+       if SECONDS()-TX >= 4
+          cMessage := hb_utf8tostr("Imposible obtener un resultado."+_CR+"Si escribiste un grupo de líneas bash, asegúrate de"+;
+                               _CR+"poner ';' al final de cada instrucción, porque elimino los new-line"+_CR+;
+                                   "antes de proceder.")
+          aOptions := { hb_utf8tostr("Será...") }
+          nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+          while inkey(,159)!=0 ; end
+          MRESTSTATE(MOUSE)
+          RX:="ERROR!"
+          RELEASE EAX,BX,DX,EX,CX
+          RETURN RX
+       end
     end
     CX:=hb_utf8tostr(MEMOREAD(BX+".tmp"))
     if TIPO==2
