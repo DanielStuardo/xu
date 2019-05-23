@@ -166,6 +166,8 @@ Modo de uso:
            muchas líneas. Para reparar eso, puede usar la siguiente línea:
 
                      tolin -f clrsel.prg -b 'void at{ch(16)}?#:tr{("\""+ch(16)+"\""),"chr(16)"};'
+             o bien:
+                     tolin -f clrsel.prg -b 'void tr{("\""+ch(16)+"\""),"chr(16)"}'
 
            Aparte de eliminar los #13 sobrantes (propio de codificación US-ASCII), busca el caracter
            anómalo (AT); si no lo encuentra, libera la línea completa. Pero, si lo encuentra, reemplaza
@@ -178,10 +180,10 @@ Modo de uso:
         5) Para procesar un grupo de archivos. La salida será única, así como los datos almacenados en
            el BUFFER con COPY, si no usa RESET:
 
-                     tolin -F datos/*.csv 'void match{"CTAAGH"}?:{I,{"  :  ",#}};'
+                     tolin -F datos/*.csv 'void match{"CTAAGH"}?{I,{"  :  ",#}};'
 
            Buscará exactamente 'CTAAGH'; si lo encuentra, despliega la línea con el número de línea.
-           Si no lo encuentra, no hace nada (eso quiere decir '?:')
+           Si no lo encuentra, no hace nada (eso quiere decir que no se use ':').
         
         6) Usando un archivo ficticio "foo", se ejecuta una iteración que llena el BUFFER con la glosa
            de cada cifra de 100 cifras:
@@ -278,9 +280,26 @@ Modo de uso:
             "n" es distinto de "0" (puede ser negativo), "~n" es 0. 
             Util.
 
+   Reglas de comparación:
+
+         *) Si se compara un número con un string, el número será convertido
+            a string.
+              Si v=290.23
+              v="0"  ==>  "290.23"="0"
+              
+         *) Si se compara un string con un número, el string será convertido
+            a número. Cualquier string que no se componga de dígitos, será
+            convertido a 0. Cuidado con esto.   
+              Si v="290.23"
+              v>0  ==> 290.23>0
+              Si v="hola mundo"
+              v>0  ==> 0>0
+              Si v=""
+              v>0  ==> 0>0
+
    Los siguientes operadores trabajan con números de 32 bits:
    
-   &                 AND binario. Ejemplo 0x100101b & 25, 0xFFh & 0x00101.
+   &                 AND binario. Ejemplo 0x100101b & 25, 0xFFh & 0x00101b.
    |                 OR BINARIO.
    !                 XOR BINARIO.
    >>                Desplazamiento hacia la derecha. Ejemplo: 1>>2.
@@ -341,7 +360,7 @@ Modo de uso:
 
    Registros de memoria.
    
-                     Son variables. Existen 10 registros de memoria que
+                     Son variables. Existen 20 registros de memoria que
                      pueden ser usados en una expresión, y creo que es
                      mucho.
                      Dichas memorias son inicializadas en cada ejecución,
@@ -474,7 +493,7 @@ Modo de uso:
                      Solo tomará la primera ocurrencia de S1; las demás, serán
                      descartadas.
                      
-        S1^S2        Idem a AF(S1,S2).
+        S1^S2        Idem a AF(S1,S2) para la primera ocurrencia.
 
         S1^N         Inserta S1 dentro de la línea procesada, en la posición N.
                      Ejemplo:
@@ -656,20 +675,51 @@ Modo de uso:
 
       SUB{M,N}       Obtiene un substring de la línea procesada.
 
-   TR(V,S,T)         Reemplaza "S" por "T", en "V". El reemplazo no
+  TR(V,S,T[,O[,P]])  Reemplaza "S" por "T", en "V". El reemplazo no
                      discrimina palabras completas de substrings.
                      Ejemplo: si busca "sa", y reemplaza por "xu", el
                      resultado final es:
                        "sapo"   ==> "xupo"
                        "salas"  ==> "xulas"
-                       "pisala" ==> "pixula" 
+                       "pisala" ==> "pixula"
+                     "O" es opcional, así como "P", pero si pone "P", debe
+                     poner "O".
+                     "O" indica desde qué ocurrencia va a reemplazar.
+                     "P" indica cuántas ocurrencias va a reemplazar, desde
+                     el primer reemplazo hecho en la ocurrencia "O".
+                     Ejemplo:
+                       V="maría tenía un corderito, y maría lo quería mucho"
+                       tr(V,"maría","Juanita")
+                    ==> Juanita tenía un corderito, y Juanita lo quería mucho
+                       tr(V,"maría","Juanita",2)
+                    ==> maría tenía un corderito, y Juanita lo quería mucho
+                       
+                       V="ABCDEABCDEABCDEABCDE"
+                       tr(V,"AB","--",3,1)
+                    ==> ABCDEABCDE--CDEABCDE
+      ******   
+         PROBLEMA:  Si esta y otras funciones con argumentos opcionales son
+                    argumentos de otras funciones, estos argumentos dejarán de
+                    ser opcionales. Lo siento: el analizador es como el pico,
+                    la verdad sea dicha y que no duela :).
+      ******
 
-      TR{S,T}        Idem, pero usa la línea procesada.
+    TR{S,T[,O[,P]]}  Idem, pero usa la línea procesada.
 
-   TRE(V,S,T)        Reemplaza exactamente "S" por "T". Sirve para borrar
+ TRE(V,S,T[,O[,P]])  Reemplaza exactamente "S" por "T". Sirve para borrar
                      palabras si "T" es "".
+                     Tanto "O" como "P" son opcionales, y hacen lo mismo que
+                     en "TR".
+                     Ejemplo:
+                       V="Juan Juanita Juanito Juan Juancho Juan"
+                       tre(V,"Juan","Pepe")
+                    ==> Pepe Juanita Juanito Pepe Juancho Pepe
+                       tre(V,"Juan","Pepe",2)
+                    ==> Juan Juanita Juanito Pepe Juancho Pepe
+                       tre(V,"Juan","Pepe",2,1)
+                    ==> Juan Juanita Juanito Pepe Juancho Juan
 
-      TRE{S,T}       Idem, pero usa la línea procesada.
+   TRE{S,T[,O[,P]]}  Idem, pero usa la línea procesada.
 
    RPC(V,S,T)        Reemplaza en "V", todos los caracteres indicados por
                      "S", por lo caracteres indicados por "T".
@@ -702,20 +752,38 @@ Modo de uso:
 
       ONE{S}         Idem, pero con la línea procesada.
 
-   AT(V,S)           Devuelve la posición donde inicia "S", en "V",
+   AT(V,S[,O])       Devuelve la posición donde inicia "S", en "V",
                      contando de izquierda a derecha.
+                     La opción "O" es opcional, e indica la ocurrencia
+                     que considerará.
+                     Ejemplo:
+                       V="ABCDABCDABCDABCD"
+                       at(V,"AB")    ==> 1
+                       at(V,"AB",3)  ==> 9  ¿dónde está la 3ra ocurrencia?
+                       at(V,"AB",10) ==> 13 
+                     Si "O" supera el límite de ocurrencias posibles de
+                     la línea, devuelve la posición de la última ocurrencia
+                     encontrada.
 
-      AT{S}          Idem, pero en la línea procesada.
+      AT{S[,O]}      Idem, pero en la línea del BUFFER.
+
+   AF(V,S[,O])       Tal como AT(), pero busca exactamente "S".
+                     La búsqueda se realiza de derecha a izquierda.
+                     Ejemplo:
+                       V="ABCD AB CD AB CD ABCD"
+                       af(V,"AB")    ==> 6
+                       af(V,"AB",2)  ==> 12
+                       af(V,"AB",10) ==> 12
+                     Si "O" supera el límite de ocurrencias posibles de
+                     la línea, devuelve la posición de la última ocurrencia
+                     encontrada.
+
+      AF{S[,O]}      Idem, pero usando el BUFFER.
 
    RAT(V,S)          Devuelve la posición donde inicia "S", en "V",
                      contando de derecha a izquierda.
 
-      RAT{S}         Idem, pero en la línea procesada. 
-
-   AF(V,S)           Tal como AT(), pero busca exactamente "S".
-                     La búsqueda se realiza de derecha a izquierda.
-
-      AF{S}          Idem, pero usando la línea procesada.
+      RAT{S}         Idem, pero en la línea del BUFFER. 
 
    RANGE(V,C,D)      Busca en "V" los caracteres que están en el rango
                      entre "C" y "D". "C" y "D" son números ASCII. Si
@@ -1048,9 +1116,9 @@ Modo de uso:
    La primera expresión está escrita con atajos, y la segunda, con sus
    funciones equivalentes:
    
-   sub{ (!{at{"\""})+1}, (!{rat{"\""}) - !{at{"\""}}-1 )  }
+   sub{ (at{"\""}+1), (rat{"\""} - at{"\""}-1 )  }
 
-   sub(#,val(at(#,ch(34))+1), (val(rat(#,ch(34)))-val(at(#, ch(34)))-1))
+   sub(#,(at(#,ch(34))+1), (rat(#,ch(34))-at(#, ch(34))-1))
    
    (Es mucho más compacto escribir lo de arriba que lo de abajo, aunque esté
     escrito en proto-sumerio)
