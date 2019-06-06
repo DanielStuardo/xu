@@ -375,6 +375,7 @@ PUBLIC _sw_lib:=.F.
 PUBLIC _sw_retorno:=.F.
 PUBLIC _sw_anulawarningretorno:=.F.
 PUBLIC _sw_mensajes:=.F.
+PUBLIC _sw_source:=.F.
 PUBLIC _file
 //PUBLIC _Retorno_main
 PUBLIC _SW
@@ -426,6 +427,8 @@ while _argn<26 .and. &(_argc[++_argn])!=nil
       _sw_pre1:=.T.
   elseif _parametro=="-m"   // genera archivo de mapa de memoria .map
       _sw_pre2:=.T.
+  elseif _parametro=="-s"   // consulte source
+      _sw_source:=.T.
   elseif _parametro=="-p"   // genera preproceso
       _sw_pre3:=.T.
   elseif _parametro=="-l"   // genera libreria
@@ -449,23 +452,31 @@ end
 
 // chequea si el primer arg es un archivo
 _archivo:=&(_argc[1])
-
-if !FILE(PATH_SOURCE + _fileSeparator + _archivo)
-    _modo_de_uso()
-    outstd(_CR+"****** No existe el archivo indicado ******",_CR)
-    quit
+if _sw_source
+   if !FILE(PATH_SOURCE + _fileSeparator + _archivo)
+      _modo_de_uso()
+      outstd(_CR+"****** No existe el archivo indicado ******"+_CR)
+      quit
+   end
+else
+   if !FILE(_archivo)
+      _modo_de_uso()
+      outstd(_CR+"****** No existe el archivo indicado ******"+_CR)
+      quit
+   end
 end
 
 /* PARA ENGANCHE CON EDITOR */
 if _sw_retorno
-   color:=setcolor("7")
-   setcursor(0)
-   setpos( 0,0 ); outstd( REPLICATE(" ",MAXCOL()) )
+ //  color:=setcolor("7")
+ //  setcursor(0)
+ //  setpos( 0,0 ); outstd( REPLICATE(" ",MAXCOL()) )
    ARCHIVO:="..."+substr(_archivo,rat(_fileSeparator,_archivo),len(_archivo))
-   setcolor("7/0")
-   setpos( 0,1 ); outstd( " Compilando ["+upper(_archivo)+"]..." +_CR+_CR)
-   setcursor(1)
-   setcolor(color)
+ //  setcolor("7/0")
+ //  setpos( 0,1 ); outstd( " Compilando ["+upper(_archivo)+"]..." +_CR+_CR)
+   outstd(" Compilando ["+upper(_archivo)+"]..." +_CR+_CR)
+ //  setcursor(1)
+ //  setcolor(color)
 end
 /*  HASTA AQUI */
 //-----------------------------------------------------------------
@@ -511,8 +522,12 @@ if _sw_mensajes
 end
 _TIMESEC:=seconds()
 PUBLIC tempFile:="XU_"+alltrim(str(int(hb_random()*1000000000)))+".temp"
-_Carga_archivo(PATH_SOURCE+_fileSeparator+_archivo, ;
+if _sw_source
+   _Carga_archivo(PATH_SOURCE+_fileSeparator+_archivo, ;
                          PATH_TEMP+_fileSeparator+tempFile)
+else
+   _Carga_archivo(_archivo, PATH_TEMP+_fileSeparator+tempFile)
+end
 
 _lineexe:=_PASO_2(PATH_TEMP+_fileSeparator+tempFile)
  
@@ -701,8 +716,11 @@ end
 _cnt_byte:=0
 if _sw_exec
 //  _cnt_byte:=_GenEXEC(PATH_BINARY+_fileSeparator+_arch+"x",_cod)
-  _cnt_byte:=_GenEXEC(PATH_BINARY+_fileSeparator+_arch,_cod)
-
+  if _sw_source
+     _cnt_byte:=_GenEXEC(PATH_BINARY+_fileSeparator+_arch,_cod)
+  else
+     _cnt_byte:=_GenEXEC(_arch,_cod)
+  end
 end    // _sw_exec
 
 if _sw_lib
@@ -4943,6 +4961,9 @@ while i<=vLen
               elseif c=='"'
                  pString+="\'"  //c
                  c:=""
+              elseif c=="\"
+                 pString+="\"  //c
+                 c:=""
               else
                  pString+="\"+c
               end
@@ -8852,7 +8873,7 @@ procedure _modo_de_uso()
     _header()
     outstd(_CR+"  Modo de uso:"+_CR+_CR)
 
-    outstd("  XUC <archivo.xu> <[-x][-v][-m][-p][-l][-wret][-verb][-h]>"+_CR)
+    outstd("  XUC <archivo.xu> <[-x][-v][-m][-s][-p][-l][-wret][-verb][-h]>"+_CR)
     outstd(_CR+"--------------------------------------------------------------------------------------")
     outstd(_CR+"  donde:"+_CR)
     outstd("           -x      Genera el archivo XU-CODE ejecutable."+_CR)
@@ -8860,6 +8881,8 @@ procedure _modo_de_uso()
     outstd("                   direcciones principales (.VAR)."+_CR)
     outstd("           -m      Genera un archivo de mapas de direcciones del programa (.MAP) para"+_CR)
     outstd("                   fines de debugueo."+_CR)
+    outstd(hb_UTF8tostr("           -s      Lee archivo fuente desde directorio SOURCE. Si no pone esta opción,")+_CR)
+    outstd(hb_UTF8tostr("                   XUC leerá el archivo fuente desde la RUTA actual o desde la señalada.")+_CR)
     outstd(hb_UTF8tostr("           -l      Genera un archivo librería con extensión .LIB, y lo guarda en la")+_CR)
     outstd("                   carpeta LIB. Dicho archivo se puede importar con '#import' en el"+_CR)
     outstd(hb_UTF8tostr("                   área de funciones (functions:).")+_CR)

@@ -22,6 +22,7 @@ function main()
 
 public _CR:=HB_OSNewline()           //chr(13)+chr(10)
 PUBLIC _arr_par:=array(0)
+public _sw_source:=.F.
 public _file
 
 // Chequea parametros y los asigna a un array (esto queda para la ejecucion)
@@ -34,20 +35,44 @@ if numParam==0
     quit
 end
 
-if numParam>1
-   _arr_par:=array(numParam-1)
+iParam:=1
+if hb_pValue(1)=="-s"
+   _sw_source:=.T.
+   if numParam>=2
+      _file:=hb_pValue(2)    // el nombre del archivo
+      iParam:=3
+   else
+      _header()
+      _modo_de_uso()
+      release all
+      quit
+   end
+else
+   _file:=hb_pValue(1)    // el nombre del archivo
+   iParam:=2
 end
 
-_file:=hb_pValue(1)    // el nombre del archivo
-
-iParam:=2
+//?"iParam=",iParam," NumParam=",numParam
+if numParam>=iParam
+   //_arr_par:=array(numParam-1)
+   _arr_par:=array(numParam-(iParam-1))
+//end
   //  rellenar array de parametros para distribuir despues de la carga de variables
-
-WHILE iParam<=numParam
-   _arr_par[iParam-1]:=hb_pValue(iParam)
+   nParametro:=1
+   WHILE iParam<=numParam
+ //  if hb_pValue(iParam) == "-s"
+ //     _sw_source:=.T.
+ //  else
+      _arr_par[nParametro]:=hb_pValue(iParam)
+     // ? "Pram ",iParam," Valor ", _arr_par[nParametro]
+      ++nParametro
+ //  end
    
-   ++iParam
-END
+      ++iParam
+   END
+else
+   _arr_par:={}
+end
 
 set date french
 set century on
@@ -622,11 +647,20 @@ PUBLIC LENGOSUB:=0
 _Carga_Configuracion()  // carga configuracion.
 
 // chequea si el archivo es valido
-if !file(PATH_BINARY+_fileSeparator+_file)
-    _header()
-    _modo_de_uso()
-    release all
-    quit
+if _sw_source
+   if !file(PATH_BINARY+_fileSeparator+_file)
+      _header()
+      _modo_de_uso()
+      release all
+      quit
+   end
+else
+   if !file(_file)
+      _header()
+      _modo_de_uso()
+      release all
+      quit
+   end
 end
 
 _DefineSegmentos()     // define los segmentos de trabajo
@@ -2508,19 +2542,24 @@ LOCAL AX,EAX,CX,DX,FX,OP_CODE:=2320,TYPENUM
      
       if CX=="C"
          outstd( AX )
+         //fwrite(1, AX )
       elseif CX=="N"
          FX:=XU_TYPENUM(AX)
          if FX==0
             if CONTEXT_NUMBER=="E" .or. ABS(AX)>XINFINITY().or. (ABS(AX)>0.and.ABS(AX)<0.0000000000000001)
                outstd( D2E(AX,XUPRECISION) )
+              // fwrite(1, D2E(AX,XUPRECISION) )
             else
                outstd( XFUNNUM2STRING(AX,XUPRECISION) )
+              // fwrite(1, XFUNNUM2STRING(AX,XUPRECISION) )
             end
          else
             outstd( TYPENUM[FX])
+           // fwrite(1, TYPENUM[FX])
          end
       elseif CX=="L"   // ESTO ES POR EL VARIANT
          outstd( iif(AX, CONTEXT_TRUE, CONTEXT_FALSE) )
+         //fwrite(1, iif(AX, CONTEXT_TRUE, CONTEXT_FALSE) )
       else
          UTILWRITMAT(EAX,1)
       end
@@ -19268,7 +19307,11 @@ Procedure _ErrorSys (bajada,CodError, linea)
   _fuente:=PATH_SOURCE+_fileSeparator+substr(_file,1,at(".",_file))+"xu"*/
 
   _busca:=PATH_DEBUG+_fileSeparator+_file+".map"
-  _fuente:=PATH_SOURCE+_fileSeparator+_file+".xu"
+  if _sw_source
+     _fuente:=PATH_SOURCE+_fileSeparator+_file+".xu"
+  else
+     _fuente:=_file+".xu"
+  end
   outstd( _CR,"Lugar del error en [",_fuente,"]:",_CR)
 
   _numbusca:=strzero(linea,5)
@@ -19557,7 +19600,11 @@ Procedure _CargaArchivo(_file)
 
 local h,t,n,_cola,_tmpfile,SW_STACK:=.F.
 
-h:=fopen(PATH_BINARY+_fileSeparator+_file,"r")
+if _sw_source
+   h:=fopen(PATH_BINARY+_fileSeparator+_file,"r")
+else
+   h:=fopen(_file,"r")
+end
 t:=space(3)
 n:=0
 
@@ -20041,19 +20088,20 @@ end
 return nil
 
 procedure _header()
-    outstd("XU v0.9999999+.2010-2018 --- XU VM ",_CR)
+    outstd("XU v1.0.2010-2018 --- XU VM ",_CR)
     outstd(hb_UTF8tostr("Diseño y programación (vintash) Daniel Stuardo (Dr.DaLiEn). Full Spanglish!!"),_CR)
     outstd(hb_UTF8tostr("Verano de 2010 - 27F - Laura no está :( - ¡Copitos! :O - Invierno de 2018."),_CR)
-    
 return
 
 procedure _modo_de_uso()
     outstd("  Modo de Uso:",_CR,_CR)
-    outstd(hb_UTF8tostr("  XU <archivo> [parámetros]"),_CR)
+    outstd(hb_UTF8tostr("  XU [-s] <archivo> [parámetros]"),_CR)
     outstd("--------------------------------------------------------------------------------------",_CR)
     outstd("  donde:",_CR)
     outstd(hb_UTF8tostr("     <archivo>        Es el archivo a ejecutar, sin extensión."),_CR)
-    outstd(hb_UTF8tostr("     [parametros]     Parámetros, si se requieren."),_CR,_CR)
+    outstd(hb_UTF8tostr("     [parametros]     Parámetros, si se requieren."),_CR)
+    outstd(hb_UTF8tostr("     -s               Ejecuta binario desde el directorio BINARY. Uselo si"),_CR)
+    outstd(hb_UTF8tostr("                      si compiló el programa usando el mismo parámetro."),_CR+_CR)
     outstd("  Bugs, dudas y aportes: daniel.stuardo@gmail.com",_CR,_CR)
 return
 
