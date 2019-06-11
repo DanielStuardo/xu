@@ -119,7 +119,7 @@ CTRL-O      MENU de ayuda y archivos. Estas son sus opciones:
 
    '<comando>  Edita la salida del comando en una ventana nueva.
 
-   $<comando>  Inserta la salida del comando en la edición activa. Puede usar
+   ^<comando>  Inserta la salida del comando en la edición activa. Puede usar
                CTRL-Z para deshacer.
 
    @<comando>  Reemplaza la edición actual por la salida del comando. Es
@@ -985,7 +985,7 @@ $$BEGIN Introduccion a las macros LAICA - OPE
 
    Operadores lógicos:
    
-   =, <, >, <=, >=, <>, ~ (negación).
+   =, <, >, <=, >=, <>|!=, ~ (negación).
             
             Devolverán "0" si la condición se cumple; de lo contrario,
             devolverán "1".
@@ -996,6 +996,17 @@ $$BEGIN Introduccion a las macros LAICA - OPE
             Util.
 
    Reglas de comparación:
+
+         *) Toda expresión debe ir entre paréntesis. Ejemplo:
+            or( (I=1),(I=2) )?...:...;
+         
+         *) No es necesario usar "=0" cuando se compara un valor con 0.
+            Ejemplo:
+               ((I%2)=0)?{I," es par"}:{I," es impar"}; 
+            es lo mismo que:
+               (I%2)?{I," es par"}:{I," es impar"}; 
+            dado que "?" espera un "0" como valor verdadero, y un número
+            distinto de "0" como valor falso.
 
          *) Si se compara un número con un string, el número será convertido
             a string.
@@ -1037,6 +1048,7 @@ $$BEGIN Sentencias del encabezado
 
 
    Modificadores globales:
+   (Deben escribirse con mayúsculas, excepto SEED)
    
                      Las siguientes sentencias pueden colocarse al inicio
                      del programa, de preferencia, y solo se ejecutarán una
@@ -1050,7 +1062,7 @@ $$BEGIN Sentencias del encabezado
                      fuesen constantes. Sin embargo, cuando se procesan
                      líneas de texto, no tiene sentido que la iteración
                      termine ahí. Para eso sirve NULL. Ejemplo:
-                        null $1/tk(#(10),3)
+                        NULL $1/tk(#(10),3)
                      Dividirá los datos de la columna 1 por el tercer dato
                      de la línea 10. La línea 10 debe estar después de una
                      línea vacía.
@@ -1061,7 +1073,7 @@ $$BEGIN Sentencias del encabezado
                      será reemplazado por el resultado de la operación.
                      Solo tiene vigencia en la operación actual.
                      Ejemplo:
-                        keep $1/log($2)
+                        KEEP $1/log($2)
 
    VOID              Indica a OPE que si un resultado es vacío, lo añada a
                      la pila de resultados. Sin este flag, los resultados
@@ -1110,7 +1122,8 @@ $$BEGIN Sentencias del encabezado
                      depende de DEFTOK o de la función DEFT(), descrita más
                      adelante.
 
-    Macros que se sustituyen en análisis sintáctico.
+    Macros que se sustituyen en análisis sintáctico. Respete mayúsculas y
+    minúsculas.
    
                      _ALPHA_  = ABCDEFGHIJKLMNÑOPQRSTUVWXYZ
                      _alpha_  = abcdefghijklmnñopqrstuvwxyz
@@ -1287,6 +1300,10 @@ $$BEGIN Sobrecarga de operadores
                      "?" indica que se espera un solo caracter.
                      "*" indica que se espera una secuencia de caracteres.
 
+        S%N          devuelve el caracter de "S" ubicado en la posición "N".
+                     Ejemplo:
+                       "hola mundo" % 6 ==> "m"
+
         S1|S2        Devuelve "0" si S1 está contenido como substring en S2;
                      de lo contrario, devuelve "1".
                      Ejemplo:
@@ -1351,9 +1368,32 @@ $$BEGIN Funciones basicas de texto
 
 
                      
-   RP(#,V)           Reemplaza línea de BUFFER por "V".
+   RP(V)             Reemplaza línea de BUFFER por "V", quedando esta
+                     como la línea oficial de proceso.
+                     También opera sobre líneas marcadas con CTRL-K4.
+                     Ejemplo:
 
-      RP{V}          idem.
+                       rp(" ") #
+
+                     reemplazará la línea procesada por un espacio, y
+                     la liberará.
+
+     >>IMPORTANTE>>  Si no hace nada más después de ejecutado este
+                     comando, no habrá resultados.
+                     Una vez hecho el reemplazo, NT es actualizado.
+                     Ejemplo:
+
+                       @1(nt) 
+                       rp("hola mundo") 
+                       @1({@1," : "+str(NT)})
+                       @1
+                     
+                     sale:
+                        2 : 2
+                        7 : 2
+                        ...
+                        1 : 2
+                        9 : 2                     
 
    TRI(V)            Quita los espacios laterales de "V".
 
@@ -1429,6 +1469,8 @@ $$BEGIN Modificacion de BUFFER
                      solitario, pero hay que omitirlo si no lo acompaña un
                      mensaje en la base de la pantalla.
                      
+     #N(S)           Idem a LET, en una forma más corta y elegante. 
+                     
    COPY(V)           Toma el valor de "V" y lo deja en el BUFFER, bajo las
                      siguientes condiciones:
                   1) "V" debe contener algo. No copia string vacío.
@@ -1499,6 +1541,15 @@ $$BEGIN Funciones avanzadas de texto
                     ==> Juan Juanita Juanito Pepe Juancho Juan
 
    TRE[A|B]{S,T[,O[,P]]}  Idem, pero usa la línea procesada.
+
+   TPC(V,C,N)        Reemplaza el caracter de la posición "N" de "V", por
+                     el caracter indicado en "C".
+                     Ejemplo:
+                     
+                     tpc("maría es cool","I",4)
+                 ==> marIa es cool
+                 
+     TPC{C,N}        Idem, pero usa la línea marcada o el BUFFER.
 
    RPC(V,S,T)        Reemplaza en "V", todos los caracteres indicados por
                      "S", por lo caracteres indicados por "T".
@@ -1826,7 +1877,23 @@ $$BEGIN Funciones utilitarias
                      Mientras IFxx deja un resultado en la pila en función de su
                      evaluación, "?" no devuelve nada, sino que son las expresiones
                      en su interior las que devuelven resultados.
-                     Tenga presente esta diferencia.
+                     Tenga presente esta diferencia. No obstante, ambas expresiones
+                     pueden ser compatibles con un objetivo, como por ejemplo:
+                     
+                        @1(if(match{"CODIGO"},1,0))   /* bien: IF dejará "1" en @1 si
+                                                         encuentra "CODIGO", sino,
+                                                         dejará "0" */
+                     
+                     hará lo mismo que "?":
+                     
+                        @1(match{"CODIGO"}?1:0;)    /* bien: "1" será dejado en la pila
+                                                       si encunetra "CODIGO", sino,
+                                                       "0" será usado. */
+                     
+                     La diferencia es que IFxx toma de la pila el resultado de la expresión,
+                     el valor "1" y el valor "0"; en cambio, "?" solo toma el resultado de
+                     la expresión, y salta a la dirección del dato o instrucción en función
+                     de dicho resultado.
 
     AND, OR y XOR    Se puede simular AND sumando el resultado de las operaciones
                      de IFxx. Ejemplo:
@@ -1885,13 +1952,34 @@ $$BEGIN Operadores de bits
    forma OCTAL       Prefijo "0x", dígitos 0-7, y sufijo "o". Ejemplo
                      0x7165o
 
+         >>NOTA>>    El conteo de bits de un número binario comienza en cero, y se
+                     cuenta de derecha a izquierda:
+                     
+                        bits :  7 6 5 4 3 2 1 0
+                                1 1 0 0 1 0 1 1 = 203 dec.
+                     
+                     Así, el bit 0 es 1, el bit 1 es 1, el bit 2 es 0, etc.
+                     Esto puede variar de una máquina a otra, por lo que sería
+                     conveniente tenerlo en cuenta a la hora de migrar su script.
    Funciones:
       
    BIT(N,P)          Devuelve el bit de "N" ubicado en la posición "P".
+                     Ejemplo:
+                       {("Bit 2 de 132("+bin(132)+") = "),bit(132,2)}
+                       ==> Bit 2 de 132(0x10000100b) = 1
 
    ON(N,P)           Enciende el bit "P" de "N" (lo deja en "1").
+                     Ejemplo:
+                       bin(on(0,1))
+                       ==> 0x10b
 
    OFF(N,P)          Apaga el bit "P" de "N" (lo deja en "0").
+                     Ejemplo:
+                       bin(off(0x11111111b,0))
+                       ==> 0x11111110b
+                       
+                       bin(off(0x11111111b,1))
+                       ==> 0x11111101b
 
    NOT(N)            Negación binaria de "N" (complemento a 1).
 
