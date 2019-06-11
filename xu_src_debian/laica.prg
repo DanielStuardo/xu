@@ -1743,9 +1743,12 @@ while SW_EDIT
      end
      if p>0 .and. p<=len(s)
         if s[p]=="{" .or. s[p]=="}"
-           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="{",1,0))
-        else
-           BUSCAPARSIMBOLO(p,SLINEA,TEXTO[pi],py,px,cini)
+           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="{",1,0),s[p])
+        elseif s[p]=="(" .or. s[p]==")"
+           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="(",1,0),s[p])
+        elseif s[p]=="[" .or. s[p]=="]"
+           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="[",1,0),s[p])
+//           BUSCAPARSIMBOLO(p,SLINEA,TEXTO[pi],py,px,cini)
         end
      end
 
@@ -7231,7 +7234,7 @@ while SW_EDIT
                 if substr(COMANDO,1,1)=="'"  // edita la salida en un archivo temporal
                    SWEDITACOM:=.T.
                    COMANDO:=substr(COMANDO,2,LEN(COMANDO))
-                elseif substr(COMANDO,1,1)=="$"  // inserta la salida en edicion actual
+                elseif substr(COMANDO,1,1)=="^"  // inserta la salida en edicion actual
                    SWINSCODIGO:=.T.
                    COMANDO:=substr(COMANDO,2,LEN(COMANDO))
                 elseif substr(COMANDO,1,1)=="@"  // reemplaza la edición actual por la salida.
@@ -9988,29 +9991,29 @@ cTMP:=""
 
 
 /* algunos reemplazos necesarios */
-if "null" $ DX   // iteración no cancela con líneas nulas
+if "NULL" $ DX   // iteración no cancela con líneas nulas
    SWNOTNUL:=.T.
-   DX:=strtran(DX,"null","")
+   DX:=strtran(DX,"NULL","")
 end
-if "keep" $ DX    // mantiene el resultado en el buffer, eliminando los datos originales.
+if "KEEP" $ DX    // mantiene el resultado en el buffer, eliminando los datos originales.
    SWRECBUFFER:=.F.
-   DX:=strtran(DX,"keep","")
+   DX:=strtran(DX,"KEEP","")
 end
-if "void" $ DX
+if "VOID" $ DX
    SWKEEPVACIO:=.T.
-   DX:=strtran(DX,"void","")
+   DX:=strtran(DX,"VOID","")
 end
-if "nobuff" $ DX
+if "NOBUFF" $ DX
    SWNOBUFFER:=.T.
-   DX:=strtran(DX,"nobuff","")
+   DX:=strtran(DX,"NOBUFF","")
 end
-if "nosen" $ DX
+if "NOSEN" $ DX
    SWSENSITIVE:=.F.
-   DX:=strtran(DX,"nosen","")
+   DX:=strtran(DX,"NOSEN","")
 end
-if "deg" $ DX
+if "DEG" $ DX
    SWRADIANES:=.F.
-   DX:=strtran(DX,"deg","")
+   DX:=strtran(DX,"DEG","")
 end
 if "_alpha_" $ DX
    DX:=strtran(DX,"_alpha_",hb_utf8tostr(chr(34)+"abcdefghijklmnñopqrstuvwxyz"+chr(34)))
@@ -10114,6 +10117,14 @@ while i <= long
          --i
        //  _ERROR("CONV: SIMBOLO NO RECONOCIDO "+c)
       //   RETURN {}
+      end
+   elseif c=="!"
+      c+=substr(DX,++i,1)
+      if c=="!="   // distinto a 
+         AADD(Q,"<>")
+         AADD(R,"<>")
+      else
+         --i
       end
    elseif c=="<"
       c+=substr(DX,++i,1)
@@ -10979,7 +10990,7 @@ aadd(pila2,"(")
             else
                aadd(pila,"N")
             end
-         elseif m=="CAT" .or. m=="CP".or.m=="RP".or.m=="PTRP".or.m=="PTRM" .or. m=="ONE";
+         elseif m=="CAT" .or. m=="CP".or.m=="PTRP".or.m=="PTRM" .or. m=="ONE";
                 .or. m=="PL".or.m=="PC".or.m=="PR".or.m=="MSK".or.m=="SAT" .or.m=="DC"
             o:=SDP(pila)
             n:=SDP(pila)
@@ -11030,7 +11041,7 @@ aadd(pila2,"(")
                _ERROR("SINTAXIS: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
                RETURN .F.
             end
-         elseif m=="DEFT" .or. m=="LOOP".or.m=="SEED"
+         elseif m=="DEFT" .or. m=="LOOP".or.m=="SEED".or.m=="RP"
             n:=SDP(pila)
             if n==NIL
                _ERROR("SINTAXIS: ESPERO UN ARGUMENTO VALIDO PARA ("+m+")")
@@ -11495,6 +11506,9 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                vtip:=vn+vo 
                if vtip=="NN" //vn=="N" .and. vo=="N"
                   AADD(pila,o%n)
+               elseif vtip=="NC"
+                  o:=strtran(o,chr(0),"")
+                  AADD(pila, POSCARACTER(o,n)+chr(0))
                elseif vtip=="CC"  //vn=="C" .and. vo=="C"
                   n:=strtran(n,chr(0),"")
                   o:=strtran(o,chr(0),"")
@@ -11768,14 +11782,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                         if len(pilaif)==0
                             exit
                         end
+                        ++i
                      elseif p[i]==9  //"ENDIF"
                         if len(pilaif)>0
                            asize(pilaif,len(pilaif)-1)
+                           ++i
                         else
                            exit
                         end
                      elseif p[i]==7  //"JNZ"  // pone en pila
                         aadd(pilaif,1)
+                        ++i
                      end
                   else
                      i += 2
@@ -11811,14 +11828,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                               if len(pilaif)==0
                                  exit
                               end
+                              ++i
                            elseif p[i]==9  //"ENDIF"
                               if len(pilaif)>0
                                  asize(pilaif,len(pilaif)-1)
+                                 ++i
                               else
                                  exit
                               end
                            elseif p[i]==7  //"JNZ"  // pone en pila
                               aadd(pilaif,1)
+                              ++i
                            end
                         else
                            i += 2  // avanzo a sig. codigo de funcion
@@ -12602,7 +12622,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             
             case 34  //"RP"
                o:=SDP(pila)
-               n:=SDP(pila)  // debe sacarlo, porque sino, no reemplaza
+             
              /*  if esnulo(n,o) //n==NIL .or. o==NIL
                   _ERROR("EVALUADOR: VALOR NULO EN RP")
                   RETURN .F.
@@ -12613,7 +12633,9 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
              //  o:=strtran(o,'"',"")
                   o:=strtran(o,chr(0),"")
                end
-               AADD(pila,o+chr(0))
+               ///AADD(pila,o+chr(0))
+               par:=o
+               NUMTOK:=numtoken(par,DEFTOKEN)
                exit
             end
             EXIT
@@ -16092,6 +16114,18 @@ HB_FUNC( FT_IDLE )
    hb_idleState();
 }
 
+HB_FUNC( POSCARACTER )
+{
+   PHB_ITEM pTEXTO = hb_param(1, HB_IT_STRING );
+   HB_SIZE nPos = hb_parni ( 2 );
+   char * cRet = (char *)calloc(2,1);
+   const char * szText = hb_itemGetCPtr( pTEXTO );
+   cRet[0] = szText[nPos-1];
+   cRet[1] = '\0';
+   hb_retc( cRet );
+   free(cRet);
+}
+
 void do_fun_xgetbit(){
    unsigned x = hb_parni(1);
    int p = hb_parni(2);
@@ -17255,12 +17289,21 @@ HB_FUNC( BUSCAPARLLAVE )
    int cini    = hb_parni( 7 );  // p+cini
    long pi      = hb_parni( 8 );  // fila fisica
    int dir      = hb_parni( 9 );  // adelante=1; 0=atras
+   const char * simbolo = hb_parc( 10 );  // simbolo llave u otro
    
    int i,ipar=0;
+   char npar=0,par=0;
    long lini = py;
    
    hb_colorwin(py,px,py,px,32);  // colorea la primera llave.
-   
+
+   if (*simbolo=='(')     {npar='(';par=')';}
+   else if(*simbolo=='[') {npar='[';par=']';}
+   else if(*simbolo==')') {npar=')';par='(';}
+   else if(*simbolo==']') {npar=']';par='[';}
+   else if(*simbolo=='{') {npar='{';par='}';}
+   else if(*simbolo=='}') {npar='}';par='{';}
+ 
    if(dir) {  // adelante
       for (i=pi; i<=TLINEA+pi; i++){
          PHB_ITEM pAA = hb_itemArrayGet( pTexto, i);
@@ -17273,8 +17316,8 @@ HB_FUNC( BUSCAPARLLAVE )
          
          //for(xini=p; xini<=nLen; xini++){
          while(*t){
-            if (*t=='{') ++ipar;
-            if (*t=='}') --ipar;
+            if (*t==npar) ++ipar;
+            if (*t==par) --ipar;
             if (ipar==0){
                if(xini<=SLINEA && xini>=cini)
                   hb_colorwin(py,px,py,px,32);
@@ -17305,8 +17348,8 @@ HB_FUNC( BUSCAPARLLAVE )
          
          for(xini=(p-1); xini>=0; xini--){
         // while(t>=s){
-            if (*t=='}') ++ipar;
-            if (*t=='{') --ipar;
+            if (*t==npar) ++ipar;
+            if (*t==par) --ipar;
             if (ipar==0){
                if(xini<=SLINEA && xini>=cini && py>=1){
                   hb_colorwin(py,px,py,px,32);
@@ -17326,7 +17369,7 @@ HB_FUNC( BUSCAPARLLAVE )
 }      
 
 //BUSCAPARSIMBOLO(p,SLINEA,s,py,px,cini)
-HB_FUNC( BUSCAPARSIMBOLO )
+/*HB_FUNC( BUSCAPARSIMBOLO )
 {
    int p       = hb_parni( 1 );
    int SLINEA  = hb_parni( 2 );
@@ -17430,7 +17473,7 @@ HB_FUNC( BUSCAPARSIMBOLO )
          }
    }
    hb_itemClear(pS);
-}
+}*/
 
 HB_FUNC( CADBLOQUEC )
 {
