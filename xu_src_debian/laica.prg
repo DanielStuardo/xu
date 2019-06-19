@@ -230,7 +230,7 @@ if numParam>1
       /*** verifica "-t" directorios de archivos temporales ***/
       if STRING=="-t"
          if i==len(_arr_par)
-            outstd(_CR+"Parametro '-t' incompleto."+_CR+;
+            outstd(_CR+"El Doggy dice: Parametro '-t' incompleto."+_CR+;
                     "LAICA aborta."+_CR)
             quit
          end
@@ -269,7 +269,7 @@ if numParam>1
       /*** verifica directorio de respaldo ***/
       elseif STRING=="-b"
          if i==len(_arr_par)
-            outstd(_CR+"Parametro '-b' incompleto."+_CR+;
+            outstd(_CR+"El Doggy dice: Parametro '-b' incompleto."+_CR+;
                     "LAICA aborta."+_CR)
             quit
          end
@@ -300,7 +300,7 @@ if numParam>1
       /*** analiza "-d" para editar carpetas completas ***/
       elseif STRING=="-d"
          if i==len(_arr_par)
-            outstd(_CR+"Parametro '-d' incompleto."+_CR+;
+            outstd(_CR+"El Doggy dice: Parametro '-d' incompleto."+_CR+;
                     "LAICA aborta."+_CR)
             quit
          end
@@ -332,7 +332,7 @@ if numParam>1
                EXEDIRECTORY:=STRING+_fileSeparator+"exe/"
             end
          else  // directorio fue mal puesto. SALIR.
-            outstd(_CR+"El directorio de archivos no pudo ser encontrado."+_CR+;
+            outstd(_CR+"El Doggy dice: El directorio de archivos no pudo ser encontrado."+_CR+;
                     "LAICA aborta."+_CR)
             quit
          end   
@@ -383,7 +383,7 @@ if numParam>1
                    TEXTOTIPO,LENTEXTOTIPO})
          end
       elseif substr(STRING,1,1)=="-"
-         outstd(_CR+"Opcion "+STRING+" no reconocida."+_CR;
+         outstd(_CR+"El Doggy dice: Opcion "+STRING+" no reconocida."+_CR;
           +_CR+"LAICA aborta."+_CR)
          quit
       else
@@ -427,7 +427,7 @@ if numParam>1
    end
    //inkey(0)
    if len(METADATA)==0
-       outstd(_CR+"Modo de uso:"+_CR+_CR+"  laica archivo.ext [-t dirTemp][-b dirBak]"+_CR;
+       outstd(_CR+"El Doggy dice: "+_CR+_CR+"  Modo de uso:"+_CR+_CR+"     laica archivo.ext [-t dirTemp][-b dirBak]"+_CR;
           +_CR+"LAICA aborta."+_CR)
        quit
    end
@@ -568,7 +568,7 @@ WHILE len(alltrim(_file))>0
                tmp:=CMDSYSTEM("cp "+FILE+" "+tARCHIVO+" </dev/null >/dev/null 2>&1",0)
             end
             if !file(tARCHIVO)
-               cMessage := hb_utf8tostr("No fue posible crear el archivo de respaldo")
+               cMessage := hb_utf8tostr("El Doggy dice: No fue posible crear el archivo de respaldo")
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
                clearscr()
@@ -581,7 +581,7 @@ WHILE len(alltrim(_file))>0
                tmp:=CMDSYSTEM("cp "+FILE+" "+FILE+CHR(126)+" </dev/null >/dev/null 2>&1",0)
             end
             if !file(FILE+CHR(126))
-               cMessage := hb_utf8tostr("No fue posible crear el archivo temporal")+_CR+;
+               cMessage := hb_utf8tostr("El Doggy dice: No fue posible crear el archivo temporal")+_CR+;
                    FILE+_CR+FILE+CHR(126)
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
@@ -595,7 +595,7 @@ WHILE len(alltrim(_file))>0
                tmp:=CMDSYSTEM("cp "+FILE+" "+tARCHIVO+" </dev/null >/dev/null 2>&1",0)
             end
             if !file(tARCHIVO)
-               cMessage := hb_utf8tostr("No fue posible crear el archivo temporal")+_CR+;
+               cMessage := hb_utf8tostr("El Doggy dice: No fue posible crear el archivo temporal")+_CR+;
                    FILE+_CR+tARCHIVO
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
@@ -1634,12 +1634,10 @@ while SW_EDIT
        // COLORWIN(py,1,py,SLINEA,cDESTACADO)
         if SWMARCABLOQUE .or. SWDELELIN 
            if SWCOPIA
-              //COLORWIN(py,1,py,xlen-cini,cSELECT) //63)
               COLORWIN(py,1,py,SLINEA,cSELECT) //63)
               if !SWDELELIN
                  COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT) //63)
                  COLORWIN(1,px,TLINEA-3,px,cSELECT) //63)
-                // COLORWIN(1,px,TLINEA-3,px,cSELECT)
               end
            else
               //COLORWIN(py,1,py,xlen-cini,cSELECT) //
@@ -1742,12 +1740,14 @@ while SW_EDIT
         SWPRIMERAVEZ:=.F.
      end
      if p>0 .and. p<=len(s)
-        if s[p]=="{" .or. s[p]=="}"
+        if isany(s[p],"{","}")  //s[p]=="{" .or. s[p]=="}"
            BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="{",1,0),s[p])
-        elseif s[p]=="(" .or. s[p]==")"
+        elseif isany(s[p],"(",")")  //s[p]=="(" .or. s[p]==")"
            BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="(",1,0),s[p])
-        elseif s[p]=="[" .or. s[p]=="]"
+        elseif isany(s[p],"[","]")  //s[p]=="[" .or. s[p]=="]"
            BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="[",1,0),s[p])
+        elseif isany(s[p],"<",">")  //s[p]=="<" .or. s[p]==">"
+           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="<",1,0),s[p])
 //           BUSCAPARSIMBOLO(p,SLINEA,TEXTO[pi],py,px,cini)
         end
      end
@@ -1968,14 +1968,16 @@ while SW_EDIT
                     if SWMARCABLOQUE .or. SWCTRLKG
                         XFILf:=pi; XCOLf:=p
                     end
+                    pCursor:=p
                  elseif mcCol<px
                     p:=p-(px-mcCol)
                     px:=px-(px-mcCol)
-                    
+                    pCursor:=p
                     if SWMARCABLOQUE .or. SWCTRLKG
                         XFILf:=pi; XCOLf:=p
                     end
                  end
+
               elseif mcRow<py
                  if mcRow>0
                     pi:=pi-(py-mcRow)   //(TLINEA-3-mcRow)
@@ -2013,6 +2015,7 @@ while SW_EDIT
                            XFILf:=pi
 
                        end
+                       pCursor:=p
                        setpos(py,px)
                      /*  c:=0
                        while inkey()!=0 ; end
@@ -2028,6 +2031,7 @@ while SW_EDIT
                            XFILf:=pi
                        
                        end
+                       pCursor:=p
                        setpos(py,px)
                      /*  c:=0
                        while inkey()!=0 ; end
@@ -2069,6 +2073,7 @@ while SW_EDIT
                        elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
                            XFILf:=pi
                        end
+                       pCursor:=p
                        setpos(py,px)
                     /*   c:=0
                        while inkey()!=0 ; end
@@ -2083,6 +2088,7 @@ while SW_EDIT
                        elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
                            XFILf:=pi
                        end
+                       pCursor:=p
                        setpos(py,px)
                      /*  c:=0
                        while inkey()!=0 ; end
@@ -2279,20 +2285,42 @@ while SW_EDIT
           tLEN:=len(TEXTO[pi])
           if py<MAXROW()-3
              ++py
-             //PXFILf:=py
-             if tLEN<p
-                p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
-                hb_keyPut(6)
+             if TEXTOTIPO=="BINARY"
+                if tLEN<p
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+                end
+             else
+                // chequeo pCursor
+                if pCursor <= tLEN .and. pCursor < SLINEA .and. cini==0
+                   p:=pCursor
+                   px:=pCursor
+                //
+                elseif tLEN<p  .or. tLEN<pCursor
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
 
-               pCURSOR:=tLEN
+                end
              end
           else
              ++lini; ++lfin
-             if tLEN<p
-                p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
-                hb_keyPut(6)
+             if TEXTOTIPO=="BINARY"
+                if tLEN<p
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+                end
+             else
 
-               pCURSOR:=tLEN
+                // chequeo pCursor
+                if pCursor <= tLEN .and. pCursor < SLINEA .and. cini==0
+                   p:=pCursor
+                   px:=pCursor
+             //
+                elseif tLEN<p  .or. tLEN<pCursor
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+
+                end
              end
 
           end
@@ -2333,47 +2361,44 @@ while SW_EDIT
           if py>1
              --py
              tLEN:=len(TEXTO[pi])
-             if tLEN<p  
-                p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
-                hb_keyPut(6)
-               // exit
-               /*if tLEN>0
-                   if tLEN<cini
-                      p:=1; px:=1; cini:=0
-                      hb_keyPut(6)
-                      //exit
-                   else
-                      p:=tLEN; px:=tLEN-cini
-                   end
-                else
-                   p:=1; px:=1
-                end*/
-          //   elseif tLEN>=p .and. pCURSOR<tLEN
-               // p:=1; px:=1; cini:=0
-               // pushkey(4,pCURSOR-1)
-               // exit
-          //   elseif tLEN>=p .and. pCURSOR>tLEN
-               // p:=1; px:=1; cini:=0
-               // hb_keyPut(6)
-               // exit
-               pCURSOR:=tLEN
+             if TEXTOTIPO=="BINARY"
+                if tLEN<p
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+                end
+             else
+
+                // chequeo pCursor
+                if pCursor <= tLEN .and. pCursor < SLINEA .and. cini==0
+                   p:=pCursor
+                   px:=pCursor
+                //
+                elseif tLEN<p .or. tLEN<pCursor
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+ 
+                end
              end
           else
              --lini; --lfin
              tLEN:=len(TEXTO[pi])
-             if tLEN<p 
-                p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
-                hb_keyPut(6)
-                //exit
-          //   elseif tLEN>=p .and. pCURSOR<tLEN
-               // p:=1; px:=1; cini:=0
-               // pushkey(4,pCURSOR-1)
-               // exit
-          //   elseif tLEN>=p .and. pCURSOR>tLEN
-               // p:=1; px:=1; cini:=0
-               // hb_keyPut(6)
-               // exit
-               pCURSOR:=tLEN
+             if TEXTOTIPO=="BINARY"
+                if tLEN<p
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+                end
+             else
+
+                // chequeo pCursor
+                if pCursor <= tLEN .and. pCursor < SLINEA .and. cini==0
+                   p:=pCursor
+                   px:=pCursor
+                //
+                elseif tLEN<p  .or. tLEN<pCursor
+                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
+                   hb_keyPut(6)
+
+                end
              end
             // ? "SCROOL" Sí, pasa por aquí, es raro, pero lo hace.
             // Scroll(1, 0, TLINEA-3, SLINEA, -1,0)
@@ -2462,15 +2487,16 @@ while SW_EDIT
             if SWMARCABLOQUE  .or. SWCTRLKG
                XFILf:=pi; XCOLf:=p
             end
-            
             exit
+          else
+               pCURSOR:=p
           end
        else  // cambia a la linea anterior
         if pi>1
           SETCOLOR (N2COLOR(cEDITOR))
           
           if len(TEXTO[pi-1])>SLINEA
-             pCURSOR:=1
+            /// pCURSOR:=1
              hb_keyPut(5)
              hb_keyPut(6)
            //  if TEXTOTIPO=="BINARY"
@@ -2482,7 +2508,7 @@ while SW_EDIT
 
           if py>1
              p:=1+nOFFSET; px:=1+nOFFSET
-             pCURSOR:=p
+           ///  pCURSOR:=p
              hb_keyPut(5)
              hb_keyPut(6)
           //   if TEXTOTIPO=="BINARY"
@@ -2515,7 +2541,7 @@ while SW_EDIT
               
        setcursor(1)
        setpos(py,px)
-       pCURSOR:=p
+      /// pCURSOR:=p
        if TEXTOTIPO=="BINARY"
           exit
        end
@@ -2541,7 +2567,7 @@ while SW_EDIT
              end
              px:=1+nOFFSET
              p:=1+nOFFSET
-             pCURSOR:=p
+            ///
           end
           setcursor(1)
           
@@ -2578,6 +2604,7 @@ while SW_EDIT
              exit
           else
              ++px
+             pCURSOR:=p
           end
           if TEXTOTIPO=="BINARY"
              if p>xlen
@@ -2615,7 +2642,7 @@ while SW_EDIT
             end
             px:=1+nOFFSET
             p:=1+nOFFSET
-            pCURSOR:=p
+           /// 
          end
          setcursor(1)
          
@@ -2759,7 +2786,6 @@ while SW_EDIT
               ++px;++p
            end
         end
-       /// pCURSOR:=p
        
         VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
         setpos(py,px)
@@ -10083,7 +10109,7 @@ while i <= long
    end
    if SWFUN
       if c!="("
-         _ERROR("CONV: DEBE IR UN PARENTESIS AQUI: "+substr(DX,1,i)+"<<")
+         _ERROR("EL DOGGY DICE: DEBE IR UN PARENTESIS AQUI: "+substr(DX,1,i)+"<<")
          RETURN {}
       end
    end
@@ -10099,7 +10125,7 @@ while i <= long
       AADD(R,c)
       --ctap
       if ctap<0
-         _ERROR("CONV: PARENTESIS DESBALANCEADOS")
+         _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS")
          RETURN {}
       end
    elseif c==">"
@@ -10115,7 +10141,7 @@ while i <= long
          AADD(Q,c)
          AADD(R,c)
          --i
-       //  _ERROR("CONV: SIMBOLO NO RECONOCIDO "+c)
+       //  _ERROR("EL DOGGY DICE: SIMBOLO NO RECONOCIDO "+c)
       //   RETURN {}
       end
    elseif c=="!"
@@ -10139,7 +10165,7 @@ while i <= long
          AADD(Q,c)
          AADD(R,c)
          --i 
-       //  _ERROR("CONV: SIMBOLO NO RECONOCIDO "+c)
+       //  _ERROR("EL DOGGY DICE: SIMBOLO NO RECONOCIDO "+c)
        //  RETURN {}
       end
    elseif c==chr(126)   // not
@@ -10200,7 +10226,7 @@ while i <= long
                   exit
                end
                if ctpar<0
-                  _ERROR("CONV: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
                   RETURN {}
                end
             end
@@ -10212,7 +10238,7 @@ while i <= long
        //  ? "DX?=", DX; inkey(0)
       else
          if ISTNUMBER(num)!=1
-            _ERROR("CONV: NUMERO DE LINEA NO VALIDO: "+substr(DX,1,i)+"<<")
+            _ERROR("EL DOGGY DICE: NUMERO DE LINEA NO VALIDO: "+substr(DX,1,i)+"<<")
             RETURN {}
          else
             AADD(Q,"LIN"); AADD(R,"LIN")
@@ -10240,7 +10266,7 @@ while i <= long
          AADD(R,"#")
       else
          if ISTNUMBER(num)!=1
-            _ERROR("CONV: NUMERO DE LINEA NO VALIDO #<<"+num+">>")
+            _ERROR("EL DOGGY DICE: NUMERO DE LINEA NO VALIDO #<<"+num+">>")
             RETURN {}
          end
          AADD(Q,"LIN"); AADD(R,"LIN")
@@ -10263,7 +10289,7 @@ while i <= long
          end
       end
       if ISTNUMBER(num)!=1 .or. len(num)==0
-         _ERROR("CONV: NUMERO DE TOKEN NO VALIDO #<<"+num+">>")
+         _ERROR("EL DOGGY DICE: NUMERO DE TOKEN NO VALIDO #<<"+num+">>")
          RETURN {}
       end
       AADD(Q,"TK"); AADD(R,"TK")
@@ -10290,7 +10316,7 @@ while i <= long
          end
       end
       if ISTNUMBER(num)!=1 .or. len(num)==0
-         _ERROR("CONV: NUMERO DE TOKEN NO VALIDO: "+substr(DX,1,i)+"<<")
+         _ERROR("EL DOGGY DICE: NUMERO DE TOKEN NO VALIDO: "+substr(DX,1,i)+"<<")
          RETURN {}
       end
       if c=="("   // es una asignación
@@ -10310,7 +10336,7 @@ while i <= long
                   exit
                end
                if ctpar<0
-                  _ERROR("CONV: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
                   RETURN {}
                end
             end
@@ -10346,7 +10372,7 @@ while i <= long
          end
       end
       if ISTNUMBER(num)!=1 .or. len(num)==0
-         _ERROR("CONV: NUMERO DE REGISTRO NO VALIDO #<<"+num+">>")
+         _ERROR("EL DOGGY DICE: NUMERO DE REGISTRO NO VALIDO #<<"+num+">>")
          RETURN {}
       end
       if c=="("   // es una asignación
@@ -10366,7 +10392,7 @@ while i <= long
                   exit
                end
                if ctpar<0
-                  _ERROR("CONV: PARENTESIS DESBALANCEADOS")
+                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS")
                   RETURN {}
                end
             end
@@ -10407,7 +10433,7 @@ while i <= long
          ++i
       end
       if i>LEN(DX)
-         _ERROR("CONV: CADENA NO HA SIDO CERRADA")
+         _ERROR("EL DOGGY DICE: CADENA NO HA SIDO CERRADA")
          RETURN {}
       end
 
@@ -10432,7 +10458,7 @@ while i <= long
            for j:=1 to len(num)
               xt:=substr(num,j,1)
               if xt!="0" .and. xt!="1"
-                 _ERROR("CONV: NUMERO BINARIO MAL FORMADO: "+num)
+                 _ERROR("EL DOGGY DICE: NUMERO BINARIO MAL FORMADO: "+num)
                  RETURN {}
               end
            end
@@ -10441,7 +10467,7 @@ while i <= long
            for j:=1 to len(num)
               xt:=substr(num,j,1)
               if !(xt $ "01234567")
-                 _ERROR("CONV: NUMERO OCTAL MAL FORMADO: "+num)
+                 _ERROR("EL DOGGY DICE: NUMERO OCTAL MAL FORMADO: "+num)
                  RETURN {}
               end
            end
@@ -10450,13 +10476,13 @@ while i <= long
            for j:=1 to len(num)
               xt:=substr(num,j,1)
               if !(xt $ "0123456789ABCDEF")
-                 _ERROR("CONV: NUMERO HEXADECIMAL MAL FORMADO: "+num)
+                 _ERROR("EL DOGGY DICE: NUMERO HEXADECIMAL MAL FORMADO: "+num)
                  RETURN {}
               end
            end
            num:=HEXATODEC(num)
         else   // no es ninguna hueá: error!
-           _ERROR("CONV: BASE NUMERICA NO RECONOCIDA: "+num)
+           _ERROR("EL DOGGY DICE: BASE NUMERICA NO RECONOCIDA: "+num)
            RETURN {}
         end 
    //     ? "NUM=",num; inkey(0)
@@ -10477,7 +10503,7 @@ while i <= long
               elseif isdigit(c)
                  num+=c
               else
-                 _ERROR("CONV: NO ES UN NUMERO NOTACION-CIENTIFICA VALIDO: "+num)
+                 _ERROR("EL DOGGY DICE: NO ES UN NUMERO NOTACION-CIENTIFICA VALIDO: "+num)
                  RETURN {}
               end
            else
@@ -10490,7 +10516,7 @@ while i <= long
            AADD(R,E2D(num))
         else
            if ISTNUMBER(num)!=1 .or. !isdigit(substr(num,len(num),1))
-              _ERROR("CONV: NO ES UN NUMERO VALIDO: "+num)
+              _ERROR("EL DOGGY DICE: NO ES UN NUMERO VALIDO: "+num)
               RETURN {}  // error
            else
               AADD(R,val(num))
@@ -10517,7 +10543,7 @@ while i <= long
             elseif isdigit(c)
                num+=c
             else
-               _ERROR("CONV: NO ES UN NUMERO NOTACION-CIENTIFICA VALIDO: "+num)
+               _ERROR("EL DOGGY DICE: NO ES UN NUMERO NOTACION-CIENTIFICA VALIDO: "+num)
                RETURN {}
             end
          else
@@ -10533,7 +10559,7 @@ while i <= long
          AADD(R,E2D(num))
       else
          if ISTNUMBER(num)!=1 .or. !isdigit(substr(num,len(num),1))
-            _ERROR("CONV: NO ES UN NUMERO VALIDO: "+num)
+            _ERROR("EL DOGGY DICE: NO ES UN NUMERO VALIDO: "+num)
             RETURN {}  // error
          else
             AADD(R,val(num))
@@ -10609,7 +10635,7 @@ while i <= long
 end
 
 if /*Q[len(Q)]!=")" .and. Q[LEN(Q)]!="N" .or.*/ ctap!=0
-   _ERROR("CONV: PARENTESIS DESBALANCEADOS")
+   _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS")
    RETURN {}
 end
 RETURN {Q,R}
@@ -10677,7 +10703,7 @@ aadd(pila2,"(")
                aadd(pila,l)     // es funcion
                aadd(pila2,l2)
             else
-               _ERROR("SINTAXIS(1): SIMBOLO NO RECONOCIDO ("+l+")") //substr(l,2,len(l))+")")
+               _ERROR("EL BOBY DICE: SIMBOLO NO RECONOCIDO ("+l+")") //substr(l,2,len(l))+")")
                RETURN .F.
             end
          else
@@ -10789,7 +10815,7 @@ aadd(pila2,"(")
                   m2:=SDP(pila2)
                   //?? m
                   if esnulo(m) //m==nil
-                      _ERROR("SINTAXIS(2): EXPRESION MAL FORMADA")
+                      _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA")
                       RETURN .F.
                   end
                end
@@ -10822,7 +10848,7 @@ aadd(pila2,"(")
          m2:=SDP(pila2)
       end
      /* if len(pila)>0 .or. m==NIL
-         _ERROR("SINTAXIS(3): EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
+         _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
          RETURN .F.
       end */
    end
@@ -10840,7 +10866,7 @@ aadd(pila2,"(")
          o:=SDP(pila)
          n:=SDP(pila)
          if o==NIL .or. n==NIL // .or. o!="N" .or. n!="N" .and. (n!="X" .and. o!="X")
-            _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA/TIPO DE OPERANDO OP: ( "+m+" )")
+            _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA/TIPO DE OPERANDO OP: ( "+m+" )")
             RETURN .F.
          else
             aadd(pila,"N")
@@ -10850,7 +10876,7 @@ aadd(pila2,"(")
             m:=SDP(pila)
             n:=SDP(pila)
             if esnulo(n,m) //m==NIL .or. n==NIL ///.or. n!="N" .or. m!="N" .and. (n!="X" .and. m!="X")
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA/TIPO DE ARGUMENTO (ROUND)")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA/TIPO DE ARGUMENTO (ROUND)")
                RETURN .F.
             else
                aadd(pila,"N")
@@ -10861,7 +10887,7 @@ aadd(pila2,"(")
             o:=SDP(pila)
             m:=SDP(pila)
             if esnulo(n,o,h,m) //h==NIL .or. n==NIL .or. o==NIL .or. m==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO (MON)")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO (MON)")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10872,7 +10898,7 @@ aadd(pila2,"(")
             o:=SDP(pila)
             y:=SDP(pila)  // ocurrencia
             if esnulo(n,o,h,y) //h==NIL .or. n==NIL .or. o==NIL .or. y==NIL 
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10884,7 +10910,7 @@ aadd(pila2,"(")
             y:=SDP(pila)  // ocurrencia
             x:=SDP(pila)  // reemplazos
             if esnulo(n,o,h,x,y) //h==NIL .or. n==NIL .or. o==NIL .or. y==NIL .or. x==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10894,7 +10920,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             o:=SDP(pila)
             if esnulo(n,o,h) //h==NIL .or. n==NIL .or. o==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10905,7 +10931,7 @@ aadd(pila2,"(")
             o:=SDP(pila)
             y:=SDP(pila)  // ocurrencia
             if esnulo(n,o,h,y) //h==NIL .or. n==NIL .or. o==NIL .or. y==NIL 
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10917,7 +10943,7 @@ aadd(pila2,"(")
             y:=SDP(pila)  // ocurrencia
             x:=SDP(pila)  // reemplazos
             if esnulo(n,o,h,x,y) //h==NIL .or. n==NIL .or. o==NIL .or. y==NIL .or. x==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10927,7 +10953,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             o:=SDP(pila)
             if esnulo(n,o,h) //h==NIL .or. n==NIL .or. o==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10937,7 +10963,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             x:=SDP(pila)  // ocurrencia
             if esnulo(n,o,x) //o==NIL .or. n==NIL .or. x==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")  
@@ -10946,7 +10972,7 @@ aadd(pila2,"(")
             o:=SDP(pila)
             n:=SDP(pila)
             if esnulo(n,o) //o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")        
@@ -10956,7 +10982,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             x:=SDP(pila)  // ocurrencia
             if esnulo(n,o,x) //o==NIL .or. n==NIL .or. x==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")
@@ -10965,7 +10991,7 @@ aadd(pila2,"(")
             o:=SDP(pila)
             n:=SDP(pila)
             if esnulo(n,o) //o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")
@@ -10976,7 +11002,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             o:=SDP(pila)
             if esnulo(n,o,h) //h==NIL .or. n==NIL .or. o==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
@@ -10985,7 +11011,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             
             if esnulo(n,o) //o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             else
                aadd(pila,"N")
@@ -10996,7 +11022,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             
             if esnulo(n,o) //o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             else
                aadd(pila,"C")
@@ -11008,7 +11034,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             
             if esnulo(n,o) //o==NIL .or. n==NIL// .or. n!="C" .or. m!="C"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             else
                aadd(pila,"N")
@@ -11016,14 +11042,14 @@ aadd(pila2,"(")
          elseif m=="UP".or.m=="LO".or.m=="TRI".or.m=="LTRI".or.m=="RTRI".or.m=="BIN".or.m=="HEX"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C")
          elseif m=="SAVE"
             m:=SDP(pila)
             if m==NIL
-               _ERROR("SINTAXIS: ESPERO UN NOMBRE DE ARCHIVO (SAVE)")
+               _ERROR("EL BOBY DICE: ESPERO UN NOMBRE DE ARCHIVO (SAVE)")
                RETURN .F.
             end
   ///          aadd(pila,"C") // solo para que pase el analisis
@@ -11031,20 +11057,20 @@ aadd(pila2,"(")
             h:=SDP(pila)
             n:=SDP(pila)
             if esnulo(n,h) //h==NIL .or. n==NIL
-               _ERROR("SINTAXIS: FALTAN ARGUMENTOS EN "+m)
+               _ERROR("EL BOBY DICE: FALTAN ARGUMENTOS EN "+m)
                RETURN .F.
             end
          
          elseif m=="LOAD" .or. m=="SAVE"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
+               _ERROR("EL BOBY DICE: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
                RETURN .F.
             end
          elseif m=="DEFT" .or. m=="LOOP".or.m=="SEED".or.m=="RP"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: ESPERO UN ARGUMENTO VALIDO PARA ("+m+")")
+               _ERROR("EL BOBY DICE: ESPERO UN ARGUMENTO VALIDO PARA ("+m+")")
                RETURN .F.
             end
          
@@ -11054,14 +11080,14 @@ aadd(pila2,"(")
          elseif m=="CH" .or. m=="STR".or. m=="GLOSS"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: ESPERO UN ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: ESPERO UN ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C") // solo para que pase el analisis
          elseif m=="LEN".or. m=="ASC" .or.m=="DEC" .or. m=="VAR" .or. m=="NOT"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")
@@ -11070,7 +11096,7 @@ aadd(pila2,"(")
             n:=SDP(pila)
             o:=SDP(pila)
             if esnulo(n,o,h) //h==NIL .or. n==NIL .or. o==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")
@@ -11078,7 +11104,7 @@ aadd(pila2,"(")
          elseif m=="VAL"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"N")
@@ -11088,7 +11114,7 @@ aadd(pila2,"(")
          elseif m=="COPY"
             n:=SDP(pila)
             if n==NIL
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
                RETURN .F.
             end
            
@@ -11098,14 +11124,14 @@ aadd(pila2,"(")
          else
             m:=SDP(pila)
             if m==NIL //.or. m!="N"
-               _ERROR("SINTAXIS: EXPRESION MAL FORMADA. FALTA ARGUMENTO O TIPO DISTINTO")
+               _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO O TIPO DISTINTO")
                RETURN .F.
             else
                aadd(pila,"N")
             end
          end
       else  // puede ser variable
-         _ERROR("SINTAXIS: SIMBOLO NO RECONOCIDO ("+m+")")
+         _ERROR("EL BOBY DICE: SIMBOLO NO RECONOCIDO ("+m+")")
          RETURN .F.
       end
    end
@@ -11174,7 +11200,7 @@ aadd(pila2,"(")
        ?
        inkey(0) */
   /* if len(pila)>1
-      _ERROR("SINTAXIS: EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
+      _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
       RETURN .F.
    end */
 RETURN p2
@@ -11226,10 +11252,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             m:=p[++i]
             n:=SDP(pila)
             o:=SDP(pila)
-           /* if esnulo(n,o) //n==NIL .or. o==NIL
-               _ERROR("EVALUADOR: EXPRESION MAL FORMADA EN OPERACION ARITMETICO-LOGICA")
+            if esnulo(n,o) //n==NIL .or. o==NIL
+               _ERROR("LA MONA DICE: EXPRESION MAL FORMADA EN OPERACION ARITMETICO-LOGICA")
                RETURN .F.
-            end*/
+            end
             vn:=valtype(n)
             vo:=valtype(o)
             if vn=="C"
@@ -11400,7 +11426,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      AADD(pila,iif(upper(o) $ upper(n),0,1))
                   end
                else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION | (OR|CONTENIDO) ")
+                  _ERROR("LA MONA DICE: TIPOS DISTINTOS EN OPERACION | (OR|CONTENIDO) ")
                   RETURN .F.
                end
                exit
@@ -11439,7 +11465,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   end
                  // AADD(pila,CHARAND(o,n)+chr(0))
                else
-                  _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION & (AND|SUB EXACTO) ")
+                  _ERROR("LA MONA DICE: TIPOS DISTINTOS EN OPERACION & (AND|SUB EXACTO) ")
                   RETURN .F.
                end
                exit
@@ -11525,7 +11551,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                  elseif vtip=="CN"
                     AADD(pila,CHARSHR(o,n))
                  else
-                    _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION BINARIA >> ")
+                    _ERROR("LA MONA DICE: TIPOS DISTINTOS EN OPERACION BINARIA >> ")
                     RETURN .F.
                  end
                  exit
@@ -11537,7 +11563,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                  elseif vtip=="CN"
                     AADD(pila,CHARSHL(o,n))
                  else
-                    _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION BINARIA << ")
+                    _ERROR("LA MONA DICE: TIPOS DISTINTOS EN OPERACION BINARIA << ")
                     RETURN .F.
                  end
                  exit
@@ -11549,7 +11575,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                  elseif vtip=="CC"
                     AADD(pila,CHARXOR(o,n))
                  else
-                    _ERROR("EVALUADOR: TIPOS DISTINTOS EN OPERACION BINARIA ! (XOR) ")
+                    _ERROR("LA MONA DICE: TIPOS DISTINTOS EN OPERACION BINARIA ! (XOR) ")
                     RETURN .F.
                  end
                  exit
@@ -11584,10 +11610,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             
             n:=SDP(pila)
             o:=SDP(pila)
-           /* if esnulo(n,o) //n==NIL .or. o==NIL
-               _ERROR("EVALUADOR: EXPRESION MAL FORMADA EN OPERACION LOGICA")
+            if esnulo(n,o) //n==NIL .or. o==NIL
+               _ERROR("LA MONA DICE: EXPRESION MAL FORMADA EN OPERACION LOGICA")
                RETURN .F.
-            end*/
+            end
             vn:=valtype(n)
             vo:=valtype(o)
             if vn=="C"
@@ -11707,10 +11733,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                exit
             case 3  //"VAR"
                o:=SDP(pila)
-              /* if esnulo(o) //o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN '@N'")
+               if esnulo(o) //o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN '@N'")
                   RETURN .F.
-               end*/
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -11718,7 +11744,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if o>=1 .and. o<=20
                   aadd(pila,VARTABLE[o])
                else
-                  _ERROR("EVALUADOR: REGISTRO "+HB_NTOS(o)+" NO EXISTE @(<<1..20>>) L:"+hb_ntos(i) )
+                  _ERROR("LA MONA DICE: REGISTRO "+HB_NTOS(o)+" NO EXISTE @(<<1..20>>) L:"+hb_ntos(i) )
                   return .F.
                end
                exit
@@ -11726,10 +11752,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 4  //"MOV"
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: @N RECIBE UN VALOR NULO")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: @N RECIBE UN VALOR NULO")
                   RETURN .F.
-               end*/
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -11737,17 +11763,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if o>=1 .and. o<=20
                   VARTABLE[o]:=n
                else
-                  _ERROR("EVALUADOR: REGISTRO "+HB_NTOS(o)+" NO EXISTE MOV(<<1..20>>,...) L:"+hb_ntos(i) )
+                  _ERROR("LA MONA DICE: REGISTRO "+HB_NTOS(o)+" NO EXISTE MOV(<<1..20>>,...) L:"+hb_ntos(i) )
                   return .F.
                end
                exit
 
             case 5  //chr(126)  // not
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ~(EXPR) (NOT) ")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ~(EXPR) (NOT) ")
                   RETURN .F.
-               end*/
+               end
                vn:=valtype(n)
                if vn=="N"
                   if n!=0
@@ -11756,7 +11782,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      AADD(pila,1)
                   end
                else
-                  _ERROR("EVALUADOR: TIPO NUMERICO ESPERADO EN ~(EXPR) (NOT) ")
+                  _ERROR("LA MONA DICE: TIPO NUMERICO ESPERADO EN ~(EXPR) (NOT) ")
                   RETURN .F.
                end
                exit
@@ -11866,10 +11892,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 12  //"ROUND"
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ROUND")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ROUND")
                   RETURN .F.
-               end */
+               end 
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -11884,10 +11910,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 11  //"LOOP"
                if LENJMP>0
                   n:=SDP(pila)
-                 /* if esnulo(n) //n==NIL
-                     _ERROR("EVALUADOR: VALOR NULO EN PUNTERO A DIRECCION LOOP")
+                  if esnulo(n) //n==NIL
+                     _ERROR("LA MONA DICE: VALOR NULO EN PUNTERO A DIRECCION LOOP")
                      RETURN .F.
-                  end */
+                  end
                   if valtype(n)!="N"
                      n:=strtran(n,chr(0),"")
                      n:=val(n)
@@ -11900,7 +11926,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      i:=JMP[LENJMP]
                   end
                else
-                  _ERROR("EVALUADOR: LOOP sin POOL") 
+                  _ERROR("LA MONA DICE: LOOP sin POOL") 
                   return .F.
                end
                exit
@@ -11922,10 +11948,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 14  //"MATCH"  // match(#,"hola\;funcion()\;v=a * (b - c)")
                n:=SDP(pila)  // palabras a buscar
                o:=SDP(pila)  // variable: debe ser string
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN MATCH")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN MATCH")
                   RETURN .F.
-               end*/ 
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -11962,10 +11988,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 13  //"CAT"
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN CAT")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN CAT")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -11989,10 +12015,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN SUB")
+               if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN SUB")
                   RETURN .F.
-               end */
+               end
                if valtype(h)!="N"
                   h:=strtran(h,chr(0),"")
                   h:=val(h)
@@ -12016,10 +12042,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 17   //"AT"
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN AT")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN AT")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12040,10 +12066,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                x:=SDP(pila)  // ocurrencia
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o,x) //n==NIL.or.o==NIL.or.x==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ATA")
+               if esnulo(n,o,x) //n==NIL.or.o==NIL.or.x==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ATA")
                   RETURN .F.
-               end */
+               end
                if valtype(x)!="N"
                   x:=strtran(x,chr(0),"")
                   x:=val(x)
@@ -12067,10 +12093,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 15  //"LEN"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LEN")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LEN")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   AADD(pila,len(hb_ntos(((n)))))
                else
@@ -12083,10 +12109,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                o:=SDP(pila)
                n:=SDP(pila)
                h:=SDP(pila)
-              /* if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RANGE")
+               if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RANGE")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -12115,10 +12141,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 20  //"AF"   // busca full
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN AF")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN AF")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12156,10 +12182,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                x:=SDP(pila)  // ocurrencia
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o,x) //n==NIL.or.o==NIL.or.x==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN AFA")
+               if esnulo(n,o,x) //n==NIL.or.o==NIL.or.x==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN AFA")
                   RETURN .F.
-               end */
+               end
                if valtype(x)!="N"
                   x:=strtran(x,chr(0),"")
                   x:=val(x)
@@ -12205,10 +12231,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TR")
+               if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TR")
                   RETURN .F.
-               end */
+               end
                if valtype(m)=="N"
                   h:=hb_ntos((h))
                else
@@ -12233,10 +12259,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o,m,h) //n==NIL.or.o==NIL .or.m==NIL.or.h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TRB")
+               if esnulo(n,o,m,h) //n==NIL.or.o==NIL .or.m==NIL.or.h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TRB")
                   RETURN .F.
-               end */
+               end
                if valtype(h)!="N"
                   h:=strtran(h,chr(0),"")
                   h:=val(h)
@@ -12265,10 +12291,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(n,o,m,h,x) //n==NIL.or.o==NIL .or.m==NIL.or.h==NIL.or.x==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TRA")
+               if esnulo(n,o,m,h,x) //n==NIL.or.o==NIL .or.m==NIL.or.h==NIL.or.x==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TRA")
                   RETURN .F.
-               end */
+               end
                if valtype(x)!="N"
                   x:=strtran(x,chr(0),"")
                   x:=val(x)
@@ -12298,10 +12324,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 24  //"CP"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN CP")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN CP")
                   RETURN .F.
-               end */
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -12317,10 +12343,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 21  //"RAT"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RAT")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RAT")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12342,10 +12368,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 22  //"PTRP"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN PTRP {+S}")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN PTRP {+S}")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12362,10 +12388,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 23  //"PTRM"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN PTRM {-S}")
+               if esnulo(n,o) //n==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN PTRM {-S}")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12390,10 +12416,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 29  //"TK"
                m:=SDP(pila)
                o:=SDP(pila)
-              /* if esnulo(m,o) //m==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TK $N")
+               if esnulo(m,o) //m==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TK $N")
                   RETURN .F.
-               end */
+               end
                if valtype(m)!="N"
                   m:=strtran(m,chr(0),"")
                   m:=val(m)
@@ -12410,7 +12436,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if m==0
                   AADD(pila,par+chr(0))
                elseif m<0
-                  _ERROR("EVALUADOR: NO ACEPTO UN INDICE DE TOKEN NEGATIVO")
+                  _ERROR("LA MONA DICE: NO ACEPTO UN INDICE DE TOKEN NEGATIVO")
                   return .F.
                else
                  /* if m>NUMTOK
@@ -12434,10 +12460,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 31  //"LET"
                h:=SDP(pila)  // string.
                o:=SDP(pila)  // linea.debe ser un número
-              /* if esnulo(h,o) //h==NIL.or.o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LET")
+               if esnulo(h,o) //h==NIL.or.o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LET")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -12452,7 +12478,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if o>0 .and. o<=len(BUFFER)
                   BUFFER[o]:=h
                else
-                  _ERROR("EVALUADOR: LINEA REFERENCIADA EN LET NO EXISTE")
+                  _ERROR("LA MONA DICE: LINEA REFERENCIADA EN LET NO EXISTE")
                   return .F.
                end
                exit
@@ -12461,10 +12487,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)  // token 2. puede ser un string.
                n:=SDP(pila)  // token 1. debe ser un numero, indice de token
                o:=SDP(pila)  // linea
-              /* if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h=NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TKLET")
+               if esnulo(n,o,h) //n==NIL.or.o==NIL.or.h=NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TKLET")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -12504,10 +12530,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 32  //"COPY"
                if SWEDIT
                   n:=SDP(pila)
-                 /* if esnulo(n) //n==NIL
-                     _ERROR("EVALUADOR: VALOR NULO EN COPY")
+                  if esnulo(n) //n==NIL
+                     _ERROR("LA MONA DICE: VALOR NULO EN COPY")
                      RETURN .F.
-                  end */
+                  end
                   if valtype(n)=="N"
                      n:=hb_ntos((n))
                   else
@@ -12515,25 +12541,26 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   end
                   
                 //  ?"COPY N=",n; inkey(0)
-                  if esnulo(n) //n==NIL
-                     _ERROR("EVALUADOR: NO ENCUENTRO UN DATO VALIDO PARA COPIAR EN BUFFER <<COPY(null)>>")
+                /*  if esnulo(n) //n==NIL
+                     _ERROR("LA MONA DICE: NO ENCUENTRO UN DATO VALIDO PARA COPIAR EN BUFFER <<COPY(null)>>")
                      RETURN .F.
-                  elseif len(n)>0 .and. n!="0"
+                  else */
+                  if len(n)>0 .and. n!="0"
                      AADD(BUFFER,alltrim(n)+chr(0))
                      //SW_HAYBUFFER:=.T.
                   end
                else
-                  _ERROR("EVALUADOR: COPY SOLO TRABAJA BAJO CTRL-K4")
+                  _ERROR("LA MONA DICE: COPY SOLO TRABAJA BAJO CTRL-K4")
                   RETURN .F.
                end
                exit
                
             case 33  //"GLOSS"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN GLOSS")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN GLOSS")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   IF ABS(n)>INFINITY().or. (ABS(n)>0.and.ABS(n)<0.000000000001)
                      n:=D2E(n,10)
@@ -12555,10 +12582,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             switch m
             case 35  //"TRI"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TRI")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TRI")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=str(n)
                end
@@ -12568,10 +12595,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 36  //"LTRI"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LTRI")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LTRI")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=str(n)
                end
@@ -12581,10 +12608,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 37  //"RTRI"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RTRI")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RTRI")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=str(n)
                end
@@ -12594,10 +12621,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
             case 38  //"UP"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN UP")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN UP")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos(((n)))
                else
@@ -12608,10 +12635,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 39  //"LOW"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LOW")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LOW")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos(((n)))
                else
@@ -12623,10 +12650,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 34  //"RP"
                o:=SDP(pila)
              
-             /*  if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RP")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RP")
                   RETURN .F.
-               end */
+               end
                if valtype(o)=="N"
                   o:=hb_ntos((o))
                else
@@ -12649,10 +12676,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,m) //n==NIL .or. o==NIL.or.m==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TRE")
+               if esnulo(n,o,m) //n==NIL .or. o==NIL.or.m==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TRE")
                   RETURN .F.
-               end */
+               end
                if valtype(m)=="N"
                   m:=hb_ntos((m))
                else
@@ -12691,10 +12718,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,m,h) //n==NIL .or. o==NIL .or.m==NIL .or. h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TREB")
+               if esnulo(n,o,m,h) //n==NIL .or. o==NIL .or.m==NIL .or. h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TREB")
                   RETURN .F.
-               end */
+               end
                if valtype(h)!="N"
                   h:=strtran(h,chr(0),"")
                   h:=val(h)
@@ -12749,10 +12776,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,m,h,x) //n==NIL .or. o==NIL .or.m==NIL .or. h==NIL.or.x==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN TREA")
+               if esnulo(n,o,m,h,x) //n==NIL .or. o==NIL .or.m==NIL .or. h==NIL.or.x==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN TREA")
                   RETURN .F.
-               end */
+               end
                if valtype(x)!="N"
                   x:=strtran(x,chr(0),"")
                   x:=val(x)
@@ -12817,10 +12844,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,m) //n==NIL .or. o==NIL .or.m==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN INS")
+               if esnulo(n,o,m) //n==NIL .or. o==NIL .or.m==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN INS")
                   RETURN .F.
-               end */
+               end
                if valtype(m)!="N"
                   m:=strtran(m,chr(0),"")
                   m:=val(m)
@@ -12848,10 +12875,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,m) //n==NIL .or. o==NIL .or.m==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RPC")
+               if esnulo(n,o,m) //n==NIL .or. o==NIL .or.m==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RPC")
                   RETURN .F.
-               end */
+               end
                if valtype(m)=="N"
                   m:=hb_ntos((m))
                else
@@ -12873,10 +12900,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 44  //"ONE"
                n:=SDP(pila)  // caracter a reducir
                o:=SDP(pila)  // variable: debe ser string
-             /*  if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ONE")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ONE")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12893,10 +12920,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 42  //"DC"
                n:=SDP(pila)  // caracteres a eliminar
                o:=SDP(pila)  // variable: debe ser string
-             /*  if esnulo(n,o) //n==NIL .or. o==NIL 
-                  _ERROR("EVALUADOR: VALOR NULO EN DC")
+               if esnulo(n,o) //n==NIL .or. o==NIL 
+                  _ERROR("LA MONA DICE: VALOR NULO EN DC")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -12912,10 +12939,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 45  //"RND"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN RND")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN RND")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -12925,10 +12952,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 46  //"SEED"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN SEED")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN SEED")
                   RETURN .F.
-               end */
+               end
                if ITERACION==1
                   if valtype(n)!="N"
                      n:=strtran(n,chr(0),"")
@@ -12947,10 +12974,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             switch m
             case 53  //"LIN"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LIN")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LIN")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -12959,17 +12986,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   if n>0 .and. n<=LEN(BUFFER)
                      AADD(pila,strtran(BUFFER[n],chr(127),""))
                   else
-                     _ERROR("EVALUADOR: NO EXISTE LA LINEA PEDIDA EN EL TEXTO (LIN)")
+                     _ERROR("LA MONA DICE: NO EXISTE LA LINEA PEDIDA EN EL TEXTO (LIN)")
                      RETURN .F.
                   end
                exit
 
             case 51  //"CH"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN CH")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN CH")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -12986,10 +13013,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
             case 49  //"VAL"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN VAL")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN VAL")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   if ISTNUMBER(n)==1
@@ -12997,7 +13024,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   elseif ISNOTATION(n)==1
                      AADD(pila,e2d(n))
                   else
-                     _ERROR("EVALUADOR: CONVERSION NO VALIDA EN VAL <<VAL( STRING-NO-NUMERIC )>>")
+                     _ERROR("LA MONA DICE: CONVERSION NO VALIDA EN VAL <<VAL( STRING-NO-NUMERIC )>>")
                      RETURN .F.
                   end
                else
@@ -13007,10 +13034,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
             case 50  //"STR"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL 
-                  _ERROR("EVALUADOR: VALOR NULO EN STR")
+               if esnulo(n) //n==NIL 
+                  _ERROR("LA MONA DICE: VALOR NULO EN STR")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   AADD(pila,hb_ntos((n))+chr(0))
                else
@@ -13022,10 +13049,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 54  //"PC".or.m==55 "PL".or.m==56 "PR"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN PC")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN PC")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -13042,10 +13069,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 55  //"PL"
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN PL")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN PL")
                   RETURN .F.
-               end */
+               end 
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -13062,10 +13089,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 56  //"PR"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN PR")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN PR")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -13081,10 +13108,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 52  //"ASC"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ASC")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ASC")
                   RETURN .F.
-               end */
+               end
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -13105,10 +13132,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 57  //"MSK"
                n:=SDP(pila)  // relleno y mascara
                o:=SDP(pila)  // variable: debe ser numerico
-              /* if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN MSK")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN MSK")
                   RETURN .F.
-               end */
+               end
                if valtype(o)=="N"
                   o:=hb_ntos((o))
                else
@@ -13130,10 +13157,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                m:=SDP(pila)  // ancho
                n:=SDP(pila)  // relleno y signo moneda
                o:=SDP(pila)  // variable: debe ser numerico
-             /*  if esnulo(n,o,m,h) //n==NIL .or. o==NIL .or. m==NIL .or. h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN MON")
+               if esnulo(n,o,m,h) //n==NIL .or. o==NIL .or. m==NIL .or. h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN MON")
                   RETURN .F.
-               end */
+               end 
                if valtype(h)!="N"
                   h:=strtran(h,chr(0),"")
                   h:=val(h)
@@ -13160,10 +13187,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 59  //"SAT"
                o:=SDP(pila)
                n:=SDP(pila) 
-              /* if esnulo(n,o) //n==NIL .or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN SAT")
+               if esnulo(n,o) //n==NIL .or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN SAT")
                   RETURN .F.
-               end */
+               end
                if valtype(o)=="N"
                   o:=hb_ntos((o))
                else
@@ -13183,10 +13210,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN IF")
+               if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN IF")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -13213,10 +13240,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN IFLE")
+               if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN IFLE")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -13243,10 +13270,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                h:=SDP(pila)
                n:=SDP(pila)
                o:=SDP(pila)
-             /*  if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN IFGE")
+               if esnulo(n,o,h) //n==NIL .or. o==NIL .or. h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN IFGE")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -13271,10 +13298,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 60  //"DEFT"
                h:=SDP(pila)  // string.
-             /*  if esnulo(h) //h==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN DEFT")
+               if esnulo(h) //h==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN DEFT")
                   RETURN .F.
-               end */
+               end
                if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
@@ -13286,19 +13313,19 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             
             case 65  //"SAVE"
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN SAVE")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN SAVE")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="C"
-                  _ERROR("EVALUADOR: ESPERO UN NOMBRE DE ARCHIVO VALIDO (SAVE)")
+                  _ERROR("LA MONA DICE: ESPERO UN NOMBRE DE ARCHIVO VALIDO (SAVE)")
                   RETURN .F.
                end
                n:=strtran(n,chr(0),"")
                
                fp:=fcreate(n,0)
                if ferror()!=0
-                  _ERROR("EVALUADOR: EL NOMBRE DE ARCHIVO NO ES VALIDO (SAVE):"+n)
+                  _ERROR("LA MONA DICE: EL NOMBRE DE ARCHIVO NO ES VALIDO (SAVE):"+n)
                   RETURN .F.
                end
                for j:=1 to len(LISTAEXPRESION)
@@ -13312,18 +13339,18 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
             case 66  //"LOAD"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN LOAD")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN LOAD")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="C"
-                  _ERROR("EVALUADOR: ESPERO UN NOMBRE DE ARCHIVO VALIDO (LOAD)")
+                  _ERROR("LA MONA DICE: ESPERO UN NOMBRE DE ARCHIVO VALIDO (LOAD)")
                   RETURN .F.
                end
                n:=strtran(n,chr(0),"")
                
                if !file(n)  //ferror()!=0
-                  _ERROR("EVALUADOR: EL NOMBRE DE ARCHIVO NO ES VALIDO (LOAD):"+n)
+                  _ERROR("LA MONA DICE: EL NOMBRE DE ARCHIVO NO ES VALIDO (LOAD):"+n)
                   RETURN .F.
                end
                ///LISTAEXPRESION:=XREADLINE(n,@nLength)
@@ -13339,7 +13366,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   end
                   fclose(fp)
                else
-                  _ERROR("EVALUADOR: NO FUE POSIBLE CARGAR EL ARCHIVO DE MACROS (LOAD):"+n)
+                  _ERROR("LA MONA DICE: NO FUE POSIBLE CARGAR EL ARCHIVO DE MACROS (LOAD):"+n)
                   RETURN .F.
                end
                pila:={}
@@ -13368,10 +13395,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 68  //"AND"
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN AND")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN AND")
                   RETURN .F.
-               end */
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -13386,10 +13413,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 69  //"OR"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN OR")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN OR")
                   RETURN .F.
-               end */
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -13404,10 +13431,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 70  //"XOR"
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN XOR")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN XOR")
                   RETURN .F.
-               end */
+               end
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
@@ -13430,10 +13457,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 72  //"BIT"  // ontiene un bit n
                o:=SDP(pila)
                n:=SDP(pila)
-              /* if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN BIT")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN BIT")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13448,10 +13475,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 73  //"ON"   // enciende un bit n
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN ON")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN ON")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13466,10 +13493,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 74  //"OFF"   // apaga un bit n
                o:=SDP(pila)
                n:=SDP(pila)
-             /*  if esnulo(n,o) //n==NIL.or. o==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN OFF")
+               if esnulo(n,o) //n==NIL.or. o==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN OFF")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13483,10 +13510,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 71  //"NOT"   // negacion binaria
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN NOT")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN NOT")
                   RETURN .F.
-               end */
+               end 
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13496,10 +13523,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             
             case 75  //"BIN"   // convierte a binario
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN BIN")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN BIN")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13509,10 +13536,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 76  //"HEX"   // convierte a hexadecimal
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN HEX")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN HEX")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13522,10 +13549,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                
             case 78  //"OCT"   // convierte a OCTAL
                n:=SDP(pila)
-              /* if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN OCT")
+               if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN OCT")
                   RETURN .F.
-               end */
+               end
                if valtype(n)!="N"
                   n:=strtran(n,chr(0),"")
                   n:=val(n)
@@ -13535,10 +13562,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
             case 77  //"DEC"
                n:=SDP(pila)
-             /*  if esnulo(n) //n==NIL
-                  _ERROR("EVALUADOR: VALOR NULO EN DEC")
+              if esnulo(n) //n==NIL
+                  _ERROR("LA MONA DICE: VALOR NULO EN DEC")
                   RETURN .F.
-               end */
+               end 
                if valtype(n)=="N"
                   n:=hb_ntos((n))
                else
@@ -13549,7 +13576,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                c2:=substr(n,len(n),1)
               // ?"C1=",c1," C2=",c2; inkey(0)
                if c1!="0x" .or. !(c2 $ "bho")
-                  _ERROR("EVALUADOR: BASE NUMERICA NO RECONOCIDA: "+n)
+                  _ERROR("LA MONA DICE: BASE NUMERICA NO RECONOCIDA: "+n)
                     RETURN .F.
                end
                n:=substr(n,3,len(n))
@@ -13570,7 +13597,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                     for j:=1 to len(num)
                       xt:=substr(num,j,1)
                       if xt!="0" .and. xt!="1"
-                        _ERROR("EVALUADOR: NUMERO BINARIO MAL FORMADO: "+num)
+                        _ERROR("LA MONA DICE: NUMERO BINARIO MAL FORMADO: "+num)
                         RETURN .F.
                       end
                     end
@@ -13579,7 +13606,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                     for j:=1 to len(num)
                       xt:=substr(num,j,1)
                       if !(xt $ "01234567")
-                        _ERROR("EVALUADOR: NUMERO OCTAL MAL FORMADO: "+num)
+                        _ERROR("LA MONA DICE: NUMERO OCTAL MAL FORMADO: "+num)
                         RETURN .F.
                       end
                     end
@@ -13589,17 +13616,17 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                     for j:=1 to len(num)
                       xt:=substr(num,j,1)
                       if !(xt $ "0123456789ABCDEF")
-                         _ERROR("EVALUADOR: NUMERO HEXADECIMAL MAL FORMADO: "+num)
+                         _ERROR("LA MONA DICE: NUMERO HEXADECIMAL MAL FORMADO: "+num)
                          RETURN .F.
                       end
                     end
                     num:=HEXATODEC(num)
                   else   // no es ninguna hueá: error!
-                    _ERROR("EVALUADOR: BASE NUMERICA NO RECONOCIDA: "+num)
+                    _ERROR("LA MONA DICE: BASE NUMERICA NO RECONOCIDA: "+num)
                     RETURN .F.
                   end
                else
-                  _ERROR("EVALUADOR: NO HAY NUMERO A CONVERTIR: "+num)
+                  _ERROR("LA MONA DICE: NO HAY NUMERO A CONVERTIR: "+num)
                     RETURN .F.
                end
                AADD(pila,num)
@@ -13612,11 +13639,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
          CASE 13
             m:=p[++i]
             n:=SDP(pila)
-           /* if esnulo(n) //n==NIL
+            if esnulo(n) //n==NIL
                FUN:=IIF(m==79,"LN",iif(m==80,"LOG",iif(m==81,"SQRT",iif(m==82,"ABS",iif(m==83,"INT []",iif(m==84,"CEIL","EXP"))))))
-               _ERROR("EVALUADOR: VALOR NULO EN "+FUN)
+               _ERROR("LA MONA DICE: VALOR NULO EN "+FUN)
                RETURN .F.
-            end */
+            end
             if valtype(n)!="N"
                n:=alltrim(n)
                n:=strtran(n,chr(0),"")
@@ -13625,7 +13652,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                elseif ISNOTATION(n)==1
                   n:=e2d(n)
                else
-                  _ERROR("EVALUADOR: OPERANDO NO ES UN NUMERO "+n)
+                  _ERROR("LA MONA DICE: OPERANDO NO ES UN NUMERO "+n)
                   RETURN .F.
                end
             end
@@ -13652,11 +13679,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
          CASE 14
             m:=p[++i]
             n:=SDP(pila)
-         /*   if esnulo(n) //n==NIL
+            if esnulo(n) //n==NIL
                FUN:=IIF(m==86,"FLOOR",iif(m==87,"SGN",iif(m==88,"SIN",iif(m==89,"COS",iif(m==90,"TAN","INV")))))
-               _ERROR("EVALUADOR: VALOR NULO EN "+FUN)
+               _ERROR("LA MONA DICE: VALOR NULO EN "+FUN)
                RETURN .F.
-            end */
+            end
             if valtype(n)!="N"
                n:=alltrim(n)
                n:=strtran(n,chr(0),"")
@@ -13665,7 +13692,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                elseif ISNOTATION(n)==1
                   n:=e2d(n)
                else
-                  _ERROR("EVALUADOR: OPERANDO NO ES UN NUMERO "+n)
+                  _ERROR("LA MONA DICE: OPERANDO NO ES UN NUMERO "+n)
                   RETURN .F.
                end
             end
@@ -13713,7 +13740,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
 
    XLEN:=len(pila)
    if XLEN>1 
-      _ERROR("EVALUADOR: EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
+      _ERROR("LA MONA DICE: EXPRESION MAL FORMADA (QUEDAN "+hb_ntos(len(pila))+" RESULTADOS EN PILA).")
       RETURN .F.
    end
 //RETURN iif(len(pila)==1,pila[1],"")
@@ -13990,7 +14017,7 @@ FOR I:=XFIL1EDIT TO XFIL2EDIT
      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
      while inkey(,159)!=0 ; end
           MRESTSTATE(MOUSE) */
-     _ERROR(upper(hb_utf8tostr("Lapsus intrauterino digital: Vuelve a marcar el texto, por favor")))
+     _ERROR(upper(hb_utf8tostr("El Doggy dice: Lapsus intrauterino digital: Vuelve a marcar el texto, por favor")))
      XFIL1EDIT:=0; XFIL2EDIT:=0
      SWERROR:=.T.
      exit
@@ -14139,7 +14166,7 @@ if cLEN>0 .and. !SWNOBUFFER
         // resetea opcion de linea nula
    /*else
       DEFTOKEN:=TMPTOKEN
-      _ERROR("EVALUADOR: NO USE ATAJOS {} SI VA A OPERAR SIN BUFFER")
+      _ERROR("LA MONA DICE: NO USE ATAJOS {} SI VA A OPERAR SIN BUFFER")
       RETURN {}
    end*/
 else
@@ -17303,7 +17330,9 @@ HB_FUNC( BUSCAPARLLAVE )
    else if(*simbolo==']') {npar=']';par='[';}
    else if(*simbolo=='{') {npar='{';par='}';}
    else if(*simbolo=='}') {npar='}';par='{';}
- 
+   else if(*simbolo=='<') {npar='<';par='>';}
+   else if(*simbolo=='>') {npar='>';par='<';}
+   
    if(dir) {  // adelante
       for (i=pi; i<=TLINEA+pi; i++){
          PHB_ITEM pAA = hb_itemArrayGet( pTexto, i);
