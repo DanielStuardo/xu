@@ -2306,6 +2306,23 @@ INTRODUCCION
 LAICA es un editor gratuito hecho por programadores TOC para programadores TOC. El autor declara no tener responsabilidad en cualquier desastre que pueda quedar por su uso; no obstante, como se verá a continuación, LAICA tiene muchas opciones para evitar tales desastres.
 Como anticipación, le puedo señalar que cuando edite un archivo, hágalo siempre indicando un directorio de respaldo, como se muestra más adelante.
 
+**************************************
+Un poco de historia...
+
+Laica, mi perra más linda, administra a sus amigos en el buen uso de los recursos: La Mona, gata ploma y rezongona, es la encargada de efectuar la evaluación del script de comandos: ella te entregará los resultados. El Doggy y el Bobby, dos perros muy "choros", hacen la conversión y un análisis sintáctico básico de dicho script. La Mona es tan bacán que fue llamada por el Tolin para hacer lo mismo con él.
+
+La Mona es la hija del Tolin. Y es bacán! Y eso que el Tolin es el "choro" de la población, se pasa por el orto relamido a todos los perros, cómo será la Mona.
+
+Como el Bobby está muy viejo, le dejamos la tarea más simple, aunque a veces se equivoca porque ya ni puede ver. Sabemos que ese viejo zorro es, aún hoy, un "viejo verde", y Laica lo sabe, por lo que juega con él al "muñequeo": un giño por aquí, unas movidas de ancas por allá, y el Bobby le pone su mejor empeño al trabajo. Por supuesto, Laica, a veces, le permite que el Bobby le regale un hueso de plástico aromatizado. Como es viejo, es un caballero.
+
+El Doggy, por su parte, también vigila las operaciones del editor administrado por la Laica. Si no le gusta algo, te mandará el mensaje correspondiente, uno o dos ladridos que serán traducidos para que los humanos lo entiendan, aunque, en honor a la verdad, es Laica la que se encarga de eso, haciéndole creer al Doggy que lo hace, y este no se da cuenta, porque tiene mucho trabajo con la recepción de los parámetros de entrada y con las operaciones internas de archivos. 
+
+El Doggy es bueno en eso, pero no sabe inglés, y Laica sí.
+
+**************************************
+
+Volvamos con el editor:
+
 LAICA es un editor de línea creado para editar archivos escritos en XU. Esto significa que bastará con que escriba en la línea de comandos de su terminal:
 
   ./ed4xu archivo.xu

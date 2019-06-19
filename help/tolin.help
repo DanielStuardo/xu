@@ -22,6 +22,17 @@ Modo de uso:
                    "LOCOMOCION","COMO" y "COMODO". 
                    La búsqueda es case sensitive, o sea, distingue entre mayúsculas y minúsculas...
                    ¿Sabes cuál es la versión mayúscula del número 5? Resp: V.
+
+  >>OBSERVACION>>  Debe considerar que GREP requiere del caracter de escape '\' para ciertos caracteres
+                   especiales.
+                   Ejemplo:
+                     tolin -f xu.prg -ss "\#include" '#'
+                   buscará todas las líneas que comiencen con '#', y las mostrará. Si usted escribe:
+                     tolin -f xu.prg -ss "#include" '#'
+                   sin el caracter de escape antes de '#include', GREP arrojará un error.
+                   Esta observación es válida para todas las opciones relacionadas con GREP dentro de
+                   este apartado. 
+                   
    -sw "string"    idem a '-ss', pero el string debe ser exacto. Si "string" es "COM", no serán matches
                    "LOCOMOCION","COMO" ni "COMODO".
                    La búsqueda es case sensitive.
@@ -50,10 +61,17 @@ Modo de uso:
    -B v
    -B 'v0 v1..'    añade valores al BUFFER, que puede ser usado por LET y LIN.                             
                    Usar el BUFFER para guardar valores es como usar variables globales. Uselas.
+   
+   -mem n          ajusta el número de variables '@n' usadas en el script. Si "n" es 30, podrá usar variables
+                   desde '@1, @2, ..., @29, @30'.
+                   Ejemplo:
+                     tolin -f foo -mem 10 '@1(10) say(@1+1000000000000000)'
+                   sale:
+                     1000000000000010
 
    -dim n          dimensiona el BUFFER, el que puede ser usado como un array.
                    Ejemplo:
-                     tolin -f foo -dim 10 'BUFF @1(1) pool let(@1,@1) @1(@1+1) loop(@1>10)'
+                     tolin -f foo -dim 10 'BUFF @1(1) do let(@1,@1) @1(@1+1) until(@1>10)'
                    sale:
                      1 2 3 4 5 6 7 8 9 10
 
@@ -200,7 +218,7 @@ Modo de uso:
         6) Usando un archivo ficticio "foo", se ejecuta una iteración que llena el BUFFER con la glosa
            de cada cifra de 100 cifras:
            
-                     tolin -f foo '@1(0)@2(0) pool @2(gloss(@1)) copy(@2) @1(@1+1) loop(101-@1)'
+                     tolin -f foo '@1(0)@2(0) do @2(gloss(@1)) copy(@2) @1(@1+1) until(101-@1)'
            
            Su salida será un archivo ".buffer" con lo siguiente:
                             cero
@@ -208,7 +226,19 @@ Modo de uso:
                             ...
                             noventa y nueve
                             cien
+
+********************************
+UN POCO DE HISTORIA...
+
+  El Tolin es el gato más "choro" que he conocido. Se pasa por el orto relamido a todos los perros de la población, y es el padre de la Mona, la que se encarga de hacer la evaluación del script, así como lo hace con la Laica.
+  Ese gato era tan choro, y debió tener tales historias, las cuales, jamás conoceré. Yo acostumbraba sobarle el lomo hasta que le sacaba estática por las orejas, y eso le encantaba, terminaba ronroneando y babeándome las piernas.
+  La Perla, una gatita madre de muchos (fue, en efecto, una gata "putaza"), por su caracter meticuloso a la hora de escojer a sus parejas de abril, agosto y diciembre, es la que hace el análisis sintáctico, dado que el Bobby está muy viejito y a ese lo dejamos con la Laica, porque, además de viejo, es calentón y medio racista: costó convencerlo de trabajar con la Mona, pero lo hace porque aún cree que se la puede con la Laica, una pastora alemán que se las trae. Y por estar cerca de ella...
+  La Perla comparte su trabajo con el Meketrefe, o el "Meke", un gato romano que tiene sida gatuno pero eso no le impide ser genial. Claro que por su enfermedad no le dimos todo el trabajo, pero como es medio autista, le encargamos efectuar la revisión de los parámetros de entrada. El "Meke", o "Mekeleado" como le decimos con cariño (suma binaria entre "Meke" y "Gato culiado"), es un gato a quien le tengo un afecto especial, y a veces, cuando me acuerdo de él, siento como que se me aprieta un testículo.
+  El Cholito, o Cholo, un gato más negro que mi conciencia, al ser bueno para convertir todo lo que come en caca, fue asignado por Tolin para convertir el script en sus componentes pre-binarios, lo que luego la Perla convertirá a una forma binaria que, más tarde, la Mona se encargará de evaluar.
+  Ese gato convertía todo en caca. Un día, no recuerdo cuando porque está pintado en sepia en mi memoria, yo estaba enfermo en cama y desde ahí vi al Cholito subirse al mesón de la cocina, quedarse ahí un buen rato, y luego, largarse. Más tarde supe que se zampó medio kilo de carne molida. Mi madre se indignó, pero se controló y lo llamó con cariño a su regazo, y el Cholito se acercó ronroneando, tratando de mantener el equilibrio porque la guata bailaba de un lado para otro. Cuento corto, le sacaron la mierda, pero no muy fuerte, porque mi vieja tuvo aprehensiones con esa enorme guata. En suma, al Cholito nadie le quitó lo comido y lo convertido.
   
+********************************
+
    ¿Qué hace Tolin, exactamente?
             Iterará cada línea indicada del archivo o los archivos, y será usada como argumento
             de la expresión del script.
@@ -233,7 +263,7 @@ Modo de uso:
             resultado en la pila de proceso.
    
    Ejemplo de expresión bien formada:
-            if(match{"código\;santiago"},up(tri(#)),nop)
+            if(match{"código\;santiago"},up(tri(#)),"")
             
             Si en la línea procesada existen las palabras "código" y "santiago",
             quitará los espacios en blanco de la línea, y la convertirá en
@@ -252,20 +282,20 @@ Modo de uso:
    Expresiones "{}"
             Estas expresiones operan sobre la línea procesada ORIGINAL. Esto quiere decir
             que una expresión como esta:
-               tolin -f ropa-de-dalien 'pool  /* ver estructuras de ciclo después */
+               tolin -f ropa-de-dalien 'do  /* ver estructuras de ciclo después */
                                            tre{"rancio","oloroso"}
-                                        loop(at{"rancio"})'
+                                        until(at{"rancio"})'
             Caerá en un loop infinito si encuentra una línea con la palabra "rancio".
-            El ejemplo es mierda pura, porque POOL no es necesario, pero sirve para
+            El ejemplo es redundante, porque DO no es necesario, pero sirve para
             exponer el punto.
             Explicación: TRE reempazará "rancio" por "oloroso" en la línea original, y
             dejará el resultado en la pila de resultados. Pero, AT tomará la línea
             original, no la pila de resultados, y volverá a encontrar "rancio".
             ¿Solución? Esta es una posible solución (puede haber más):
                tolin -f ropa-de-dalien '@1(#)  /* asigna la línea a registro 1 */
-                                        pool 
+                                        do 
                                            @1(tre(@1,"pedro","PEDRO")) 
-                                        loop(at(@1,"pedro")) 
+                                        until(at(@1,"pedro")) 
                                         @1  /* libera registro 1 */'
             O mejor aún:
                tolin -f ropa-de-dalien 'match{"rancio"}?tre{"rancio","oloroso"};'
@@ -355,7 +385,10 @@ Modo de uso:
                      
    L                 Variable que contiene la longitud de la línea original
                      que se está procesando. Dicho valor no será alterado
-                     por subsguientes alteraciones de esa línea.
+                     por subsguientes alteraciones de esa línea,salvo por
+                     la función RP().
+                     Ejemplo:
+                        tolin -f bit.c 'say(str(l)+nl)'
    
    NT                Número total de tokens de la línea procesada. Su valor
                      depende de la función DEFT(), descrita más adelante,
@@ -378,10 +411,29 @@ Modo de uso:
                  ==>   hola
                            mundo
 
-   NOP               Instrucción pedorra cuyo único objetivo es dejar un
-                     caracter nulo en la pila de resultados. Es muy útil
-                     para usarlo con IFxx(), porque, a veces, no se necesita
-                     un "ELSE"... Mejor use "". 
+   NEXT              Lee la siguiente línea del archivo procesado. NT es actualizado,
+                     junto con 'I'.
+                     Lo que hace es mover el puntero interno de lectura del archivo,
+                     memorizando la posición de inicio de la línea.
+                     Si NEXT supera el fin de archivo, levanta un flag interno que
+                     avisa que se ha llegado al final de archivo. Dicho flag es leído
+                     por la función EOF. Además, mantiene la última línea leída en
+                     memoria.
+                     
+   BACK              Mueve el puntero de lectura del archivo procesado a la posición
+                     donde inicia la línea recién leída. Se puede usar para incluir
+                     dicha línea en una lectura posterior.
+
+     >>IMPORTANTE>>  BACK no puede usarse para leer la línea anterior, porque ya está
+                     en uso. La idea principal de BACK es que sea la última en ser
+                     ejecutada para cada línea procesada, por si se usa el comando
+                     NEXT dentro del script hasta que la línea leída cumpla con una
+                     condición de término. No sé si me exclipo bien...
+                     Su uso con otro fin podría causar error.
+
+   STOP              Finaliza la lectura del archivo. Si se usa el comando '-M',
+                     la ejecución continuará con el siguiente archivo de la lista, si
+                     existe. 
 
    CLEAR             Elimina el contenido del BUFFER.
    
@@ -440,23 +492,44 @@ Modo de uso:
    
                      Son variables. Existen 20 registros de memoria que
                      pueden ser usados en una expresión, y creo que es
-                     mucho.
-                     Dichas memorias son inicializadas en cada ejecución,
-                     y pueden contener valores de distinto tipo en su
-                     ciclo de vida.
+                     mucho. 20 es el valor por default: puede cambiarlo
+                     con la opción '-mem <n>'.
+                     Dichas memorias son inicializadas en cada ejecución
+                     del script (por cada línea leída), y pueden contener
+                     valores de distinto tipo en su ciclo de vida.
 
-   MOV(n,valor)      Mueve un valor al registro "n". Ejemplo:
+   MOV(n,valor)      Mueve un valor al registro "n". "n" puede ser un número
+                     constante o una expresión.
+                     Ejemplo:
                      mov(2,100)
                      mueve el valor 100 al registro 2
 
       @n(valor)      Idem. Es más corto y elegante. Ejemplo:
                      @2(100)
+                     "n" debe ser una constante numérica.
+      
+     @{N}(valor)     Idem a MOV, con la diferencia que "N" puede ser una
+                     expresión que devuelva un índice de registro, así como
+                     una constante numérica.
+                     Ejemplo:
+                       tolin -s "juanito esta feliz de verte" '@1(2) 
+                                                               ${@1}("vive")'
+                     sale:
+                       juanito vive feliz de verte
 
    VAR(n)            Obtiene un valor de un registro "n". Ejemplo:
                      var(2)
                      obtiene el valor guardado en el registro 2.
 
-      @n             Idem.
+      @n             Idem. "n" debe ser una constante numérica.
+
+     @{N}            Idem. "N" puede ser una constante numérica, o una expresión.
+                     Ejemplo:
+                       tolin -s "juanito esta feliz de verte" '@1(2) @2(@1-1)
+                                                               @{(@1-1)}("vive") 
+                                                               @{1}+":"+@{@2}'
+                     sale:
+                       vive:vive
       
       Importante     Los registros de memoria fueron incluidos para solventar
                      procesos complejos de edición; sin embargo, pueden ser
@@ -481,13 +554,16 @@ Modo de uso:
    Estructura de Ciclo.
 
    
-                     POOL/LOOP es una estructura de iteración. Pueden haber
+                     DO/UNTIL es una estructura de iteración. Pueden haber
                      "pozos" anidados, aunque no se me ocurre para qué.
 
-   POOL              Entra al "pozo", al ciclo iterativo.
+   DO                Entra al "pozo", al ciclo iterativo.
 
-   LOOP(n)           Vuelve al principio del ciclo, si "n" es distinto de 0.
-                     si "n" es 0, sale. Ejemplo:
+   UNTIL(n)          Vuelve al principio del ciclo, si "n" es distinto de 0.
+                     si "n" es 0, sale. 
+                     Es idéntico a repeat/until de Pascal: iterará hasta que
+                     la condición se cumpla.
+                     Ejemplo:
                      
                      Se tiene en archivo:
                      
@@ -504,11 +580,11 @@ Modo de uso:
                 null                     /* termina en linea en blanco */
                 deft(" ")                /* define un tokenizer local */
                 @1(tri(#))               /* asigno tri(#) a registro 1 */
-                pool                     /* entra al pozo */
+                do                     /* entra al pozo */
                    let(1,(#1+1))         /* incremento de valor línea 1 */ 
                    @2(tk(@1,#1))         /* dejo token #1 en registro 2 */ 
                    @3( {{@3,"..."},@2} ) /* operacion generica, dejo en 3 */
-                loop(nt-#1)              /* total - token actual != 0 ? */
+                until(nt-#1)              /* total - token actual != 0 ? */
                 @3                       /* dejo registro 3 en pila */
                 let(1,0)                 /* dejo valor de línea 1 en 0 */
                      
@@ -603,7 +679,7 @@ Modo de uso:
                      -informático de tomo y lomo: fracaso.
                      -millenial: No te preocupes, es una oportunidad para
                                  mejorar; no estás mal, solo es este programa,
-                                 perdón, esta aplicación de mierda la que no
+                                 perdón, esta tonta aplicación la que no
                                  te comprende... 
                      "?" indica que se espera un solo caracter.
                      "*" indica que se espera una secuencia de caracteres.
@@ -690,7 +766,9 @@ Modo de uso:
                      comando, no habrá resultados.
                      Una vez hecho el reemplazo, NT es actualizado. Ejemplo:
 
-                     tolin -f bit.c '@1(nt) rp("hola mundo") @1({@1," : "+str(NT)})@1'
+                     tolin -f bit.c '@1(nt) 
+                                     rp("hola mundo") 
+                                     say({@1," : "+str(NT)})'
                      
                      sale:
                         2 : 2
@@ -770,21 +848,31 @@ Modo de uso:
    LET(N,S)          Cambia el contenido de la línea de BUFFER "N", por "S".
                      El cambio es permanente.
                      Este comando sirve para emular variables.
-                     Es posible que Tolin devuelva un mensaje de error del tipo
-                     "Operación no válida", si este comando se ejecuta en
-                     solitario, pero hay que omitirlo si no lo acompaña un
-                     mensaje en la base de la pantalla.
                      Ejemplo:
                         si se ha habilitado el buffer #1 con '-B 10', entonces:
                           let(1,(#1+1))
                         deja "11" en el buffer #1.
 
-     #N(S)           Idem a LET, en una forma más corta y elegante. 
+     #N(S)           Idem a LET, en una forma más corta y elegante. "N" debe ser una
+                     constante numérica. 
                      Ejemplo:
                         si se ha habilitado el buffer #1 con '-B 10', entonces:
                           #1(#1+1)
                         deja "11" en el buffer #1.
 
+     #{N}(S)         Idem a LET, salvo que "N" puede ser una expresión que obtenga
+                     el índice de la línea referenciada, así como una constante
+                     numérica.
+                     Ejemplo:
+                        tolin -f foo -B '10 10' 'BUFF 
+                                                 @1(2) 
+                                                 #{@1}(#1*2) 
+                                                 say({"En linea 2 de buffer = ",#{@1}}+nl)'
+                     sale:
+                        En linea 2 de buffer = 20
+                        10     /* estas 2 líneas existen por la opción BUFF */
+                        20     /* sin BUFF, solo se imprime SAY */
+                     
         Importante   Si habilitó el tag BUFF en el script, podrá tener dos salidas
                      para un mismo proceso: la salida estándar, y la salida del
                      buffer.
@@ -958,7 +1046,7 @@ Modo de uso:
                      entre "C" y "D". "C" y "D" son números ASCII. Si
                      encuentra alguno de ellos, devuelve su posición.
                      Si no encuentra nada, devuelve "0".
-                     Si se usa dentro de POOL/LOOP, RANGE buscará más
+                     Si se usa dentro de DO/UNTIL, RANGE buscará más
                      caracteres omitiendo el último hallazgo.
                      Una aplicación de esta función se puede ver como
                      un comando de CTRL-NN (e.g: "R 100, 120").
@@ -1028,12 +1116,22 @@ Modo de uso:
            $N(V)     Cambia el token "N" por "V". Solo trabaja sobre la línea
                      de proceso; para cambiar una línea procesada previamente,
                      use TKLET.
+                     "N" debe ser una constante numérica.
                      Ejemplo:
                        tolin -c 'ls -l' 'tklet($9(up($9)),8,"00:00")'
                      devuelve la línea con el token 8 y 9 modificados:
                      ...
                      -rw-r--r-- 1 xu xu 1181 feb 9 00:00 UPPER.C
                      ... 
+          
+          ${N}(V)    Idem a TKLET pero sobre la línea procesada. 
+                     "N" puede ser una expresión que devuelva el índice del
+                     token, así como una constante numérica.
+                     Ejemplo:
+                       tolin -s "juanito esta feliz de verte" '@1(2) 
+                                                               ${@1}("vive")'
+                     sale:
+                       juanito vive feliz de verte
 
       TKLET{N,M}     Idem, pero usa la línea procesada.
                      Ejemplo:
@@ -1047,7 +1145,35 @@ Modo de uso:
 
    Funciones utilitarias.
 
+   SAY(S)            Despliega por pantalla el contenido de "S".
+                     Por default, Tolin despliega por pantalla el resultado de
+                     una función, pero solo cuando esta coincide con el fin de
+                     la ejecución del script, igual que AWK. Si quiere desplegar
+                     algo entremedio, use SAY.
+                     Ejemplo:
+                     Aquí no tiene sentido usar SAY:
+                       tolin -f file '{I," : "+#}'
+                     Pero aquí sí:
+                       tolin -f file 'say({"Original:",#+nl}) {"NUEVA:",up(#)}'
 
+   EOF               Lee el flag levantado por NEXT. Si ha llegado al final del
+                     archivo, devuelve "0"; de lo contrario, devuelve "1".
+                     Ejemplo:
+                       tolin -f bit.c -ss "\}" 'next {"EOF = ",eof}'
+                     sale:
+                       EOF = 1
+                       ...
+                       EOF = 1
+                       EOF = 0
+                     
+                     Esta función es ideal para usarla con DO/UNTIL.
+                       tolin -f file 'do ... next until(eof)'
+   
+   ENV(V)            Devuelve el contenido de la variable de entorno indicada
+                     en "V".
+                     Ejemplo:
+                       tolin -f foo 'env("PATH")'     
+                     
    GLOSS(N)          Convierte un número en palabras. Si "N" es un string,
                      acepta un número de 69 dígitos (mil decillones).
                      Si "N" es un número "numérico", el máximo aceptado
@@ -1067,6 +1193,13 @@ Modo de uso:
                        tolin -f foo 'gloss(9.9E20)'
                    ==> ** no se puede convertir [****************] **
                        
+                       tolin -f foo 'gloss("99983000290029127433929838400144.21")'
+                   ==> noventa y nueve quintillones novecientos ochenta y tres mil
+                       cuatrillones docientos noventa mil veintinueve trillones ciento 
+                       veintisiete mil cuatrocientos treinta y tres billones novecientos 
+                       veintinueve mil ochocientos treinta y ocho millones cuatrocientos
+                       mil ciento cuarenta y cuatro con veintiuno
+                   
    MON(V,S,M,N)      Da formato moneda al número en "V", con un signo 
                      monetario "S", un ancho "M", y "N" decimales. El
                      primer caracter de "S" es un relleno.
@@ -1189,10 +1322,10 @@ Modo de uso:
                      Tanto "S" como "T" son ejecutados, pero uno de esos
                      resultados será el ganador; el otro se desechará.
                      Así que trate de que no haya error en ambos. Si no
-                     necesita un "ELSE", use NOP.
+                     necesita un "ELSE", use "".
 
                      "IF" devuelve un tipo string; por tanto, si trabaja con
-                     números, debe usar "VAL()" o "!{}". Ejemplo:
+                     números, debe usar "VAL()". Ejemplo:
                         val( if( ($1%2), $2, $3))*100
                      Si el primer token es par, usa el token 2; sino, usa el
                      token 3.
@@ -1265,7 +1398,7 @@ Modo de uso:
                         if ( ( (@1+(1-@2)) * ((1-@1)+@2) ), ..., ...)
 
     AND(), OR(), XOR()
-                     Si todo lo anterior le parece "pajero", existen las funciones
+                     Si todo lo anterior le parece tedioso, existen las funciones
                      aludidas que hacen el mismo trabajo. Estas devuelven "0" si
                      sus argumentos son "0", o "1" si alguno de ellos no cumple con
                      la condición esperada. Solo aceptan dos argumentos. Ejemplo:
@@ -1392,13 +1525,14 @@ Modo de uso:
 
    El script que hace esto es el siguiente:
    
-   tolin -f eukaryotes.pep -fw busca.txt '@1(#+nl) next 
-                                          pool 
-                                             @1(@1+#) 
+   tolin -f eukaryotes.pep -fw busca.txt '@1(#+nl)  /* puede usar say(#+nl) 
+                                          next 
+                                          do 
+                                             @1(@1+#)  /* puede ser say(#+nl) */
                                              next 
-                                          loop((at{">"}>0)) 
+                                          until(or( (at{">"}>0), eof )) 
                                           back 
-                                          @1'
+                                          @1 /* si usa SAY, esto no tiene sentido aquí */'
    
    devolverá el siguiente resultado:
      ...
@@ -1415,9 +1549,19 @@ Modo de uso:
    correspondientes a los match encontrados. Ahí funciona el script: tomará la primera
    línea (con el código), añadirá un salto de línea, y leerá la siguiente (NEXT);
    luego, entrará a un "pozo" iterativo que concatenará la línea leída a la ya existente,
-   leerá la siguiente, y terminará cuando encuentre en la línea leída un ">".
+   leerá la siguiente, y terminará cuando encuentre en la línea leída un ">", o haya
+   llegado al final del archivo.
    Luego, para continuar con la búsqueda, se devuelve una línea atrás (para no saltar
    la línea con ">"), y se libera el resultado.
+   
+   Semejante resultado obtendrá con el siguiente script, solo que añadirá un salto de
+   linea después de cada línea leída:
+   
+     tolin -f eukaryotes.pep -fs busca.pep 'do
+                                               say(#+nl)
+                                               next
+                                            until(or((at{">"}>0),eof))
+                                            back'
    
    COMENTARIOS. 
    
