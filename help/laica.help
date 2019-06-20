@@ -1178,12 +1178,12 @@ $$END Registros de memoria
 $$BEGIN Estructura de Ciclo
 
    
-                     POOL/LOOP es una estructura de iteración. Pueden haber
+                     DO/UNTIL es una estructura de iteración. Pueden haber
                      "pozos" anidados, aunque no se me ocurre para qué.
 
-   POOL              Entra al "pozo", al ciclo iterativo.
+   DO                Entra al "pozo", al ciclo iterativo.
 
-   LOOP(n)           Vuelve al principio del ciclo, si "n" es distinto de 0.
+   UNTIL(n)          Vuelve al principio del ciclo, si "n" es distinto de 0.
                      si "n" es 0, sale. Ejemplo:
                      
                      Se tiene en BUFFER:
@@ -1199,11 +1199,11 @@ $$BEGIN Estructura de Ciclo
                 null                     /* termina en linea en blanco */
                 deft(" ")                /* define un tokenizer local */
                 @1(tri(#))               /* asigno tri(#) a registro 1 */
-                pool                     /* entra al pozo */
+                do                     /* entra al pozo */
                    let(5,(#5+1))         /* incremento de valor línea 5 */ 
                    @2(tk(@1,#5))         /* dejo token #5 en registro 2 */ 
                    @3( {{@3,"..."},@2} ) /* operacion generica, dejo en 3 */
-                loop(nt-#5)              /* total - token actual != 0 ? */
+                until(nt-#5)              /* total - token actual != 0 ? */
                 @3                       /* dejo registro 3 en pila */
                 let(5,0)                 /* dejo valor de línea 5 en 0 */
                      
@@ -1627,7 +1627,7 @@ $$BEGIN Funciones avanzadas de texto
                      entre "C" y "D". "C" y "D" son números ASCII. Si
                      encuentra alguno de ellos, devuelve su posición.
                      Si no encuentra nada, devuelve "0".
-                     Si se usa dentro de POOL/LOOP, RANGE buscará más
+                     Si se usa dentro de DO/UNTIL, RANGE buscará más
                      caracteres omitiendo el último hallazgo.
                      Una aplicación de esta función se puede ver como
                      un comando de CTRL-NN (e.g: "R 100, 120").
@@ -2097,9 +2097,9 @@ ATAJOS Y COMANDOS QUE SOLO FUNCIONAN EN LINUX:
 
 ALT - C     Cancela XU. De hecho, cancela XU. Es una salida deshonrosa
             pero útil en caso de que el programa se ahuevone. No obstante,
-            Ni XU ni LAICA se ahuevonan: si programaste un LOOP infinito,
+            Ni XU ni LAICA se ahuevonan: si programaste un loop infinito,
             ya sea por probar o por huevón, esta es la solución. Lo mismo
-            sucede si tu POOL en LAICA es infinito, pero ahí tendrás que
+            sucede si tu loop en LAICA es infinito, pero ahí tendrás que
             cerrar el terminal, por huea.
             En mierdApple no puedes hacer esto, y tendrás que cerrar el
             terminal. Sugerencia: instala Linux basado en Debian en tu 
