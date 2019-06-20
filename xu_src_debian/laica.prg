@@ -10063,7 +10063,7 @@ DX:=strtran(DX,"(-","(0-")  // ajusto negativos
 //DX:=strtran(DX,"(++","INC(")
 DX:=strtran(DX,"range{","RANGE(#,") 
 DX:=strtran(DX,"ins{","INS(#,") 
-DX:=strtran(DX,"#{","LIN(")  // linea
+//DX:=strtran(DX,"#{","LIN(")  // linea
 DX:=strtran(DX,"trea{","TREA(#,")
 DX:=strtran(DX,"treb{","TREB(#,")
 DX:=strtran(DX,"tre{","TRE(#,")
@@ -10072,11 +10072,11 @@ DX:=strtran(DX,"tre{","TRE(#,")
 //DX:=strtran(DX,"'{","CH(")  // chr
 //DX:=strtran(DX,"&{","ASC(")  // asc
 DX:=strtran(DX,"{*","CP(#,")
-DX:=strtran(DX,"rp{","RP(#,")
+///DX:=strtran(DX,"rp{","RP(#,")
 DX:=strtran(DX,"{+","PTRP(#,")  // avanza puntero del string
 DX:=strtran(DX,"{-","PTRM(#,")  // retorcede puntero extremo de string
 DX:=strtran(DX,"mon{","MON(#,")
-DX:=strtran(DX,"${","TK(#,")
+//DX:=strtran(DX,"${","TK(#,")
 DX:=strtran(DX,"round{","ROUND(#,")
 DX:=strtran(DX,"sub{","SUB(#,")
 DX:=strtran(DX,"tra{","TRA(#,")
@@ -10190,63 +10190,114 @@ while i <= long
    elseif c=="#"    // puede ser numero de línea de buffer si es acompañado de un numero #1, #3...
       tmpi:=i-1  // por si es una asignación
       ++i
-      num:=""
-      while i<=long
-         c:=substr(DX,i,1)
-         if c==" "
-            ++i
-            loop
-         end
-         if isdigit(c)
-            num+=c
-            ++i
-         else
-            --i
-            exit
-         end
-      end
-      if len(num)==0  // es un parámetro de linea procesada.
-         AADD(Q,"N")
-         AADD(R,"#")
-
-      elseif c=="("   // es una asignación
-         // busco hasta donde asigna:
-         ctmpi:=i
-         strfun:=""
-         i+=2  // para saltarme primer "("
-         ctpar:=1
+      c:=substr(DX,i,1)
+      if c=="{"   // es un indice compuesto
+         num:=""
+         ++i
          while i<=long
             c:=substr(DX,i,1)
-            strfun+=c
-            if c=="("
-               ++ctpar
-            elseif c==")"
-               --ctpar
-               if ctpar==0
-                  exit
-               end
-               if ctpar<0
-                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
-                  RETURN {}
-               end
+            if c=="}"  // cierra composicion
+               ++i
+               exit
             end
+            num+=c
             ++i
          end
-         DX:=substr(DX,1,tmpi)+"LET("+num+","+strfun+substr(DX,++i,len(DX))
-         long:=LEN(DX)
-         i:=tmpi  // restauro indice para que lea "TKLET"
-       //  ? "DX?=", DX; inkey(0)
-      else
-         if ISTNUMBER(num)!=1
-            _ERROR("EL DOGGY DICE: NUMERO DE LINEA NO VALIDO: "+substr(DX,1,i)+"<<")
-            RETURN {}
-         else
-            AADD(Q,"LIN"); AADD(R,"LIN")
-            AADD(Q,"("); AADD(R,"(")
-            AADD(Q,"N");  AADD(R,val(num))
-            AADD(Q,")"); AADD(R,")")
+         c:=substr(DX,i,1)
+         if c=="("  // es una asignacion
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=c
+            ++i
+            //i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"LET("+num+","+strfun+")"+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+            ///? "DX=",DX
+         else   // es una linea
+            DX:=substr(DX,1,tmpi)+"LIN("+num+")"+substr(DX,i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+           // ? "DX=",DX
          end
-      end
+      else
+         num:=""  
+         while i<=long
+            c:=substr(DX,i,1)
+            if c==" "
+               ++i
+               loop
+            end
+            if isdigit(c)
+               num+=c
+               ++i
+            else
+               --i
+               exit
+            end
+         end
+         if len(num)==0  // es un parámetro de linea procesada.
+            AADD(Q,"N")
+            AADD(R,"#")
+
+         elseif c=="("   // es una asignación
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=""
+            i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"LET("+num+","+strfun+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+          //  ? "DX?=", DX; inkey(0)
+         else
+            if ISTNUMBER(num)!=1
+               _ERROR("EL DOGGY DICE: NUMERO DE LINEA NO VALIDO: "+substr(DX,1,i)+"<<")
+               RETURN {}
+            else
+               AADD(Q,"LIN"); AADD(R,"LIN")
+               AADD(Q,"("); AADD(R,"(")
+               AADD(Q,"N");  AADD(R,val(num))
+               AADD(Q,")"); AADD(R,")")
+            end
+         end
+      end  // indice compuesto
+      
 /*   elseif c=="#"   // puede ser numero de línea si es acompañado de un numero #1, #3...
       ++i
       
@@ -10300,114 +10351,216 @@ while i <= long
    elseif c=="$"    // puede ser un token del tipo AWK $1, $2,...$n o un cambio de token $n(valor)
       tmpi:=i-1  // por si es una asignación
       ++i
-      num:=""
-      while i<=long
-         c:=substr(DX,i,1)
-         if c==" "
-            ++i
-            loop
-         end
-         if isdigit(c)
-            num+=c
-            ++i
-         else
-            --i
-            exit
-         end
-      end
-      if ISTNUMBER(num)!=1 .or. len(num)==0
-         _ERROR("EL DOGGY DICE: NUMERO DE TOKEN NO VALIDO: "+substr(DX,1,i)+"<<")
-         RETURN {}
-      end
-      if c=="("   // es una asignación
-         // busco hasta donde asigna:
-         ctmpi:=i
-         strfun:=""
-         i+=2  // para saltarme primer "("
-         ctpar:=1
+      c:=substr(DX,i,1)
+      if c=="{"   // es un indice compuesto
+         num:=""
+         ++i
          while i<=long
             c:=substr(DX,i,1)
-            strfun+=c
-            if c=="("
-               ++ctpar
-            elseif c==")"
-               --ctpar
-               if ctpar==0
-                  exit
-               end
-               if ctpar<0
-                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
-                  RETURN {}
-               end
+            if c=="}"  // cierra composicion
+               ++i
+               exit
             end
+            num+=c
             ++i
          end
-         DX:=substr(DX,1,tmpi)+"TKLET(#,"+num+","+strfun+substr(DX,++i,len(DX))
-         long:=LEN(DX)
-         i:=tmpi  // restauro indice para que lea "TKLET"
-       //  ? "DX?=", DX; inkey(0)
+         c:=substr(DX,i,1)
+         if c=="("  // es una asignacion
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=c
+            ++i
+            //i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"TKLET(#,"+num+","+strfun+")"+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+//            ? "DX=",DX
+         else   // es una linea
+            DX:=substr(DX,1,tmpi)+"TK(#,"+num+")"+substr(DX,i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+//            ? "DX=",DX
+         end
       else
-         AADD(Q,"TK"); AADD(R,"TK")
-         AADD(Q,"("); AADD(R,"(")
-         AADD(Q,"N");  AADD(R,"#")
-         AADD(Q,"N");  AADD(R,val(num))
-         AADD(Q,")"); AADD(R,")")
+         num:=""  
+         while i<=long
+            c:=substr(DX,i,1)
+            if c==" "
+               ++i
+               loop
+            end
+            if isdigit(c)
+               num+=c
+               ++i
+            else
+               --i
+               exit
+            end
+         end
+         if ISTNUMBER(num)!=1 .or. len(num)==0
+            _ERROR("EL DOGGY DICE: NUMERO DE TOKEN NO VALIDO: "+substr(DX,1,i)+"<<")
+            RETURN {}
+         end
+         if c=="("   // es una asignación
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=""
+            i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"TKLET(#,"+num+","+strfun+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+          //  ? "DX?=", DX; inkey(0)
+         else
+            AADD(Q,"TK"); AADD(R,"TK")
+            AADD(Q,"("); AADD(R,"(")
+            AADD(Q,"N");  AADD(R,"#")
+            AADD(Q,"N");  AADD(R,val(num))
+            AADD(Q,")"); AADD(R,")")
+         end
       end
    elseif c=="@"    // variable de registro.
       tmpi:=i-1  // por si es una asignación
       ++i
-      num:=""
-      while i<=long
-         c:=substr(DX,i,1)
-         if c==" "
-            ++i
-            loop
-         end
-         if isdigit(c)
-            num+=c
-            ++i
-         else
-            --i
-            exit
-         end
-      end
-      if ISTNUMBER(num)!=1 .or. len(num)==0
-         _ERROR("EL DOGGY DICE: NUMERO DE REGISTRO NO VALIDO #<<"+num+">>")
-         RETURN {}
-      end
-      if c=="("   // es una asignación
-         // busco hasta donde asigna:
-         ctmpi:=i
-         strfun:=""
-         i+=2  // para saltarme primer "("
-         ctpar:=1
+      c:=substr(DX,i,1)
+      if c=="{"   // es un indice compuesto
+         num:=""
+         ++i
          while i<=long
             c:=substr(DX,i,1)
-            strfun+=c
-            if c=="("
-               ++ctpar
-            elseif c==")"
-               --ctpar
-               if ctpar==0
-                  exit
-               end
-               if ctpar<0
-                  _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS")
-                  RETURN {}
-               end
+            if c=="}"  // cierra composicion
+               ++i
+               exit
             end
+            num+=c
             ++i
          end
-         DX:=substr(DX,1,tmpi)+"MOV("+num+","+strfun+substr(DX,++i,len(DX))
-         long:=LEN(DX)
-         i:=tmpi  // restauro indice para que lea "MOV"
-       //  ? "DX?=", DX; inkey(0)
+         c:=substr(DX,i,1)
+         if c=="("  // es una asignacion
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=c
+            ++i
+            //i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"MOV("+num+","+strfun+")"+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+//            ? "DX=",DX
+         else   // es una linea
+            DX:=substr(DX,1,tmpi)+"VAR("+num+")"+substr(DX,i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "TKLET"
+//            ? "DX=",DX
+         end
+
       else
-      AADD(Q,"VAR"); AADD(R,"VAR")
-      AADD(Q,"("); AADD(R,"(")
-      AADD(Q,"N");  AADD(R,val(num))
-      AADD(Q,")"); AADD(R,")")
+         num:=""  
+         while i<=long
+            c:=substr(DX,i,1)
+            if c==" "
+               ++i
+               loop
+            end
+            if isdigit(c)
+               num+=c
+               ++i
+            else
+               --i
+               exit
+            end
+         end
+         if ISTNUMBER(num)!=1 .or. len(num)==0
+            _ERROR("EL DOGGY DICE: NUMERO DE REGISTRO NO VALIDO: "+substr(DX,1,i)+"<<")
+            RETURN {}
+         end
+         if c=="("   // es una asignación
+            // busco hasta donde asigna:
+            ctmpi:=i
+            strfun:=""
+            i+=2  // para saltarme primer "("
+            ctpar:=1
+            while i<=long
+               c:=substr(DX,i,1)
+               strfun+=c
+               if c=="("
+                  ++ctpar
+               elseif c==")"
+                  --ctpar
+                  if ctpar==0
+                     exit
+                  end
+                  if ctpar<0
+                     _ERROR("EL DOGGY DICE: PARENTESIS DESBALANCEADOS: "+substr(DX,1,i)+"<<")
+                     RETURN {}
+                  end
+               end
+               ++i
+            end
+            DX:=substr(DX,1,tmpi)+"MOV("+num+","+strfun+substr(DX,++i,len(DX))
+            long:=LEN(DX)
+            i:=tmpi  // restauro indice para que lea "MOV"
+            //  ? "DX?=", DX
+         else
+            AADD(Q,"VAR"); AADD(R,"VAR")
+            AADD(Q,"("); AADD(R,"(")
+            AADD(Q,"N");  AADD(R,val(num))
+            AADD(Q,")"); AADD(R,")")
+         end
       end
+
    elseif c=='"'   // es un string. para rep() y cat()
       AADD(Q,"C")
       //str:='"'
@@ -10587,8 +10740,8 @@ while i <= long
          AADD(Q,"L"); AADD(R,"L")
          AADD(Q,"("); AADD(R,"(")
          AADD(Q,")"); AADD(R,")")
-      elseif fun=="POOL"
-         AADD(Q,"POOL"); AADD(R,"POOL")
+      elseif fun=="DO"
+         AADD(Q,"DO"); AADD(R,"DO")
          AADD(Q,"("); AADD(R,"(")
          AADD(Q,")"); AADD(R,")")
       elseif fun=="NT"   // total de tokens
@@ -10666,7 +10819,7 @@ nFUN:={"FNA","FNB","FNC","FND","FNE","FNF","FNG","FNH","FNI","FNJ","FNK","FNL","
 
 DICC:={"NT","I","VAR","MOV","~","L",;   // A 1-6
        "JNZ","ELSE","ENDIF",;   // B  7-9
-       "POOL","LOOP","ROUND",;           // C  10-12
+       "DO","UNTIL","ROUND",;           // C  10-12
        "CAT","MATCH","LEN","SUB","AT","RANGE","ATA",;  // D  13-19
        "AF","RAT","PTRP","PTRM","CP","TR","TRA","TRB","AFA",;  // E  20-28
        "TK","TKLET","LET","COPY","GLOSS",;    // F      29-33
@@ -11067,14 +11220,14 @@ aadd(pila2,"(")
                _ERROR("EL BOBY DICE: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
                RETURN .F.
             end
-         elseif m=="DEFT" .or. m=="LOOP".or.m=="SEED".or.m=="RP"
+         elseif m=="DEFT" .or. m=="UNTIL".or.m=="SEED".or.m=="RP".or. m=="JNZ" 
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: ESPERO UN ARGUMENTO VALIDO PARA ("+m+")")
                RETURN .F.
             end
          
-         elseif m=="POOL" .or. m=="CLEAR" .or. m=="JNZ" .or. m=="ELSE" .or. m=="ENDIF"
+         elseif m=="DO" .or. m=="CLEAR" .or. m=="ELSE" .or. m=="ENDIF"
             ;
             
          elseif m=="CH" .or. m=="STR".or. m=="GLOSS"
@@ -11907,11 +12060,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                AADD(pila,ROUND(n,o))
                exit
                
-            case 11  //"LOOP"
+            case 11  //"UNTIL"
                if LENJMP>0
                   n:=SDP(pila)
                   if esnulo(n) //n==NIL
-                     _ERROR("LA MONA DICE: VALOR NULO EN PUNTERO A DIRECCION LOOP")
+                     _ERROR("LA MONA DICE: VALOR NULO EN PUNTERO A DIRECCION UNTIL")
                      RETURN .F.
                   end
                   if valtype(n)!="N"
@@ -11926,12 +12079,12 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                      i:=JMP[LENJMP]
                   end
                else
-                  _ERROR("LA MONA DICE: LOOP sin POOL") 
+                  _ERROR("LA MONA DICE: UNTIL sin DO") 
                   return .F.
                end
                exit
                
-            case 10  //"POOL"
+            case 10  //"DO"
                if i<LENP
                   aadd(JMP,i)
                   LENJMP:=len(JMP)
@@ -12235,7 +12388,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   _ERROR("LA MONA DICE: VALOR NULO EN TR")
                   RETURN .F.
                end
-               if valtype(m)=="N"
+               if valtype(h)=="N"
                   h:=hb_ntos((h))
                else
                   h:=strtran(h,chr(0),"")
@@ -12650,7 +12803,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
             case 34  //"RP"
                o:=SDP(pila)
              
-               if esnulo(n,o) //n==NIL .or. o==NIL
+               if esnulo(o) //n==NIL .or. o==NIL
                   _ERROR("LA MONA DICE: VALOR NULO EN RP")
                   RETURN .F.
                end
@@ -14222,7 +14375,7 @@ local DICC
 DICC:={"LN","LOG","SQRT","ABS","INT","CEIL","FLOOR","SGN","ROUND","SIN","COS","TAN","UP","LOW","MSK","MON","SAT","SAVE","LOAD",;
        "EXP","INV","RP","CAT","LEN","SUB","AT","AF","RAT","PTRP","PTRM","CP","TR","TK","VAL","CH","LIN","PC","PL","PR","IF",;
        "TRE","INS","DC","RPC","ONE","ASC","TRI","LTRI","RTRI","I","INC","DEC","IFLE","IFGE","TKLET","MATCH","LET","DEFT",;
-       "NT","POOL","LOOP","MOV","VAR","NOP","COPY","AND","OR","XOR","NOT","BIT","ON","OFF","BIN","HEX","OCT","~",;
+       "NT","DO","UNTIL","MOV","VAR","NOP","COPY","AND","OR","XOR","NOT","BIT","ON","OFF","BIN","HEX","OCT","~",;
        "JNZ","ELSE","ENDIF","CLEAR","RANGE","STR","GLOSS","RND","L","TRA","TRB","AFA","ATA","TREA","TREB","TPC",;
        "FNA","FNB","FNC","FND","FNE","FNF",;
        "FNH","FNI","FNJ","FNK","FNL","FNM","FNN","FNO","FNP"}
