@@ -11383,7 +11383,11 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
       if m==20 //chr(1)   // mete string
          m:=p[++i]
          if m=="#"
-            AADD(pila,par+chr(0))
+            if valtype(par)=="C"
+               AADD(pila,par+chr(0))
+            else
+               AADD(pila,par)
+            end
          else
             aadd(pila,m)
          end
