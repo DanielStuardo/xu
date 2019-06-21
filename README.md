@@ -22,7 +22,7 @@ Para trabajar con ambos programas, debes crear una variable de entorno llamada P
       xuc prueba.xu -x -m -v -p      ---> para compilar un archivo XU
       xu prueba                      ---> para ejecutar un archivo xu-code (binario) XU
 
-La ayuda del editor y del lenguaje se accede desde el editor mismo, con ^OO y ^OP.
+La ayuda del editor y del lenguaje se accede desde el editor mismo, con ^OO y ^OX.
 
 XU is available for Linux based on Debian (32-64 bit), Windows 32 bits (64 bits non-native), Mac OSX Mountain Lion 64 bits.
 
