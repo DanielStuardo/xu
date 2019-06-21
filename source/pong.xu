@@ -1,0 +1,516 @@
+/*  PONG. 
+    Daniel L. Stuardo
+    Si va a hacer uso de este código, por favor cite al autor.
+    Si solo quiere imprimirlo para limpiarse el poto con el,
+    le recomiendo que lo imprima sobre un pepino "king size".
+*/
+#use string
+name: pong
+//output: screen
+memory: normal
+
+vars:
+    ciclo := boolean
+    {sector,sector_b} := boolean
+    ret_heroe := number
+    ret_bola := number
+    c := number
+    {px,ddx} := number  // barra
+    {bx,by,dirx,diry,rx,ry,
+     oldx,oldy} := number   // bola
+    {ladrillo1,ladrillo2,ladrillo3} := string
+    vel_barra := number
+    cta_golpe := number
+    {puntos,vidas} := number
+    PATHs,PATH,cSYS,cPLAY:=string    // ruta de raíz de XU donde estan los datos de Pong.
+  
+ functions:
+    pone_ladrillos := function:void
+
+    begin:
+       write (at 3 1) color(12) ladrillo1
+       write (at 6 1) color(10) ladrillo2
+       write (at 9 1) color(9) ladrillo3
+    end
+
+    configura_ladrillos := function:void
+    begin:
+       ladrillo1<-"░"*65
+       ladrillo2<-"▒"*65
+       ladrillo3<-"█"*65
+    end
+
+    pone_base := function:void
+    begin:
+      color(7)
+      
+      write (at 29 1) chr(177)*66
+    end
+
+    pone_puntos := function:void
+    begin:
+      color(15)
+      flag "z"
+      write (at 0 1)  "PoNg!"; color(14); ."\tPUNTOS=",($puntos), "\tVIDAS=",($vidas)
+    end
+
+    pone_bola := function:void
+      bx := $1:number
+      by := $2:number
+    begin:
+      write (at oldy oldx) " "
+      color(15)
+      write (at by bx) "O"
+    end
+
+    pone_barra := function:void
+      x := $1:number
+    begin:
+      color(15)
+      at (28 x)
+      write  " ■████████■ "
+      color(7)
+    end
+
+    add_puntos := function:void
+
+    begin:
+       cmd(PATHs+"pong_barra.wav </dev/null >/dev/null 2>&1 &")
+       
+       puntos<-puntos+10
+       .pone_puntos
+       ++cta_golpe
+    end
+
+    revisa_ladrillo := function:void
+       ladrillo := $1:string (ref)
+       colour   := $2:number
+       posy     := $3:number
+       figura   := $4:string
+       linea    := $5:number
+       {w0, w1, w2} := string
+    begin:
+       w0<-strcpy(ladrillo bx 1)
+       w1<-strcpy(ladrillo (bx-1) 1)
+       w2<-strcpy(ladrillo (bx+1) 1)
+
+       if posy=8 or posy=5 or posy=2 
+         if dirx<0 and diry>0    // diag abajo izquierda
+           if w0=figura    //12
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           elseif w1=figura   //10
+             //ladrillo<-(string.rch ladrillo " " (bx-1))
+             [ladrillo (bx-1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           endif         
+         elseif dirx>0 and diry>0  //diag abajo derecha
+           if w0=figura    //11
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           elseif w2=figura   //9
+             //ladrillo<-(string.rch ladrillo " " (bx+1))
+             [ladrillo (bx+1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           endif
+         endif
+       endif
+       if posy=9 or posy=6 or posy=3 
+         if dirx>0 and diry>0  //diag abajo derecha
+           if w2=figura   //5
+             //ladrillo<-(string.rch ladrillo " " (bx+1))
+             [ladrillo (bx+1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           elseif w0=figura 
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           endif   // omitir esto me llev¢ a un error de la MV. OJO
+         elseif dirx>0 and diry<0  // diag arriba derecha
+           if w2=figura    //6
+             //ladrillo<-(string.rch ladrillo " " (bx+1))
+             [ladrillo (bx+1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           elseif w0=figura 
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           endif
+         elseif dirx<0 and diry>0  // diag abajo izquierda
+           if w1=figura    //7
+             //ladrillo<-(string.rch ladrillo " " (bx-1))
+             [ladrillo (bx-1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           elseif w0=figura 
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           endif
+         elseif dirx<0 and diry<0  // diag arriba izquierda
+           if w1=figura    //8
+             //ladrillo<-(string.rch ladrillo " " (bx-1))
+             [ladrillo (bx-1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           elseif w0=figura 
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             rx<-0
+             .add_puntos
+           endif
+         endif
+       endif
+
+       if posy=10 or posy=7 or posy=4 
+         if dirx>0 and diry<0    // diag arriba derecha
+           if w0=figura    //3
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           elseif w2=figura   //1
+             //ladrillo<-(string.rch ladrillo " " (bx+1))
+             [ladrillo (bx+1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           endif
+         elseif dirx<0 and diry<0  //diag arriba izquierda
+           if w0=figura    //4
+             //ladrillo<-(string.rch ladrillo " " bx)
+             [ladrillo bx]<-" "
+             write (at linea 1)(color colour) ladrillo
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+           elseif w1=figura   //2
+             //ladrillo<-(string.rch ladrillo " " (bx-1))
+             [ladrillo (bx-1)]<-" "
+             write (at linea 1)(color colour) ladrillo
+             dirx<-dirx*(-1)
+             diry<-diry*(-1)
+             rx<-0
+             .add_puntos
+
+           endif
+         endif
+       endif
+    end
+
+    desaparece_barra := function:void
+       x := $1:number
+    begin:
+ 
+      cmd(PATHs+"pong_death.wav </dev/null >/dev/null 2>&1 &")
+      at 28 x
+      color(12)
+      write  " ■████████■ "
+      millisec(100)
+
+      at 28 x
+      color(12)
+      write  "   ██████   "
+      millisec(50)
+      color(4)
+      at 28 x
+      write  "    ████    "
+      millisec(20)
+      color(4)
+      at 28 x
+      write  "     ██     "
+      millisec(10)
+      at 28 x
+      write  "     --    "
+      millisec(2)
+
+      flush
+    end
+
+    listo := function:void
+    begin:
+      color (0)
+      write (at 28 1) chr(219)*66
+      color (10)
+      write (at 15 30) "LISTO!"
+      sleep(2)
+      write (at 15 30) "      "
+    end
+
+    EsElFinal := function:boolean
+      retorno := boolean
+    begin:
+       not retorno, if retorno
+       flag "A"
+       if (strtrim ladrillo1)="" 
+         if (strtrim ladrillo2)="" 
+           if (strtrim ladrillo3)="" 
+               not retorno
+           endif
+         endif
+       endif
+       return retorno
+    end
+
+algorithm:
+
+   PATH<-getenv("PATH_XU")
+   if strlz(PATH)
+      ."\nNo encuentro variable de entorno PATH_XU\n\n"
+      ."Necesito que declares PATH_XU=ruta-donde-esta-xu\n"
+      goodbye
+   else
+     /* esta ruta accederá a todos los recursos del
+        juego, dentro de SOURCE */
+      PATH<-PATH+"/source/dataPong/"
+   endif
+
+   // chequeo de sistema operativo
+   cSYS<-strupper(strcpy(system(),1,strat((flag "L")" ",system()) ))
+ 
+   cSYS<-strtrim((flag "A")cSYS ) 
+   if cSYS = "DARWIN"
+      cPLAY<-"afplay"
+   elseif cSYS="LINUX"
+      cPLAY<-"aplay"
+   else
+      // puede que windows, cuando lo tenga listo
+      ."Problemas... [",cSYS,"]"
+      goodbye
+   endif
+   PATHs<-cPLAY+" "+PATH // deja "afplay /home..../source/"
+
+   video(30,68)
+   cursor(0)
+   cls
+   precision 0
+   .pone_base()
+   .configura_ladrillos()
+   .pone_ladrillos()
+
+   px<-30
+   {bx,by}<-{35,27}
+   diry<-(-1)
+   dirx<-1
+   vel_barra<- 3000// 260 //340
+   vidas<-50
+   puntos<-0
+
+   not sector
+
+   .listo()
+
+   not ciclo  //un boolean se declara falso
+   while ciclo
+
+     if ret_bola=vel_barra 
+       oldx<-bx
+       oldy<-by
+       ret_bola<-0
+
+       if by=8 or by=9 or by=10
+         .revisa_ladrillo( ladrillo3 9 by "█" 9)
+         
+       elseif by=5 or by=6 or by=7
+         .revisa_ladrillo( ladrillo2 10 by "▒" 6)
+         
+       elseif by=2 or by=3 or by=4 
+         .revisa_ladrillo( ladrillo1 12 by "░" 3)
+                
+       else
+
+         if by=27 and diry=1
+            if bx=px     // extremo de la barra
+              if dirx<0 
+                 //dirx<-dirx*(-1)
+                 diry<-diry*(-1)
+              else
+                 dirx<-dirx*(-1)
+                 diry<-diry*(-1)
+                 rx<-dirx
+              endif
+              cmd(PATHs+"pong_golpe.wav </dev/null >/dev/null 2>&1 &")
+            elseif bx=(px+11) 
+              if dirx>0 
+                 //dirx<-dirx*(-1)
+                 diry<-diry*(-1)
+              else
+                 dirx<-dirx*(-1)
+                 diry<-diry*(-1)
+                 rx<-dirx
+              endif
+              cmd(PATHs+"pong_golpe.wav </dev/null >/dev/null 2>&1 &")
+       
+            elseif between(bx (px+1) (px+11))
+              diry<-diry*(-1)
+              if bx=(px+5) or bx=(px+6) 
+                 rx<-dirx
+              else
+                 rx<-0
+              endif
+              cmd(PATHs+"pong_golpe.wav </dev/null >/dev/null 2>&1 &")
+            endif
+         endif
+
+ 
+       endif
+
+       room sector
+          if cta_golpe=60 
+            vel_barra<-vel_barra-40
+            cmd(PATHs+"pong_alerta2.wav </dev/null >/dev/null 2>&1 &")
+            ret_bola<-0
+            not sector
+            not sector_b
+          endif  
+       rend
+
+       room sector_b
+          if cta_golpe=120 
+            vel_barra<-vel_barra-20
+            cmd(PATHs+"pong_alerta2.wav </dev/null >/dev/null 2>&1 &")
+            ret_bola<-0
+            not sector_b
+          endif  
+       rend
+       
+
+         if bx>=65 
+            dirx<-(-1)  // si es 60, viene desde la izquierda
+            bx<-65
+            if rx>0 
+               rx<-dirx
+            endif
+            cmd(PATHs+"pong_rebote.wav </dev/null >/dev/null 2>&1 &")
+         elseif bx<=1 
+            dirx<-1
+            bx<-1
+            if rx<0 
+               rx<-dirx
+            endif
+            cmd(PATHs+"pong_rebote.wav </dev/null >/dev/null 2>&1 &")
+         endif
+
+         if by<=1  // debe perder
+            diry<-diry*(-1)
+         endif
+
+       
+       bx<-bx+dirx+rx
+       by<-by+diry
+       .pone_bola bx by
+
+       if .EsElFinal 
+         cls
+         .pone_base
+         .configura_ladrillos
+         .pone_ladrillos
+         cmd(PATHs+"pong_exito.wav </dev/null >/dev/null 2>&1 &")
+         cta_golpe<-0
+         px<-30
+         {bx,by}<-{35,27}
+         diry<-(-1)
+         dirx<-1
+         rx<-0
+         ret_heroe<-0
+         ret_bola<-0
+         .listo
+       endif
+     endif
+
+     if by>=28 
+       .desaparece_barra  px
+        px<-30
+        {bx,by}<-{35,27}
+        diry<-(-1)
+        dirx<-1
+        rx<-0
+        --vidas
+        //break, if vidas=0 
+        brkz vidas
+        .pone_puntos
+       .listo
+        ret_heroe<-0
+        ret_bola<-0
+     endif
+
+     if ret_heroe=1500    // 60
+       readkey(c)
+       if c=19 
+          ddx<-(-1)
+       elseif c=4 
+          ddx<-1
+       elseif c=24 or c=5 or c=97 
+          ddx<-0      // detiene la barra
+       elseif c=112    
+          pause
+       elseif c=27 
+          not ciclo 
+       endif
+       ret_heroe<-0
+
+       px<-px+ddx
+
+       if px<1 
+          px<-1
+       elseif px>55 
+          px<-55
+       endif
+       .pone_barra px 
+     endif
+
+
+     ++ret_heroe
+     ++ret_bola
+
+   wend
+
+   pause
+   cls
+   at (15 15)
+   write "\tEso es todo amigo!\n\n\n"
+
+   cursor(1)
+
+stop
