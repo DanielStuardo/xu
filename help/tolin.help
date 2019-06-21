@@ -131,10 +131,10 @@ Modo de uso:
    -rad            obliga a las funciones trigonométricas aceptar argumentos en radianes.
                      
  [-] 'script'      script de comandos que procesarán el archivo.
-                   Use el guión '-' antes de 'script' si este viene a continuación del parámetro '-F'.
+                   Use el guión '-' antes de 'script' si este viene a continuación del parámetro '-M'.
                    Ejemplo:
-                    tolin -F *.txt - 'VOID at{"base"}?#;' -rad  /* '-' necesario */
-                    tolin -F *.txt -rad 'VOID at{"base"}?#;'    /* '-' no necesario */
+                    tolin -M *.txt - 'VOID at{"base"}?#;' -rad  /* '-' necesario */
+                    tolin -M *.txt -rad 'VOID at{"base"}?#;'    /* '-' no necesario */
                    
       strings      Los strings en Tolin son encerrados entre comillas (", o ASCII 34 - ch(34)).
                    Ejemplo:
@@ -173,11 +173,11 @@ Modo de uso:
              datos, el archivo de salida del BUFFER será:
                      20191201_130435.buffer
              Si usa la opción RESET, el BUFFER será guardado de manera diferente (ver RESET más adelante).
-           * La opción '-f' es INCOMPATIBLE con '-F'.
-           * La opción '-c' es INCOMPATIBLE con '-fF'.
+           * La opción '-f' es INCOMPATIBLE con '-M'.
+           * La opción '-c' es INCOMPATIBLE con '-fM'.
            * La opción '-s' es INCOMPATIBLE con las dos anteriores.
            * Las opciones '-nss|-nsw' son INCOMPATIBLES con '-ss|-sw'.
-           * Tolin no admite pipeline como datos de entrada. Debe usar '-fF', o '-c'.
+           * Tolin no admite pipeline como datos de entrada. Debe usar '-fM', o '-c'.
            * Por defecto, Tolin lee archivos UTF8 y US-ASCII, y no hace conversión de codepage.
              Sin embargo, hace un esfuerzo. Intente probar "UTF8()" y "ANSI()" en su salida.
 
@@ -210,7 +210,7 @@ Modo de uso:
         5) Para procesar un grupo de archivos. La salida será única, así como los datos almacenados en
            el BUFFER con COPY, si no usa RESET:
 
-                     tolin -F datos/*.csv 'VOID match{"CTAAGH"}?{I,{"  :  ",#}};'
+                     tolin -M datos/*.csv 'VOID match{"CTAAGH"}?{I,{"  :  ",#}};'
 
            Buscará exactamente 'CTAAGH'; si lo encuentra, despliega la línea con el número de línea.
            Si no lo encuentra, no hace nada (eso quiere decir que no se use ':' en '?').
