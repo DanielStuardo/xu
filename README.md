@@ -9,7 +9,7 @@ Hay, y pueden haber tantas versiones multiplataformas de XU como los haya de Har
 
 XU Tiene su propio editor de textos, llamado LAICA, y está escrito casi enteramente en Harbour 3.0. Este edita tanto archivos XU y DEF (los archivos de definiciones de XU), como de cualquier lenguaje. Posee capacidad de highlight de palabras reservadas, y es capaz de compilar y ejecutar los programas editados desde el mismo editor. Si vas a editar otros programas (c, python, perl, java, PDFLatex, etc, etc, etc), puedes configurar los detalles del highlight y las líneas de compilación y/o ejecución en el archivo LAICA.COMPILER. Al respecto, el mismo archivo tiene ejemplos documentados.
 
-ED4XU, además, puede hacer edición de archivos binarios, activando automaticamente el módulo de edición hexadecimal cuando detecta un archivo de esa clase (si el archivo tiene caracteres ASCII con denominación menor a 32, es binario para ED4XU).
+LAICA, además, puede hacer edición de archivos binarios, activando automaticamente el módulo de edición hexadecimal cuando detecta un archivo de esa clase (si el archivo tiene caracteres ASCII con denominación menor a 32, es binario para LAICA).
 Para más detalles, consulte la ayuda incorporada.
 
 Siguiendo con LAICA, este posee un potente lenguaje de programación de macros incorporado, que extiende las capacidades de edición de texto del editor. Para acceder a dicho lenguaje, presionar CTRL-OL o ALT-L.
