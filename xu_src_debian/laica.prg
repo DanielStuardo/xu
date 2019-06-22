@@ -3171,7 +3171,7 @@ while SW_EDIT
           ////TMPARCHIVO:=substr(ARCHIVO,rat(_fileSeparator,ARCHIVO)+1,len(ARCHIVO))
           if SWSOURCE
              EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
-             if EXT=="xu" .or. EXT=="def"
+             if EXT=="xu" .or. EXT=="def" .or. EXT=="m"
                 TMPARCHIVO:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))
              else
                 TMPARCHIVO:=ARCHIVO
@@ -3231,7 +3231,8 @@ while SW_EDIT
                 setcursor(1)
                 loop
              else
-                TMPARCHIVO:=substr(TMPARCHIVO,rat("/",TMPARCHIVO)+1,len(TMPARCHIVO))
+                ///TMPARCHIVO:=substr(TMPARCHIVO,rat("/",TMPARCHIVO)+1,len(TMPARCHIVO))
+                /// debe usar el path completo si es otra cosa que Matlab
                 EJECUTA:=strtran(EJECUTOR,"%name%",TMPARCHIVO)
                 
                 EJECUTA1:=strtran(COMPILADOR,"%name%",TMPARCHIVO)
