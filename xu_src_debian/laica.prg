@@ -157,6 +157,8 @@ if tmp!=0
    SWGRMODE:=.F.
 end
 
+SETMODE(30,110)
+
 PATH_XU:=_Carga_Configuracion()
 
 
