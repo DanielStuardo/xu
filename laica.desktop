@@ -1,0 +1,27 @@
+[Desktop Entry]
+Version=1.0
+Name=Laica TextEditor (Terminal)
+GenericName=Text Editor
+Comment=Laica is an modest text editor - and more
+MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;text/x-xu;text/x-prg;text/x-def
+Type=Application
+TryExec=/usr/bin/laica
+Exec=/usr/bin/laica %F
+Terminal=true
+Icon=
+Comment=Editor de código Laica
+NoDisplay=false
+Categories=Utility;Development;TextEditor;
+Actions=new-window;new-document;
+Keywords=Text;Editor;Plaintext;Write;
+X-Ubuntu-Gettext-Domain=laica
+
+X-AppStream-Ignore=true
+
+[Desktop Action new-window]
+Name=New Window
+Exec=laica --new-window
+
+[Desktop Action new-document]
+Name=New Document
+Exec=laica --new-document
