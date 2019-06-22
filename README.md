@@ -7,7 +7,7 @@ XU es una máquina virtual escrita para realizar procesos en modo consola de com
 
 Hay, y pueden haber tantas versiones multiplataformas de XU como los haya de Harbour.
 
-XU Tiene su propio editor de textos, llamado LAICA, y está escrito casi enteramente en Harbour 3.0. Este edita tanto archivos XU y DEF (los archivos de definiciones de XU), como de cualquier lenguaje. Posee capacidad de highlight de palabras reservadas, y es capaz de compilar y ejecutar los programas editados desde el mismo editor. Si vas a editar otros programas (c, python, perl, java, PDFLatex, etc, etc, etc), puedes configurar los detalles del highlight y las líneas de compilación y/o ejecución en el archivo LAICA.COMPILER. Al respecto, el mismo archivo tiene ejemplos documentados.
+XU tiene su propio editor de textos, llamado LAICA, y está escrito casi enteramente en Harbour 3.0. Este edita tanto archivos XU y DEF (los archivos de definiciones de XU), como de cualquier lenguaje. Posee capacidad de highlight de palabras reservadas, y es capaz de compilar y ejecutar los programas editados desde el mismo editor. Si vas a editar otros programas (c, python, perl, java, PDFLatex, etc, etc, etc), puedes configurar los detalles del highlight y las líneas de compilación y/o ejecución en el archivo LAICA.COMPILER. Al respecto, el mismo archivo tiene ejemplos documentados.
 
 LAICA, además, puede hacer edición de archivos binarios, activando automaticamente el módulo de edición hexadecimal cuando detecta un archivo de esa clase (si el archivo tiene caracteres ASCII con denominación menor a 32, es binario para LAICA).
 Para más detalles, consulte la ayuda incorporada.
@@ -16,11 +16,13 @@ Siguiendo con LAICA, este posee un potente lenguaje de programación de macros i
 Este lenguaje posee todas las funcionalidades de las funciones de procesamiento de texto de XU, más otras añadidas especialmente para el modo de edición de texto. El editor de expresiones de macros tiene la capacidad de guardar y cargar listas de expresiones, y está hecho enteramente en Harbour 3.0. Es rápido, pero en una versión posterior será reemplazado por una versión en ANSI C incrustado en #pragma de Harbour, que lo convertirá en un lenguaje aún más rápido.
 Su funcionamiento es semejante a AWK, dado que procesa individualmente cada línea del texto almacenado en un BUFFER de copia, o del texto marcado con CTRL-K4, reemplazando las fuentes de datos a voluntad.
 
-Para trabajar con ambos programas, debes crear una variable de entorno llamada PATH_XU, con el path o ruta donde copiaste el sistema. Dicha variable puede ser seteada en .profile, por ejemplo, para que quede disponible cada vez que se inicie el sistema operativo. También puedes copiar los binarios en /usr/bin, por ejemplo, para que queden disponibles desde cualquier parte. La variable PATH_XU hace que los programas fuentes y binarios, además de los archivos de definiciones, puedan ser accedidos con una línea como esta:
+Para trabajar con ambos programas, debes crear una variable de entorno llamada PATH_XU, con el path o ruta donde copiaste el sistema. Dicha variable puede ser seteada en .profile, por ejemplo, para que quede disponible cada vez que se inicie el sistema operativo. También puedes copiar los binarios en '/usr/bin', por ejemplo, para que queden disponibles desde cualquier parte. La variable PATH_XU hace que los programas fuentes y binarios, además de los archivos de definiciones, puedan ser accedidos con una línea como esta:
 
       laica prueba.xu                ---> para editar un archivo XU
       xuc prueba.xu -x -m -v -p      ---> para compilar un archivo XU
       xu prueba                      ---> para ejecutar un archivo xu-code (binario) XU
+
+Para incluir el editor de textos en el escritorio de GNOME de Ubuntu (probado en 18.04), copie el archivo LAICA.DESKTOP en el directorio '/usr/share/applications', y copie el archivo LAICA.PNG, su ícono, en el directorio 'usr/bin'.
 
 La ayuda del editor y del lenguaje se accede desde el editor mismo, con ^OO y ^OX.
 
