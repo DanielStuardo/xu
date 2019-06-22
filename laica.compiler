@@ -61,13 +61,13 @@ xu=e,xuc %name%.xu -s -l -wret -sys,<none>, XU - Librería (.lib),//
 def=ne,<none>,<none>, XU - header.,//
 
 ; compilador y ejecucion de programa ANSI C simple
-c=e,gcc %name%.c -o %name%, ./%name% %params%, GCC - Ejecutable,//
+c=e,gcc %name%.c -o %name%, %name% %params%, GCC - Ejecutable,//
 c=e,gcc %name%.c -o %name%, valgrind %name% %params%, GCC - Valgrind,//
 c=e,gcc %name%.c -o %name%, valgrind --leak-check=full %name% %params%, GCC - Valgrind Mem Leaks,//
 h=ne,<none>,<none>, GCC - Header.,//
 
 ; compilador C++
-cpp=e,g++ %name%.cpp -o %name%, ./%name% %params%, C++ - Ejecutable,//
+cpp=e,g++ %name%.cpp -o %name%, %name% %params%, C++ - Ejecutable,//
 h=ne,<none>,<none>, C++ - Header.,//
 
 ; ***** AGREGUE SUS LINEAS DE COMPILACION DESDE AQUI *****
