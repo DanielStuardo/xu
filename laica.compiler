@@ -54,20 +54,22 @@ ctrl_lz=10
 
 xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, xu -s %name% %params%, XU - Ejecutable FUENTE,//
 xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, <none>, XU - Compilación FUENTE,//
-xu=e,xuc %name%.xu -x -m -v -wret -p -sys, xu %name% %params%, XU - Ejecutable,//
-xu=e,xuc %name%.xu -x -m -v -wret -p -sys, <none>, XU - Compilación,//
+xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, xu %path%%name% %params%, XU - Ejecutable con path,//
+xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, <none>, XU - Compilación con path,//
 xu=e,xuc %name%.xu -s -m -v -wret -sys,<none>, XU - Información de debugueo de programa,//
 xu=e,xuc %name%.xu -s -l -wret -sys,<none>, XU - Librería (.lib),//
 def=ne,<none>,<none>, XU - header.,//
 
 ; compilador y ejecucion de programa ANSI C simple
-c=e,gcc %name%.c -o %name%, %name% %params%, GCC - Ejecutable,//
-c=e,gcc %name%.c -o %name%, valgrind %name% %params%, GCC - Valgrind,//
-c=e,gcc %name%.c -o %name%, valgrind --leak-check=full %name% %params%, GCC - Valgrind Mem Leaks,//
+c=e,gcc %path%%name%.c -o %path%%name%, %path%./%name% %params%, GCC - Ejecutable con path,//
+c=e,gcc %name%.c -o %name%, ./%name% %params%, GCC - Ejecutable,//
+c=e,gcc %path%%name%.c -o %path%%name%, valgrind %path%./%name% %params%, GCC - Valgrind,//
+c=e,gcc %path%%name%.c -o %path%%name%, valgrind --leak-check=full %path%./%name% %params%, GCC - Valgrind Mem Leaks,//
 h=ne,<none>,<none>, GCC - Header.,//
 
 ; compilador C++
-cpp=e,g++ %name%.cpp -o %name%, %name% %params%, C++ - Ejecutable,//
+cpp=e,g++ %path%%name%.cpp -o %path%%name%, %path%./%name% %params%, C++ - Ejecutable con path,//
+cpp=e,g++ %name%.cpp -o %name%, ./%name% %params%, C++ - Ejecutable,//
 h=ne,<none>,<none>, C++ - Header.,//
 
 ; ***** AGREGUE SUS LINEAS DE COMPILACION DESDE AQUI *****
@@ -77,9 +79,9 @@ h=ne,<none>,<none>, C++ - Header.,//
 ; Matlab. Es complejo. hay que setearlo con cuidado y depende de donde esta instalado, y de la
 ; version del lenguaje. En este caso, se puede usar un batch que ejecute, por todas las variables
 ; de entorno que esta hueá usa. Es un cacho. Mejor use "C" y librerías Blas y Openmp.
-m=ne,matlab -nodisplay -r "%name%(); quit",<none>,MATLAB - Env Var,%
+m=ne,matlab -nodisplay -r "%name%(); quit",<none>,MATLAB - Script,%
+m=ne,matlab -nodisplay -r "%path%%name%.m",<none>,MATLAB - Script con path,%
 m=ne,matlab -nodisplay -r "%name%(%params%); quit",<none>,MATLAB - Params,%
-m=ne,matlab -nodisplay -r "%name%(); quit",<none>,MATLAB - Script simple,%
 
 ;
 ; HARBOUR
@@ -93,16 +95,17 @@ prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR LINUX- ED4XU,//
 ch=ne,<none>,<none>, HARBOUR - header.,//
 
 ; Python
+py=ne,python3 %path%%name%.py %params%,<none>,PYTHON - script con path,#
 py=ne,python3 %name%.py %params%,<none>,PYTHON - script,#
 
 ; Bash Shell. Debe ser "e"-jecutable, para que los parámetros los meta en el "sh".
-sh=e,chmod 777 %name%.sh, sh %name%.sh %params%, BASH - script,#
+sh=e,chmod 777 %path%%name%.sh, sh %path%%name%.sh %params%, BASH - script,#
 
 ; latex
 ; para saber donde debe vivir o vive un paquete, digitar:
 ;    apt-cache search texlive paquete
-tex=e,pdflatex -file-line-error %name%.tex, evince %name%.pdf, LATEX - PDFLATEX LINUX,%
-tex=e,pdflatex -file-line-error %name%.tex, open %name%.pdf, LATEX - PDFLATEX MAC,%
+tex=e,pdflatex -file-line-error %path%%name%.tex, evince %path%%name%.pdf, LATEX - PDFLATEX LINUX,%
+tex=e,pdflatex -file-line-error %path%%name%.tex, open %path%%name%.pdf, LATEX - PDFLATEX MAC,%
 
 
 ; CSV
@@ -153,7 +156,7 @@ keywords=\
 colours=xu,def
 preprocs=#include,#use,#import,#define
 ;preprocs=?,:,~
-sections=vars:,functions:,algorithm:,stop
+sections=vars:,functions:,algorithm:,stop,goodbye
 keywords=for each,for,next,while,wend,begin:,endif,elseif
 keywords=else,try,exception,tend,loop,lend,until
 keywords=downto,step,inlist,and,or,xor,function
@@ -161,6 +164,7 @@ keywords=not,^number,number,^string,string,stack,^boolean,switch
 keywords=boolean,(ref),(*),void,gosub,sub,back,room,rend,exitif
 keywords=again,return,raise,if,true,do
 keywords=break,continue,eval,case,otherwise,evend,end,to,in,false
+keywords=brkz,brkif,brknz,brkgz,brkgez,brklz,brklez
 keywords=(,),{,},[,]
 ;keywords=($,(#,(^,(%,{,},(,),(int,(long,(double
 ;keywords=(BDx,(HDx,(ODx,(Hx,(Bx,(Ox,(BIT ,(XOR ,(OR ,(AND ,(<<,(>>,(ON ,(OFF ,(NOT
@@ -173,7 +177,7 @@ sections=main,return
 keywords=NULL,auto,break,case,char,const,continue,default,do,double,else,enum,extern,float,for
 keywords=goto,if,int,long,register,return,short,signed,sizeof,static,struct,switch,typedef,union,do
 keywords=unsigned,void,volatile,while,uint8_t,uint16_t,uint32_t,uint64_t
-keywords={,},(,),[,],int16_t,int32_t,int64_t
+keywords={,},(,),[,],int8_t,int16_t,int32_t,int64_t
 keywords=\
 
 colours=cpp,h
@@ -199,13 +203,13 @@ keywords=\
 
 colours=prg,ch
 preprocs=#define,#include,#ifdef,#ifndef,#undef,#error,#command,#xcommand,#stdout,#endif,#pragma
-preprocs=BEGINDUMP,ENDDUMP,HB_FUNC
+preprocs=BEGINDUMP,ENDDUMP,HB_FUNC,nil,NIL,.T.,.F.,.and.,.or.,!,.t.,.f.,.AND.,.OR.
 sections=function,procedure,return,FUNCTION,PROCEDURE,RETURN
 keywords=for,while,case,exit,loop,local,memvar,public,switch,otherwise
-keywords=elseif,else,end,if,static,nil,.T.,.F.,.and.,.or.,!
+keywords=elseif,else,end,if,static
 keywords=release,RELEASE,step,STEP
 keywords=FOR,WHILE,CASE,EXIT,LOOP,LOCAL,MEMVAR,PUBLIC,SWITCH,OTHERWISE
-keywords=ELSEIF,ELSE,END,IF,STATIC,NIL,.t.,.f.,.AND.,.OR.
+keywords=ELSEIF,ELSE,END,IF,STATIC
 keywords=to,quit,{,},(,),[,],?
 keywords=TO,QUIT
 keywords=\
