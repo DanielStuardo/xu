@@ -1,0 +1,141 @@
+#define sw1, 0
+#define sw2, 1
+#define sw3, 2
+//#use bit, date,string,math,trig,base,stack,set,matrix
+#use bit,string,base
+ vars:
+   {i, j, m} := number
+   w := string
+   p,q:=array of number
+  s:=array of string
+  x:=str.
+
+functions:
+   #insert bits.*
+   
+algorithm:
+ cls
+ dim p:2,5
+ dim q:2,5
+ p<-200
+ q<-7
+ show((AND p 5) 5)  // p & 5
+ show((OR p 5) 5)
+ show((XOR p 5) 5)
+ show((<<p 2) 5)
+ show((>>p 1) 5)
+ p<-(ON p 5)
+ write "\n","*"*20
+ show(p 5)
+ write "\n","*"*20
+ show((OFF p q) 5)
+ write "\n256 >> 2 = ",(>>256 2),"\n"
+ write "\nnot 126 = ",(NOT 126),"\n"
+ write "\nBIT.BIT:\n"
+ i<-0
+ while i<=8
+   show((BIT p i) 5); write "\n";  ++i
+ wend
+ p<-126
+ show((NOT p) 5)
+
+ p<-0
+ write {isall(p 0)?"\nTodo es cero\n":"\nNo todo es cero\n"}
+/* if isall(p 0) 
+   ."\nTodo es cero\n"
+ else
+   ."\nNo todo es cero\n"
+ endif
+*/
+ dim s:100,100
+// s<-(flag ".")"hola"
+ if isall(strlen(s) 0) 
+    ."\nTiene elementos vacíos\n"
+ else
+    ."\nTiene elementos no vacíos\n"
+ endif
+ [: s 13 98]<-"10"
+ if isany(strlen(s) 2) 
+    ."\nTiene elementos no vacíos\n"
+ else
+    ."\nTiene elementos vacíos\n"
+ endif
+
+
+ m<-1000       // mil...
+ j<-0
+ ."\nDesplazamiento de bits a la izquierda y a la derecha\n"
+
+ while (++j)<=10
+    write  m, " << ", 1, " = "
+    m<-(<<m 1)*2  //(bit.shl m 1)
+    write m, "\n"
+    write m, " >> ", 2, "=", (>>m 2)/*(bit.shr m 2)*/, "\n"
+ wend
+
+ ."\nEl número: 255, bit nº 7:"
+ ."\n\tEncendido bit posición 7 = ", (ON 255 7)
+ ."\n\tApagado bit posición 7   = ", (OFF 255 7)
+
+ j<-255
+ i<-7
+ j<-(AND j i)  // (and j i) 
+ if (BIT j 7)=1
+    ."\n\nbit 7 de",j," está apagado...\n"
+ elseif (BIT j 7)=0    // (bit j 7)
+    ."\nbit 7 está encendido\n"
+ endif
+
+ ."\n"
+
+ ."\n200 AND 5 = ", (AND 200 5) //(and 200 5)
+ ."\n200 OR 5  = ", (OR 200 5)  // (or 200 5)
+ ."\nNOT 200   = ", (NOT 200 )  // (not 200)
+ ."\n200 XOR 126 = ", (XOR 200 126) // (xor 200 126)
+
+ i<-0
+ j<-255 
+ ."\nNúmero ",j," en binario = ",(Bxj),"\n"
+ if (BIT j 3)=1
+    ."bit 3 encendido\n"
+ endif
+ while i<=16
+    ."el bit ",i," está ",{(BIT j i)=0?"apagado":"encendido"},"\n"
+    ++i
+ wend 
+
+ ."\nBIN 749:",(Bx749)," HEXA 749:",(Hx749)," OCTAL 749:",(Ox749),"\n"
+ ."\nDEC 45HCF:",(HDx"45HCF")," DEC 100101:",(BDx"100101")," DEC 25654:", (ODx"25654"),"\n"
+  write (Ox749)," Type:",type( (Ox749) ),"\n"
+   
+ m<-0
+ ."\n",m
+ .T(m sw1)  // pone el bit 0 en on 
+ ."\n",m
+ .T(m sw2)  // pone el bit 1 en on
+ ."\n",m,", SW2= ",.BIT(m sw2),", BASEBIN= ",(Bxm)  
+
+ if .IS(m sw2)
+    ."\n SW2 es true\n"
+ endif
+ write m,"...",.BIT(m sw3),.BIT(m 3 ),"\n"
+ if .IS(m sw3)
+    ."\n SW3 es true\n"
+ else
+    ."\n SW3 es false\n"
+ endif
+ x<-"hola!"-1
+ [.x 2]<-".";[.x 1]<-chr(asc( "Û"))
+ ."X=",x,"\n",chr(asc( "Û")),"...",asc("Û")
+ write "\nnumero a string: ",($ 245)
+ write "\nstring a numero: ",(# "155")+10,"\n"*2
+ dim s:10
+ s<-"250"
+ p<-(#s)*2  // convierte la matriz string en numero (# )
+ write p,"\n"
+STOP
+
+/*
+   decir [.[@ aray] 2] es igual a size(m)[2]. qué lenguaje soporta eso?
+*/
+
