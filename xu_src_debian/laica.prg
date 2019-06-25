@@ -3062,11 +3062,35 @@ while SW_EDIT
            SETCOLOR(N2COLOR(cTEXTO))
            
        elseif c==67 //.or. c==3   // CTRL-PC   recarga el archivo de configuración
+           
+           TMPcMAPACOLORES:=cMAPACOLORES
+           
            PATH_XU:=_Carga_Configuracion()
            CARGA_COMPILADORES(PATH_XU,_fileSeparator)
            EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
-
+              
            CARGACOLORESTEXTO(PATH_XU,_fileSeparator,EXT)
+           for i:=1 to len(cCOLORES)
+            //  ? TMPcMAPACOLORES,",",cCOLORES[i][1]
+              if TMPcMAPACOLORES==cCOLORES[i][1]
+             //    ? "MATCH!!"; inkey(0)
+                 cMAPACOLORES:=cCOLORES[i][1]
+                 cLENMAPACOLORES:=LEN(cMAPACOLORES)
+                 cHELP:=cCOLORES[i][2]
+                 cTEXT:=cCOLORES[i][3]
+                 cEDITOR:=cTEXT
+                 cCADENA:=cCOLORES[i][5]
+                 cMENU:=cCOLORES[i][6]
+                 cBARRA:=cMENU
+                 cCURSORMOD:=cCOLORES[i][8]
+                 cSECCION:=cCOLORES[i][9]
+                 cKEYWORD:=cCOLORES[i][10]
+                 cEDITDEF:=cCOLORES[i][11]
+                 cEDITCOM:=cCOLORES[i][12]
+                 cDESTACADO:=cCOLORES[i][13]
+                 cSELECT:=cCOLORES[i][14]
+              end
+           end
            tTEXTO:=cTEXTO
            BarraTitulo(ARCHIVO)
            exit
@@ -3169,23 +3193,26 @@ while SW_EDIT
              loop
           end
           ////TMPARCHIVO:=substr(ARCHIVO,rat(_fileSeparator,ARCHIVO)+1,len(ARCHIVO))
-          if SWSOURCE
-             EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
-             if EXT=="xu" .or. EXT=="def" .or. EXT=="m"
+          EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))   // obtiene extension
+          TMPPATH:=substr(ARCHIVO,1,rat("/",ARCHIVO))  // obtiene path
+          TMPARCHIVO:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))  // obtiene nombre de archivo puro
+          TMPARCHIVO:=substr(TMPARCHIVO,1,at(".",TMPARCHIVO)-1)  // quita la extensión
+     /*     if SWSOURCE
+             if EXT=="xu" .or. EXT=="def" 
                 TMPARCHIVO:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))
              else
                 TMPARCHIVO:=ARCHIVO
              end
-          else
+          else   // lee desde carpeta SOURCE de XU
              TMPARCHIVO:=ARCHIVO
           end
-          TMPARCHIVO:=substr(TMPARCHIVO,1,at(".",TMPARCHIVO)-1)
+          TMPARCHIVO:=substr(TMPARCHIVO,1,at(".",TMPARCHIVO)-1) */
           if ESEJECUTABLE  // es un ejecutable "e"
              SWNOEXE:=.F.
           else
              SWNOEXE:=.T.   // es otra un script "ne"
           end
-        
+        // analiza el tipo de lenguje que ejecutará
           IF SWLENGUAJE==1   // ESTA EN XU!!
 
              if COMPILADOR=="<none>" .and. EJECUTOR=="<none>"
@@ -3197,9 +3224,10 @@ while SW_EDIT
                 setcursor(1)
                 loop
              else
-                
                 EJECUTA:=strtran(EJECUTOR,"%name%",TMPARCHIVO)
+                EJECUTA:=strtran(EJECUTA,"%path%",TMPPATH)
                 EJECUTA1:=strtran(COMPILADOR,"%name%",TMPARCHIVO)
+                EJECUTA1:=strtran(EJECUTA1,"%path%",TMPPATH)
                 // rescatar parámetros y variables de entorno
                 cTMP:=RESCATOPARAM(PARAMETROS)
                 EJECUTA:=strtran(EJECUTA,"%params%",cTMP[1])
@@ -3234,9 +3262,9 @@ while SW_EDIT
                 ///TMPARCHIVO:=substr(TMPARCHIVO,rat("/",TMPARCHIVO)+1,len(TMPARCHIVO))
                 /// debe usar el path completo si es otra cosa que Matlab
                 EJECUTA:=strtran(EJECUTOR,"%name%",TMPARCHIVO)
-                
+                EJECUTA:=strtran(EJECUTA,"%path%",TMPPATH)
                 EJECUTA1:=strtran(COMPILADOR,"%name%",TMPARCHIVO)
-                
+                EJECUTA1:=strtran(EJECUTA1,"%path%",TMPPATH)
                 cTMP:=RESCATOPARAM(PARAMETROS)
                 
                 if ESEJECUTABLE
