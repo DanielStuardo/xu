@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=Xu ejecutable (Terminal)
+GenericName=Xu VM
+Comment=Xu is an modest virtual machine - and more
+Type=Application
+TryExec=/usr/bin/xu
+Exec=/usr/bin/xu %F
+Terminal=true
+Icon=/usr/bin/laica.png
+Comment=Maquina Virtual XU
+NoDisplay=false
+Categories=Utility;Development;
+
