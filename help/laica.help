@@ -632,6 +632,8 @@ CTRL-N      MENU de búsqueda y reemplazo de texto.
    CTRL-V   Habilita/inhabilita el modo de inserción (local).
 
    CTRL-T   Borra la palabra ubicada hacia la derecha.
+   
+   CTRL-P   Pega el contenido del BUFFER.
 
    RETURN   Inserta una línea.
 
@@ -654,6 +656,10 @@ CTRL-N      MENU de búsqueda y reemplazo de texto.
             especiales. Ejemplo:
               Si quieres buscar "ETAPA  ", debes escribir:
               ETAPA#32;#32;
+            
+ T          Busca la palabra donde está el cursor. La palabra (o número 
+            entero/decimal positivo), puede ser una variable que incluya
+            "_" y ".".
             
  Q          Limpia el BUFFER de posiciones. Es necesario si desea usar
             CTRL-JJ, porque esta rutina se vale de esa opción.
@@ -946,19 +952,38 @@ $$BEGIN Introduccion a las macros LAICA - OPE
             
    Detalles del editor de expresiones:
    
-         1) No permite escribir directamente las vocales tildadas (á, é,
-            etc), pero no se preocupe: al ejecutar el comando, LAICA podrá
-            interpretar correctamente la hueá que sea que haya puesto en
-            su lugar. Tampoco me preocupo mucho por eso, porque un buen
-            informático, uno que se precie de tal, por default escribe 
-            como el 3.14+cobalto.
+         1) Los siguientes símbolos deben ser escritos con las siguientes
+            secuencias de escape:
+            á..ú : \'a, .., \'u
+            ä..ü : \:a, .., \:u
+            â..û : \^a, .., \^u
+            ñ    : \~n
+            Ñ    : \~N    (eñe mayúscula)
+            ¡    : \!     (inicio exclamación)
+            ¿    : \?     (inicio interrogación)
+            º    : \oo
+            ª    : \aa
+            »    : \>>
+            «    : \<<
+            ½    : \'0.5
+            ¼    : \'0.25
+            ¬    : \not
+            ±    : \+-
+            ≥    : \>=
+            ≤    : \<=
+            ÷    : \:
+            ≈    : \~~
+                  ⁿ      : \^n
+            ²    : \^2
+            Para todos los demás símbolos, use la función CH(NUM-ASCII).
+            
          2) Para añadir un símbolo comilla ("), dentro de un string, debe
             usar el caracter de escape (\) antes de la comilla. Ejemplo:
                "funcion(\"x\")"
             el string considerado será: "funcion("x")".
-   
+            
    Comandos de edición:
-   
+            
    CTRL-W   Finaliza la edición. 
             * Si la entrada está en blanco, finaliza sin hacer nada.
             * Si encuentra una operación, o algo, intenta ejecutarla.
@@ -1007,6 +1032,7 @@ $$BEGIN Introduccion a las macros LAICA - OPE
                (I%2)?{I," es par"}:{I," es impar"}; 
             dado que "?" espera un "0" como valor verdadero, y un número
             distinto de "0" como valor falso.
+            Lo mismo sucede con string vacíos "".
 
          *) Si se compara un número con un string, el número será convertido
             a string.

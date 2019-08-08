@@ -161,7 +161,7 @@ Modo de uso:
                    
                    EXCEPCIONES: el comando CLEAR, en Tolin, limpia el BUFFER. Además, los comandos SAVE y LOAD
                    no tienen uso con Tolin, y el comando FILE, que devuelve el nombre del archivo procesado,
-                   no existe en Edit4XU.
+                   no existe en Laica.
 
   OBSERVACIONES.
 
