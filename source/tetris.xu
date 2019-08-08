@@ -1,0 +1,1511 @@
+/*
+  TETRIS
+  
+  Idea original copyright de Alekséi Leonídovich Pázhitnov
+  Autor: Dr. Dalien.
+*/
+
+#use matrix,math,string
+
+#define RET_FONDO    50000
+///#define RET_BAJADA   25000
+#define TOPE_BASE    32
+#define TOPE_MAX_VEL 10     // 10 cada N líneas sube un nivel
+#define LEVEL_CLEAR  5     // 15 cada M niveles aparece dancer
+///#define LIMITE_VEL   18000
+///#define AUMENTO_VEL  1200  // 1200*15 = 18000=limite de velocidad restada = 7000 baja rápido!!
+#define TOTAL_NIVELES 15
+#define TIME_LAPSE   45000
+
+/* Area de funciones*/
+functions:
+
+KILLSOUND:=function:void
+  PID,WPID,wtemp:=string
+  i:=number
+begin:
+  
+  PID<-fcmd("pidof "+cPLAY)
+  if strlen(strtrim((flag "A") PID))>0
+     cmd("kill "+PID+ " </dev/null >/dev/null 2>&1")
+  endif
+end
+
+pone_mensaje(msg:string,linea:number,columna:number):void
+  k:=number
+begin:
+   cursor(1)
+   color(15)
+   for k<-1 to strlen(msg)
+     at(linea (columna+k)); write strcpy(msg k 1)
+     millisec(11)
+   next
+   cursor(0)
+end
+
+BAJA_CORTINA(fila:number,columna:number,tiempo:number):void
+  altura:=number
+begin:
+  altura<-(fila+7)-(fila-2)
+
+  for i<-altura downto 1
+     color(68)
+     api ("box="+($(fila-2))+","+($(columna-4))+","+($(fila+7-i))+","+($(columna+14))+","+chr(219))
+   
+     color(124)
+     at( ((fila+7)-i) (columna-4) ); write "█▀█▀█▀█▀█▀█▀█▀█▀█▀█"
+     color(7)
+     at( ((fila+8)-i) (columna-4) ); write "███████████████████"
+     millisec(tiempo)
+  next
+end
+
+BAILA_COSACO(tipo:number,tiempo:number,fila:number,columna:number):void
+  i,j,altura:=number
+begin:
+
+color(68)
+api ("box="+($(fila-2))+","+($(columna-4))+","+($(fila+7))+","+($(columna+14))+","+chr(219))
+
+// sube cortina
+altura<-(fila+7)-(fila-2)
+//color(124)
+for i<-1 to altura
+   at(fila columna);    color(113) ; write   "    ###     "
+   at((fila+1) columna);color(121); write   " ___";color(112);."(v)";color(121);."___  "
+   at((fila+2) columna);color(124);  write   "    \╫/     "
+   at((fila+3) columna);color(124);  write   "    /^\     "
+   at((fila+4) columna);color(121) ; write   "     ║     "
+   at((fila+5) columna);color(120) ; write   "     ║     "
+   color(68)
+   api ("box="+($(fila-2))+","+($(columna-4))+","+($(fila+7-i))+","+($(columna+14))+","+chr(219))
+   
+   color(124)
+   at( ((fila+7)-i) (columna-4) ); write "█▀█▀█▀█▀█▀█▀█▀█▀█▀█"
+   color(7)
+   at( ((fila+8)-i) (columna-4) ); write "███████████████████"
+   
+   millisec(100)
+next
+
+at(fila columna);    color(113) ; write   "    ###     "
+at((fila+1) columna);color(121); write   " ___";color(112);."(\")";color(121);."___  "
+at((fila+2) columna);color(124);  write   "    \╫/     "
+at((fila+3) columna);color(124);  write   "    /^\     "
+at((fila+4) columna);color(121) ; write   "     ║     "
+at((fila+5) columna);color(120) ; write   "     ║     "
+
+sleep(1)
+for j<-1 to tiempo
+//for i<-1 to 3
+at(fila columna);    color(113) ;write   "    ###     "
+at((fila+1) columna);color(121); write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+2) columna);color(121); write   "  /_";color(124);."\╫/";color(121);."_\   "
+at((fila+3) columna);color(124); write   "    /^\     "
+at((fila+4) columna);color(121); write   "    / \    "
+at((fila+5) columna);color(120); write   "    \ /    " 
+millisec(100)
+
+at(fila columna);     write   "           "
+at((fila+1) columna); color(113); write   "    ###    "
+at((fila+2) columna); color(121); write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+3) columna); color(121); write   "   \\";color(124);."\╫/";color(121);."/   "
+at((fila+4) columna); color(121); write   "  __";color(124);."«^»";color(121);."__";color(120);."__ " 
+at((fila+5) columna); write   "  \        "
+millisec(300)
+
+at(fila columna);     color(113); write   "    ###       "
+at((fila+1) columna); color(121); write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+2) columna); color(121); write   "  /_";color(124);."\╫/";color(121);."_\   "
+at((fila+3) columna); color(124); write   "    /^\    " 
+at((fila+4) columna); color(121); write   "    / \    "
+at((fila+5) columna); color(120); write   "    \ /    "
+millisec(100)
+
+at(fila columna);     write "           "
+at((fila+1) columna); color(113); write   "    ###       "
+at((fila+2) columna); color(121); write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+3) columna); color(121); write   "  /_";color(124);."\╫/";color(121);."_\   "
+at((fila+4) columna); color(120); write   "__";color(121);."__";color(124);."«^»";color(121);."__ " 
+at((fila+5) columna); color(120);write   "        /   "
+millisec(300)
+
+at(fila columna);    color(113) ;write   "    ###     "
+at((fila+1) columna);color(121); write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+2) columna);color(121); write   "  /_";color(124);."\╫/";color(121);."_\   "
+at((fila+3) columna);color(124); write   "    /^\     "
+at((fila+4) columna);color(121); write   "    / \    "
+at((fila+5) columna);color(120); write   "    \ /    " 
+millisec(100)
+if tipo=0
+   if i=5
+      break
+   endif
+endif
+at(fila columna);     write   "           "
+at((fila+1) columna); color(113); write   "    ###    "
+at((fila+2) columna); color(121);write   "   _";color(112);."(\")";color(121);."_    "
+at((fila+3) columna); color(121); write   "  /_";color(124);."\╫/";color(121);."_\   "
+at((fila+4) columna); color(121); write   "  __";color(124);."«^»";color(121);."__";color(120);."__ " 
+at((fila+5) columna); write   "  \        "
+millisec(300)
+
+//next
+at(fila columna);     color(121); write   "  \\";color(113);." ### ";color(121);."/   "
+at((fila+1) columna); color(121);write   "   \\";color(112);."(^)";color(121);."/    " 
+at((fila+2) columna); color(124);write   "    \╫/     "
+at((fila+3) columna); write   "    /^\     "
+at((fila+4) columna); color(121);write   "    / \    "
+at((fila+5) columna); color(120);write   "   /   \   "
+millisec(400)
+next
+
+if tipo=9  // muestra extensión de baile
+   sleep(1)
+   at((fila+1) columna); color(121);write   "   \\";color(112);."(\")";color(121);."/    " 
+   millisec(500)
+   at((fila+1) columna); color(121);write   "   \\";color(112);."<()";color(121);."/    " 
+   millisec(300)
+   at((fila+1) columna); color(121);write   "   \\";color(112);."()>";color(121);."/    " 
+   millisec(300)
+   
+   at(fila columna);     color(113); write   "   ###";color(121);."\    "
+   at((fila+1) columna); color(121); write   "  _";color(112);."(",chr(236),")";color(121);."/    " 
+   at((fila+2) columna); color(121); write   " /_";color(124);."\╫/     "
+   at((fila+3) columna); write   "   /^\     "
+   at((fila+4) columna); color(121); write   "   | \     "
+   at((fila+5) columna); color(120); write   "   |  \    "
+   millisec(300)
+   at(fila columna);     color(118); write   "    =      "
+   at((fila+1) columna); color(121); write   "  _";color(112);."(",chr(236),")";color(121);."_";color(113);."  # " 
+   at((fila+2) columna); color(121); write   " /_";color(124);."\╫/";color(121);." \/";color(113);."# "
+   at((fila+3) columna); color(124); write   "   /^\     "
+   at((fila+4) columna); color(121); write   "   |  \    "
+   at((fila+5) columna); color(120); write   "   |  /    "
+   millisec(100)
+   at(fila columna);     color(118); write   "    =      "
+   at((fila+1) columna); color(121); write   "  _";color(112);."(",chr(236),")";color(121);."_    " 
+   at((fila+2) columna); color(121); write   " /_";color(124);."\╫/";color(121);." \   "
+   at((fila+3) columna); color(124); write   "   /^»";color(121);."__\\";color(113);."##"
+   at((fila+4) columna); color(121); write   "   |   ";color(120);."/   "
+   at((fila+5) columna); color(120); write   "   |       "
+   millisec(50)
+   at(fila columna);     color(118); write   "    =      "
+   at((fila+1) columna); color(121); write   "  _";color(112);."(",chr(236),")";color(121);."_    " 
+   at((fila+2) columna); color(121); write   " /_";color(124);."\╫/";color(121);." \__";color(113);."  ##"
+   at((fila+3) columna); color(124); write   "   /^»";color(121);."__     ";color(113);."#"
+   at((fila+4) columna); color(121); write   "   |    ";color(120);."\  "
+   at((fila+5) columna); color(120); write   "   |       "
+   millisec(100)
+   at(fila columna);     color(118); write   "    =      "
+   at((fila+1) columna); color(121); write   "  _";color(112);."(",chr(236),")";color(121);."      " 
+   at((fila+2) columna); color(121); write   "  |";color(124);."X";color(121);." /        "
+   at((fila+3) columna); color(121); write   "   \|";color(124);."»";color(121);."__      "
+   at((fila+4) columna); color(121); write   "   |    ";color(120);."\  "
+   at((fila+5) columna); color(120); write   "   |       "
+   millisec(100)
+  for i<-1 to 11
+
+   at(fila columna);     color(118); write   "     =      "
+   at((fila+1) columna); color(121); write   "   _";color(79);."(",chr(236),")";color(121);."_    " 
+   at((fila+2) columna); color(121); write   "    \\";color(124);."X";color(121);."/     "
+   at((fila+3) columna); color(124); write   "    «";color(121);."|";color(124);."»";color(121);."__   "
+   at((fila+4) columna); color(121); write   "   /    ";color(120);."/   "
+   at((fila+5) columna); color(120); write   "   \         "
+   millisec(60)
+  
+   at((fila-1) columna);     color(118); write   "      =      "
+   at((fila+0) columna); color(121); write   "    _";color(79);."(",chr(236),")";color(121);."_    " 
+   at((fila+1) columna); color(121); write   "     \\";color(124);."X";color(121);."/     "
+   at((fila+2) columna); color(121); write   "   __";color(124);."«";color(121);."|";color(124);."»";color(121);."__   "
+   at((fila+3) columna); color(120); write   "   \     /   "
+   at((fila+4) columna);             write   "            "
+   millisec(80)
+   at((fila-1) columna); color(121); write   "              "
+   at(fila columna);     color(118); write   "       =      "
+   at((fila+1) columna); color(121); write   "      ";color(79);."(",chr(236),")";color(121);."_    " 
+   at((fila+2) columna); color(121); write   "      \ ";color(124);."V";color(121);."|     "
+   at((fila+3) columna); color(120); write   "  __";color(121);."__";color(124);."«";color(121);."|/     "
+   at((fila+4) columna); color(121); write   "       |     "
+   at((fila+5) columna); color(120); write   "       |     "
+   millisec(200)
+
+   at(fila columna);     color(118); write   "     =      "
+   at((fila+1) columna); color(121); write   "   _";color(79);."(",chr(236),")";color(121);."_    " 
+   at((fila+2) columna); color(121); write   "    \\";color(124);."X";color(121);."/     "
+   at((fila+3) columna); color(121); write   "  __";color(124);."«";color(121);."|";color(124);."»     "
+   at((fila+4) columna); color(120); write   " /     ";color(121);."\    "
+   at((fila+5) columna); color(120); write   "       /    "
+   millisec(60)
+
+   at((fila-1) columna);     color(118); write   "    =      "
+   at((fila+0) columna); color(121); write   "  _";color(79);."(",chr(236),")";color(121);."_    " 
+   at((fila+1) columna); color(121); write   "   \\";color(124);."X";color(121);."/     "
+   at((fila+2) columna); color(121); write   " __";color(124);."«";color(121);."|";color(124);."»";color(121);."__   "
+   at((fila+3) columna); color(120); write   " \     /   "
+   at((fila+4) columna);             write   "            "
+   millisec(80)
+   at((fila-1) columna); color(121); write   "              "
+   at(fila columna);     color(118); write   "   =        "
+   at((fila+1) columna); color(121); write   " _";color(79);."(",chr(236),")";color(121);."      " 
+   at((fila+2) columna); color(121); write   " |";color(124);."V";color(121);." /       "
+   at((fila+3) columna); color(121); write   "  \|";color(124);."»";color(121);."__";color(120);."__   "
+   at((fila+4) columna); color(121); write   "   |         "
+   at((fila+5) columna); color(120); write   "   |         "
+   millisec(200)
+  next
+else
+
+at(fila columna);     color(113); write  "    ###     " // "           "
+at((fila+1) columna); color(121); write  "   _";color(112);."(\")";color(121);."_   "
+at((fila+2) columna); color(121);write  "  /_";color(124);."\╫/";color(121);."_\   " 
+at((fila+3) columna); color(124);write  "    /^\     "
+at((fila+4) columna); color(121); write  "    / \    "
+at((fila+5) columna); color(120);write  "    \ /    " 
+millisec(100)
+
+at(fila columna);     color(113); write  "    ###     "
+at((fila+1) columna); color(121); write  "   _";color(112);."(\")";color(121);."_   "
+at((fila+2) columna); color(121);write  "  /_";color(124);."\╫/";color(121);."_\   " 
+at((fila+3) columna); color(124);write  "    /^\     "
+at((fila+4) columna); color(121);write   "    | |     "
+at((fila+5) columna); color(120);write   "    | |     "
+millisec(100)
+
+at(fila columna);     color(113);write   "    ###";color(120);." /   "
+at((fila+1) columna); color(121);write   "   _";color(112);."(^)";color(121);."/    "
+at((fila+2) columna); color(121);write   "  /_";color(124);."\╫/     "
+at((fila+3) columna); write   "    /^\     "
+at((fila+4) columna); color(121) ; write   "     ║     "
+at((fila+5) columna); color(120) ; write   "     ║     "
+millisec(100)
+at(fila columna);     color(120); write   "  \\";color(113);." ### ";color(120);."/   "
+at((fila+1) columna); color(121);write   "   \\";color(112);."(^)";color(121);."/    " 
+at((fila+2) columna); color(124);write   "    \╫/     "
+at((fila+3) columna); write   "    /^\     "
+at((fila+4) columna); color(121) ; write   "     ║     "
+at((fila+5) columna); color(120) ; write   "     ║     "
+millisec(100)
+endif
+end
+
+
+titulo():void
+  colx,cx,c:=number
+begin:
+  precision 0
+  cls
+  video(33 77)
+
+  colx<-20
+  at(05 colx); color(12); ."██████   █████ ██████   ██   ██   ██"   
+  at(06 colx); color(14); ."  ██   ████      ██   ██  ██ ██ ██"
+  at(07 colx); color(15); ."  ██   ██        ██     ████ ██   ██"
+  at(08 colx); color(10); ."  ██     █████   ██   ██  ██ ██ ██"
+  cmd(PATH+"tetris_title_theme.wav </dev/null >/dev/null 2>&1 &")
+  sleep(1)
+  .pone_mensaje("D E S D E  R U S I A  C O N  D I V E R S I ó N !" 10 13)
+  sleep(1)
+  cx<-17
+  .pone_mensaje("TECLAS DE MOVIMIENTO:" 12 cx)
+  .pone_mensaje("    <Flecha-arriba> = gira hacia la izquierda" 14 cx)
+  .pone_mensaje("     <Flecha-abajo> = gira hacia la derecha" 15 cx)
+  .pone_mensaje("<Flechas-laterales> = desplazan pieza" 16 cx)
+  .pone_mensaje("<Barra-espaciadora> = acelera caída" 17 cx)
+  .pone_mensaje("            <Enter> = suelta la pieza" 18 cx)
+  .pone_mensaje(("AUMENTA NIVEL CADA "+($TOPE_MAX_VEL)+" LíNEAS, GANAS CON 15 NIVELES") 20 (cx-5))
+ // mono bailando
+  .BAILA_COSACO(0 5 24 33)
+  if sLevel=""
+     .BAJA_CORTINA(24 33 100)
+     color(79)
+     at(23 30); ."Modo de juego?"
+     
+     at(26 30);."1) Entrenamiento"
+     at(27 30);."2) Medio"
+     at(28 30);."3) Duro"
+     at(29 30)
+     while true
+        c<-0
+        readkey(c)
+        if c=49
+           sLevel<-"basic"
+           break
+        elseif c=50
+           sLevel<-"medium"
+           break
+        elseif c=51
+           sLevel<-"hard"
+           break
+        endif
+     wend
+  else
+     pause
+  endif
+  .KILLSOUND()
+  color(0)
+  cls
+end
+
+imprime_base(tipo:number):void
+  i,j:=number
+begin:
+color(14)
+for i<-1 to TOPE_BASE-1
+   for j<-1 to ancho  //40
+     if [.base i j]>0
+        at(i j); color({tipo=1 ? [.base i j]:6}); write "█"
+     endif
+   next
+next
+end
+
+pone_pieza(x:number(*),y:number(*),modo:number):boolean
+  i,j:=number
+  f,c:=number
+  ret:=boolean
+begin:
+   f<-[[@pieza] 2]
+   if [[@pieza] 1]>1
+      c<-[[@pieza] 3]
+   else
+      c<-1
+   endif
+
+   ret<-true
+   for i<-f downto 1
+     for j<-1 to c
+       if [.pieza i j]>0
+          if [.base (x+i) (y+j)]>0
+             --x
+             ret<-false
+             break
+          endif
+       endif
+     next
+     if ~ret
+       break
+     endif
+   next
+   if x>=0
+    
+   for i<-f downto 1
+     for j<-1 to c
+       if [.pieza i j]>0
+          at((x+i) (y+j)); color( modo ) ; write "█"
+         // color(12)
+          if ~ret
+             [.base (x+i) (y+j)] <- [.pieza i j]*colorSel
+          endif
+       endif
+     next
+   next
+   else
+      ret<-false
+   endif
+   return ret
+end
+
+verifica_lado(y:number,tipo:number):boolean
+  i,j:=number
+  f,c,cc:=number
+  ret:=boolean
+begin:
+  f<-[[@pieza] 2]
+  ret<-false
+  if tipo=0 
+     for i<-1 to f
+        // busco ultima pieza
+        c<-[[@pieza] 3]
+        for j<-c downto 1
+           if [.pieza i j]>0
+              c<-j
+              break
+           endif
+        next
+        if [.pieza i c]>0
+           if [.base (x+i) (y+c)]>0
+              ret<-true
+              break
+           endif
+        endif
+     next
+  else
+     for i<-1 to f
+        // busco primera pieza
+        cc<-1
+        for j<-1 to c
+           if [.pieza i j]>0
+              cc<-j
+              break
+           endif
+        next
+        if [.pieza i cc]>0
+           if [.base (x+i) (y+cc)]>0
+              ret<-true
+              break
+           endif
+        endif
+     next
+  endif
+  return ret
+end
+
+verifica_rotacion(piezaNueva:^number):boolean
+  i,j:=number
+//  ret:=boolean
+  f,c:=number
+begin:
+  f<-[[@piezaNueva] 2]
+  c<-[[@piezaNueva] 3]
+
+  for i<-1 to f
+     for j<-1 to c
+        if [.piezaNueva i j]>0
+           if [.base (x+i) (y+j)]>0
+              return false
+           endif
+        endif
+     next
+  next
+  return true
+end
+
+pone_basilica_san_basilio():void
+   colx:=number
+begin:
+  colx<-43
+  if ancho=32
+     colx<-35
+  elseif ancho=24
+     colx<-27
+  endif
+
+  color(15)
+  at(04 colx);write "           ."
+  at(05 colx);write "           T "
+  at(06 colx);write "          ( ) "
+  color(12)
+  at(07 colx);write "          <==> "
+  color(9)
+  at(08 colx);write "           FJ "
+  color(12)
+  at(09 colx);write "           == "
+  color(12)
+  at(10 colx);write "          J||F "
+  at(11 colx);write "          F||J "
+  color(10)
+  at(12 colx);write "         /\/\/\ "
+  at(13 colx);write "         F++++J "
+  color(13)
+  at(14 colx);write "        J";color(11);."{}{}{}";color(13);."F         ";color(4);.". "
+  color(13)
+  at(15 colx);write "     .  F";color(11);."{}{}{}";color(13);."J";color(4);."         T "
+  color(13)
+  at(16 colx);write "     T J";color(11);."{}{}{}{}";color(13);."F        ";color(4);.";; "
+  color(9)
+  at(17 colx);write "    /|\\";color(14);."F \/ \/ \J  .   ";color(4); .",;;;;. "
+  color(9)
+  at(18 colx);write "  .'/|\\\\:";color(14);."========F T ";color(4); ."./;;;;;;\ "
+  color(9)
+  at(19 colx);write " ///|||\\\\\\\\";color(2);."'''''''";color(13);."/ \I";color(4);."\;;;;;;/"
+  color(9)
+  at(20 colx);write " \\\\\\\|////";color(13);."..[]...xXXXx.";color(6);."|====| "
+  color(15)
+  at(21 colx);write " :.:.:.:.:";color(10);."||[]|";color(13);."/xXXXXXx\\";color(6);."||||| "
+  color(15)
+  at(22 colx);write " `;:;:;:;";color(10);."'=====";color(13);."\XXXXXXX/";color(6);."=====. "
+  color(4)
+  at(23 colx);write "\.|,|,|,| ( )( )| | | |.=..=.| "
+  at(24 colx);write "/(_)(_)(_) _  _ | | | |'-''-'| "
+  at(25 colx);write ":|\"\"\"\"\"\"\"|/ \/ \|=====|======| "
+  at(26 colx);write "|| ,. .. || || |/\/\/\/ | | || "
+  at(27 colx);write ".| || || ||-||-|/\/\/\+|+| | | "
+  at(28 colx);write "='======='============/\/\=====." 
+  at(29 colx);write "|__..,__|===========/||\|\====| "
+  at(30 colx);write "|,;:::::         |========|   | "
+  at(31 colx);write "::;::::::________|========|___|_"
+
+end
+
+prepara_contexto(tipo:number):void
+  colx:=number
+  sAncho:=string
+begin:
+  color(9)
+  if ancho=40
+     api ("box=0,2,32,75,"+chr(177)) //"D"
+     api ("vline=0,41,32,"+chr(177))
+     colx<-53
+    // api ("box=0,41,32,75,"+chr(177)) //"D"
+  elseif ancho=32
+     api ("box=0,2,32,67,"+chr(177)) //"D"
+     api ("vline=0,33,32,"+chr(177))
+     colx<-45
+  else
+     api ("box=0,2,32,60,"+chr(177)) //"D"
+     api ("vline=0,25,32,"+chr(177))
+     colx<-38
+  endif
+
+  if sLevel="basic"
+     color(10)
+     at(1 (colx+5)); ."▄▄   ▄   ▄ ▄  ▄"
+     at(2 (colx+5)); ."█▄▀ █▄█ ▀▄ ▄ █ "
+     at(3 (colx+5)); ."▀▄▀ ▀ ▀ ▀  ▀  ▀"
+  elseif sLevel="medium"
+     color(14)
+     at(1 (colx+5)); ." ▄ ▄  ▄ ▄▄ "
+     at(2 (colx+5)); ."█ █ █ ▄ █ █"
+     at(3 (colx+5)); ."▀ ▀ ▀ ▀ ▀▄▀"
+  elseif sLevel="hard"
+     color(12)
+     at(1 (colx+5)); ."▄ ▄  ▄   ▄  ▄▄ "
+     at(2 (colx+5)); ."█▄█ █▄█ ▀▄█ █ █"
+     at(3 (colx+5)); ."▀ ▀ ▀ ▀ ▀ ▀ ▀▄▀"
+  endif     
+  color(9)
+  api "box=5,"+($(colx+5))+",8,"+($(colx+22))+","+chr(177)  //+18
+  color(14)
+     
+  at(6 (colx+9)); ."HIGH SCORE"
+  at(7 (colx+7)); write strpad((flag "C ") ($high) 14)
+  
+  .pone_basilica_san_basilio()  
+  
+  color(9)
+  api "box=0,"+($(colx-12))+",7,"+($(colx-1))+","+chr(177)  //+18
+  color(15)
+  at(1 (colx-10)); ."N E X T"
+  
+  color(15)
+  api ("box=20,"+($(colx-1))+",23,"+($(colx+11))+","+chr(177))
+  at(21 colx);."   SCORE   "
+  at(22 colx);."           "
+//  at(22 51);."             "
+  
+  color(10)
+//  api "box=24,52,27,64,S"                    
+  api ("box=24,"+($(colx-1))+",27,"+($(colx+11))+","+chr(177))
+  at(25 colx);."   LINES   "
+  at(26 colx);."           "
+  
+  color(11)
+//  api "box=28,52,31,64,S"                    
+  api ("box=28,"+($(colx-1))+",31,"+($(colx+11))+","+chr(177))
+  at(29 colx);."   LEVEL   "
+  at(30 colx);."           "
+  if tipo=0  
+     dim base(TOPE_BASE,43)
+     use base            
+     mat.row(TOPE_BASE);mat.col(1)
+     mat.put(^[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
+  endif
+
+end                   
+                      
+elige_pieza(tipo:number):void
+  i:=number           
+begin:                
+  // elige pieza      
+  i<-mth.ceil(mth.rand(7))
+  if tipo=1  // elige la siguiente
+     use nextPieza; drop
+                      
+     numPieza<-i      
+     if i=1           
+        nextPieza<-^[[1,1,0,0], &
+                     [1,1,1,1], &
+                     [1,1,0,0] ]
+        nextColor<-13 
+/*     elseif i=2       
+        nextPieza<-^[[1,1,1,1,1,1], &
+                     [1,1,1,1,1,1], &
+                     [1,1,1,1,1,1]]
+        nextColor<-7 */
+     elseif i=2       
+        nextPieza<-^[[0,0,0,0,1,1], &
+                     [1,1,1,1,1,1] ]
+        nextColor<-6
+     elseif i=3
+        nextPieza<-^[[1,1,1,1], &
+                     [1,1,1,1]]
+        nextColor<-14
+     elseif i=4
+        nextPieza<-^[[1,1,0,0,0,0], &
+                     [1,1,1,1,1,1]]
+        nextColor<-1
+     elseif i=5
+        nextPieza<-^[[0,0,1,1,1,1], &
+                     [1,1,1,1,0,0]]
+        nextColor<-10
+     elseif i=6
+        nextPieza<-^[[1,1,1,1,0,0], &
+                     [0,0,1,1,1,1]]
+        nextColor<-12
+     else
+        nextPieza<-^[[1,1,1,1,1,1,1,1]]
+        nextColor<-11
+     endif
+  else
+     if numPieza>0
+        i<-numPieza
+     endif
+     use pieza1; drop
+     use pieza2; drop
+     use pieza3; drop
+     use pieza4; drop
+     use pieza;  drop
+     if i=1
+        pieza1<-^[[1,1,0,0], &
+                  [1,1,1,1], &
+                  [1,1,0,0] ]
+        pieza2<-^[[1,1,1,1,1,1], &
+                  [0,0,1,1,0,0] ]
+        pieza3<-^[[0,0,1,1], &
+                  [1,1,1,1], &
+                  [0,0,1,1]  ]
+        pieza4<-^[[0,0,1,1,0,0], &
+                  [1,1,1,1,1,1] ]
+        lreal<-^[4,6,4,6]
+        colorSel<-13
+  /*   elseif i=2
+        pieza1<-^[[1,1,1,1,1,1], &
+                  [1,1,1,1,1,1], &
+                  [1,1,1,1,1,1]]
+        pieza2<-^[[1,1,1,1,1,1], &
+                  [1,1,1,1,1,1], &
+                  [1,1,1,1,1,1]]
+        pieza3<-^[[1,1,1,1,1,1], &
+                  [1,1,1,1,1,1], &
+                  [1,1,1,1,1,1]]
+        pieza4<-^[[1,1,1,1,1,1], &
+                  [1,1,1,1,1,1], &
+                  [1,1,1,1,1,1]]
+        lreal<-^[6,6,6,6]
+        colorSel<-7 */
+     elseif i=2
+        pieza1<-^[[0,0,0,0,1,1], &
+                  [1,1,1,1,1,1] ]
+        pieza2<-^[[1,1,1,1], &
+                  [0,0,1,1], &
+                  [0,0,1,1]]
+        pieza3<-^[[1,1,1,1,1,1], &
+                  [1,1,0,0,0,0] ]
+        pieza4<-^[[1,1,0,0], &
+                  [1,1,0,0], &
+                  [1,1,1,1] ]
+        lreal<-^[6,4,6,4]
+        colorSel<-6
+     elseif i=3
+        pieza1<-^[[1,1,1,1], &
+                  [1,1,1,1]]
+        pieza2<-^[[1,1,1,1], &
+                  [1,1,1,1]]
+        pieza3<-^[[1,1,1,1], &
+                  [1,1,1,1]]
+        pieza4<-^[[1,1,1,1], &
+                  [1,1,1,1]]
+        lreal<-^[4,4,4,4]
+        colorSel<-14
+     elseif i=4
+        pieza1<-^[[1,1,0,0,0,0], &
+                  [1,1,1,1,1,1]]
+        pieza2<-^[[0,0,1,1], &
+                  [0,0,1,1], &
+                  [1,1,1,1]]
+        pieza3<-^[[1,1,1,1,1,1], &
+                  [0,0,0,0,1,1]]
+        pieza4<-^[[1,1,1,1], &
+                  [1,1,0,0], &
+                  [1,1,0,0]]
+        lreal<-^[6,4,6,4]
+        colorSel<-1
+     elseif i=5
+        pieza1<-^[[0,0,1,1,1,1], &
+                  [1,1,1,1,0,0]]
+        pieza2<-^[[1,1,0,0], &
+                  [1,1,1,1], &
+                  [0,0,1,1]]
+        pieza3<-^[[0,0,1,1,1,1], &
+                  [1,1,1,1,0,0]]
+        pieza4<-^[[1,1,0,0], &
+                  [1,1,1,1], &
+                  [0,0,1,1]]
+        lreal<-^[6,4,6,4]
+        colorSel<-10
+     elseif i=6
+        pieza1<-^[[1,1,1,1,0,0], &
+                  [0,0,1,1,1,1]]
+        pieza2<-^[[0,0,1,1], &
+                  [1,1,1,1], &
+                  [1,1,0,0]]
+        pieza3<-^[[1,1,1,1,0,0], &
+                  [0,0,1,1,1,1]]
+        pieza4<-^[[0,0,1,1], &
+                  [1,1,1,1], &
+                  [1,1,0,0]]
+        lreal<-^[6,4,6,4]
+        colorSel<-12
+     elseif i=7
+        pieza1<-^[[1,1,1,1,1,1,1,1]]
+        pieza2<-^[[1,1], &
+                  [1,1], &
+                  [1,1], &
+                  [1,1]]
+        pieza3<-^[[1,1,1,1,1,1,1,1]]
+        pieza4<-^[[1,1], &
+                  [1,1], &
+                  [1,1], &
+                  [1,1]]
+        lreal<-^[8,2,8,2]
+        colorSel<-11
+     endif
+     longitud<-[lreal 1]
+     pieza<-pieza1 //* colorSel
+     
+  endif
+//  at(10 45); ."PIEZA Nº ",i  
+end
+
+pone_proxima():void
+  i,j:=number
+  f,c,lonVieja:=number
+  ini,cini:=number
+begin:
+  f<-[[@nextPieza] 2]
+  c<-[[@nextPieza] 3]
+  
+  color(0)
+  api ("box=2,"+($(nextP-20))+",6,"+($(nextP-11))+",D")
+  ini<-2
+//  lonVieja<- [[@pieza] 3]
+//  if lonVieja=8
+//     cini<-nextP-20
+//     ini<-3 
+//  elseif lonVieja=6
+//     cini<-nextP-19
+//  elseif lonVieja=4
+//     cini<-nextP-18
+//  endif
+//  
+//  for i<-1 to [[@pieza] 2]
+//     for j<-1 to lonVieja //[[@pieza] 3]
+//        if [.pieza i j]>0
+//           at((ini+i) (cini+j)); write "█"
+//        endif
+//     next
+//  next
+
+  if c=8
+     cini<-nextP-20
+     ini<-3
+  elseif c=6
+     cini<-nextP-19
+  elseif c=4
+     cini<-nextP-18
+  endif
+  
+  color(nextColor) 
+  for i<-1 to f
+     for j<-1 to c
+        if [.nextPieza i j]>0
+           at((ini+i) (cini+j)); write "█"
+        endif
+     next
+  next
+end
+
+revisa_lineas():number
+  i,j,k:=number
+  suma:=number
+  lineasClear:=number
+  colorS:=^number
+begin:
+  lineasClear<-0
+  colorS<-^[15,14,6,4,8,0]
+  for i<-(TOPE_BASE-1) downto 1
+     suma<-0
+     for j<-1 to ancho
+        suma<-suma+1, if [.base i j]>0
+     next
+     if suma>=(ancho-2)
+//        at(30 1); ."SUMA=",suma
+//        pause
+        cmd(PATH+"tetris_clearline.wav </dev/null >/dev/null 2>&1 &")    
+        ++lineasClear
+        for k<-1 to 6
+           color([colorS k])
+           at(i 3); write chr(247)*(ancho-2) //38
+           millisec(10)
+        next
+//        pause
+        for k<-(i-1) downto 1
+           for j<-1 to ancho
+              [.base (k+1) j]<-[.base k j]
+           next
+        next
+        i<-TOPE_BASE
+        api (CLEARBASE)//"box=1,3,31,40,D"  // viene con color 0
+        .imprime_base(1)
+     endif
+  next
+  return lineasClear
+end
+
+pone_puntos(scolor:number):void
+begin:
+   at(22 (nextP-9)); color(scolor); write strpad((flag "C ") ($score) 11)
+   if score>high
+      high<-score
+   endif
+end
+
+pone_lineas(scolor:number):void
+begin:
+   at(26 (nextP-9)); color(scolor); write strpad((flag "C ") ($lineas) 11)
+end
+
+pone_fuegos_artificiales(colores:number,y:number,x:number):void
+  t:=number
+begin:
+   for t<-1 to 6
+      if colores=1
+         color {t=1?15:{t=2?14:{t=3?10:{t=4?2:{t=5?1:0}}}}}
+      elseif colores=2
+         color {t=1?15:{t=2?14:{t=3?12:{t=4?13:{t=5?5:0}}}}}
+      else
+         color {t=1?15:{t=2?14:{t=3?11:{t=4?9:{t=5?2:0}}}}}
+      endif
+
+      at (y (x-2))
+      write " .    ·  ."
+      at ((y+1) (x-2))
+      write "  ^  . _  "
+      at ((y+2) (x-2))
+      write ". ·  Y.   *"
+      at ((y+3) (x-2))
+      write "  /   . ·"
+      millisec(100)
+   next
+end
+
+you_win():void
+  colx,i:=number
+  colores:=^number
+begin:
+  colores<-^[46,30,78,110,94,62,46]
+  for i<-1 to 7
+  color([colores i])
+  api "box=12,8,19,35,S"
+  colx<-13
+  at(13 colx); ."   ▄ ▄  ▄  ▄ ▄"
+  at(14 colx); ."   ▀▄▀ █ █ █ █"
+  at(15 colx); ."    ▀   ▀   ▀ "
+  at(16 colx); ."   ▄ ▄ ▄ ▄  ▄  "
+  at(17 colx); ."   █ █ █ ▄ █ █ "
+  at(18 colx); ."    ▀ ▀  ▀ ▀ ▀ " 
+  millisec(100)
+  next
+end
+
+level_clear():void
+  colx:=number
+begin:
+  color(46)
+  api "box=12,8,19,35,S"
+  colx<-13
+  at(13 colx); ."▄   ▄▄ ▄ ▄  ▄▄ ▄  "
+  at(14 colx); ."█  █▀  █ █ █▀  █  "
+  at(15 colx); ." ▀  ▀▀  ▀   ▀▀  ▀"
+  at(16 colx); ." ▄ ▄   ▄▄  ▄   ▄ "
+  at(17 colx); ."█  █  █▀  █▄█ ▀▄█"
+  at(18 colx); ." ▀  ▀  ▀▀ ▀ ▀ ▀ ▀"
+end
+
+cambia_musica():void
+begin:
+  mLapso<-seconds("")
+  if (++indexMusica)=5
+     indexMusica<-1
+  endif
+  cmd(PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &")
+end
+
+repone_musica():void
+begin:
+  mLapso<-seconds("")
+  cmd(PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &")
+end
+
+verifica_nivel(scolor:number):void
+colox:=number
+begin:
+   if cta_lineas>=TOPE_MAX_VEL
+      ++nivel
+      cta_lineas<-0
+      ////velocidad<-velocidad+AUMENTO_VEL
+      .KILLSOUND()
+      cmd(PATH+"tetris_levelUp.wav </dev/null >/dev/null 2>&1 &")
+//      if velocidad>LIMITE_VEL
+//         velocidad<-LIMITE_VEL
+//      endif
+      if nivel=(TOTAL_NIVELES+1)
+         // ganador!!!
+         // lo que sigue es para hacer puntaje
+         sleep(3)
+         cmd(PATH+"tetris_levelClear.wav </dev/null >/dev/null 2>&1 &")
+         .you_win()
+         //sleep(4)
+
+         color(0)
+         if ancho=40
+            api ("box=1,42,31,74,"+chr(177)) //"D"
+         elseif ancho=32
+            api ("box=1,34,31,66,"+chr(177)) //"D"
+         else
+            api ("box=1,26,31,59,"+chr(177)) //"D"
+         endif
+
+         //api ("box=1,42,31,74,D")
+         .pone_basilica_san_basilio()
+         .you_win()
+         cmd(PATH+"tetris_fuegos.wav </dev/null >/dev/null 2>&1 &")
+         .pone_fuegos_artificiales(1 9 (nextP+4)) //66)
+         .pone_fuegos_artificiales(3 7 (nextP-18)) //44)
+         .pone_fuegos_artificiales(3 3 (nextP-1))//61)
+         .pone_fuegos_artificiales(2 8 (nextP+3))//65)
+         .pone_fuegos_artificiales(1 6 (nextP-2))//60)
+         .pone_fuegos_artificiales(2 3 (nextP-17))//45)
+         cmd(PATH+"tetris_title_theme.wav </dev/null >/dev/null 2>&1 &")
+//         .BAILA_COSACO(1 6 24 52)
+         
+         //sleep(5)
+         .BAILA_COSACO(9 3 24 (nextP-10))
+         .BAJA_CORTINA(24 (nextP-10) 10)
+         sleep(2)
+         .prepara_contexto(1)
+         sleep(1)
+         .pone_puntos(15)
+         .pone_lineas(11)
+         .imprime_base(1)    
+
+         .cambia_musica()
+      else
+          sleep(3)  
+          levelClear<-levelClear+1
+          if levelClear=LEVEL_CLEAR
+             levelClear<-0
+             .level_clear()
+             cmd(PATH+"tetris_levelClear.wav </dev/null >/dev/null 2>&1 &")
+             
+             sleep(4)
+             if nivel<16
+                color(0)
+                if ancho=40  
+                   api ("box=1,42,31,74,"+chr(177)) //"D"
+                elseif ancho=32
+                   api ("box=1,34,31,66,"+chr(177)) //"D"
+                else
+                   api ("box=1,26,31,59,"+chr(177)) //"D"
+                endif
+                             
+                .pone_basilica_san_basilio()
+                .level_clear()
+               /* cmd(PATH+"tetris_fuegos.wav </dev/null >/dev/null 2>&1 &")
+                .pone_fuegos_artificiales(1 9 (nextP+4)) //66)
+                .pone_fuegos_artificiales(3 7 (nextP-18)) //44)
+                .pone_fuegos_artificiales(3 3 (nextP-1))//61)
+                .pone_fuegos_artificiales(2 8 (nextP+3))//65)
+                .pone_fuegos_artificiales(1 6 (nextP-2))//60)
+                .pone_fuegos_artificiales(2 3 (nextP-17))//45)
+                */
+                cmd(PATH+"tetris_levelUpDance.wav </dev/null >/dev/null 2>&1 &")
+                .BAILA_COSACO(1 6 24 (nextP-10))//52)
+                .BAJA_CORTINA(24 (nextP-10) 100)
+                sleep(1)
+             endif
+             .prepara_contexto(1)
+             sleep(1)
+             .pone_puntos(15)
+             .pone_lineas(11)
+             .imprime_base(1)
+             
+             .cambia_musica()
+
+          else
+             mLapso<-0
+          endif
+      endif
+   endif
+   at(30 (nextP-9)); color(scolor); write strpad((flag "C ") ($nivel) 11)
+end
+
+pone_pausa():void
+  colx:=number
+begin:
+
+  .KILLSOUND()
+  color(30)   
+  api "box=12,8,16,35,S"
+  colx<-13
+  at(13 colx); ." ▄   ▄  ▄ ▄  ▄  ▄▄"
+  at(14 colx); ."█▄█ █▄█ █ █ ▀▄ █▀ "
+  at(15 colx); ."▀   ▀ ▀  ▀  ▀   ▀▀"
+  pause
+  color(0)
+
+  .prepara_contexto(1)
+  .pone_proxima()
+  .pone_puntos(15)
+  .pone_lineas(11)
+  .verifica_nivel(10)
+  .imprime_base(1)
+  .repone_musica()
+end
+
+carga_high_score():number
+  pathScore:=string
+begin:
+  pathScore<-PATH+"scoreTetris.txt"
+  pathScore<-strtrim((flag "A") strchg(pathScore "aplay" ""))
+  flag ""  // limpio los flags existentes.
+  
+  if fexist(pathScore)
+     high<-(#strload(pathScore))
+  else
+     strsave(pathScore "0")
+     high<-0
+  endif
+  return high
+end
+
+salva_high_score():void
+  pathScore:=string
+begin:
+  pathScore<-PATH+"scoreTetris.txt"
+  pathScore<-strtrim((flag "A") strchg(pathScore "aplay" ""))
+  flag ""  // limpio los flags existentes.
+  
+  if score>high
+     high<-score
+  endif  
+  strsave(pathScore ($high))
+end
+
+
+/* variables globales del programa */
+vars:
+ // basic, medium, hard: ancho de la ventana de juego. 
+ // si está en Laica: CTRL-PX y escribir medium o hard. Por default es basic
+  sLevel:=$1:string
+ 
+  main,ciclo,ret:=boolean
+  base,pieza,pieza1,pieza2,pieza3,pieza4,lreal,nextPieza,niveles:=^number
+  i,j,k,c,cta_lineas:=number
+  x,y,rot_pieza,oldrot,longitud,numPieza,ret_bajada,ancho:=number
+  colorSel,nextColor,colx,nextP,colIni,RET_BAJADA:=number
+  score,lineas,lineasBorradas,nivel,levelClear:=number
+  high:=number
+  PATH,cPLAY,cSYS:=string
+  TLINEA,CLEARBASE:=string   // linea para rotacion de pieza hacia la derecha
+  musica_fondo:=^number
+  fondo:=^string
+  mLapso,ret_fondo,mTiempo,indexMusica:=number
+  tNivel,T0,T1,T2,T3,TIEMPO,TIME,ret_lapso:=number
+  swTarde:=boolean
+
+/* programa principal */
+algorithm:
+
+ PATH<-getenv("PATH_XU")
+ if strlz(PATH)
+    ."\nNo encuentro variable de entorno PATH_XU\n\n"
+    ."Necesito que declares PATH_XU=ruta-donde-esta-xu\n"
+    goodbye
+ else
+   /* esta ruta accederá a todos los recursos del
+      juego, dentro de SOURCE */
+    PATH<-PATH+"/source/dataTetris/"
+ endif
+ 
+ // chequeo de sistema operativo
+ cSYS<-strupper(strcpy(system(),1,strat((flag "L")" ",system()) ))
+ 
+ cSYS<-strtrim((flag "A")cSYS ) 
+ if cSYS = "DARWIN"
+    cPLAY<-"afplay"
+ elseif cSYS="LINUX"
+    cPLAY<-"aplay"
+ else
+    // puede que windows, cuando lo tenga listo
+    ."Problemas... [",cSYS,"]"
+    goodbye
+ endif
+ PATH<-cPLAY+" "+PATH // deja "afplay /home..../source/"
+
+cursor(0)
+
+high<-.carga_high_score()
+
+.titulo()
+// sLevel<-"medium"
+  precision 0
+
+
+ancho<-40   // basic
+TLINEA<-"vline=0,41,32,"+chr(177)
+CLEARBASE<-"box=1,3,31,40,D"
+colIni<-20
+colx<-13
+nextP<-62
+
+if sLevel="medium"
+   ancho<-32
+   TLINEA<-"vline=0,33,32,"+chr(177)
+   CLEARBASE<-"box=1,3,31,32,D"
+   colIni<-14
+   nextP<-54
+
+   video(33 69)
+   
+elseif sLevel="hard"
+   ancho<-24
+   TLINEA<-"vline=0,25,32,"+chr(177)
+   CLEARBASE<-"box=1,3,31,24,D"
+   colIni<-10
+   nextP<-47
+
+   video(33 62)
+   
+else
+   video(33 77)
+endif
+
+.prepara_contexto(0)
+
+ciclo<-true
+main<-true
+numPieza<-0
+lineas<-0
+score<-0
+cta_lineas<-0
+levelClear<-0
+.pone_puntos(15)
+lineasBorradas<-0
+.pone_lineas(10)
+nivel<-1
+.verifica_nivel(11)
+niveles<-^[25000,20000,15000,10000,10000, &
+           10000,9000,9000,9000,8000,     &
+           8000,8000,8000,7000,6500,      &
+           6000,6000, 6000,5500,5000]
+musica_fondo<-^[1,2,3,4]
+fondo<-^["tetris_bradinsky_1.wav", &
+         "tetris_troika_2.wav", &
+         "tetris_loginska_3.wav", &
+         "tetris_karinka_4.wav"]
+ret_fondo<-0
+indexMusica<-0
+mTiempo<-0
+mLapso<-0
+TIEMPO<-seconds("")  // con esto veo si se ha demorado mucho en un nivel: aumenta la velocidad
+TIME<-TIEMPO
+
+while main
+   .imprime_base(1)
+   
+   .elige_pieza(0)  // elige actual
+   .elige_pieza(1)  // elige siguiente
+
+   // pone proxima pieza
+   .pone_proxima()
+
+   x<-0
+   y<-colIni
+   rot_pieza<-1
+   oldrot<-1
+   tNivel<-nivel
+   swTarde<-false
+   ret_bajada<-0
+   flush()
+   
+   if ~.pone_pieza(x y colorSel)
+      if x<0
+         main<-false
+      endif
+      break
+   endif
+   
+   if mLapso=0
+      if (++indexMusica)=5
+         indexMusica<-1
+      endif
+      cmd((PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &"))
+      mLapso<-seconds("")
+   endif
+   
+   if nivel<=20
+      RET_BAJADA<-[niveles nivel]
+   else
+      RET_BAJADA<-[niveles 20]
+   endif
+   
+   while ciclo
+      if (++ret_fondo)=RET_FONDO
+         ret_fondo<-0
+         if (seconds("") - mLapso)>=180
+            if (++indexMusica)=5
+               indexMusica<-1
+            endif
+            cmd((PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &"))
+            mLapso<-seconds("")
+         endif
+      endif
+      
+      if ret_bajada=RET_BAJADA  //(RET_BAJADA-velocidad)
+         ret_bajada<-0
+         ret<-.pone_pieza(x y 0)
+         x<-x+1
+         if ~.pone_pieza(x y colorSel)
+            if x=1
+               main<-false
+            endif
+            break
+         endif
+      endif
+      ++ret_bajada
+
+     /* si ha pasado 1 mins sin limpiar una linea, aumenta la velocidad temporalmente */
+      if (++ret_lapso)=TIME_LAPSE
+         ret_lapso<-0
+//         color(10)
+         if (seconds("")-TIEMPO)>=60
+            RET_BAJADA<-RET_BAJADA-100
+            if RET_BAJADA<4000
+               RET_BAJADA<-4000
+            endif
+            swTarde<-true
+            TIEMPO<-seconds("")
+            color(12)
+         endif
+         if swTarde
+            color(12)
+         else
+            color(10)
+         endif
+         T0<-(seconds("")-TIME)
+         T1<-T0/60
+         T2<-mth.int(T1)
+         T3<-(((T1-T2)*100)*60/100)
+         at(10 (ancho+3)); write T2,":",T3," "
+      endif
+      
+      readkey(c)
+      if c<>0      
+         ret<-.pone_pieza(x y 0)
+         
+         if c=27
+            main<-false
+            break
+         elseif c=24
+            oldrot<-rot_pieza
+            ++rot_pieza
+            if rot_pieza>4
+               rot_pieza<-1
+            endif
+            ret<-.pone_pieza(x y 0)
+            
+            if rot_pieza=1
+               if .verifica_rotacion(pieza1)
+                  pieza<-pieza1
+                  longitud<-[lreal 1]
+               else
+                  rot_pieza<-oldrot
+               endif
+            elseif rot_pieza=2
+               if .verifica_rotacion(pieza2)
+                  pieza<-pieza2
+                  longitud<-[lreal 2]
+               else
+                  rot_pieza<-oldrot
+               endif
+            elseif rot_pieza=3
+               if .verifica_rotacion(pieza3)
+                  pieza<-pieza3
+                  longitud<-[lreal 3]
+               else
+                  rot_pieza<-oldrot
+               endif
+            else
+               if .verifica_rotacion(pieza4)
+                  pieza<-pieza4
+                  longitud<-[lreal 4]
+               else
+                  rot_pieza<-oldrot
+               endif
+            endif   
+            if (y+longitud)>ancho
+               y<-y-((y+longitud)-ancho)
+            endif
+            ret<-.pone_pieza(x y colorSel)
+            color(9); api (TLINEA)
+            if ~ret
+               if x=1
+                  main<-false
+               endif
+               break
+            endif
+            
+         elseif c=5
+            oldrot<-rot_pieza
+            --rot_pieza
+            if rot_pieza<1
+               rot_pieza<-4
+            endif
+            ret<-.pone_pieza(x y 0)
+            if rot_pieza=1
+               if .verifica_rotacion(pieza1)
+                  pieza<-pieza1
+                  longitud<-[lreal 1]
+               else
+                  rot_pieza<-oldrot
+               endif
+            elseif rot_pieza=2
+               if .verifica_rotacion(pieza2)
+                  pieza<-pieza2
+                  longitud<-[lreal 2]
+               else
+                  rot_pieza<-oldrot
+               endif
+            elseif rot_pieza=3
+               if .verifica_rotacion(pieza3)
+                  longitud<-[lreal 3]
+                  pieza<-pieza3
+               else
+                  rot_pieza<-oldrot
+               endif
+            else
+               if .verifica_rotacion(pieza4)
+                  longitud<-[lreal 4]
+                  pieza<-pieza4
+               else
+                  rot_pieza<-oldrot
+               endif
+            endif 
+            if (y+longitud)>ancho
+               y<-y-((y+longitud)-ancho)
+            endif
+            ret<-.pone_pieza(x y colorSel)
+            color(9); api (TLINEA)
+            if ~ret
+               if x=1
+                  main<-false
+               endif
+               break
+            endif
+         elseif c=32   // acelera la caída
+            ret<-.pone_pieza(x y 0)
+            x<-x+1
+            if ~.pone_pieza(x y colorSel)
+               if x=1
+                  main<-false
+               endif
+               break
+            endif
+                
+         elseif c=4
+            y<-y+2
+            if (y+longitud)>ancho
+              y<--2
+            else
+               if .verifica_lado(y 0)  // 0=derecho
+                  y<--2
+               endif
+            endif
+         elseif c=19
+            y<-y-2
+            if y<2
+               y<-2
+            else
+               if .verifica_lado(y 1)  // 1=izquierdo
+                  y<-+2
+               endif
+            endif
+         elseif c=112
+            .pone_pausa()
+            
+         elseif c=80
+            .pone_pausa()
+            
+         elseif c=13   // deja caer la pieza.
+            while true
+               ret<-.pone_pieza(x y 0)
+               x<-x+1
+               if ~.pone_pieza(x y colorSel)
+                   if x=1
+                        main<-false
+                   endif
+                  break
+               endif
+              
+            wend
+            break
+         endif
+         if ~.pone_pieza(x y colorSel)
+            if x=1
+               main<-false
+            endif
+           break
+         endif
+         c<-0
+         flush()
+      endif
+   wend
+   //revisa si hay lineas completas
+   lineasBorradas<-0
+   lineasBorradas<-.revisa_lineas()
+   if lineasBorradas>0
+      color(0)
+      api (CLEARBASE)
+      .imprime_base(1)
+   
+      .pone_puntos(0)
+      if lineasBorradas=1
+         score<-score+((20*nivel)*lineasBorradas)
+      elseif lineasBorradas=2
+         score<-score+((50*nivel)*lineasBorradas)
+      elseif lineasBorradas=3
+         score<-score+((100*nivel)*lineasBorradas)
+      else // son 4
+         score<-score+((300*nivel)*lineasBorradas)
+         cmd(PATH+"tetris_bono.wav </dev/null >/dev/null 2>&1 &")// fanfarria
+      endif
+      .pone_puntos(15)
+      lineas<-lineas+lineasBorradas
+      .pone_lineas(11)
+      cta_lineas<-cta_lineas+lineasBorradas
+      .verifica_nivel(10)
+   endif
+wend
+.KILLSOUND()
+.imprime_base(0)
+.salva_high_score()
+cmd(PATH+"tetris_gameOver.wav </dev/null >/dev/null 2>&1 &")
+
+color(79)
+api "box=12,8,19,35,S"
+colx<-13
+at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄ "
+at(17 colx); ." █ █ █ █ █▀  ▀▄█"
+at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀"
+//at(16 18); ."GAME OVER"
+vtab(14)
+sleep(4)
+flush()
+cursor(1)
+stop
+

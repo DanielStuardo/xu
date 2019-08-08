@@ -18,21 +18,24 @@ vars:
   {dot,             // utilitaria
    numDots,         // total de puntos del laberinto
    totDots}:=number  // puntos consumidos.
-  LIMITG:=number    // retardo de cada loop del juego. regula la velocidad
+//  LIMITG:=number    // retardo de cada loop del juego. regula la velocidad
   pofd:=^number   // matriz de puntos de decision de fantasmas
   lab:=^string    // laberinto
   score,vidas,record,timevida:=number
   sw_vidas,sw_msgvida:=boolean     // para dar un extra a los 10 mil, y a los 20 mil
   LIMITVIDAS:=number      // define el limite de 10 mil y luego 20 mil
-  colorLAB,cntLAB:=number // define color y conteo de etapas para cambiar color
-  paLAB:=^number          // paleta de colores de laberinto
+  colorLAB,cntLAB,i:=number // define color y conteo de etapas para cambiar color
+  paLAB,probLim:=^number          // paleta de colores de laberinto
   {puertaVidas,puertaPremio}:=boolean
   cntPuntos:=number
   sw_cambiaColor:=boolean
-  etapa:=number     // marca la etapa donde los fantasmas se pondrán maricones.
+  sw_intermit:=^boolean
+  etapa,indLimit:=number     // marca la etapa donde los fantasmas se pondrán maricones.
   sw_etapa:=switch
   PID:=string 
- 
+  swWaka:=boolean
+  PIDWAKA,PIDPILLS:=string
+  nWaka,nPills:=number
 
  /* PUERTA DIMENSIONAL */
   timeDimension:=number
@@ -40,12 +43,13 @@ vars:
 
  /* PACMAN */
   c,Px,Py:=number  // accion Pacman
-  LIMITP:=number   // velocidad de PACMAN en microsegundos
+//  LIMITP:=number   // velocidad de PACMAN en microsegundos
   mPx,mPy:=number  // posicion de Pacman en matriz
   estadoBoca:=boolean       // true=abierta; false=cerrada
   boca:=string         // hacia donde apunta
   retardoP:=number
   sw:=boolean
+  colorPacman:=number
   pdireccion:=string // direccion posible
   direccion:=string  /* indica direccion de Pacman, por si movimiento
                                    no es valido, o si no se ha apretado ninguna
@@ -53,78 +57,229 @@ vars:
 
  /* FANTASMAS */
   fprobabilidad:=^number       // probabilidad de persecucion pacman
+                               // cuando se llega a cierto limite de puntos comidos,
+                               // dicha probabilidad cambia, volviendo a los fantasmas
+                               // más agresivos
   indexF,fpos:=number        // indice de array Fantasmas y posicion temporal
-  Fcolor:=^number         // color de cada fantasma
-  Frecupera:=^number      // los que fueron comidos y hay que reinicializarlos
+  Fcolor,Bcolor,tmpcolor,tmpBcolor:=^number         // color de cada fantasma
+//  Frecupera:=^number      // los que fueron comidos y hay que reinicializarlos
   FANx,FANy,Fx,Fy:=^number  // posicion fisica y virtual de los fantasmas
   fdireccion,fantasma:=^string   // marca la direccion de cada fantasma, y los fantasmas
   fdir:=string
-  fprob:=number
+  fprob,limiteMariconazo,TIEMPOAZUL,tmpRET:=number
   Fpuntos:=^number   // puntos que otorga un fantasma al ser comido
   pdecision:=string
   retardoF:=number
   timeAZUL:=number    // tiempo de vulnerabilidad en segundos
   sw_death:=boolean
   sw_azul:=boolean    // cuando pacman come pastilla de poder, fantasmas no pueden comer
+  festado:=^boolean   // estado activo/inactivo
 
  /* PASTILLAS */
   indexP:=number
   PASx,PASy:=^number
   POTENCIA:=number   // aumenta la velocidad de pacman
-      retardoPAS,Pi:=number
+      retardoPAS,Pi,tipoLab:=number
       PASl:=^boolean
       sw_pastilla:=boolean
 
  /* hueá para comer */
   sw_puntos,sw_pichula:=boolean  // activa el tiempo de la hueá
   time,hPremio:=number           // tiempo que tiene Pacman para comerse la hueá
-  hPuntos:=^number
+  hPuntos,colorFruta:=^number
+
+  frutas:=^string
+  indFruta,mulFruta:=number
 
   RETARDOF,RETARDOP:=number
   PATHs,PATH,cSYS,cPLAY:=string    // ruta de raíz de XU donde estan los datos de Pacman.
 
 functions:
+
+  mueveFantasma(indexF:number,tope:number):void
+    Fcolor,Bcolor:=^number
+    i:=number
+  begin:
+     use(Fcolor); drop; push{79,63,95,111}
+     Bcolor<-^[4,3,5,6]
+     
+     i<-3
+     do
+       at(24 i); color([Bcolor indexF]);."▄";color([Fcolor indexF]);write chr(236);color([Bcolor indexF]);."▄"
+       millisec(60)
+       color(0)
+       at(24 i); write "▄",chr(236),"▄"
+     until (++i)>30
+     
+     i<-24
+     do
+       at(i 30); color([Bcolor indexF]);."▄";color([Fcolor indexF]);write chr(236);color([Bcolor indexF]);."▄"
+       millisec(100)
+       color(0)
+       at( i 30); write "▄",chr(236),"▄"
+     until (--i)<tope
+     at(i 30); color([Bcolor indexF]);."▄";color([Fcolor indexF]);write chr(236);color([Bcolor indexF]);."▄"
+     millisec(700)
+  end
+
+  poneAzules():void
+    i:=number
+  begin:
+    for i<-19 to 22
+       at(i 30); color(1);."▄";color(31);write chr(236);color(1);."▄"
+    next
+  end
+  
+  muevePacman():void
+    i:=number
+    sw:=boolean
+  begin:
+    sw<-true
+    for i<-66 downto 30
+       if sw
+          at(25 i); color(14); ."(>) "
+          sw<-false
+       else
+          at(25 i); color(14); ."(-) "
+          sw<-true
+       endif
+       millisec(80)
+    next
+    .poneAzules()
+  end
+  
+  subeycome():void
+    i:=number
+  begin:
+    sw<-true
+    for i<-25 downto 19
+          at(i 30); color(14); ."(|)"
+          at((i+1) 30); color(0); ."(V)"
+       millisec(100)
+       if i=22
+          at(22 36);color(15);."   400 pts.                      "
+          millisec(800)
+          at(i 30); color(14); ."(V)"
+       elseif i=21
+          at(21 36);color(15);."   800 pts.                      "
+          millisec(800)
+          at(i 30); color(14); ."(V)"
+       elseif i=20
+          at(20 36);color(15);."  1200 pts.                      "
+          millisec(800)
+          at(i 30); color(14); ."(V)"
+       elseif i=19
+          at(19 36);color(15);."  1600 pts.                      "
+          millisec(800)
+       endif
+       millisec(50)
+    next
+  end
+  
    //titulo:=function:void
    titulo():void
      tit:=^string
      i:=number
    begin:
-     tit<-strload(PATH+"pacmanTitulo.txt")/"\n"
+//     tit<-strload(PATH+"pacmanTitulo.txt")/"\n"
+     
+     video(30 88)
+     cls
+     
      at(2 1);."\n"
-     for i<-1 to 6
-       color(12), if i<3
-       color(14), if i=3
-       color(15), if i=4
-       color(10), if i>4
-       ."\n\t"+[tit i]
-     next
+     color(14);
+     ."  ███████▄▄      ▄█▄          ▄▄██▄▄   █▄          ▄█         ▄█▄         █▄      ████\n"
+     ."  ██████████▄   █████      ▄█████████▄ ███        ███        █████        ███     ████\n"
+     ."  ██████████▀ ▄███████▄   ▄█████▀▀▀    ████▄    ▄████      ▄███████▄      ████▄   ████\n"
+     ."  ███████▀▀  ███████████  ▀█████▄▄▄    ██████  ██████     ███████████     ██████  ████\n"
+     ."  ████     ▄██████ ██████▄ ▀█████████▀ ████████████ █   ▄██████ ██████▄   ███████▄██ █\n"
+     ."  ████   ▄█████████████████▄  ▀▀██▀▀   █████████▄▄▄▄█ ▄█████████████████▄ ████████▄▄▄█\n"
+     
+     
      ."\n\n"
-     color(15); ."\tFlechas de cursor = mueves el Pacman\n\n"
-     ."\t\t"+chr(250)+"   = 10 pts.\n\t\to   = 250 pts. (pastillas de poder)\n\t\t8=D = ???? pts. (es \"la hueá\")\n"
-     color(138);."\n\t"+chr(250)*3+" 1UP Extra a los 10.000 y 20.000 pts "+chr(250)*3+"\n\n"
-     color(7);."\tFantasmas:\n\t\t"
-     sleep(1);color(12);."# = Lava     ";
-     sleep(1);color(11);."@ = Tela\n\t\t"
-     sleep(1);color(13);."$ = Concha   "
-     sleep(1);color(6); ."% = mPu\n"
-     color(7);."\tStarring:";sleep(1);color(14);." PACMAN"; color(14); sleep(1);." > (esta hueá es el pacman)"
+     color(15); ."\t\t\tFlechas de cursor = mueves el Pacman\n\n"
+     ."\t\t\t\t\t"+chr(250)+"   = 10 pts.\n\t\t\t\t\to   = 250 pts. (pastillas de poder)\n\t\t\t\t\t";color(12);."O"
+     color(14);."^";color(12);."O";color(15);." = ???? Misterio\n"
+     color(138);."\n\t\t\t"+chr(250)*3+" 1UP Extra a los 10.000 y 20.000 pts "+chr(250)*3+"\n\n"
+     .mueveFantasma(1 20)
+     color(15);." = BLINKY (el cazador)"
+     .mueveFantasma(2 21)
+     color(15);." = INKY   (cambia de humor)"
+     .mueveFantasma(3 22)
+     color(15);." = PINKY  (embosca)"
+     .mueveFantasma(4 23)
+     color(15);." = CLYDE  (finge ignorancia)"
+//     color(7);."\t\t\tFantasmas:\n\t\t\t\t"
+//     sleep(1);color(12);."# = Blinky   ";
+//     sleep(1);color(11);."@ = Inky\n\t\t\t\t"
+//     sleep(1);color(13);."$ = Pinky    "
+//     sleep(1);color(6); ."% = Clyde\n"
+//     color(7);."\t\t\tStarring:";sleep(1);color(14);." PACMAN"; color(14); sleep(1);." > (esto es el pacman!!)"
+     sleep(1)
+     at(25 30); color(142);."o";color(15);."        STARRING"
+     sleep(1)
+     .muevePacman()
+     at(25 36);color(14);."P A C M A N"
+     millisec(500)
+     .subeycome()
+     sleep(1)
    end
 
    cargaLaberinto:=function:void
    begin:
-     lab<-strload(PATH+"pacmanLab.txt")/"\n"
+     if tipoLab=1
+        lab<-strload(PATH+"pacmanLab01.txt")/"\n"
+     elseif tipoLab=2
+        lab<-strload(PATH+"pacmanLab02.txt")/"\n"
+     elseif tipoLab=3
+        lab<-strload(PATH+"pacmanLab03.txt")/"\n"
+     elseif tipoLab=4
+        lab<-strload(PATH+"pacmanLab04.txt")/"\n"
+     elseif tipoLab=5
+        lab<-strload(PATH+"pacmanLab05.txt")/"\n"
+/*     elseif tipoLab=6
+        lab<-strload(PATH+"pacmanLab6.txt")/"\n"*/
+     endif
    end
 
    cargaMatrizDecision:=function:void
    begin:
    //(flag ",")
-     mat.load( pofd PATH+"pacmanPofD.txt")
+     if tipoLab=1
+        mat.load( pofd PATH+"pacmanPofD01.txt")
+     elseif tipoLab=2
+        mat.load( pofd PATH+"pacmanPofD02.txt")
+     elseif tipoLab=3
+        mat.load( pofd PATH+"pacmanPofD03.txt")
+     elseif tipoLab=4
+        mat.load( pofd PATH+"pacmanPofD04.txt")
+     elseif tipoLab=5
+        mat.load( pofd PATH+"pacmanPofD05.txt")
+/*     elseif tipoLab=6
+        mat.load( pofd PATH+"pacmanPofD6.txt")*/
+     endif
    end
 
    cargaPuntos:=function:void
    begin:
-     mat.load(dots PATH+"pacmanDots.txt")
+//     tipoLab<-6
+     if tipoLab=1
+        mat.load(dots PATH+"pacmanDots01.txt") // tot=258
+     elseif tipoLab=2
+        mat.load(dots PATH+"pacmanDots02.txt") // 237
+     elseif tipoLab=3
+        mat.load(dots PATH+"pacmanDots03.txt") // 225
+     elseif tipoLab=4
+        mat.load(dots PATH+"pacmanDots04.txt") // 267
+     elseif tipoLab=5
+        mat.load(dots PATH+"pacmanDots05.txt") // 219
+  /*   elseif tipoLab=6
+        mat.load(dots PATH+"pacmanDots6.txt") //256
+        */
+     endif
      numDots<-[[@ [\ dots "=" 1]] 2]+4  /* incluidas pastillas de poder */
+//     at(10 10);color(31);write numDots
+//     goodbye
    end
 
    cargaScore:=function:void
@@ -133,28 +288,32 @@ functions:
    end
 
    muestraLaberinto:=function:void
-     i:=number
+     i,n:=number
      colorLab:=$1:number
    begin:
-     at(1 1);."\n"; color(colorLab)  // 18
-     for i<-1 to 22
+     at(1 0); color(colorLab)  // 18
+     n<-[[@lab] 2]
+     for i<-1 to n
        write "\t"+[lab i]+"\n"
      next
    end
 
    muestraPuntos:=function:void
-     i,j:=number     // for
+     i,j,n:=number     // for
      lposx,lposy:=number  // puntos
    begin:
      lposx<-1
      if colorLAB=6
         color(12)
+     elseif colorLAB=10
+        color(15)
      else
         color(14)
      endif
-     for i<-2 to 23    // filas respecto al laberinto
+     n<-[[@dots] 3] + 7
+     for i<-1 to 29    // filas respecto al laberinto
        lposy<-1
-       for j<-8 to 43  // columnas respecto al lab.
+       for j<-8 to n  // columnas respecto al lab.
          dot<-[.dots lposx lposy]
          at(i j)
          write chr(111), if dot=2
@@ -165,22 +324,28 @@ functions:
      next
    end
 
-   poneGetReady:=function:void
+   poneGetReady(main:boolean):void
    begin:
-     at(14 24); write (color(10)) "READY!"
-     pause
-     at(14 24); write (color(0)) "READY!"
+     at(17 29); write (color(10)) "READY!"
+   
+     if main
+         cmd(PATHs+"pacman_beginning.wav  </dev/null >/dev/null 2>&1") // funciona para mac
+     else
+        sleep(2)
+     endif
+    // sleep(3)
+     at(17 29); write (color(0)) "READY!"
    end
 
    poneFinal:=function:void
    begin:
-     at(14 22); write (color(10)) "GAME OVER"
-     pause
-     at(14 22); write (color(0)) "GAME OVER"
+     at(17 27); write (color(10)) "GAME OVER"
+     sleep(4)
+     at(17 27); write (color(0)) "GAME OVER"
      cursor(1)
      color(7)
      if record<score
-        strsave(PATH+"score.txt" ($score))
+        strsave((PATH+"score.txt") ($score))
      endif
    end
 
@@ -190,14 +355,31 @@ functions:
    begin:
      color(15)
      i<-0//inicia a 0
-     at(1 10);."SCORE=",score
-     at(1 28);."HIGH=",record
-     at(24 36); color(0); write "               "
-     at(24 36); color(143);."UP "; color(104)
-     .">", while (++i)<vidas
+     at(0 10);."SCORE=",score
+     at(0 25);."HIGH=",record
+     at(31 39); color(0); write "               "
+     at(31 39); color(143);."UP "; color(104)
+     ."(>)", while (++i)<vidas
    end
 
-   cargaEscenario:=function:void
+   poneFrutas():void
+      i:=number
+      posFruta:=number
+   begin:
+     for i<-1 to indFruta
+        mulFruta<-(i-1)*3
+        posFruta<-(i-1)*4
+        if i=8
+           --posFruta
+        endif
+        at(31 (8+posFruta)); color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
+                  color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
+                  color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
+                  
+     next
+   end
+
+   cargaEscenario(main:boolean):void
    begin:
      flag ","              // flag de carga de matrices de juego
      .cargaMatrizDecision() // carga matriz de decision
@@ -206,13 +388,13 @@ functions:
      .muestraLaberinto(colorLAB)   // despliega laberinto
      .muestraPuntos()       // despliega puntos
      .poneEncabezado()      // pone score y vidas
-     .poneGetReady()
+     .poneGetReady(main)
    end
 
 
    iniciaPacman:=function:void
    begin:
-     {Px,Py,mPx,mPy,direccion,pdireccion}<-{18,26,17,19,"E","E"}
+     {Px,Py,mPx,mPy,direccion,pdireccion}<-{23,31,23,24,"E","E"}
      estadoBoca<-false   // cerrada
      boca<-"-"
      retardoP<-0
@@ -221,20 +403,21 @@ functions:
    iniciaFantasmas:=function:void
    begin:
      indexF<-0
-     FANx<-^[10,&  // posiciones
-             10,&  /* mas posiciones */
-             11,&
-             11]   // posicion virtual inicial de los fantasmas
-     FANy<-^[18,20,18,20]
-     Fx  <-^[11,11,12,12]   // posicion fisica inicial de los fantasmas
-     Fy  <-^[25,27,25,27]
+     FANx<-^[14,&  // posiciones
+             14,&  /* mas posiciones */
+             15,&
+             15]   // posicion virtual inicial de los fantasmas
+     FANy<-^[23,26,23,26]
+     Fx  <-^[14,14,15,15]   // posicion fisica inicial de los fantasmas
+     Fy  <-^[30,33,30,33]
      fdireccion<-^["E","E","O","O"]
-     use(Frecupera);drop
+//     use(Frecupera);drop
      retardoF<-0
      cntPuntos<-0
      Fcolor<-^[79,63,95,111]
      sw_azul<-false
-     sw_cambiaColor<-true
+     sw_cambiaColor<-false
+     sw_intermit<-^[false,false,false,false]
    end
 
    poneSecuenciaInicio:=function:void
@@ -243,26 +426,32 @@ functions:
      cls; cursor(0)
      if main
         .titulo()
-        pause
+//        pause
+        video(33 65)
         vidas<-3
         sw_vidas<-puertaVidas<-true
-        etapa<-0
-        LIMITG<-850   // microsegundos del loop principal. baja hasta 650 ms
-        LIMITP<-100000  // bajará hasta 80 mil
+        etapa<-1
+//        LIMITG<-850   // microsegundos del loop principal. baja hasta 650 ms
+//        LIMITP<-100000  // bajará hasta 80 mil
         LIMITVIDAS<-10000  // necesita 10 mil pts para vida extra
+        TIEMPOAZUL<-10
         cntLAB<-1
-        use(paLAB);drop;push{9,9,4,4,6,6,2,2,3,3,5,5,7,8}
+        use(paLAB);drop;push{9,11,13,6,10}
         colorLAB<-9
         sw_etapa<-false
-        use(PASx);          drop;  push{3,3,17,17}
-        use(PASy);          drop;  push{10,42,10,42}
-        use(fantasma);drop;push{"#","@","$","%"}
-        use(fprobabilidad); drop; push {8,7,6,5}
+        use(fantasma);drop //push{chr(239),chr(239),chr(239),chr(239)} //push{"#","@","$","%"}
+        push{chr(236),chr(236),chr(236),chr(236)}
+        //push{("▄"+chr(236)+"▄"),("▄"+chr(236)+"▄"),("▄"+chr(236)+"▄"),("▄"+chr(236)+"▄")}
         use(Fcolor); drop; push{79,63,95,111}      //{12,11,13,6}
+        Bcolor<-^[4,3,5,6]
+        tmpcolor<-^[79,63,95,111]
+        tmpBcolor<-^[4,3,5,6]
+        probLim<-^[0.7,0.75, 0.75,0.8, 0.8,0.85, 0.85,0.9, 0.9, 0.95]
+        
         use(Fpuntos);drop; push{400,800,1200,1600}
-        RETARDOP<-2500
-        RETARDOF<-2700
-        hPuntos<-^[100,250,500,1000,1500,2000,0]
+        RETARDOP<-3200 //3500 //3200  //3500 //2500
+        RETARDOF<-3150 //3000  //3300 //2700
+        hPuntos<-^[150,300,500,700,1000,2000,3000,5000]
         .cargaScore()
      endif
      cls
@@ -289,21 +478,41 @@ functions:
                                 DROP trabaja bajo la lógica de USE, matehuea */
 
     /* FANTASMAS */
+    // resetea probailidad a original, dejando a Clyde como un perfecto imbecil.
+     use(fprobabilidad); drop; push {6,4,5,2}
+     festado<-^[true,true,true,true]
+     
      .iniciaFantasmas()
-    /* incrementa etapa */
-     if etapa>6
-        sw_etapa<-true  // de aqui en adelante los fantasmas seran maricones!
-     endif
 
     /* ESCENARIO */
-     .cargaEscenario()  /* carga la pantalla y las matrices del juego
+     .cargaEscenario(main)  /* carga la pantalla y las matrices del juego
                            Si se pasa al siguiente nivel, realiza la
                            carajo
                            carga basica */
-
+     //pause
+//     goodbye
     /* escribe partillas de poder con color especial
        donde no exista este color, se agrega el código comentado */
-
+     
+     if tipoLab=1
+        use(PASx);          drop;  push{4,4,23,23}
+        use(PASy);          drop;  push{10,52,10,52}
+     elseif tipoLab=2
+        use(PASx);          drop;  push{5,5,26,26}
+        use(PASy);          drop;  push{10,52,10,52}
+     elseif tipoLab=3
+        use(PASx);          drop;  push{4,4,27,27}
+        use(PASy);          drop;  push{10,52,10,52}
+     elseif tipoLab=4
+        use(PASx);          drop;  push{3,3,23,23}
+        use(PASy);          drop;  push{10,52,10,52}
+     elseif tipoLab=5
+        use(PASx);          drop;  push{3,3,24,24}
+        use(PASy);          drop;  push{10,52,10,52}
+/*     elseif tipoLab=6
+        use(PASx);          drop;  push{5,5,18,18}
+        use(PASy);          drop;  push{10,42,10,42}*/
+     endif
      for indexP<-1 to 4
         color(142)
         at([PASx indexP] [PASy indexP]); write chr(111) //"o"
@@ -311,7 +520,7 @@ functions:
      next
    end
 
-   recuperaFantasmas:=function:void
+ /*  recuperaFantasmas:=function:void
      v:=number
    begin:
      use(Frecupera)
@@ -325,7 +534,7 @@ functions:
      wend
    end
 
-
+*/
    etapaSuperada:=function:void
      i:=number
      colores:=^number
@@ -341,7 +550,7 @@ functions:
 
    poneScore:=function:void
    begin:
-     color(15); at(1 16); write score
+     color(15); at(0 16); write score
    end
 
    verificaBoca:=function:void
@@ -355,18 +564,74 @@ functions:
      endif
    end
 
+   QUITACOMIDO(indexF:number):void
+   begin:
+     at([Fx indexF] ([Fy indexF]+1)) 
+     if [.dots [FANx indexF] ([FANy indexF]+1)]=1
+        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+     elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
+        color(142);write chr(111)
+     else
+        color(0);." "  // pone un espacio
+     endif
+           
+     at([Fx indexF] [Fy indexF]) 
+     if [.dots [FANx indexF] [FANy indexF]]=1
+        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+     elseif [.dots [FANx indexF] [FANy indexF]]=2
+        color(142);write chr(111)
+     else
+        color(0);." "  // pone un espacio
+     endif           
+
+     at([Fx indexF] ([Fy indexF]-1)) 
+     if [.dots [FANx indexF] ([FANy indexF]-1)]=1
+        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+     elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
+        color(142);write chr(111)
+     else
+        color(0);." "  // pone un espacio
+     endif           
+   
+   end
+   
    quitaFantasmas:=function:void
    begin:
      for indexF<-1 to 4
-        at([Fx indexF] [Fy indexF])
-        if [.dots [FANx indexF] [FANy indexF]]=1
-          // color( iif( (colorLAB=6) 12 14 ));write chr(250) //."┬╖"
-          color( {colorLAB=6?12:14} );write chr(250)
-        elseif [.dots [FANx indexF] [FANy indexF]]=2
-           color(142);write chr(111) //;."o"
+//        at([Fx indexF] [Fy indexF])
+//        if [.dots [FANx indexF] [FANy indexF]]=1
+//          color( {colorLAB=6?12:14} );write chr(250)
+//        elseif [.dots [FANx indexF] [FANy indexF]]=2
+//           color(142);write chr(111) //;."o"
+//        else
+//           color(0);." "
+//        endif
+        at([Fx indexF] ([Fy indexF]+1)) 
+        if [.dots [FANx indexF] ([FANy indexF]+1)]=1
+           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
+           color(142);write chr(111)
         else
-           color(0);." "
+           color(0);." "  // pone un espacio
         endif
+           
+        at([Fx indexF] [Fy indexF]) 
+        if [.dots [FANx indexF] [FANy indexF]]=1
+           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        elseif [.dots [FANx indexF] [FANy indexF]]=2
+           color(142);write chr(111)
+        else
+           color(0);." "  // pone un espacio
+        endif           
+
+        at([Fx indexF] ([Fy indexF]-1)) 
+        if [.dots [FANx indexF] ([FANy indexF]-1)]=1
+           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
+           color(142);write chr(111)
+        else
+           color(0);." "  // pone un espacio
+        endif           
      next
    end
 
@@ -374,34 +639,50 @@ functions:
    begin:
      --vidas
      color(0)
-     at(24 10); ."Comete esa hueá!"
-     at(14 22); ."1UP EXTRA!"
-     at(14 23); write "        "
+//     at(24 10); ."Comete esa hueá!"
+     at(17 27); ."1UP EXTRA"
+     at(17 27); write "        "
      .quitaFantasmas()
 
      .iniciaFantasmas()
      .iniciaPacman()
      .poneEncabezado()
 
-     .poneGetReady(), if vidas>0
+     .poneGetReady(false), if vidas>0
    end
 
    poneEstrella:=function:void
      i:=number
      colorFun:=$1:number
+     desvanece:=^number
    begin:
+      
       color(colorFun)
-
-      for i<-1 to 3
-      at(Px Py); write "V"
-      msleep(100000)
-      at(Px Py); write "<"
-      msleep(100000)
-      at(Px Py); write "^"
-      msleep(100000)
-      at(Px Py); write ">"
-      msleep(100000)
-      next
+      if colorFun=104
+         for i<-1 to 3
+            at(Px Py); write "V"
+            msleep(100000)
+            at(Px Py); write "<"
+            msleep(100000)
+            at(Px Py); write "^"
+            msleep(100000)
+            at(Px Py); write ">"
+            msleep(100000)
+         next
+      else
+         desvanece<-^[6,4,8,0]
+         for i<-1 to 4
+            color([desvanece i])
+            at(Px Py); write "V"
+            msleep(100000-i*1000)
+            at(Px Py); write "<"
+            msleep(100000-i*1000)
+            at(Px Py); write "^"
+            msleep(100000-i*1000)
+            at(Px Py); write ">"
+            msleep(100000-i*1000)
+         next
+      endif
       color(0)
 
    end
@@ -413,7 +694,7 @@ functions:
       color(0);cls
       cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
       not sw
-
+      at(6 23); color(15);."S T A G E   "+($tipoLab)
       for x<-1 to 50
          at(11 x);color(0);." ";color({x<43?104:0});write {sw?"<":"-"}
          not sw
@@ -435,7 +716,7 @@ functions:
       msleep(300000)
       cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
       msleep(350000)
-      at(11 26);color(11);."8=D"
+      at(11 26);color(12);."O";color(10);."^";color(12);."O"
       for x<-50 downto 1
          at(11 x);color({x>9?104:0});write {sw?">":"-"};color(0);." "
          not sw
@@ -460,30 +741,25 @@ functions:
       sleep(1)
    end
 
+   KILLWAKA():void
+   begin:
+      if swWaka
+         swWaka<-false
+         cmd("kill -9 "+PIDWAKA+" </dev/null >/dev/null 2>&1 &")
+      endif
+   end
+
+   KILLPILLS():void
+   begin:
+      cmd("kill -9 "+PIDPILLS+" </dev/null >/dev/null 2>&1 &")
+   end
+   
    KILLSOUND:=function:void
      PID,WPID,wtemp:=string
      i:=number
    begin:
-    // PID<-fcmd("ps -fea | grep \""+cPLAY+"\" | awk '{if($8==\""+cPLAY+"\" && $8!=\"grep\") print $2}'")
      PID<-fcmd("pidof "+cPLAY)
-     cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1 &")
-
-/*     WPID<-""
-
-     for i<-1 to strlcount(PID)
-        wtemp<-strtrim(strlin(PID i))
-      //WPID<-WPID+"  "+wtemp, if strlen(wtemp)<=6
-        if strlen(wtemp)<=6
-           WPID<-WPID+"  "+wtemp
-        endif
-     next
-
-     WPID<-strchg(WPID "\n" " ")
-     //PID<-strchg(PID "Done" "")
-     if strlen(strtrim((flag "A") WPID))<>0
-        //at(3 45); write WPID
-        cmd("kill -9 "+WPID+ " </dev/null >/dev/null 2>&1 &")
-     endif */
+     cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
    end
 
 algorithm:
@@ -515,17 +791,45 @@ algorithm:
  endif
  PATHs<-cPLAY+" "+PATH // deja "afplay /home..../source/"
 
+ use frutas; drop
+ push{"O","^","O", & //cereza
+      "(",")","#", & //limón
+      "#","(",")", & //manzana verde
+      "{","}","#", & //piña
+      "o","O","#", & //uvas
+      "(",")","#", & // manzana roja
+      "",chr(3),"", & /* corazon */
+      chr(213),chr(209),"8"} //llave
 
+ colorFruta<-^[12,14,12,14,14,10,2,10,10,6,6,2,13,13,2,12,12,10,0,12,0,11,11,11]
+ tipoLab<-1
+
+// colorPacman<-14
+ indFruta<-1
+ indLimit<-1
  precision 0
+ 
+// .intermedio()
+// goodbye
 
+ seed(2048) 
+ 
  .poneSecuenciaInicio(true)
 
- cmd(PATHs+"pacman_beginning.wav  </dev/null >/dev/null 2>&1") // funciona para mac
+ // despues de este limite, los fantasmas "cazan"
+ limiteMariconazo<-mth.int(numDots-(numDots*[probLim 1]))
+
+ .poneFrutas()
+// mulFruta<-(indFruta-1)*4
+// at(31 8);  color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
+//            color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
+//            color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
 
  while vidas>0
 
    sw_death<-false
-
+   colorPacman<-14
+   
    cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
 
    while c<>KESCAPE
@@ -537,16 +841,44 @@ algorithm:
         for indexF<-1 to 4
          /* los fantasmas se mueven con una probabilidad: esto marca la diferencia
             a la hora de perseguir al pacman */
-           at([Fx indexF] [Fy indexF])
-           if [.dots [FANx indexF] [FANy indexF]]=1
-              //color( iif( (colorLAB=6) 12 14 ));write chr(250)
-              color( {colorLAB=6?12:14} );write chr(250)
-           elseif [.dots [FANx indexF] [FANy indexF]]=2
+//           at([Fx indexF] [Fy indexF]) 
+//           if [.dots [FANx indexF] [FANy indexF]]=1
+//              //color( iif( (colorLAB=6) 12 14 ));write chr(250)
+//              color( {colorLAB=6?12:14} );write chr(250)
+//           elseif [.dots [FANx indexF] [FANy indexF]]=2
+//              color(142);write chr(111)
+//           else
+//              color(0);."   "  // pone un espacio
+//           endif
+
+           at([Fx indexF] ([Fy indexF]+1)) 
+           if [.dots [FANx indexF] ([FANy indexF]+1)]=1
+              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
               color(142);write chr(111)
            else
               color(0);." "  // pone un espacio
            endif
+           
+           at([Fx indexF] ([Fy indexF]-1)) 
+           if [.dots [FANx indexF] ([FANy indexF]-1)]=1
+              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
+              color(142);write chr(111)
+           else
+              color(0);." "  // pone un espacio
+           endif           
+           
+           at([Fx indexF] [Fy indexF]) 
+           if [.dots [FANx indexF] [FANy indexF]]=1
+              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           elseif [.dots [FANx indexF] [FANy indexF]]=2
+              color(142);write chr(111)
+           else
+              color(0);." "  // pone un espacio
+           endif           
 
+              
           /* chequea movimiento de fantasmas segun su direccion */
            fdir<-[fdireccion indexF]
            if fdir="E"
@@ -599,7 +931,11 @@ algorithm:
                  endif
 
               elseif fpos=13   // pto desicion salida de CASA
-                 pdecision<-"NNN"+fdir*7   // esta es una cadena de decision.
+                 if sw_azul
+                    pdecision<-"N"+fdir*9   // esta es una cadena de decision.
+                 else
+                    pdecision<-"NNN"+fdir*7
+                 endif
                  fdir<-[pdecision mth.ceil(mth.rand(10))]   // buena probabilidad de salir de casa
 
               elseif fpos=12   // a la salida, hacia donde se dirige
@@ -616,17 +952,25 @@ algorithm:
                  if fdir="N"   // viene desde abajo
                     if Px=[Fx indexF]
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa 
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        else
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"O"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"O"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     elseif Px>[Fx indexF]
                        pdecision<-"EEEEEOOOOO"
@@ -640,25 +984,37 @@ algorithm:
                  elseif fdir="E"  // viene desde la derecha
                     if Px=[Fx indexF]   // está abajo
                        if Py<=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        else  // es mayor
-                          if sw_etapa
-                             pdecision<-"SSSSSSSSSS"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"SSSSSSSSSS"
+//                             else
+//                                pdecision<-"S"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"S"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     elseif Px>[Fx indexF]
                        if Py=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"SSSSSSSSSS"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"SSSSSSSSSS"
+//                             else
+//                                pdecision<-"S"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"S"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        elseif Py<[Fy indexF]
                           pdecision<-"E"*fprob+"S"*(10-fprob)
                        else
@@ -670,11 +1026,15 @@ algorithm:
                  elseif fdir="O"  // viene desde la izquierda
                     if Px=[Fx indexF]
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        else   // es menor
                           pdecision<-"S"*fprob+"O"*(10-fprob)
                        endif
@@ -689,17 +1049,25 @@ algorithm:
                  if fdir="S"    // viene desde arriba
                     if Px=[Fx indexF]
                        if Py>=[Fy indexF]  // esta a la derecha
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        elseif Py<[Fy indexF]   // esta a la izquierda
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"O"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"O"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     elseif Px>[Fx indexF]
                        if Py>=[Fy indexF]
@@ -712,33 +1080,49 @@ algorithm:
                     endif
                  elseif fdir="E"  // _|_ viene desde la derecha
                     if Px>=[Fx indexF]
-                       if sw_etapa
-                          pdecision<-"EEEEEEEEEE"
-                       else
+//                       if sw_etapa
+//                          if indexF=1
+//                             pdecision<-"EEEEEEEEEE"
+//                          else
+//                             pdecision<-"E"*fprob+"N"*(10-fprob)
+//                          endif
+//                       else
                           pdecision<-"E"*fprob+"N"*(10-fprob)
-                       endif
+//                       endif
                     elseif Py>=[Fy indexF]
-                       if sw_etapa
-                          pdecision<-"NNNNNNNNNN"
-                       else
+//                       if sw_etapa
+//                          if indexF=1
+//                             pdecision<-"NNNNNNNNNN"
+//                          else
+//                             pdecision<-"N"*fprob+"E"*(10-fprob)
+//                          endif
+//                       else
                           pdecision<-"N"*fprob+"E"*(10-fprob)
-                       endif
+//                       endif
                     else
                        pdecision<-"N"*fprob+"E"*(10-fprob)
                     endif
                  elseif fdir="O"  // viene desde la izquierda
                     if Px>=[Fx indexF]   // está abajo
-                       if sw_etapa
-                          pdecision<-"OOOOOOOOOO"
-                       else
+//                       if sw_etapa
+//                          if indexF=1
+//                             pdecision<-"OOOOOOOOOO"
+//                          else
+//                             pdecision<-"O"*fprob+"N"*(10-fprob)
+//                          endif
+//                       else
                           pdecision<-"O"*fprob+"N"*(10-fprob)
-                       endif
+//                       endif
                     elseif Py>=[Fy indexF]   // está arriba
-                       if sw_etapa
-                          pdecision<-"NNNNNNNNNN"
-                       else
+//                       if sw_etapa
+//                          if indexF=1
+//                             pdecision<-"NNNNNNNNNN"
+//                          else
+//                             pdecision<-"N"*fprob+"O"*(10-fprob)
+//                          endif
+//                       else
                           pdecision<-"N"*fprob+"O"*(10-fprob)
-                       endif
+//                       endif
                     else   // Py es menor
                        pdecision<-"N"*fprob+"O"*(10-fprob)
                     endif
@@ -748,17 +1132,25 @@ algorithm:
                  if fdir="E"    // viene desde la derecha
                     if Py>=[Fy indexF]  // esta abajo
                        if Px>=[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"SSSSSSSSSS"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"SSSSSSSSSS"
+//                             else
+//                                pdecision<-"S"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"S"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        else
-                          if sw_etapa
-                             pdecision<-"NNNNNNNNNN"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"NNNNNNNNNN"
+//                             else
+//                                pdecision<-"N"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"N"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     else
                        if Px>=[Fx indexF]
@@ -770,11 +1162,15 @@ algorithm:
                  elseif fdir="N"  // viene desde abajo
                     if Px=[Fx indexF]
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        else
                           pdecision<-"NNNNNOOOOO"
                        endif
@@ -782,11 +1178,15 @@ algorithm:
                        pdecision<-"O"*fprob+"N"*(10-fprob)
                     else
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        else
                           pdecision<-"N"*fprob+"O"*(10-fprob)
                        endif
@@ -794,11 +1194,15 @@ algorithm:
                  elseif fdir="S"  // viene desde arriba
                     if Px=[Fx indexF]
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        else
                           pdecision<-"SSSSSOOOOO"
                        endif
@@ -810,11 +1214,15 @@ algorithm:
                        endif
                     else
                        if Py>=[Fy indexF]
-                          if sw_etapa
-                             pdecision<-"OOOOOOOOOO"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"OOOOOOOOOO"
+//                             else
+//                                pdecision<-"O"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"O"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        else
                           pdecision<-"S"*fprob+"O"*(10-fprob)
                        endif
@@ -825,17 +1233,25 @@ algorithm:
                  if fdir="O"    // viene desde la izquierda
                     if Py=[Fy indexF]  // esta abajo
                        if Px>=[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"SSSSSSSSSS"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"SSSSSSSSSS"
+//                             else
+//                                pdecision<-"S"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"S"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        else
-                          if sw_etapa
-                             pdecision<-"NNNNNNNNNN"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"NNNNNNNNNN"
+//                             else
+//                                pdecision<-"N"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"N"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     else   // puede ser > o <: da lo mismo, no puede retroceder
                        if Px>=[Fx indexF]
@@ -847,25 +1263,37 @@ algorithm:
                  elseif fdir="N"  // viene desde abajo
                     if Py=[Fy indexF]
                        if Px<[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"NNNNNNNNNN"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"NNNNNNNNNN"
+//                             else
+//                                pdecision<-"N"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"N"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        elseif Px>=[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     elseif Py<[Fy indexF]
                        if Px=[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"N"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"N"*(10-fprob)
-                          endif
+//                          endif
                        elseif Px<[Fx indexF]
                           pdecision<-"E"*fprob+"N"*(10-fprob)
                        else
@@ -877,27 +1305,39 @@ algorithm:
                  elseif fdir="S"  // viene desde arriba
                     if Py=[Fy indexF]
                        if Px>[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"SSSSSSSSSS"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"SSSSSSSSSS"
+//                             else
+//                                pdecision<-"S"*fprob+"E"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"S"*fprob+"E"*(10-fprob)
-                          endif
+//                          endif
                        elseif Px<=[Fx indexF]
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     elseif Py<[Fy indexF]
                        if Px>[Fx indexF]
                           pdecision<-"S"*fprob+"E"*(10-fprob)
                        else
-                          if sw_etapa
-                             pdecision<-"EEEEEEEEEE"
-                          else
+//                          if sw_etapa
+//                             if indexF=1
+//                                pdecision<-"EEEEEEEEEE"
+//                             else
+//                                pdecision<-"E"*fprob+"S"*(10-fprob)
+//                             endif
+//                          else
                              pdecision<-"E"*fprob+"S"*(10-fprob)
-                          endif
+//                          endif
                        endif
                     else
                        if Px>[Fx indexF]
@@ -1004,42 +1444,74 @@ algorithm:
            endif
 
            [fdireccion indexF]<-fdir
-           at([Fx indexF] [Fy indexF]); color([Fcolor indexF]); write [fantasma indexF]
-
-          /* chequea si comen o no */
+           if sw_cambiaColor
+              if ~[festado indexF]
+                 if [sw_intermit indexF]
+                    at([Fx indexF] ([Fy indexF]-1)); color(15); ."▄"
+                    color(120); write [fantasma indexF]
+                    color(15); ."▄"
+                    [sw_intermit indexF]<-false
+                 else
+                    at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
+                    color([Fcolor indexF]); write [fantasma indexF]
+                    color([Bcolor indexF]); ."▄"
+                    [sw_intermit indexF]<-true
+                 endif
+              else
+                 at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
+                 color([Fcolor indexF]); write [fantasma indexF]
+                 color([Bcolor indexF]); ."▄"
+              endif
+           else
+              at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
+              color([Fcolor indexF]); write [fantasma indexF]
+              color([Bcolor indexF]); ."▄"
+           endif
+           
+          /* chequea si comen o no jajajaja */
 
            if mPx=[FANx indexF] and mPy=[FANy indexF]
 
-              sw_death<-false
-              if ~sw_azul
-                 at(14 23); write (color(12)) "TRAPPED!"
+              if [festado indexF] //~sw_azul
+
+                 sw_death<-false
+                 //at(14 23); write (color(12)) "TRAPPED!"
                  .KILLSOUND()
                  flush()
+                 sleep(1)
                  cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
-                 .poneEstrella(79)
+                 .quitaFantasmas()
+                 .poneEstrella(14)
                  .wrongEtapa()
                  sw_death<-true
                  break
               else
                  ++cntPuntos
                  score<-+[Fpuntos cntPuntos]
-                 at(8 9);color(143);write [Fpuntos cntPuntos]
+                 at(14 30);color(143);write [Fpuntos cntPuntos]
+                 .KILLWAKA()
                  cmd(PATHs+"pacman_eatghost.wav </dev/null >/dev/null 2>&1 &")
                  .poneScore()
                  //gosub "poneScore"
+                 .QUITACOMIDO(indexF)
+                 
                  .poneEstrella(104)
-                 at(8 9);color(0);write "    "
-                 [fdireccion indexF]<-"X"
-                 use(Frecupera); push(indexF)
+                 at(14 30);color(0);write "    "
+                 [fdireccion indexF]<-"E"
+//                 use(Frecupera); push(indexF)
+                 [festado indexF]<-true
+                 [Fcolor indexF]<-[tmpcolor indexF]
+                 [Bcolor indexF]<-[tmpBcolor indexF]
                  if indexF=1
-                    [FANx indexF]<-10 ; [FANy indexF]<-18; [Fx indexF]<-11; [Fy indexF]<-25
+                    [FANx indexF]<-14 ; [FANy indexF]<-23; [Fx indexF]<-14; [Fy indexF]<-30
                  elseif indexF=2
-                    [FANx indexF]<-10; [FANy indexF]<-20; [Fx indexF]<-11; [Fy indexF]<-27
+                    [FANx indexF]<-14; [FANy indexF]<-26; [Fx indexF]<-14; [Fy indexF]<-33
                  elseif indexF=3
-                    [FANx indexF]<-11; [FANy indexF]<-18; [Fx indexF]<-12; [Fy indexF]<-25
+                    [FANx indexF]<-15; [FANy indexF]<-23; [Fx indexF]<-15; [Fy indexF]<-30
                  else
-                    [FANx indexF]<-11; [FANy indexF]<-20; [Fx indexF]<-12; [Fy indexF]<-27
+                    [FANx indexF]<-15; [FANy indexF]<-26; [Fx indexF]<-15; [Fy indexF]<-33
                  endif
+                 flush()
               endif
            endif
         next
@@ -1055,19 +1527,45 @@ algorithm:
         endif
      endif
 
-
+     
     /* chequeo PACMAN */
-     if (++retardoP)=RETARDOP-POTENCIA
+     if (++retardoP)=RETARDOP //-POTENCIA
         retardoP<-0
-
+//      if ~sw_dimension
        /* recibe key */
         readkey(c)
-
+        flush()
         if strupper(chr(c))="P"
+           .KILLSOUND()
            pause
+           cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
         endif
 
-        at(Px Py); color(0); write " "
+        at(Px (Py-1)); color(0); write "   ";color(10)  // si hay error por aquí, habilitar: ;color(10)
+
+        at(Px (Py-1)) 
+//        try
+        if [.dots mPx (mPy-1)]=1
+           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        elseif [.dots mPx (mPy-1)]=2
+           color(142);write chr(111)
+        else
+           color(0);." "  // pone un espacio
+        endif
+//        exception
+//          
+//        tend           
+        at(Px (Py+1)) 
+        if [.dots mPx (mPy+1)]=1
+           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        elseif [.dots mPx (mPy+1)]=2
+           color(142);write chr(111)
+        else
+           color(0);." "  // pone un espacio
+        endif           
+        
+        color(10) // para errores en depuracion
+        
         if c>0
 
            sw<-false
@@ -1087,12 +1585,16 @@ algorithm:
                  pdireccion<-"S"
               endif
            elseif c=KLEFT
+              try
               if [.dots mPx (mPy-1)]<>0
                  --Py;--mPy;direccion<-"E"; .verificaBoca(">" "-")
                  sw<-true
               else
                  pdireccion<-"E"
               endif
+              exception
+                 pdireccion<-"E"
+              tend
            elseif c=KRIGHT
               if [.dots mPx (mPy+1)]<>0
                  ++Py;++mPy;direccion<-"O"; .verificaBoca("<" "-")
@@ -1174,7 +1676,25 @@ algorithm:
            [.dots mPx mPy]<-3  // consumido!
            totDots<-+1
            score<-+10
-          // cmd("afplay plop7.wav </dev/null >/dev/null 2>&1 &")
+           if totDots=limiteMariconazo
+              sw_etapa<-true
+              use(fprobabilidad); drop; push {8,6,7,3}
+              
+           endif
+           if ~swWaka
+//              color(79)
+//              write "ACTUAL=",fcmd("pidof "+cPLAY)," ; " ; pause
+              cmd(PATHs+"pacman_waca1.wav </dev/null >/dev/null 2>&1 &")
+              PIDWAKA<- fcmd("pidof "+cPLAY)
+              //color(79)
+//              write "TOTAL=",PIDWAKA,"\n" ; pause
+              nWaka<-strntok((flag " ") PIDWAKA)
+              //write nWaka,"\n"; pause
+              PIDWAKA<-strtok(PIDWAKA 1)
+//              write "WAKA=",PIDWAKA,"\n" ; pause
+              
+              swWaka<-true
+           endif
            .poneScore()
            //gosub "poneScore"
         elseif [.dots mPx mPy]=2  // pastilla de poder
@@ -1183,11 +1703,24 @@ algorithm:
            totDots<-+1
            score<-+250
            .poneScore()
+           if totDots=limiteMariconazo
+              sw_etapa<-true
+              use(fprobabilidad); drop; push {8,6,7,3}
+           endif
+           
            //gosub "poneScore"
            sw_azul<-true
            cntPuntos<-0
-           POTENCIA<-400
+           festado<-^[false,false,false,false]
+           RETARDOP <-> RETARDOF
+//           colorPacman<-112
+//           tmpRET<-RETARDOP
+//           RETARDOP<-RETARDOF
+//           RETARDOF<-tmpRET
+           {retardoP,retardoF}<-0
+//           POTENCIA<-400
            Fcolor<-^[31,31,31,31]
+           Bcolor<-^[1,1,1,1]
            timeAZUL<-seconds(timenow)
            for Pi<-1 to 4
               if Px=[PASx Pi] and Py=[PASy Pi]
@@ -1196,6 +1729,9 @@ algorithm:
               endif
            next
            cmd(PATHs+"pacman-pills.wav </dev/null >/dev/null 2>&1 &")
+           PIDPILLS<- fcmd("pidof "+cPLAY)
+           nPills<-strntok((flag " ") PIDPILLS)
+           PIDPILLS<-strtok(PIDPILLS 1)
 
         elseif [.dots mPx mPy]=5  // premio "la hueá"
            [.dots mPx mPy]<-3  // consumido!
@@ -1203,21 +1739,25 @@ algorithm:
            cmd(PATHs+"pacman_eatfruit.wav </dev/null >/dev/null 2>&1 &")
            .poneScore()
            //gosub "poneScore"
-           [.dots 13 18]<-3;[.dots 13 19]<-3;[.dots 13 20]<-3
+           [.dots 17 23]<-3;[.dots 17 24]<-3;[.dots 17 25]<-3
            time<-seconds(timenow)
            sw_puntos<-true
            sw_pichula<-false
-           at(14 25); color(0); ."8=D"
-           at(24 10); ."Comete esa hueá!"
-
+           color(0)
+           at(17 30); write [frutas (1+mulFruta)]
+                      write [frutas (2+mulFruta)]
+                      write [frutas (3+mulFruta)]
+//           at(24 10); ."Comete esa fruta!"
+        else
+           .KILLWAKA()
         endif
 
        /* verifica si se metio en la puerta dimensional */
         if [.dots mPx mPy]=4
-           if mPy=1
-              mPy<-36; Py<-43
+           if mPy=2
+              mPy<-46; Py<-53
            else
-              mPy<-1 ; Py<-8
+              mPy<-2 ; Py<-9
            endif
            timeDimension<-seconds(timenow)
            sw_dimension<-true
@@ -1227,61 +1767,104 @@ algorithm:
 
        /* pone Pacman, mi heroe infantil */
         not estadoBoca
-        at(Px Py) ; color(104); write boca
+        at(Px (Py-1)) ; color(colorPacman); write "("+boca+")"
 
        /* CHEQUEO COMER FANTASMAS */
        /* chequea tiempo de vulnerabilidad */
         if sw_azul
-           if seconds(timenow)-timeAZUL >= 10
+           if seconds(timenow)-timeAZUL >= TIEMPOAZUL
               sw_azul<-false
               Fcolor<-^[79,63,95,111]
+              Bcolor<-^[4,3,5,6]
               cntPuntos<-0
-              POTENCIA<-0
-              .recuperaFantasmas()
-              use(Frecupera);drop
-              sw_cambiaColor<-true
+              festado<-^[true,true,true,true]
+              colorPacman<-14
+//              POTENCIA<-0
+//              .recuperaFantasmas()
+//              use(Frecupera);drop
+              sw_cambiaColor<-false
+              RETARDOP <-> RETARDOF
+//              tmpRET<-RETARDOP
+//              RETARDOP<-RETARDOF
+//              RETARDOF<-tmpRET
+              {retardoP,retardoF}<-0
+              .KILLPILLS()
               cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
-           elseif seconds(timenow)-timeAZUL >= 5
-              if sw_cambiaColor
-                 Fcolor<-^[151,151,151,151]
-                 sw_cambiaColor<-false
-              endif
+           elseif seconds(timenow)-timeAZUL >= (TIEMPOAZUL\2)
+              sw_cambiaColor<-true
+//                 for indexF<-1 to 4
+//                    if ~[festado indexF]
+//                       [Fcolor indexF]<-151
+//                       [Bcolor indexF]<-129
+//                    endif
+//                 next
+//                 sw_cambiaColor<-false
+//              endif
            endif
           /* verifico si come a un fantasma */
            for indexF<-1 to 4
               if mPx=[FANx indexF] and mPy=[FANy indexF]
-                 ++cntPuntos
-                 score<-+[Fpuntos cntPuntos]
+                
+                 if ~[festado indexF]
+                    ++cntPuntos
+                    score<-+[Fpuntos cntPuntos]
 
-                 at(8 9);color(143);write [Fpuntos cntPuntos]
-                 cmd(PATHs+"pacman_eatghost.wav </dev/null >/dev/null 2>&1 &")
-                 .poneScore()
-                 //gosub "poneScore"
-                 .poneEstrella(104)
-                 at(8 9);color(0);write "    "
-                 [fdireccion indexF]<-"X"
-                 use(Frecupera); push(indexF)
-                 if indexF=1
-                    [FANx indexF]<-10; [FANy indexF]<-18; [Fx indexF]<-11; [Fy indexF]<-25
-                 elseif indexF=2
-                    [FANx indexF]<-10; [FANy indexF]<-20; [Fx indexF]<-11; [Fy indexF]<-27
-                 elseif indexF=3
-                    [FANx indexF]<-11; [FANy indexF]<-18; [Fx indexF]<-12; [Fy indexF]<-25
+                    at(14 30);color(143);write [Fpuntos cntPuntos]
+                    .KILLWAKA()
+                    cmd(PATHs+"pacman_eatghost.wav </dev/null >/dev/null 2>&1 &")
+                    .poneScore()
+                    //gosub "poneScore"
+                    .QUITACOMIDO(indexF)
+                    
+                    .poneEstrella(104)
+                    at(14 30);color(0);write "    "
+                    [fdireccion indexF]<-"O"
+                    // use(Frecupera); push(indexF)
+                    [festado indexF]<-true
+                    [Fcolor indexF]<-[tmpcolor indexF]
+                    [Bcolor indexF]<-[tmpBcolor indexF]
+                    if indexF=1         
+                       [FANx indexF]<-14 ; [FANy indexF]<-23; [Fx indexF]<-14; [Fy indexF]<-30
+                    elseif indexF=2
+                       [FANx indexF]<-14; [FANy indexF]<-26; [Fx indexF]<-14; [Fy indexF]<-33
+                    elseif indexF=3
+                       [FANx indexF]<-15; [FANy indexF]<-23; [Fx indexF]<-15; [Fy indexF]<-30
+                    else
+                       [FANx indexF]<-15; [FANy indexF]<-26; [Fx indexF]<-15; [Fy indexF]<-33
+                    endif
+
+                    cmd(PATHs+"pacman_aftereatghost.wav </dev/null >/dev/null 2>&1 &")
+                    flush()
                  else
-                    [FANx indexF]<-11; [FANy indexF]<-20; [Fx indexF]<-12; [Fy indexF]<-27
+                    at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
+                    color([Fcolor indexF]); write [fantasma indexF]
+                    color([Bcolor indexF]); ."▄"
+                    .KILLSOUND()
+                    flush()
+                    sleep(1)
+                    cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
+                    .quitaFantasmas()
+                    .poneEstrella(14)
+                    .wrongEtapa()
+                    sw_death<-true
+                    break
                  endif
-                 cmd(PATHs+"pacman_aftereatghost.wav </dev/null >/dev/null 2>&1 &")
-
               endif
            next
         else  // veo si se lo comen
            for indexF<-1 to 4
               if mPx=[FANx indexF] and mPy=[FANy indexF]
-                 at(14 23); write (color(12)) "TRAPPED!"
+                 //at(14 23); write (color(12)) "TRAPPED!"
+                 at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
+                 color([Fcolor indexF]); write [fantasma indexF]
+                 color([Bcolor indexF]); ."▄"
+                 
                  .KILLSOUND()
                  flush()
+                 sleep(1)
                  cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
-                 .poneEstrella(79)
+                 .quitaFantasmas()
+                 .poneEstrella(14)
                  .wrongEtapa()
                  sw_death<-true
                  break
@@ -1302,7 +1885,7 @@ algorithm:
                  endif
                  LIMITVIDAS<-20000
                  sw_msgvida<-true
-                 at(14 22);color(130);."1UP EXTRA!"
+                 at(17 27);color(130);."1UP EXTRA"
                  timevida<-seconds(timenow)
               endif
            endif
@@ -1315,7 +1898,7 @@ algorithm:
               else
                  color(130)
               endif
-              at(14 22); ."1UP EXTRA!"
+              at(17 27); ."1UP EXTRA"
            endif
         rend
 
@@ -1324,12 +1907,18 @@ algorithm:
 //  y 2/3 partes
         room puertaPremio
            if totDots=127 and ~sw_pichula
-              [.dots 13 18]<-5;[.dots 13 19]<-5;[.dots 13 20]<-5
-              at(14 25); color(13); ."8=D"
-              at(24 10); ."Comete esa hueá!"
-              cmd(PATHs+"come.wav </dev/null >/dev/null 2>&1 &")
+              [.dots 17 23]<-5;[.dots 17 24]<-5;[.dots 17 25]<-5
+//              indFruta<-(#["11111222233344556678" mth.ceil(mth.rand(20))] )
+              hPremio<-[hPuntos indFruta]
+              //at(14 25); color(13); write [frutas indFruta]
+              mulFruta<-(indFruta-1)*3
+              at(17 30); color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
+                         color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
+                         color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
+//              at(24 10); ."Comete esa fruta!"
+//              cmd(PATHs+"come.wav </dev/null >/dev/null 2>&1 &")
               time<-seconds(timenow)
-              hPremio<-[hPuntos (#["1333225567" mth.ceil(mth.rand(10))] )]
+//              hPremio<-[hPuntos (#["1333225567" mth.ceil(mth.rand(10))] )]
               sw_pichula<-true
            endif
           /* verifica si pasó el tiempo y no comió la hueá */
@@ -1337,12 +1926,17 @@ algorithm:
               if seconds(timenow)-time >= 10   // 10 segundos para comerse la hueá
                  sw_pichula<-false
                  color(0)
-                 [.dots 13 18]<-3;[.dots 13 19]<-3;[.dots 13 20]<-3
+                 [.dots 17 23]<-3;[.dots 17 24]<-3;[.dots 17 25]<-3
+                 at(17 30); write [frutas (1+mulFruta)]
+                            write [frutas (2+mulFruta)]
+                            write [frutas (3+mulFruta)]
+//                 at(24 10); ."Comete esa fruta!"
               else
-                 color(13)
+                 at(17 30); color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
+                            color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
+                            color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
+//                 at(24 10); ."Comete esa fruta!"
               endif
-              at(14 25); ."8=D"
-              at(24 10); ."Comete esa hueá!"
            endif
           /* verifica que muestre los puntos por la hueá consumida */
            if sw_puntos
@@ -1352,31 +1946,58 @@ algorithm:
               else
                  color(15)
               endif
-              at(14 25); write hPremio
+              at(17 29); write hPremio
            endif
         rend
 
        /* COMIO TODOS LOS PUNTOS? */
         if totDots=numDots
            .KILLSOUND()
-
-           color(0)
-           cntLAB<-1, if (++cntLAB)>14
-           colorLAB<-[paLAB cntLAB]
-           .etapaSuperada()
-           if etapa=1 or etapa=3 or etapa=5
-              .intermedio()
-           endif
-           .poneSecuenciaInicio(false)
-          /* if RETARDOP>3800
-              RETARDOP<-RETARDOP-50
-           endif
-           if RETARDOF>3800
-              RETARDOF<-RETARDOF-50
-           endif */
            ++etapa
+           ++indFruta
+           if indFruta>8
+              indFruta<-8  // después del laberinto 8, la fruta es una llave de 5 lukas.
+           endif
+           if (++indLimit)>10
+              indLimit<-10
+           endif
+           color(0)
+//           cntLAB<-1, if (++cntLAB)>14
+//           colorLAB<-[paLAB cntLAB]
+           .etapaSuperada()
+           if (etapa%3)=0  // cada 2 pantallas, cambia el stage y un nuevo laberinto aparece
+              ++tipoLab
+              .intermedio()
+              if tipoLab=6
+                 tipoLab<-1
+              endif
+              colorLAB<-[paLAB tipoLab]
+
+              // al superar un stage, se reduce el tiempo para comer fantasmas en un segundo
+              --TIEMPOAZUL
+              if TIEMPOAZUL<3
+                 TIEMPOAZUL<-3
+              endif
+           endif
+          // aumenta levemente la velocidad de los protas
+           --RETARDOP
+           --RETARDOF
+           retardoP<-0
+           retardoF<-0
+           
+           sw_etapa<-false
+           Fcolor<-^[79,63,95,111]
+           Bcolor<-^[4,3,5,6]
+           festado<-^[true,true,true,true]
+           colorPacman<-14
+           
+           .poneSecuenciaInicio(false)
+           // despues de este limite, los fantasmas "cazan"
+           limiteMariconazo<-mth.int(numDots-(numDots*[probLim indLimit]))
+           .poneFrutas()           
            cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
         endif
+//       endif //sw_dimension
       endif  // PACMAN
 
      /* PUNTOS DE PODER */
@@ -1387,12 +2008,7 @@ algorithm:
             color(14)
             if [PASl Pi]
                at([PASx Pi] [PASy Pi])
-               color({sw_pastilla?14:10})
-            /*   if sw_pastilla
-                  color(14)
-               else
-                  color(0)
-               endif */
+               color({sw_pastilla?14:8})
                write chr(111) //111
             endif
          next
@@ -1400,11 +2016,16 @@ algorithm:
 
    wend
    brkif c=KESCAPE
+   if vidas>0
+      Fcolor<-^[79,63,95,111]
+      Bcolor<-^[4,3,5,6]
+      festado<-^[true,true,true,true]
+   endif
  wend
  sleep(1)
  .KILLSOUND()
 
  .poneFinal()
- vtab(10)
+ vtab(14)
 stop
 

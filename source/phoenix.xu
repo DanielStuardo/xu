@@ -1,7 +1,9 @@
+/*PONER DE FONDO LA MUSIC DE AVENGERS!! */
 name: Phoenix!!
 #use string,stack,math,matrix
 vars:
    actores :=number   // n£mero de actores
+   etapas:=number
    RETARDO := $1:number  // retardo general del juego
    {dirx, diry,
     posx, posy,
@@ -52,7 +54,8 @@ vars:
     write "\t\t                    hayas acabado con los pajarracos\n"
     write "\t\t              ESC = Escapas como la vil rata que eres\n"
     write "\n\n\t\tPresione una tecla para comenzar el juego"
-    pause 
+    cmd(PATH+"sirena.wav </dev/null >/dev/null 2>&1 ")
+//    pause 
     cls
   end
 
@@ -116,8 +119,8 @@ vars:
      write  " <(╩)> "
      at ((y-1) x)
      write  "   v   "    */
-     at((y-1) x);."  <v>   "
-     at(    y x);."  /|\\  "
+     at((y-1) (x+1));." <v> "
+     at(    y (x+1));." /|\\ "
      at((y+1) x);." /_O_\\ "
   
      color 7
@@ -434,30 +437,18 @@ vars:
 
   limpia_pilas := function:void
   begin:
-      use dirx
-      drop
-      use diry
-      drop
-      use posx
-      drop
-      use posy
-      drop
-      use batir
-      drop
-      use estado
-      drop
-      use colores
-      drop
-      use tarda_explosion
-      drop
-      use shotx
-      drop
-      use shoty
-      drop
-      use bomba
-      drop
-      use bshot
-      drop
+      use dirx;    drop
+      use diry;    drop
+      use posx;    drop
+      use posy;    drop
+      use batir;   drop
+      use estado;  drop
+      use colores; drop
+      use tarda_explosion;  drop
+      use shotx;   drop
+      use shoty;   drop
+      use bomba;   drop
+      use bshot;   drop
   end
 
   define_todo := function:void
@@ -468,6 +459,7 @@ vars:
     {actores, i} <- {16, 1}    //16
     if etapa<>2
        heroe<-10
+       
     endif
     if etapa=2 
        actores<-42
@@ -527,7 +519,9 @@ vars:
    begin:
      
      PID<-fcmd("pidof "+cPLAY)
-     cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1 &")
+     if strlen(strtrim((flag "A") PID))>0
+        cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
+     endif
      
  /*    PID<-fcmd("ps -fea | grep \""+cPLAY+"\" | awk '{if($8==\""+cPLAY+"\" && $8!=\"grep\") print $2}'")
      WPID<-""
@@ -546,6 +540,456 @@ vars:
      endif */
    end
 
+   pone_mensaje(msg:string,linea:number):void
+     k:=number
+   begin:
+      cursor(1)
+      color(15)
+      for k<-1 to strlen(msg)
+        at(linea (35+k)); write strcpy(msg k 1)
+        millisec(50)
+      next
+      cursor(0)
+   end
+
+   pone_final_mensaje(msg:string,linea:number):void
+     k:=number
+   begin:
+      cursor(1)
+      color(15)
+      for k<-1 to strlen(msg)
+        at(linea (13+k)); write strcpy(msg k 1)
+        millisec(50)
+      next
+      cursor(0)
+   end
+   
+
+   muestra_objetivo(n:number):void
+     i,j,k:=number
+     msg:=string
+     sw:=boolean
+   begin:
+       if n=200
+          cmd(PATH+"finalFelizPhoenix.wav </dev/null >/dev/null 2>&1 &")
+       else   
+//          cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+          cmd(PATH+"phoenixMision.wav </dev/null >/dev/null 2>&1 &")
+       endif
+       sw<-true
+       for j<-1 to 12
+          if n=200 and j=4
+             cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+          endif
+          for i<-1 to 10
+             //color([color_marciano_feo i])
+             color(15)
+             if n=5
+                at(19 2);write "                 A"
+                at(20 2);write "                /_\\"
+                at(21 2);write "        :      /_|_\\"
+                at(22 2);write "       :::    /|__|_\\"
+                at(23 2);write "      ::.::  /|_|__|_\      :"
+                at(24 2);write "     ::.:.::/__|_|__|_\    :.:"
+                at(25 2);write "    :..:.:./_|__|__|__|\  :.:.:"
+                at(26 2);write "   :.:..:./|__|___|__|__\:.:..::"
+                at(27 2);write "..::..:../__|___|__|___|_\..:..::"
+                at(28 2);write ".:..:..:/_|__|___|___|___|\:..:.."
+                at(29 2);write ":.:..:./___|___|___|___|___\...."
+                at(30 2);write "....../..!...!...!...!...!..\."
+                
+             elseif n=4
+                at(10 2);write "              ()"
+                at(11 2);write "              /\\"
+                at(12 2);write "             |==|"
+                at(13 2);write "             ===="
+                at(14 2);write "              XX"
+                at(15 2);write "             xXXx"
+                at(16 2);write "             X||X"
+                at(17 2);write "             X||X"
+                at(18 2);write "             X||X"
+                at(19 2);write "            xX==Xx"
+                at(20 2);write "            X=XX=X"
+                at(21 2);write "            XXXXXX"
+                at(22 2);write "           x_|_|_|x"
+                at(23 2);write "           XXXXXXXX"
+                at(24 2);write "          xXXXXXXXXx"
+                at(25 2);write "          XXXXXXXXXX"
+                at(26 2);write "         XXXXX  XXXXX"
+                at(27 2);write "        xXXXX'  'XXXXx"
+                at(28 2);write "       XXXXXxxxxxxXXXXX"
+                at(29 2);write "     xXXXXX''''''''XXXXXx"
+                at(30 2);write "   xXXXXXX'        'XXXXXXx"
+                at(31 2);write "xxXXXXXXX            XXXXXXXxx"
+             elseif n=3
+                at(04 2);write " ("
+                at(05 2);write "(_)"
+                at(06 2);write "###       ."
+                at(07 2);write "(#c    __\|/__"
+                at(08 2);write " #\     wWWWw"
+                at(09 2);write " \ \-. (/. .\)"
+                at(10 2);write " /\ /`\/\   /\\"
+                at(11 2);write " |\/   \_) (_|"
+                at(12 2);write " `\.' ; ; `' ;`\\"
+                at(13 2);write "   `\;  ;    .  ;/\\"
+                at(14 2);write "     `\;    ;  ;|  \\"
+                at(15 2);write "      ;   .'  ' ;  /"
+                at(16 2);write "      |_.'   ;  | /)"
+                at(17 2);write "      (     ''._;/`"
+                at(18 2);write "      |    ' . ;"
+                at(19 2);write "      |.-'   .:)"
+                at(20 2);write "      |        |"
+                at(21 2);write "      (  .'  : |"
+                at(22 2);write "      |,-  .:: |"
+                at(23 2);write "      | ,-'  .;|"
+                at(24 2);write "     _/___,_.:_\_"
+                at(25 2);write "    [I_I_I_I_I_I_]"
+                at(26 2);write "    | __________ |"
+                at(27 2);write "    | || |  | || |"
+                at(28 2);write "   _| ||_|__|_|| |_"
+                at(29 2);write "  /=--------------=\\"
+                at(30 2);write " /                  \\"
+                at(31 2);write "|                    |"
+             elseif n=2
+                at(04 2);write "           ."
+                at(05 2);write "           T "
+                at(06 2);write "          ( ) "
+                at(07 2);write "          <==> "
+                at(08 2);write "           FJ "
+                at(09 2);write "           == "
+                at(10 2);write "          J||F "
+                at(11 2);write "          F||J "
+                at(12 2);write "         /\/\/\ "
+                at(13 2);write "         F++++J "
+                at(14 2);write "        J{}{}{}F         . "
+                at(15 2);write "     .  F{}{}{}J         T "
+                at(16 2);write "     T J{}{}{}{}F        ;; "
+                at(17 2);write "    /|\F \/ \/ \J  .   ,;;;;. "
+                at(18 2);write "  .'/|\\\:========F T ./;;;;;;\ "
+                at(19 2);write " ///|||\\\\\\\''''''' / \I\;;;;;;/"
+                at(20 2);write " \\\\\\\|////..[]...xXXXx.|====| "
+                at(21 2);write " :.:.:.:.:||[]|/xXXXXXx\||||| "
+                at(22 2);write " `;:;:;:;'=====\XXXXXXX/=====. "
+                at(23 2);write "\.|,|,|,| ( )( )| | | |.=..=.| "
+                at(24 2);write "/(_)(_)(_) _  _ | | | |'-''-'| "
+                at(25 2);write ":|\"\"\"\"\"\"\"|/ \/ \|=====|======| "
+                at(26 2);write "|| ,. .. || || |/\/\/\/ | | || "
+                at(27 2);write ".| || || ||-||-|/\/\/\+|+| | | "
+                at(28 2);write "='======='============/\/\=====." 
+                at(29 2);write "|__..,__|===========/||\|\====| "
+                at(30 2);write "|,;:::::         |========|   | "
+                at(31 2);write "::;::::::________|========|___|_"
+
+             elseif n=1
+                at(08 2);write "               I"
+                at(09 2);write "               Y"
+                at(10 2);write "               T"
+                at(11 2);write "             .' '."
+                at(12 2);write "           _;-----;_"
+                at(13 2);write "         .':::::    '."
+                at(14 2);write "        /:::::::      \\"          
+                at(15 2);write "   |   ::::::::        :   |"
+                at(16 2);write " ,' ', |:::::::        | ,' ', "
+                at(17 2);write "(:.___)\:::____________/(:.___)"
+                at(18 2);write " |(_)V__)-------------(__V(_)| "
+                at(19 2);write ".----|  _______________  |----."
+                at(20 2);write "| __ | [,-------------,] | __ |"
+                at(21 2);write "|/  \| [|    _.-._    |] |/  \|"
+                at(22 2);write "||  || [|   /  '::\   |] ||  ||"
+                at(23 2);write "||__|| []  |    :::|  [] ||__||"
+                at(24 2);write "| __ | []  |    :::|  [] | __ |"
+                at(25 2);write "|/  \| []  |    :::|  [] |/  \|"
+                at(26 2);write "||  || []  |     ::|  [] ||  ||"
+                at(27 2);write "||__||_[]__|_____::|__[]_||__||"
+                at(28 2);write "-------------------------------"
+                at(29 2);write "                               "
+                at(30 2);write "_______________________________"
+             elseif n=100
+                if sw
+                color(1)
+                at(02 7);."                     .--------------."
+                at(03 7);."                .---'  o        .    `---."
+                at(04 7);."             .-'    .    O  .         .   `-."
+                at(05 7);."          .-'     ######       .             `-."
+                at(06 7);."        .'##   ###########       #######   .    `."
+                at(07 7);."      .*###  ##############     #########         `."
+                at(08 7);."     /###  o ##############     #########     O     \\"
+                at(09 7);."    /        ##############  #   ######### ##     .  \\"
+                at(10 7);."   /#  o      ###########   .  ##  ###########     ## \\"
+                at(11 7);."  /###      .   ###### o       #  ############# o #### \\"
+                at(12 7);." /#####                  # .      ##############  ##### \\"
+                at(13 7);." |#####    O    `.-./  .        .  #############   ###  |"
+                at(14 7);."/ #####        --`-'       o        ########### ###    . \\"
+                at(15 7);."|# #### .  #  #    `    #            ##      . ######    |"
+                at(16 7);."|   ##                         o    ##   .     ######    |"
+                at(17 7);."|  .     #   # #       o              ##   o   ######.   |"
+                at(18 7);."\     #    #       #       .-.       ####       ###      /"
+                at(19 7);." |  #    #  #              `-'     . ####     .    .    |"
+                at(20 7);." \ .  o       #  ####  .              ##  .           . /"
+                at(21 7);."  \      ###    ######       .                   o     /"
+                at(23 7);."   \    #####   ##\##    /        O          .        /"
+                at(24 7);."    \ o  ###       \ \  /  __        .   .     .--.  /"
+                at(25 7);."     \      .     . \.-.---                   `--'  /"
+                at(26 7);."      `.             `-'      .                   .'"
+                at(27 7);."        `.    o     / | `           O     .     .'"
+                at(28 7);."          `-.      /  |        o             .-'"
+                at(29 7);."             `-.          .         .     .-'"
+                at(30 7);."                `---.        .       .---'"
+                at(31 7);."                     `--------------'"
+                not sw
+                endif
+             elseif n=200
+                if sw
+                color(1)
+                at(02 15);."              _-o#&&*''''?d:>b\_"
+                at(03 15);."          _o/\"`''  '',, dMF9MMMMMHo_"
+                at(04 15);."       .o&#'        `\"MbHMMMMMMMMMMMHo."
+                at(05 15);."     .o\"\" '         vodM*$&&HMMMMMMMMMM?."
+                at(06 15);."    ,'              $M&ood,~'`(&##MMMMMMH\\"
+                at(07 15);."   /               ,MMMMMMM#b?#bobMMMMHMMML"
+                at(08 15);."  &              ?MMMMMMMMMMMMMMMMM7MMM$R*Hk"
+                at(09 15);." ?$.            :MMMMMMMMMMMMMMMMMMM/HMMM|`*L"
+                at(10 15);."|               |MMMMMMMMMMMMMMMMMMMMbMH'   T,"
+                at(11 15);."$H#:            `*MMMMMMMMMMMMMMMMMMMMb#}'  `?"
+                at(12 15);."|MMH#             \"\"*\"\"\"\"*#MMMMMMMMMMMMM'    -"
+                at(13 15);."MMMMMb_                   |MMMMMMMMMMMP'     :"
+                at(14 15);."HMMMMMMMHo                 `MMMMMMMMMT       ."
+                at(15 15);."?MMMMMMMMP                  9MMMMMMMM}       -"
+                at(16 15);."-?MMMMMMM                  |MMMMMMMMM?,d-    '"
+                at(17 15);." :|MMMMMM-                 `MMMMMMMT .M|.   :"
+                at(18 15);."  .9MMM|                    &MMMMM*' `'    ."
+                at(19 15);."   :9MMk                    `MMM#\"        -"
+                at(20 15);."     &M}                     `          .-"
+                at(21 15);."      `&.                             ."
+                at(23 15);."        `~,   .                     ./"
+                at(24 15);."            . _                  .-"
+                at(25 15);."             '`--._,dd###pp=\"\"'"
+                 not sw
+                endif
+             endif
+             millisec(200)
+          next
+          if n=5
+             if j=2
+                at(5 45); color(12); write "█████████"
+                at(6 45); color(7); write "████ ████" 
+                at(6 49); color(118);write chr(143)
+                at(7 45); color(8); write "█████████"
+             elseif j=1
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=3
+                .pone_mensaje("E L  C A I R O - E G I P T O" 10)
+             elseif j=4
+                .pone_mensaje("COORDENADAS: 30°03'22'' NORTE" 12 )
+                .pone_mensaje("             31°14'22'' ESTE" 13 )
+             elseif j=5
+                .pone_mensaje(("SUPERFICIE(PAíS) : 1,001,450 KM"+chr(253)) 14 )
+             elseif j=6
+                .pone_mensaje( "POBLACIóN(PAíS)  : 98.77 M. DE HABS" 15 )
+             elseif j=8
+                .pone_mensaje("LA GRAN PIRáMIDE DE GIZA, LA MAYOR DE" 17)
+                .pone_mensaje("TODAS, FUE CONSTRUIDA POR EL FARAóN" 18)
+                .pone_mensaje("KEOPS DE LA CUARTA DINASTíA (2,570 AC)." 19)
+                .pone_mensaje("SU ALTURA MáXIMA ORIGINAL ES 146,7 M." 20)
+                .pone_mensaje("SE UBICA EN LA REGIóN DE GIZA, EL CAIRO" 21)
+                .pone_mensaje("Y ES UN OBJETIVO DEL INVASOR." 22)
+             elseif j=9
+                .pone_mensaje("SU MISIóN ES PROTEGER ESTE MONUMENTO" 24)
+                .pone_mensaje("DESTRUYENDO LA AVANZADA ENEMIGA." 25)
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 26)
+             elseif j=10
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 28)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 29)
+             elseif j=11
+                .pone_mensaje("CUIDADO! NO ES FáCIL ACABAR CON ELLOS." 30)
+             endif
+             
+          elseif n=4
+             if j=2
+                at(5 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+                at(6 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+                at(7 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+             elseif j=1
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=3
+                .pone_mensaje("P A R í S - F R A N C I A" 10)
+             elseif j=4
+                .pone_mensaje("COORDENADAS: 48°51'30'' NORTE" 12 )
+                .pone_mensaje("             2°17'40'' ESTE" 13 )
+             elseif j=5
+                .pone_mensaje(("SUPERFICIE(PAíS) : 675,417 KM"+chr(253)) 14 )
+             elseif j=6
+                .pone_mensaje( "POBLACIóN(PAíS)  : 67.8 M. DE HABS" 15 )
+             elseif j=8
+                .pone_mensaje("LA TORRE EIFFEL FUE CREADA POR EL" 17)
+                .pone_mensaje("INGENIERO FRANCéS ALEXANDRE EIFFEL" 18)
+                .pone_mensaje("PARA LA EXPOSICIóN UNIVERSAL DE PARíS " 19)
+                .pone_mensaje("DE 1,889. TIENE 324 MTS. DE ALTO," 20)
+                .pone_mensaje("SE UBICA AL EXTREMO DEL CAMPO DE MARTE" 21)
+                .pone_mensaje("Y ES UN OBJETIVO DEL INVASOR." 22)
+             elseif j=9
+                .pone_mensaje("SU MISIóN ES PROTEGER ESTE MONUMENTO" 24)
+                .pone_mensaje("DESTRUYENDO LA AVANZADA ENEMIGA." 25)
+             elseif j=10
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 27)
+             elseif j=11
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 30)
+             endif
+          elseif n=3
+             if j=2
+                
+                at(5 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
+                at(6 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
+                at(7 45); color(124); write "▀▀▀"; color(124);write "▀▀▀▀▀▀"
+             elseif j=1                     
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=3                     
+                .pone_mensaje("N E W  Y O R K - E. E. U. U." 10)
+             elseif j=4                     
+                .pone_mensaje("COORDENADAS: 40°41'21'' NORTE" 12 )
+                .pone_mensaje("             74°02'40'' ESTE" 13 )
+             elseif j=5                     
+                .pone_mensaje(("SUPERFICIE(PAíS) : 9,147,593 KM"+chr(253)) 14 )
+             elseif j=6                     
+                .pone_mensaje( "POBLACIóN(PAíS)  : 325.72 M. DE HABS" 15 )
+             elseif j=8                     
+                .pone_mensaje("LA LIBERTé éCLAIRANT LE MONDE, EN" 17)
+                .pone_mensaje("NUEVA YORK, FUE UN REGALO DE FRANCIA" 18)
+                .pone_mensaje("A E.E.U.U. PARA CONMEMORAR UN NUEVO" 19)
+                .pone_mensaje("CENTENARIO DE LA DECLARACIóN DE LA" 20)
+                .pone_mensaje("INDEPENDENCIA, Y FUE INAUGURADA EL" 21)
+                .pone_mensaje("28 DE OCTUBRE DE 1,886." 22)
+             elseif j=9
+                .pone_mensaje("SU MISIóN ES PROTEGER ESTE MONUMENTO" 24)
+                .pone_mensaje("DESTRUYENDO A LA AVANZADA ENEMIGA." 25)
+             elseif j=10
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 27)
+             
+             elseif j=11                    
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 30)
+             endif
+          elseif n=2
+             if j=2
+                at(5 45); color(15); write "█████████"
+                at(6 45); color(1);  write "█████████"
+                at(7 45); color(12); write "█████████"
+             elseif j=1
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=3
+                .pone_mensaje("M O S C ú - R U S I A" 10)
+             elseif j=4
+                .pone_mensaje("COORDENADAS: 55°45'21'' NORTE" 12 )
+                .pone_mensaje("             37°37'04'' ESTE" 13 )
+             elseif j=5
+                .pone_mensaje(("SUPERFICIE(PAíS) : 17,098,242 KM"+chr(253)) 14 )
+             elseif j=6
+                .pone_mensaje( "POBLACIóN(PAíS)  : 146.8 M. DE HABS" 15 )
+             elseif j=8
+                .pone_mensaje("LA CATEDRAL DE SAN BASILIO SE UBICA EN" 17)
+                .pone_mensaje("LA PLAZA ROJA, A UN LADO DEL KREMLIN" 18)
+                .pone_mensaje("Y FUE CONSTRUIDA POR EL ZAR IVAN IV," 19)
+                .pone_mensaje("APODADO \"EL TERRIBLE\", ENTRE LOS" 20)
+                .pone_mensaje("AÑOS 1,555 Y 1,561." 21)
+                .pone_mensaje("ES UN OBJETIVO DEL INVASOR." 22)
+             elseif j=9
+                .pone_mensaje("SU MISIóN ES PROTEGER ESTE MONUMENTO" 24)
+                .pone_mensaje("DESTRUYENDO LA AVANZADA ENEMIGA." 25)
+             elseif j=10
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 27)
+             elseif j=11
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 30)
+             endif
+
+          elseif n=1
+             if j=2
+                
+                at(5 45); color(6); write "█████████"
+                at(6 45); color(7); write "████ ████" 
+                at(6 49); color(113);write chr(233)
+                at(7 45); color(2); write "█████████"
+             elseif j=1                     
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=3                     
+                .pone_mensaje("A G R A - I N D I A" 10)
+             elseif j=4                     
+                .pone_mensaje("COORDENADAS: 27°10'27'' NORTE" 12 )
+                .pone_mensaje("             78°02'32'' ESTE" 13 )
+             elseif j=5                     
+                .pone_mensaje(("SUPERFICIE(PAíS) : 3,287,263 KM"+chr(253)) 14 )
+             elseif j=6                     
+                .pone_mensaje( "POBLACIóN(PAíS)  : 1,372 M. DE HABS" 15 )
+             elseif j=8                     
+                .pone_mensaje("EL TAJ MAHAL FUE CONSTRUIDO POR EL" 17)
+                .pone_mensaje("EMPERADOR MUSULMáN SHAH JAHAN ENTRE" 18)
+                .pone_mensaje("1,631 Y 1,654, EN HONOR A SU ESPOSA" 19)
+                .pone_mensaje("FAVORITA MUMTAZ MAHAL, QUIEN MURIó" 20)
+                .pone_mensaje("EN EL PARTO DE SU DECIMOCUARTA HIJA." 21)
+                
+                .pone_mensaje("EL INVASOR QUIERE ASESTARNOS UN DURO" 22)
+                .pone_mensaje("GOLPE DESTRUYENDO ESTE MONUMENTO." 23)
+             elseif j=10                    
+                .pone_mensaje("SU MISIóN ES PROTEGERLO, DESTRUYENDO" 24)
+                .pone_mensaje("LA AVANZADA ENEMIGA." 25)
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 27)
+             elseif j=11 
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 30)
+             endif
+             
+          elseif n=100
+             if j=1
+                .pone_final_mensaje("LA AVANZADA DE LA INVASIóN HA SIDO DESTRUIDA" 10)
+             elseif j=2
+                .pone_final_mensaje("ANTES DE QUE EL ENEMIGO RECUPERE SUS FUERZAS" 12)
+                .pone_final_mensaje("DEBERáS DESTRUIR SU NAVE MADRE, UBICADA MáS" 13)
+                .pone_final_mensaje("ALLá DE LA óRBITA DE LA LUNA." 14)
+             elseif j=3
+                .pone_final_mensaje("LA NAVE NODRIZA ESTá PROTEGIDA POR UN CAMPO" 16)
+                .pone_final_mensaje("DE FUERZA QUE DEBERáS TRASPASAR PARA LLEGAR" 17)
+                .pone_final_mensaje("HASTA SU NúCLEO." 18)
+             elseif j=4
+                .pone_final_mensaje("UNA COSA MáS: ESTAMOS DIESMADOS DE RECURSOS." 20)
+                .pone_final_mensaje("SOLO TENDRáS LAS NAVES QUE SOBREVIVIERON AL" 21)
+                .pone_final_mensaje("úLTIMO ATAQUE." 22)
+             elseif j=5
+                .pone_final_mensaje(("CUENTAS CON "+($heroe)+" NAVES.") 24)
+             elseif j=6
+                .pone_final_mensaje("ESTA VEZ PODRáS DETENER TU NAVE CON LA TECLA" 26)
+                .pone_final_mensaje("<flecha-arriba>" 27)
+             elseif j=8
+                .pone_final_mensaje("BUENA SUERTE!!" 29)
+                break
+             endif
+          elseif n=200
+             if j=1
+                .pone_final_mensaje("LA AMENAZA HA SIDO ELIMINADA!!" 10)
+             elseif j=2
+                .pone_final_mensaje("LA TIERRA CELEBRA A SUS HéROES, A LOS CAíDOS Y" 12)
+                .pone_final_mensaje("A USTEDES, NUESTROS FIEROS COMBATIENTES!" 13)
+             elseif j=4
+                .pone_final_mensaje("PERO, NO DEBEMOS BAJAR LA GUARDIA..." 15)
+             elseif j=5
+                .pone_final_mensaje("INTELIGENCIA NOS HA INFORMADO QUE LA FLOTA DEL" 17)
+                .pone_final_mensaje("INVASOR SE APOSTA EN EL CINTURóN DE ASTEROIDES" 18)
+                .pone_final_mensaje("UBICADO MáS ALLá DE LA óRBITA DE PLUTóN." 19)
+             elseif j=6
+                .pone_final_mensaje("ESTA ERA TAN SOLO UNA AVANZADA ENEMIGA..." 21)
+                .pone_final_mensaje("UNA INVASIóN MáS PELIGROSA SE PREPARA EN ESE" 22)
+                .pone_final_mensaje("LUGAR." 23)
+             elseif j=8
+                .pone_final_mensaje("CUáNDO Y DóNDE SERá? ES UN MISTERIO..." 25)
+                break
+             endif
+          endif
+       next
+       .KILLSOUND()
+       sleep(2)
+   end
+
+
   ETAPA_1(hasta_donde:number,swetapa:number):boolean
     tip := boolean
     {tope, dtopex} := number
@@ -554,73 +998,14 @@ vars:
 
   begin:
 
-   .limpia_pilas
-   if swetapa=1
-      at(27 0);write "    |                              T                              |"
-      at(28 0);write "   .'.                           .' '.                           .'." 
-      at(29 0);write "  (__ )                        _;-----;_                        (__ )"  
-      at(30 0);write "   |A|                       .':::::    '.                       |A|" 
-      at(31 0);write "  .===.                     /:::::::      \                     .===." 
-      at(32 0);write "  |/  |                |   ::::::::        :   |                |/  |"
-      at(33 0);write "  |/  |      |       ,' ', |:::::::        | ,' ',       |      |/  |"
-      at(34 0);write "  |/  |     ( )     (:.___)\:::____________/(:.___)     ( )     |/  |"
-      at(35 0);write "  |===|      H    I  |(_)V__)-------------(__V(_)|  I    H      |===|" 
-      at(36 0);write "  |/  |     |=|   Y_.----|  _______________  |----._Y   |=|     |/  |"   
-   elseif swetapa=2
-      at(15 0);write "              ()"
-      at(16 0);write "              /\\"
-      at(17 0);write "             |==|"
-      at(18 0);write "             ===="
-      at(19 0);write "              XX"
-      at(20 0);write "             xXXx"
-      at(21 0);write "             X||X"
-      at(22 0);write "             X||X"
-      at(23 0);write "             X||X"
-      at(24 0);write "            xX==Xx"
-      at(25 0);write "            X=XX=X"
-      at(26 0);write "            XXXXXX"
-      at(27 0);write "           x_|_|_|x"
-      at(28 0);write "           XXXXXXXX"
-      at(29 0);write "          xXXXXXXXXx"
-      at(30 0);write "          XXXXXXXXXX"
-      at(31 0);write "         XXXXX  XXXXX"
-      at(32 0);write "        xXXXX'  'XXXXx"
-      at(33 0);write "       XXXXXxxxxxxXXXXX"
-      at(34 0);write "     xXXXXX''''''''XXXXXx"
-      at(35 0);write "   xXXXXXX'        'XXXXXXx"
-      at(36 0);write "xxXXXXXXX            XXXXXXXxx"
-   elseif swetapa=3
-          at(09 45);write " ("
-          at(10 45);write "(_)"
-          at(11 45);write "###       ."
-          at(12 45);write "(#c    __\|/__"
-          at(13 45);write " #\     wWWWw"
-          at(14 45);write " \ \-. (/. .\)"
-          at(15 45);write " /\ /`\/\   /\\"
-          at(16 45);write " |\/   \_) (_|"
-          at(17 45);write " `\.' ; ; `' ;`\\"
-          at(18 45);write "   `\;  ;    .  ;/\\"
-          at(19 45);write "     `\;    ;  ;|  \\"
-          at(20 45);write "      ;   .'  ' ;  /"
-          at(21 45);write "      |_.'   ;  | /)"
-          at(22 45);write "      (     ''._;/`"
-          at(23 45);write "      |    ' . ;"
-          at(24 45);write "      |.-'   .:)"
-          at(25 45);write "      |        |"
-          at(26 45);write "      (  .'  : |"
-          at(27 45);write "      |,-  .:: |"
-          at(28 45);write "      | ,-'  .;|"
-          at(29 45);write "     _/___,_.:_\_"
-          at(30 45);write "    [I_I_I_I_I_I_]"
-          at(31 45);write "    | __________ |"
-          at(32 45);write "    | || |  | || |"
-          at(33 45);write "   _| ||_|__|_|| |_"
-          at(34 45);write "  /=--------------=\\"
-          at(35 45);write " /                  \\"
-          at(36 45);write "|                    |"
-   endif
+    cls
+    .limpia_pilas
+
     .define_todo 1
 
+    .muestra_objetivo(swetapa)
+    cls
+    
     use lTOPE
     push {500+RETARDO, 500+RETARDO, 450+RETARDO, 450+RETARDO,&
           300+RETARDO, 300+RETARDO, 200+RETARDO, 200+RETARDO,&
@@ -657,73 +1042,10 @@ vars:
     
     while tip
 
-    if ret_heroe=RETHEROE
+    if retardo=[lTOPE (tope-4)]  //ret_heroe=RETHEROE
        color(8)
-       if swetapa=1
-          at(27 0);write "    |                              T                              |   "
-          at(28 0);write "   .'.                           .' '.                           .'.  " 
-          at(29 0);write "  (__ )                        _;-----;_                        (__ ) "  
-          at(30 0);write "   |A|                       .':::::    '.                       |A|  " 
-          at(31 0);write "  .===.                     /:::::::      \                     .===. " 
-          at(32 0);write "  |/  |                |   ::::::::        :   |                |/  | "   
-          at(33 0);write "  |/  |      |       ,' ', |:::::::        | ,' ',       |      |/  | "   
-          at(34 0);write "  |/  |     ( )     (:.___)\:::____________/(:.___)     ( )     |/  | "
-          at(35 0);write "  |===|      H    I  |(_)V__)-------------(__V(_)|  I    H      |===| " 
-          at(36 0);write "  |/  |     |=|   Y_.----|  _______________  |----._Y   |=|     |/  | "   
-       elseif swetapa=2
-          at(15 0);write "              ()"
-          at(16 0);write "              /\\"
-          at(17 0);write "             |==|"
-          at(18 0);write "             ===="
-          at(19 0);write "              XX"
-          at(20 0);write "             xXXx"
-          at(21 0);write "             X||X"
-          at(22 0);write "             X||X"
-          at(23 0);write "             X||X"
-          at(24 0);write "            xX==Xx"
-          at(25 0);write "            X=XX=X"
-          at(26 0);write "            XXXXXX"
-          at(27 0);write "           x_|_|_|x"
-          at(28 0);write "           XXXXXXXX"
-          at(29 0);write "          xXXXXXXXXx"
-          at(30 0);write "          XXXXXXXXXX"
-          at(31 0);write "         XXXXX  XXXXX"
-          at(32 0);write "        xXXXX'  'XXXXx"
-          at(33 0);write "       XXXXXxxxxxxXXXXX"
-          at(34 0);write "     xXXXXX''''''''XXXXXx"
-          at(35 0);write "   xXXXXXX'        'XXXXXXx"
-          at(36 0);write "xxXXXXXXX            XXXXXXXxx"
-       elseif swetapa=3
-          at(09 45);write " ("
-          at(10 45);write "(_)"
-          at(11 45);write "###       ."
-          at(12 45);write "(#c    __\|/__"
-          at(13 45);write " #\     wWWWw"
-          at(14 45);write " \ \-. (/. .\)"
-          at(15 45);write " /\ /`\/\   /\\"
-          at(16 45);write " |\/   \_) (_|"
-          at(17 45);write " `\.' ; ; `' ;`\\"
-          at(18 45);write "   `\;  ;    .  ;/\\"
-          at(19 45);write "     `\;    ;  ;|  \\"
-          at(20 45);write "      ;   .'  ' ;  /"
-          at(21 45);write "      |_.'   ;  | /)"
-          at(22 45);write "      (     ''._;/`"
-          at(23 45);write "      |    ' . ;"
-          at(24 45);write "      |.-'   .:)"
-          at(25 45);write "      |        |"
-          at(26 45);write "      (  .'  : |"
-          at(27 45);write "      |,-  .:: |"
-          at(28 45);write "      | ,-'  .;|"
-          at(29 45);write "     _/___,_.:_\_"
-          at(30 45);write "    [I_I_I_I_I_I_]"
-          at(31 45);write "    | __________ |"
-          at(32 45);write "    | || |  | || |"
-          at(33 45);write "   _| ||_|__|_|| |_"
-          at(34 45);write "  /=--------------=\\"
-          at(35 45);write " /                  \\"
-          at(36 45);write "|                    |"
-       endif
-       color(15) 
+       color(15)
+       .pone_heroe px py 
     endif
 
      if retardo=[lTOPE (tope-4)]
@@ -1088,8 +1410,8 @@ vars:
      cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
 
      while tip
-        if ret_heroe=100+RETARDO
-           color(8)
+    ///    if ret_heroe=100+RETARDO
+    /*       color(8)
            at(27 10);."                     .--------------."
            at(28 10);."                .---'  o        .    `---."
            at(29 10);."             .-'    .    O  .         .   `-."
@@ -1100,7 +1422,7 @@ vars:
            at(34 10);."    /        ##############  #   ######### ##     .  \\"
            at(35 10);."   /#  o      ###########   .  ##  ###########     ## \\"
            at(36 10);."  /###      .   ###### o       #  ############# o #### \\"
-  /*       at(11 0);." /#####                  # .      ##############  ##### \\"
+           at(11 0);." /#####                  # .      ##############  ##### \\"
            at(12 0);." |#####    O    `.-./  .        .  #############   ###  |"
            at(13 0);."/ #####        --`-'       o        ########### ###    . \\"
            at(14 0);."|# #### .  #  #    `    #            ##      . ######    |"
@@ -1120,8 +1442,8 @@ vars:
            at(28 0);."                `---.        .       .---'"
            at(29 0);."                     `--------------'"
            */
-           color(15)
-        endif
+    //       color(15)
+    //    endif
 
         ++contador
         if contador= 60000+RETARDO
@@ -1451,33 +1773,79 @@ algorithm:
  endif
  PATH<-cPLAY+" "+PATH // deja "afplay /home..../source/"
 
- video(36,75)
+ video(37,75)
 
  precision 0
 
  cursor 0 
  cls
  .titulo_grande
- tope_resucita<-20
+ tope_resucita<-30
 
 // .ETAPA_2()
+ etapas<-6
+ while (--etapas)>0
+    if .ETAPA_1 (tope_resucita etapas)
+       .KILLSOUND()
+       tope_resucita<-+15
+       .SeElevaAlEspacio px py
+       sleep(2)
+       cls
+       if ~acabo_con_todos
+         write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
+         vtab(5)
+         goodbye
+       endif
+    else
+       .FIN_HORRIBLE()
+       vtab(5)
+       goodbye 
+    endif 
+ wend
+ .muestra_objetivo(100)
+ cls 
+ if .ETAPA_2  
+    cls
+    flush()
+    .KILLSOUND()
+    /*color 14
+    api "box=8,6,18,64,D"
+    color 15
+    at(10 10);write "   ¡Has acabado con esos pajarracos espaciales!"
+    at(12 10);write " Aunque lo único que querían era que compartieras"
+    at(13 10);write "     tu comida con sus raquíticos polluelos."
+    at(15 10);write "  Si explotabas cuando te lanzaban huevos, era"
+    at(16 10);write "      porque eres alérgico a los huevos :("
+   
+    .delay 1*/
+    sleep(1)
+//    cmd(PATH+"finalFelizPhoenix.wav </dev/null >/dev/null 2>&1")
+    .muestra_objetivo(200)
+    vtab(5)
+ else
+    .FIN_HORRIBLE
+ endif
 
- if .ETAPA_1 (tope_resucita 1)
+/*
+ if .ETAPA_1 (tope_resucita 3)
    .KILLSOUND()
    tope_resucita<-30
    .SeElevaAlEspacio px py
+   sleep(2)
    cls
    if acabo_con_todos
       if .ETAPA_1 (tope_resucita 2)
          .KILLSOUND()
          .SeElevaAlEspacio px py
          tope_resucita<-40
+         sleep(2)
          cls 
          if acabo_con_todos        
-            if .ETAPA_1 (tope_resucita 3)
+            if .ETAPA_1 (tope_resucita 1)
                .KILLSOUND()
                .SeElevaAlEspacio px py
                tope_resucita<-50
+               sleep(2)
                cls 
                if acabo_con_todos
                   color 14
@@ -1531,7 +1899,7 @@ algorithm:
  else
    .FIN_HORRIBLE
  endif
-
+*/
  cursor 1
  
  stop
