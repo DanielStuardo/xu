@@ -5840,7 +5840,7 @@ _ret[189][1]:="brkgez"         ;_ret[189][3]:="_N"  // jgez  salte si es mayor o
 
 _ret[190][1]:="tdate2_code"    ;_ret[190][3]:="#N#"
 
-_ret[191][1]:="XXXXXX"         ;_ret[191][3]:="_"
+_ret[191][1]:="pchar"          ;_ret[191][3]:="NCC"
 _ret[192][1]:="XXXXXX"         ;_ret[192][3]:="_"
 _ret[193][1]:="XXXXXX"         ;_ret[193][3]:="_"
 _ret[194][1]:="XXXXXX"         ;_ret[194][3]:="_"

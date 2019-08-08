@@ -137,7 +137,7 @@ public SLINEA,TLINEA,BASELINE,HELP1,HELP2,SWLENGUAJE
 public ESEJECUTABLE,COMPILADOR, EJECUTOR, DESCRIPCION, PARAMETROS, COMENTARIOS,METADATA, cMETADATA
 public LISTACOMPILA:={}
 public cCOLORES:={}
-public COMMANDS,OUTPUTCOMM,COMANDO
+public COMMANDS,OUTPUTCOMM,COMANDO,cCOMANDO
 public SWNOEXE:=.F.
 public SW_PASTE:=.F.
 public SWNOTNUL:=.F.
@@ -194,6 +194,7 @@ COMENTARIOS:=""
 COMMANDS:={}
 OUTPUTCOMM:={}
 COMANDO:=""
+cCOMANDO:=""
 
 
 if numParam>1
@@ -1391,7 +1392,7 @@ LOCAL SWEDITACOM:=.F.,SWDELELIN:=.F.,SWREPLACECODIGO:=.F.
 LOCAL OPERA:="",SWOPEXISTE:=.F.,SWCTRLKCTRLP:=.F.,SWCTRLKCTRLS:=.F.,SWCTRLKCTRLD:=.F.,SWMARCABLOQUE:=.F.
 LOCAL SWGETLINEDESP:=.F.,SWMARCADESP:=.F.,SWSOBREESCRIBE:=.F.,SWCTRLKE:=.F.,SWCTRLKB:=.F.,SWCTRLKJ:=.F.
 LOCAL TMPTEXTO,SWCTRLKG:=.F.,        SWLOADRAPIDO:=.F.
-LOCAL PASTEFROM:=0, PASTETO:=0, SWCTRLON:=.F.
+LOCAL PASTEFROM:=0, PASTETO:=0, SWCTRLON:=.F., SWCTRLNT:=.F.
 LOCAL HALFFILE
 LOCAL XFIL1EDIT:=0,XFIL2EDIT:=0,SWEDITTEXT:=.F.,SWRANGE:=.F.
 
@@ -3005,6 +3006,7 @@ while SW_EDIT
            
            readinsert(.T.)
            PARAMETROS:=hb_utf8tostr(MEMOEDIT(PARAMETROS,TLINEA-12,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
+           ///PARAMETROS:=MEMOEDIT(PARAMETROS,TLINEA-12,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024)
            readinsert(.F.)
            
            PARAMETROS:=ALLTRIM(PARAMETROS)
@@ -3424,9 +3426,9 @@ while SW_EDIT
 
      elseif c==14   // CTRL-N  buscar y reemplazar
 //       if TEXTOTIPO=="BINARY"
-       MSGCONTROL(" CTRL-N...  N=Search  |  O=Next Match   |  R=Replace Match | V=View Matches List",;
-                  " SEARCH               |  B=Before Match |  A=Replace All   | Q=Del Matches List",;
-                  " & REPLACE F6=Search  | F8=Next Match   | F7=Before Match")
+       MSGCONTROL(" CTRL-N...  N=Search      |  O=Next Match   |  R=Replace Match | V=View Matches List",;
+                  " SEARCH     T=Search Word |  B=Before Match |  A=Replace All   | Q=Del Matches List",;
+                  " & REPLACE F6=Search      | F8=Next Match   | F7=Before Match")
 /*       else
        MSGCONTROL(" CTRL-N...  N=Search  |  O=Next Match   |  R=Replace Match | V=View Matches List",;
                   " SEARCH               |  B=Before Match |  A=Replace All   | Q=Del Matches List",;
@@ -3448,8 +3450,14 @@ while SW_EDIT
        end*/
        //SETCOLOR(N2COLOR(cBARRA))
        //@ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-       while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)  
+       if !SWCTRLNT
+          while inkey(,159)!=0 ; end
+             MRESTSTATE(MOUSE)  
+       else
+          SWCTRLNT:=.F.
+          cBUSCA:=""
+       end
+       
        if c==78  //.or. c==14    // CTRL-NN buscar
           WHILE .T.
               SETCOLOR(N2COLOR(cBARRA))
@@ -3465,9 +3473,11 @@ while SW_EDIT
               ///OPERA:=INPUTLINE(OPERA,SLINEA-1,TLINEA-2,13,"s")
               readinsert(.T.)
               setcolor( 'GR+/N,N/GR+,,,W/N' )
-          
-             cBUSCA:=MEMOEDIT(cBUSCA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF")
+             
+             REEMPTEXTCAR(@cBUSCA)
+             cBUSCA:=hb_utf8tostr(MEMOEDIT(cBUSCA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
              cBUSCA:=alltrim(cBUSCA)
+             REEMPCARTEXT(@cBUSCA)
              cBUSCA:=strtran(cBUSCA,_CR,"")
              c:=inkey()
              if lastkey()==27
@@ -3723,6 +3733,38 @@ while SW_EDIT
                 end
            //  end  // binary
           end
+       
+       elseif c==84   // CTRL-NT
+          TEXTO[pi]:=LLENATEXTO(s,len(s),0)
+          c:=""
+          for i:=p to 1 step -1
+                c:=substr(TEXTO[pi],i,1)
+                if !isalpha(c) .and. !isdigit(c) .and. c!="_" .and. c!="."
+                   exit
+                end
+          end
+          for j:=p to len(s)
+                c:=substr(TEXTO[pi],j,1)
+                if !isalpha(c) .and. !isdigit(c).and. c!="_" .and. c!="."
+                   exit
+                end
+          end
+          if i!=j
+             BUFFERKT:=substr(TEXTO[pi],i+1,j-(i+1))
+             c:=0
+          else
+             BUFFERKT:=""
+          end
+          hb_keyPut(14)
+          hb_keyPut(78)
+       //   ? "BUFF KT=",BUFFERKT ; inkey(0)
+          for i:=1 to len(BUFFERKT)
+             hb_keyPut(asc(substr(BUFFERKT,i,1)))
+          end
+          hb_keyPut(23)
+          hb_keyPut(13); hb_keyPut(13)
+          SWCTRLNT:=.T.
+          loop
           
        elseif c==66 // .or. c==2  // CTRL-NB  repite busqueda de la ocurrencia anterior
           BarraTitulo(ARCHIVO)
@@ -3855,8 +3897,10 @@ while SW_EDIT
              readinsert(.T.)
              setcolor( 'GR+/N,N/GR+,,,W/N' )
          
-             cREEMPLAZA:=MEMOEDIT(cREEMPLAZA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF")
+             REEMPTEXTCAR(@cREEMPLAZA)
+             cREEMPLAZA:=hb_utf8tostr(MEMOEDIT(cREEMPLAZA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
              cREEMPLAZA:=alltrim(cREEMPLAZA)
+             REEMPCARTEXT(@cREEMPLAZA)
              cREEMPLAZA:=strtran(cREEMPLAZA,_CR,"")
              c:=inkey()
              if lastkey()==27
@@ -3987,9 +4031,12 @@ while SW_EDIT
              ///OPERA:=INPUTLINE(OPERA,SLINEA-1,TLINEA-2,13,"s")
              readinsert(.T.)
              setcolor( 'GR+/N,N/GR+,,,W/N' )
-          
-             cREEMPLAZA:=MEMOEDIT(cREEMPLAZA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF")
+             
+             REEMPTEXTCAR(@cREEMPLAZA)
+             cREEMPLAZA:=hb_utf8tostr(MEMOEDIT(cREEMPLAZA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
+             
              cREEMPLAZA:=alltrim(cREEMPLAZA)
+             REEMPCARTEXT(@cREEMPLAZA)
              cREEMPLAZA:=strtran(cREEMPLAZA,_CR,"")
              c:=inkey()
              if lastkey()==27
@@ -4452,7 +4499,9 @@ while SW_EDIT
                  readinsert(.T.)
                  setcolor( 'GR+/N,N/GR+,,,W/N' )
                  WHILE .T.
-                    OPERA:=MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF")
+                    REEMPTEXTCAR(@OPERA)
+                    OPERA:=hb_utf8tostr(MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
+                    REEMPCARTEXT(@OPERA)
                     c:=inkey()
                     if lastkey()==27
                        if LEN(ALLTRIM(OPERA))==0
@@ -4493,6 +4542,7 @@ while SW_EDIT
                  ///OPERA:=STRTRAN(OPERA,CHR(9),"")
                  //? OPERA; inkey(0)
                  OPERA:=ALLTRIM(OPERA)
+                 
                  if OPERA=="*"
                     // busca menú
                     XLEN:=len(LISTAEXPRESION)
@@ -4540,7 +4590,8 @@ while SW_EDIT
                        RBUFFER:=ARRAY(LEN(BUFFER))
                        ACOPY(BUFFER,RBUFFER)
                        SWRECBUFFER:=.T.
-                       BUFFER:=_CTRL_L_OPE(BUFFER,hb_utf8tostr(STRTRAN(OPERA,_CR,""))) //OPERA)  // LLAMA A LA CALCULADORA
+                       BUFFER:=_CTRL_L_OPE(BUFFER,(STRTRAN(OPERA,_CR,""))) //OPERA)  // LLAMA A LA CALCULADORA
+                       ///BUFFER:=_CTRL_L_OPE(BUFFER,(STRTRAN(OPERA,_CR,""))) //OPERA)  // LLAMA A LA CALCULADORA
                        if LEN(BUFFER)>0
                           if BUFFER[1]=="<command-success>"
                              _CTRLOK()
@@ -4592,7 +4643,8 @@ while SW_EDIT
                        end
                     else   // trabaja directamente con el texto. lomo plateado
                   ///     ? "ENTRA AQUI ",XFIL1EDIT,XFIL2EDIT ; inkey(0)
-                       cTMP:=_CTRL_L_TEXTOPE(@TEXTO,hb_utf8tostr(STRTRAN(OPERA,_CR,"")),@XFIL1EDIT,@XFIL2EDIT)
+                       //cTMP:=_CTRL_L_TEXTOPE(@TEXTO,hb_utf8tostr(STRTRAN(OPERA,_CR,"")),@XFIL1EDIT,@XFIL2EDIT)
+                       cTMP:=_CTRL_L_TEXTOPE(@TEXTO,(STRTRAN(OPERA,_CR,"")),@XFIL1EDIT,@XFIL2EDIT)
                        if !cTMP
                           _CTRLLERROR()
                           if XFIL1EDIT==0 .and. XFIL2EDIT==0
@@ -5758,7 +5810,7 @@ while SW_EDIT
                 end
              end
           if i!=j
-             SW_HAYBUFFER:=.T.
+             //SW_HAYBUFFER:=.T.
             
             /// _ELIMINA_BUFFER(@BUFFER)
              //AADD(BUFFER,substr(TEXTO[pi],i+1,j-(i+1))+chr(127))
@@ -7238,9 +7290,11 @@ while SW_EDIT
            setcolor( 'GR+/N,N/GR+,,,W/N' )
            
            readinsert(.T.)
+           REEMPTEXTCAR(@COMANDO)
            COMANDO:=hb_utf8tostr(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
+           ///COMANDO:=(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
            readinsert(.F.)
-
+           REEMPCARTEXT(@COMANDO)
           
           
 /*          SETCOLOR(N2COLOR(cBARRA))
@@ -9061,9 +9115,83 @@ end
 
 RETURN c2
 
+PROCEDURE REEMPTEXTCAR(OPERA)
+OPERA:=STRTRAN(OPERA,chr(160),"\'a"   )
+OPERA:=STRTRAN(OPERA,chr(130),"\'e"   )
+OPERA:=STRTRAN(OPERA,chr(161),"\'i"   )
+OPERA:=STRTRAN(OPERA,chr(162),"\'o"   )
+OPERA:=STRTRAN(OPERA,chr(163),"\'u"   )
+OPERA:=STRTRAN(OPERA,chr(131),"\^a"   )
+OPERA:=STRTRAN(OPERA,chr(136),"\^e"   )
+OPERA:=STRTRAN(OPERA,chr(140),"\^i"   )
+OPERA:=STRTRAN(OPERA,chr(147),"\^o"   )
+OPERA:=STRTRAN(OPERA,chr(150),"\^u"   )
+OPERA:=STRTRAN(OPERA,chr(132),"\:a"   )
+OPERA:=STRTRAN(OPERA,chr(137),"\:e"   )
+OPERA:=STRTRAN(OPERA,chr(139),"\:i"   )
+OPERA:=STRTRAN(OPERA,chr(148),"\:o"   )
+OPERA:=STRTRAN(OPERA,chr(129),"\:u"   )
+OPERA:=STRTRAN(OPERA,chr(164),"\~n"   )
+OPERA:=STRTRAN(OPERA,chr(165),"\~N"   )
+OPERA:=STRTRAN(OPERA,chr(173),"\!"    )
+OPERA:=STRTRAN(OPERA,chr(168),"\?"    )
+OPERA:=STRTRAN(OPERA,chr(167),"\oo"   )
+OPERA:=STRTRAN(OPERA,chr(166),"\aa"   )
+OPERA:=STRTRAN(OPERA,chr(175),"\>>"   )
+OPERA:=STRTRAN(OPERA,chr(174),"\<<"   )
+OPERA:=STRTRAN(OPERA,chr(171),"\'0.5" )
+OPERA:=STRTRAN(OPERA,chr(172),"\'0.25")
+OPERA:=STRTRAN(OPERA,chr(170),"\not"  )
+OPERA:=STRTRAN(OPERA,chr(241),"\+-"   )
+OPERA:=STRTRAN(OPERA,chr(242),"\>="   )
+OPERA:=STRTRAN(OPERA,chr(243),"\<="   )
+OPERA:=STRTRAN(OPERA,chr(246),"\:"    )
+OPERA:=STRTRAN(OPERA,chr(247),"\~~"   )
+OPERA:=STRTRAN(OPERA,chr(252),"\^n"   )
+OPERA:=STRTRAN(OPERA,chr(253),"\^2"   )
+RETURN
+
+
+PROCEDURE REEMPCARTEXT(OPERA)
+OPERA:=STRTRAN(OPERA,"\'a",chr(160))
+OPERA:=STRTRAN(OPERA,"\'e",chr(130))
+OPERA:=STRTRAN(OPERA,"\'i",chr(161))
+OPERA:=STRTRAN(OPERA,"\'o",chr(162))
+OPERA:=STRTRAN(OPERA,"\'u",chr(163))
+
+OPERA:=STRTRAN(OPERA,"\^a",chr(131))
+OPERA:=STRTRAN(OPERA,"\^e",chr(136))
+OPERA:=STRTRAN(OPERA,"\^i",chr(140))
+OPERA:=STRTRAN(OPERA,"\^o",chr(147))
+OPERA:=STRTRAN(OPERA,"\^u",chr(150))
+OPERA:=STRTRAN(OPERA,"\:a",chr(132))
+OPERA:=STRTRAN(OPERA,"\:e",chr(137))
+OPERA:=STRTRAN(OPERA,"\:i",chr(139))
+OPERA:=STRTRAN(OPERA,"\:o",chr(148))
+OPERA:=STRTRAN(OPERA,"\:u",chr(129))
+
+OPERA:=STRTRAN(OPERA,"\~n",chr(164))
+OPERA:=STRTRAN(OPERA,"\~N",chr(165))
+OPERA:=STRTRAN(OPERA,"\!",chr(173))
+OPERA:=STRTRAN(OPERA,"\?",chr(168))
+OPERA:=STRTRAN(OPERA,"\oo",chr(167))
+OPERA:=STRTRAN(OPERA,"\aa",chr(166))
+OPERA:=STRTRAN(OPERA,"\>>",chr(175))
+OPERA:=STRTRAN(OPERA,"\<<",chr(174))
+OPERA:=STRTRAN(OPERA,"\'0.5",chr(171))
+OPERA:=STRTRAN(OPERA,"\'0.25",chr(172))
+OPERA:=STRTRAN(OPERA,"\not",chr(170))
+OPERA:=STRTRAN(OPERA,"\+-",chr(241))
+OPERA:=STRTRAN(OPERA,"\>=",chr(242))
+OPERA:=STRTRAN(OPERA,"\<=",chr(243))
+OPERA:=STRTRAN(OPERA,"\:",chr(246))
+OPERA:=STRTRAN(OPERA,"\~~",chr(247))
+OPERA:=STRTRAN(OPERA,"\^n",chr(252))
+OPERA:=STRTRAN(OPERA,"\^2",chr(253))
+RETURN
 
 FUNCTION _CALCULADORA(ARCHIVO)
-LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
+LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
          WHILE .T.
              SETCOLOR(N2COLOR(cBARRA))
              @ TLINEA-11,0 CLEAR TO TLINEA,MAXCOL()
@@ -9087,7 +9215,8 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
              readinsert(.T.)
              setcolor( 'GR+/N,N/GR+,,,W+/N' )
              WHILE .T.
-                    OPERA:=MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF")
+                    REEMPTEXTCAR(@OPERA)
+                    OPERA:=hb_utf8tostr(MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
                     c:=inkey()
                     if lastkey()==27
                        if LEN(ALLTRIM(OPERA))==0
@@ -9099,9 +9228,12 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
                        exit
                     end
              END
+             OPERA:=ALLTRIM(OPERA)
+             REEMPCARTEXT(@OPERA)
+             
              SETCOLOR(N2COLOR(cBARRA))
              readinsert(.F.)
-             OPERA:=ALLTRIM(OPERA)
+
              if substr(OPERA,len(OPERA),1)=="*"
                     // busca menú
                 XLEN:=len(LISTAEXPRESION)
@@ -9128,7 +9260,7 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
                          ASIZE(LISTAEXPRESION,len(LISTAEXPRESION)-1)
                          loop
                       else
-                         OPERA:=substr(OPERA,1,len(OPERA)-1)+LISTAEXPRESION[pELIGE]
+                         cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+LISTAEXPRESION[pELIGE]
                       end
                    else
                       loop
@@ -9155,7 +9287,7 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
                         MRESTSTATE(MOUSE) 
 
                    if pELIGE>0
-                      OPERA:=substr(OPERA,1,len(OPERA)-1)+cRESULTBUFFER[pELIGE]
+                      cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+cRESULTBUFFER[pELIGE]
                    else
                       loop
                    end
@@ -9167,11 +9299,12 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH
              end
              if len(OPERA)>0
                 // muestra la ventana con el resultado de la operacón, y vuelve al editor.
-                BUFFER:=_CTRL_L_OPE(BUFFER,hb_utf8tostr(STRTRAN(OPERA,_CR,"")))
+                BUFFER:=_CTRL_L_OPE(BUFFER,(STRTRAN(OPERA,_CR,"")))
+                ///BUFFER:=_CTRL_L_OPE(BUFFER,(STRTRAN(OPERA,_CR,"")))
                 if LEN(BUFFER)>0
                   // if BUFFER[1]!="<error>"
                       AADD(cRESULTBUFFER,strtran(BUFFER[1],chr(127),""))
-                      AADD(LISTAEXPRESION,OPERA)
+                      AADD(LISTAEXPRESION,cOPERA)
                      /* SWOPEXISTE:=.F.
                       for i:=1 to len(LISTAEXPRESION)
                          if OPERA == LISTAEXPRESION[i]
@@ -15372,7 +15505,7 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                             "Sin embargo, creo que puedo editarlo."+_CR+;
                             "Si la edición tiene problemas, identifique el o los caracteres"+_CR+;
                             "problemáticos, e intente una edición hexadecimal"+_CR+;
-                            "cargando el archivo con opción '-bin' desde la consola")
+                            "cargando el archivo con opción '-hex' desde la consola")
                      aOptions := { "Okay" }
                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
                   end
@@ -15393,9 +15526,10 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                end
             else
                 NL:=1
+                EXT:="utf-8"
                 AADD(STRING,"")
             end
-         elseif "iso-8859" $ EXT .or. "unknown-8bit" $ EXT
+         else  //if "iso-8859" $ EXT .or. "unknown-8bit" $ EXT .or. .T.
             READFILE:=CUENTALINEAS(AX)
             NUMCAR:=READFILE[2]
             NL:=READFILE[1]
@@ -15418,7 +15552,7 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                             "Sin embargo, creo que puedo editarlo."+_CR+;
                             "Si la edición tiene problemas, identifique el o los caracteres"+_CR+;
                             "problemáticos, e intente una edición hexadecimal"+_CR+;
-                            "cargando el archivo con opción '-bin' desde la consola")
+                            "cargando el archivo con opción '-hex' desde la consola")
                      aOptions := { "Okay" }
                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
                   end
@@ -15426,7 +15560,7 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                   STRING:=GETLINEAS(cBUFF,NL,NUMCAR,MAXLONG)
                else 
 
-                  cMessage := hb_utf8tostr("Este archivo tiene un formato no reconocido"+_CR+"Se cargará como BINARIO")
+                  cMessage := hb_utf8tostr("Este archivo tiene un formato no reconocido"+_CR+"Se cargará como HEXADECIMAL")
                   aOptions := { "Okay" }
                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
 
@@ -15436,11 +15570,12 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                end
             else
                 NL:=1
+                EXT:="utf-8"
                 AADD(STRING,"")
             end
-         else
+        /* else
             STRING:=LEEBINARIO(FP)
-            NL:=LEN(STRING)
+            NL:=LEN(STRING) */
          end
          FCLOSE(FP)
          
@@ -15528,6 +15663,59 @@ elseif nKey == 11   // CTRL-K load file
     hb_keyPut(23)
     hb_keyPut(11)
     nRetVal := ME_IDLE
+/*else
+    switch nKey
+             case 177
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(164)
+                nRetVal := ME_IDLE
+                exit
+             case 145
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(165)
+                nRetVal := ME_IDLE
+                exit
+             case 161
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(160)
+                nRetVal := ME_IDLE
+                exit
+             case 169
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(130)
+                nRetVal := ME_IDLE
+                exit
+             case 173
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(161)
+                nRetVal := ME_IDLE
+                exit
+             case 179
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(162)
+                nRetVal := ME_IDLE
+                exit
+             case 186
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(163)
+                nRetVal := ME_IDLE
+                exit
+             case 191   // ¿
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(168)
+                nRetVal := ME_IDLE
+                exit
+             case 170   // ª
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(166)
+                nRetVal := ME_IDLE
+                exit
+             case 186   // º
+                hb_keyPut(8);hb_keyPut(8)
+                hb_keyPut(167)
+                nRetVal := ME_IDLE
+                exit
+    end*/
 end
 
 /*

@@ -424,7 +424,7 @@ __P[185]:=@XCODE_CC()
 
 __P[190]:=@TDATE2_CODE()
 
-  __P[191]:=0
+  __P[191]:=@FUNPCHAR()
   __P[192]:=0
   __P[193]:=0
   __P[194]:=0
@@ -6545,6 +6545,35 @@ RETURN .T.
 /******************************************************************
                 FAM. FUNCIONES DE MASCARA DE NUMEROS
 *******************************************************************/
+
+  FUNCTION FUNPCHAR()   // 191
+  LOCAL EAX,AX,EFX,FX,TIPO  //,EEX,EX
+   // EEX:=STACK[CS]
+   // EX:=stk_var_02[EEX]          // TIPO
+    EFX:=STACK[CS]
+    FX:=stk_var_02[EFX]          // STRING
+    EAX:=STACK[CS-1]
+    AX:=stk_var_02[EAX]          // CHAR
+   // CWM:=CMPCWM(EEX,CWM,TopCWM)
+    CWM:=CMPCWM(EFX,CWM,TopCWM)
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM; --CS
+    
+    FVWITH := FLAG[1]   // valor
+    FTWITH := UPPER(FLAG[2])   // tipo
+
+    TIPO := "L"  // valor por defecto: busca desde el inicio
+    if FTWITH=="C"
+       TIPO := FVWITH
+    end
+    if TIPO=="L"
+       stk_var_02[CWM]:=STRPCHAR(AX,FX,1)
+    else
+       stk_var_02[CWM]:=STRPCHAR(AX,FX,0)
+    end
+    STACK[CS] := CWM
+  RETURN .T.  
+   
 
   FUNCTION FUNSATURA()   // 171
   LOCAL EAX,AX,DX,BX,EX,EEX,EFX,FX,EDX,TEMPORAL,RTX
@@ -18507,7 +18536,9 @@ LOCAL OP_CODE:=480, _codos
      elseif EBX[5]=="DS"
         _codos:=chr(214)+chr(196)+chr(183)+chr(186)+chr(189)+chr(196)+chr(211)+chr(186)  
      elseif EBX[5]=="SD"
-        _codos:=chr(213)+chr(205)+chr(184)+chr(179)+chr(190)+chr(205)+chr(212)+chr(179)  
+        _codos:=chr(213)+chr(205)+chr(184)+chr(179)+chr(190)+chr(205)+chr(212)+chr(179)
+     else
+        _codos:=EBX[5]+EBX[5]+EBX[5]+EBX[5]+EBX[5]+EBX[5]+EBX[5]+EBX[5] 
      end   
      @ EBX[1], EBX[2] clear to EBX[3], EBX[4]
      @ EBX[1], EBX[2], EBX[3], EBX[4] box _codos             
@@ -18614,8 +18645,10 @@ LOCAL OP_CODE:=480, _codos
      for EX:=EEX1+1 to EEX3
         if ECX=="D" .or. ECX=="DS"
            @ EX, EEX2 say chr(186)
-        else
+        elseif ECX=="S" .or. ECX=="SD"
            @ EX, EEX2 say chr(179)
+        else
+           @ EX, EEX2 say ECX
         end   
      next
      if ECX=="D" 
@@ -20288,7 +20321,26 @@ STATIC FUNCTION ErrorMessage( oError )
    #include "/home/xu/Proyectos/xuesp/definiciones.h"
 #endif
 */
-
+HB_FUNC ( STRPCHAR )
+{
+   const char * cCar    = hb_parc( 1 );
+   const char * cString = hb_parc( 2 );
+   int tipo = hb_parni( 3 );
+   int pos = 0,i,j;
+   
+   i=strlen(cString)-1;
+   j=i;
+   
+   const char * b = cString;
+   if (tipo){  // desde principio
+      while (*cCar == *b) ++b;
+      pos = (b - cString) + 1;
+   }else{      // desde final
+      while( *cCar == cString[i] ) --i;
+      pos = i+1; //j-i+1;
+   }
+   hb_retni(pos);
+}
 
 int xu_funIsnotation(const char * AX){
   int DX;
