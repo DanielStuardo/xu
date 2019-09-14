@@ -5859,7 +5859,7 @@ _ret[205][1]:="xtostack"       ;_ret[205][3]:="A#"
 _ret[206][1]:="xtovariant"     ;_ret[206][3]:="V#"
 ////_ret[206][1]:="XXXXXX"         ;_ret[206][3]:="_"
 _ret[207][1]:="daysdiff"       ;_ret[207][3]:="###"
-_ret[208][1]:="XXXXXX"         ;_ret[208][3]:="_"
+_ret[208][1]:="timer"          ;_ret[208][3]:="LNN"   // true si var-seconds() >= millisecs
 _ret[209][1]:="xummcd"         ;_ret[209][3]:="###"
 _ret[210][1]:="xummcm"         ;_ret[210][3]:="###"
 _ret[211][1]:="bit_code"       ;_ret[211][3]:="#N##"

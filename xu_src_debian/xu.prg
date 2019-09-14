@@ -442,7 +442,7 @@ __P[204]:=0
 __P[205]:=@FUNXTOSTACK()
 __P[206]:=0
 __P[207]:=@FUNDATEDIFF()
-__P[208]:=0 
+__P[208]:=@FUNTIMER()
 __P[209]:=@FUNGCD()
 __P[210]:=@FUNLCM()
 __P[211]:=@BIT_CODE()
@@ -8027,6 +8027,28 @@ RETURN .T.
     end
   RETURN .T.
   
+  FUNCTION FUNTIMER()   // 208
+  LOCAL EAX,EBX
+    EAX:=STACK[CS]      // MILLISECS
+    EBX:=STACK[CS-1]    // VARIABLE TIMER
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    --CS; ++CWM
+  /*  @ 1,1
+    ? "LIMITE=",stk_var_02[EAX]
+    ? "VARIABLE=",stk_var_02[EBX]
+    ? "SECONDS=",seconds()
+    ? "DIFF = ",(SECONDS()-stk_var_02[EBX])
+    inkey(0) */
+    IF (SECONDS()-stk_var_02[EBX])*1000 >= stk_var_02[EAX]
+       stk_var_02[CWM]:=.T.
+       stk_var_02[EBX]:=SECONDS()
+    ELSE
+       stk_var_02[CWM]:=.F.
+    END
+    STACK[CS] := CWM
+  RETURN .T.
+    
   FUNCTION FUNFEXIST()   // 117
   LOCAL EAX
     EAX:=STACK[CS]
