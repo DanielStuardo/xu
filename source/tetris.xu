@@ -7,7 +7,7 @@
 
 #use matrix,math,string
 
-#define RET_FONDO    50000
+//#define RET_FONDO    50000
 ///#define RET_BAJADA   25000
 #define TOPE_BASE    32
 #define TOPE_MAX_VEL 10     // 10 cada N líneas sube un nivel
@@ -15,7 +15,7 @@
 ///#define LIMITE_VEL   18000
 ///#define AUMENTO_VEL  1200  // 1200*15 = 18000=limite de velocidad restada = 7000 baja rápido!!
 #define TOTAL_NIVELES 15
-#define TIME_LAPSE   45000
+#define TIME_LAPSE   45000  //45000  30 segundos=30000 milisegs.
 
 /* Area de funciones*/
 functions:
@@ -298,33 +298,38 @@ begin:
   video(33 77)
 
   colx<-20
-  at(05 colx); color(12); ."██████   █████ ██████   ██   ██   ██"   
-  at(06 colx); color(14); ."  ██   ████      ██   ██  ██ ██ ██"
-  at(07 colx); color(15); ."  ██   ██        ██     ████ ██   ██"
-  at(08 colx); color(10); ."  ██     █████   ██   ██  ██ ██ ██"
+  at(03 colx); color(12); ."██████   █████ ██████   ██   ██   ██"   
+  at(04 colx); color(14); ."  ██   ████      ██   ██  ██ ██ ██"
+  at(05 colx); color(15); ."  ██   ██        ██     ████ ██   ██"
+  at(06 colx); color(10); ."  ██     █████   ██   ██  ██ ██ ██"
+     color(8)
+     at(31 45); ."█▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █"
+     at(32 45); ."█ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█"
+  
   cmd(PATH+"tetris_title_theme.wav </dev/null >/dev/null 2>&1 &")
   sleep(1)
-  .pone_mensaje("D E S D E  R U S I A  C O N  D I V E R S I ó N !" 10 13)
+  .pone_mensaje("D E S D E  R U S I A  C O N  D I V E R S I ó N !" 8 13)
   sleep(1)
   cx<-17
-  .pone_mensaje("TECLAS DE MOVIMIENTO:" 12 cx)
-  .pone_mensaje("    <Flecha-arriba> = gira hacia la izquierda" 14 cx)
-  .pone_mensaje("     <Flecha-abajo> = gira hacia la derecha" 15 cx)
-  .pone_mensaje("<Flechas-laterales> = desplazan pieza" 16 cx)
-  .pone_mensaje("<Barra-espaciadora> = acelera caída" 17 cx)
-  .pone_mensaje("            <Enter> = suelta la pieza" 18 cx)
-  .pone_mensaje(("AUMENTA NIVEL CADA "+($TOPE_MAX_VEL)+" LíNEAS, GANAS CON 15 NIVELES") 20 (cx-5))
+  .pone_mensaje("TECLAS DE MOVIMIENTO:" 10 cx)
+  .pone_mensaje("    <Flecha-arriba> = gira hacia la izquierda" 12 cx)
+  .pone_mensaje("     <Flecha-abajo> = gira hacia la derecha" 13 cx)
+  .pone_mensaje("<Flechas-laterales> = desplazan pieza" 14 cx)
+  .pone_mensaje("<Barra-espaciadora> = acelera caída" 15 cx)
+  .pone_mensaje("            <Enter> = suelta la pieza" 16 cx)
+  .pone_mensaje(("AUMENTA NIVEL CADA "+($TOPE_MAX_VEL)+" LíNEAS, GANAS CON 15 NIVELES") 18 (cx-5))
+  
  // mono bailando
-  .BAILA_COSACO(0 5 24 33)
+  .BAILA_COSACO(0 5 22 33)
   if sLevel=""
-     .BAJA_CORTINA(24 33 100)
+     .BAJA_CORTINA(22 33 20)
      color(79)
-     at(23 30); ."Modo de juego?"
+     at(21 30); ."Modo de juego?"
      
-     at(26 30);."1) Entrenamiento"
-     at(27 30);."2) Medio"
-     at(28 30);."3) Duro"
-     at(29 30)
+     at(24 30);."1) Entrenamiento"
+     at(25 30);."2) Medio"
+     at(26 30);."3) Duro"
+     at(27 30)
      while true
         c<-0
         readkey(c)
@@ -836,7 +841,7 @@ begin:
         ++lineasClear
         for k<-1 to 6
            color([colorS k])
-           at(i 3); write chr(247)*(ancho-2) //38
+           at(i 3); write chr(219)*(ancho-2) //38
            millisec(10)
         next
 //        pause
@@ -923,14 +928,15 @@ begin:
   at(18 colx); ." ▀  ▀  ▀▀ ▀ ▀ ▀ ▀"
 end
 
-cambia_musica():void
-begin:
-  mLapso<-seconds("")
-  if (++indexMusica)=5
-     indexMusica<-1
-  endif
-  cmd(PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &")
-end
+//cambia_musica():void
+//begin:
+//  mLapso<-1 //seconds("")
+//  if (++indexMusica)=5
+//     indexMusica<-1
+//  endif
+//  cmd(PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &")
+//  ret_fondo<-seconds("")
+//end
 
 repone_musica():void
 begin:
@@ -938,11 +944,15 @@ begin:
   cmd(PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &")
 end
 
-verifica_nivel(scolor:number):void
+verifica_nivel(scolor:number):boolean
 colox:=number
+ret:=boolean
 begin:
+   ret<-false
    if cta_lineas>=TOPE_MAX_VEL
       ++nivel
+      ret<-true
+      mLapso<-0
       cta_lineas<-0
       ////velocidad<-velocidad+AUMENTO_VEL
       .KILLSOUND()
@@ -990,7 +1000,7 @@ begin:
          .pone_lineas(11)
          .imprime_base(1)    
 
-         .cambia_musica()
+//         .cambia_musica()
       else
           sleep(3)  
           levelClear<-levelClear+1
@@ -1031,18 +1041,20 @@ begin:
              .pone_lineas(11)
              .imprime_base(1)
              
-             .cambia_musica()
+//             .cambia_musica()
 
-          else
-             mLapso<-0
+//          else
+//             mLapso<-0
           endif
       endif
    endif
    at(30 (nextP-9)); color(scolor); write strpad((flag "C ") ($nivel) 11)
+   return ret
 end
 
 pone_pausa():void
   colx:=number
+  r:=boolean
 begin:
 
   .KILLSOUND()
@@ -1059,7 +1071,7 @@ begin:
   .pone_proxima()
   .pone_puntos(15)
   .pone_lineas(11)
-  .verifica_nivel(10)
+  r<-.verifica_nivel(10)
   .imprime_base(1)
   .repone_musica()
 end
@@ -1113,7 +1125,7 @@ vars:
   fondo:=^string
   mLapso,ret_fondo,mTiempo,indexMusica:=number
   tNivel,T0,T1,T2,T3,TIEMPO,TIME,ret_lapso:=number
-  swTarde:=boolean
+  swLimpia,tmp:=boolean
 
 /* programa principal */
 algorithm:
@@ -1148,7 +1160,7 @@ cursor(0)
 
 high<-.carga_high_score()
 
-.titulo()
+//.titulo()
 // sLevel<-"medium"
   precision 0
 
@@ -1195,11 +1207,15 @@ levelClear<-0
 lineasBorradas<-0
 .pone_lineas(10)
 nivel<-1
-.verifica_nivel(11)
-niveles<-^[25000,20000,15000,10000,10000, &
-           10000,9000,9000,9000,8000,     &
-           8000,8000,8000,7000,6500,      &
-           6000,6000, 6000,5500,5000]
+tmp<-.verifica_nivel(11)
+//niveles<-^[25000,20000,15000,10000,10000, &
+//           10000,9000,9000,9000,8000,     &
+//           8000,8000,8000,7000,6500,      &
+//           6000,6000, 6000,5500,5000]
+niveles<-^[400,300,300,200,200, &
+           200,190,190,180,180,     &
+           170,170,160,160,150,      &
+           150,150,140,140,140]
 musica_fondo<-^[1,2,3,4]
 fondo<-^["tetris_bradinsky_1.wav", &
          "tetris_troika_2.wav", &
@@ -1211,6 +1227,9 @@ mTiempo<-0
 mLapso<-0
 TIEMPO<-seconds("")  // con esto veo si se ha demorado mucho en un nivel: aumenta la velocidad
 TIME<-TIEMPO
+ret_fondo<-seconds("")
+ret_lapso<-seconds("")
+swLimpia<-true
 
 while main
    .imprime_base(1)
@@ -1226,7 +1245,7 @@ while main
    rot_pieza<-1
    oldrot<-1
    tNivel<-nivel
-   swTarde<-false
+//   swTarde<-false
    ret_bajada<-0
    flush()
    
@@ -1237,34 +1256,39 @@ while main
       break
    endif
    
-   if mLapso=0
+   if mLapso=0  /* inicia con musica de fondo. solo debe ser cambiado cuando cambia nivel */
       if (++indexMusica)=5
          indexMusica<-1
       endif
       cmd((PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &"))
-      mLapso<-seconds("")
+      ret_fondo<-seconds("")
+      mLapso<-1 //esto evita que cambie de musica cada vez que limpie una linea
    endif
    
-   if nivel<=20
-      RET_BAJADA<-[niveles nivel]
-   else
-      RET_BAJADA<-[niveles 20]
+   if swLimpia  /* si limpió un nivel, retoma el valor inicial del nivel siguiente.
+                   sino, continúa con la velocidad de castigo */
+      if nivel<=20
+         RET_BAJADA<-[niveles nivel]
+      else
+         RET_BAJADA<-[niveles 20]
+      endif
    endif
    
    while ciclo
-      if (++ret_fondo)=RET_FONDO
-         ret_fondo<-0
-         if (seconds("") - mLapso)>=180
+      if timer(ret_fondo 185000) //(++ret_fondo)=RET_FONDO
+//         ret_fondo<-0
+//         if (seconds("") - mLapso)>=180
             if (++indexMusica)=5
                indexMusica<-1
             endif
             cmd((PATH+[fondo indexMusica]+" </dev/null >/dev/null 2>&1 &"))
-            mLapso<-seconds("")
-         endif
+            ret_fondo<-seconds("")
+//            mLapso<-0 //seconds("")
+//         endif
       endif
       
-      if ret_bajada=RET_BAJADA  //(RET_BAJADA-velocidad)
-         ret_bajada<-0
+      if timer(ret_bajada RET_BAJADA)  //ret_bajada=RET_BAJADA  //(RET_BAJADA-velocidad)
+//         ret_bajada<-0
          ret<-.pone_pieza(x y 0)
          x<-x+1
          if ~.pone_pieza(x y colorSel)
@@ -1274,31 +1298,41 @@ while main
             break
          endif
       endif
-      ++ret_bajada
+//      ++ret_bajada
 
-     /* si ha pasado 1 mins sin limpiar una linea, aumenta la velocidad temporalmente */
-      if (++ret_lapso)=TIME_LAPSE
-         ret_lapso<-0
+     /* si ha pasado 30 segs sin limpiar una linea, aumenta la velocidad temporalmente */
+      if timer(ret_lapso TIME_LAPSE)  //(++ret_lapso)=TIME_LAPSE
+//         ret_lapso<-0
 //         color(10)
-         if (seconds("")-TIEMPO)>=60
-            RET_BAJADA<-RET_BAJADA-100
-            if RET_BAJADA<4000
-               RET_BAJADA<-4000
-            endif
-            swTarde<-true
-            TIEMPO<-seconds("")
-            color(12)
+//         if timer()(seconds("")-TIEMPO)>=30
+//            RET_BAJADA<-RET_BAJADA-100
+//            if RET_BAJADA<4000
+//               RET_BAJADA<-4000
+//            endif
+//            swTarde<-true
+//            TIEMPO<-seconds("")
+//            color(12)
+//         endif
+         cmd(PATH+"tetris_alerta.wav </dev/null >/dev/null 2>&1 &")
+         
+         RET_BAJADA<--50
+         if RET_BAJADA<140
+            RET_BAJADA<-140
          endif
-         if swTarde
-            color(12)
-         else
-            color(10)
-         endif
-         T0<-(seconds("")-TIME)
-         T1<-T0/60
-         T2<-mth.int(T1)
-         T3<-(((T1-T2)*100)*60/100)
-         at(10 (ancho+3)); write T2,":",T3," "
+         swLimpia<-false
+         ret_bajada<-seconds("")
+//         ret_lapso<-seconds("")  // reinicia conteo. no es necesario.
+//         if swTarde
+//            color(12)
+//         else
+//            color(10)
+//         endif
+//         T0<-(seconds("")-TIME)
+//         T1<-T0/60
+//         T2<-mth.int(T1)
+//         T3<-(((T1-T2)*100)*60/100)
+//         at(10 (ancho+3)); write T2,":",T3," "
+//           at(10 (ancho+3)); ."VEL=",RET_BAJADA
       endif
       
       readkey(c)
@@ -1485,7 +1519,11 @@ while main
       lineas<-lineas+lineasBorradas
       .pone_lineas(11)
       cta_lineas<-cta_lineas+lineasBorradas
-      .verifica_nivel(10)
+      if .verifica_nivel(10)  // solo si pasó el nivel, recupera la velocidad asignada al nivel
+//         ret_fondo<-seconds("")
+         swLimpia<-true
+      endif
+      ret_lapso<-seconds("")  // reinicia conteo de alertas por ineficiencia.
    endif
 wend
 .KILLSOUND()

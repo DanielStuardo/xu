@@ -13,6 +13,10 @@
 #define KESCAPE   27
 
 vars:
+  //TIPO_PACMAN:=$1:number   // sonidos 0=Pacman, otra cosa=Ms. Pacman
+  SIN_TITULO:=$1:number    // titulo  0=muestra, otra cosa1=sin titulo. 
+  STAGE:=$2:number         // 1..5 = tipo de laberinto, otra cosa o nada: primer laberinto
+  TIPO_PACMAN:=number
  /* LABERINTO, PUNTOS Y GENERAL */
   dots:=^number   // matriz de puntos para comer
   {dot,             // utilitaria
@@ -93,6 +97,10 @@ vars:
 
   RETARDOF,RETARDOP:=number
   PATHs,PATH,cSYS,cPLAY:=string    // ruta de raíz de XU donde estan los datos de Pacman.
+  
+  
+  PACMAN_INICIO,PAC_WAKA,PAC_SIREN,PAC_DEATH,PAC_EAT,PAC_AFTEREAT,PAC_PILLS,PAC_EXTRA:=string
+  PAC_BOLA:=string
 
 functions:
 
@@ -175,16 +183,36 @@ functions:
        millisec(50)
     next
   end
+
+  BAJA_CORTINA(fila:number,columna:number,tiempo:number):void
+    altura:=number
+  begin:
+    altura<-(fila+5)-(fila-1)
+
+    for i<-altura downto 1
+       color(68)
+       api ("box="+($(fila-2))+","+($(columna-4))+","+($(fila+7-i))+","+($(columna+14))+","+chr(219))
+     
+       color(124)
+       at( ((fila+7)-i) (columna-4) ); write "█▀█▀█▀█▀█▀█▀█▀█▀█▀█"
+       color(7)
+       at( ((fila+8)-i) (columna-4) ); write "███████████████████"
+       millisec(tiempo)
+    next
+  end
   
    //titulo:=function:void
    titulo():void
      tit:=^string
-     i:=number
+     i,c:=number
    begin:
 //     tit<-strload(PATH+"pacmanTitulo.txt")/"\n"
      
      video(30 88)
      cls
+     color(8)
+     at(28 56); ."█▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █"
+     at(29 56); ."█ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█"
      
      at(2 1);."\n"
      color(14);
@@ -216,13 +244,32 @@ functions:
 //     sleep(1);color(6); ."% = Clyde\n"
 //     color(7);."\t\t\tStarring:";sleep(1);color(14);." PACMAN"; color(14); sleep(1);." > (esto es el pacman!!)"
      sleep(1)
-     at(25 30); color(142);."o";color(15);."        STARRING"
+     at(25 31); color(142);."o";color(15);."        STARRING"
      sleep(1)
      .muevePacman()
      at(25 36);color(14);."P A C M A N"
      millisec(500)
      .subeycome()
-     sleep(1)
+     sleep(2)
+
+     .BAJA_CORTINA(16 40 50)
+     color(79)
+     at(16 38); ."GéNERO?"
+     
+     at(18 39);."1) Ms. PACMAN"
+     at(19 39);."2) Mr. PACMAN"
+     while true
+        c<-0
+        readkey(c)
+        if c=49
+           TIPO_PACMAN<-1
+           break
+        elseif c=50
+           TIPO_PACMAN<-0
+           break
+        endif
+     wend
+     color 7
    end
 
    cargaLaberinto:=function:void
@@ -303,7 +350,7 @@ functions:
      lposx,lposy:=number  // puntos
    begin:
      lposx<-1
-     if colorLAB=6
+     if colorLAB=14
         color(12)
      elseif colorLAB=10
         color(15)
@@ -329,7 +376,7 @@ functions:
      at(17 29); write (color(10)) "READY!"
    
      if main
-         cmd(PATHs+"pacman_beginning.wav  </dev/null >/dev/null 2>&1") // funciona para mac
+        cmd(PATHs+PACMAN_INICIO+" </dev/null >/dev/null 2>&1") // funciona para mac
      else
         sleep(2)
      endif
@@ -358,7 +405,7 @@ functions:
      at(0 10);."SCORE=",score
      at(0 25);."HIGH=",record
      at(31 39); color(0); write "               "
-     at(31 39); color(143);."UP "; color(104)
+     at(31 39); /*color(143);."UP ";*/ color(104)
      ."(>)", while (++i)<vidas
    end
 
@@ -382,6 +429,9 @@ functions:
    cargaEscenario(main:boolean):void
    begin:
      flag ","              // flag de carga de matrices de juego
+     use lab; drop
+     use pofd; drop
+     use dots; drop
      .cargaMatrizDecision() // carga matriz de decision
      .cargaPuntos()         // carga puntos para comer
      .cargaLaberinto()      // carga el laberinto
@@ -391,6 +441,33 @@ functions:
      .poneGetReady(main)
    end
 
+   cargaSonidos():void
+   begin:
+     if TIPO_PACMAN=0   // por default: sonido de Pacman
+        PACMAN_INICIO<-"pacman_beginning.wav"
+        PAC_WAKA<-"pacman_waca1.wav"
+        PAC_SIREN<-"pacman_siren.wav"
+        PAC_DEATH<-"pacman_death.wav"
+        PAC_EAT<-"pacman_eatghost.wav"
+        PAC_AFTEREAT<-"pacman_aftereatghost.wav"
+        PAC_PILLS<-"pacman-pills.wav"
+        PAC_EXTRA<-"pacman_extrapac.wav"
+     else               // sonido Ms.Pacman
+        PACMAN_INICIO<-"mspacman_beginning.wav"
+        if tipoLab>=4
+           PAC_WAKA<-"mspacman_waca2.wav"
+        else
+           PAC_WAKA<-"mspacman_waca1.wav"
+        endif
+        PAC_SIREN<-"mspacman_siren.wav"
+        PAC_DEATH<-"mspacman_death.wav"
+        PAC_EAT<-"mspacman_eatghost.wav"
+        PAC_AFTEREAT<-"mspacman_aftereatghost.wav"
+        PAC_PILLS<-"mspacman-pills.wav"
+        PAC_EXTRA<-"mspacman_extrapac.wav"
+     endif
+   
+   end
 
    iniciaPacman:=function:void
    begin:
@@ -425,10 +502,9 @@ functions:
    begin:
      cls; cursor(0)
      if main
-        .titulo()
-//        pause
         video(33 65)
-        vidas<-3
+        vidas<-5
+        score<-0
         sw_vidas<-puertaVidas<-true
         etapa<-1
 //        LIMITG<-850   // microsegundos del loop principal. baja hasta 650 ms
@@ -436,8 +512,8 @@ functions:
         LIMITVIDAS<-10000  // necesita 10 mil pts para vida extra
         TIEMPOAZUL<-10
         cntLAB<-1
-        use(paLAB);drop;push{9,11,13,6,10}
-        colorLAB<-9
+        use(paLAB);drop;push{9,11,13,14,10}
+        colorLAB<-[paLAB tipoLab]
         sw_etapa<-false
         use(fantasma);drop //push{chr(239),chr(239),chr(239),chr(239)} //push{"#","@","$","%"}
         push{chr(236),chr(236),chr(236),chr(236)}
@@ -449,10 +525,11 @@ functions:
         probLim<-^[0.7,0.75, 0.75,0.8, 0.8,0.85, 0.85,0.9, 0.9, 0.95]
         
         use(Fpuntos);drop; push{400,800,1200,1600}
-        RETARDOP<-3200 //3500 //3200  //3500 //2500
-        RETARDOF<-3150 //3000  //3300 //2700
+        RETARDOP<-80 //70 //3200 //3500 //3200  //3500 //2500
+        RETARDOF<-77 //65 //3150 //3000  //3300 //2700
         hPuntos<-^[150,300,500,700,1000,2000,3000,5000]
         .cargaScore()
+        .cargaSonidos()
      endif
      cls
     /* LABERINTO */
@@ -518,6 +595,7 @@ functions:
         at([PASx indexP] [PASy indexP]); write chr(111) //"o"
         at([Fx indexP] [Fy indexP]); color([Fcolor indexP]); write [fantasma indexP]
      next
+     
    end
 
  /*  recuperaFantasmas:=function:void
@@ -568,7 +646,7 @@ functions:
    begin:
      at([Fx indexF] ([Fy indexF]+1)) 
      if [.dots [FANx indexF] ([FANy indexF]+1)]=1
-        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
      elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
         color(142);write chr(111)
      else
@@ -577,7 +655,7 @@ functions:
            
      at([Fx indexF] [Fy indexF]) 
      if [.dots [FANx indexF] [FANy indexF]]=1
-        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
      elseif [.dots [FANx indexF] [FANy indexF]]=2
         color(142);write chr(111)
      else
@@ -586,7 +664,7 @@ functions:
 
      at([Fx indexF] ([Fy indexF]-1)) 
      if [.dots [FANx indexF] ([FANy indexF]-1)]=1
-        color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+        color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
      elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
         color(142);write chr(111)
      else
@@ -600,7 +678,7 @@ functions:
      for indexF<-1 to 4
 //        at([Fx indexF] [Fy indexF])
 //        if [.dots [FANx indexF] [FANy indexF]]=1
-//          color( {colorLAB=6?12:14} );write chr(250)
+//          color( {colorLAB=14?12:14} );write chr(250)
 //        elseif [.dots [FANx indexF] [FANy indexF]]=2
 //           color(142);write chr(111) //;."o"
 //        else
@@ -608,7 +686,7 @@ functions:
 //        endif
         at([Fx indexF] ([Fy indexF]+1)) 
         if [.dots [FANx indexF] ([FANy indexF]+1)]=1
-           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
         elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
            color(142);write chr(111)
         else
@@ -617,7 +695,7 @@ functions:
            
         at([Fx indexF] [Fy indexF]) 
         if [.dots [FANx indexF] [FANy indexF]]=1
-           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
         elseif [.dots [FANx indexF] [FANy indexF]]=2
            color(142);write chr(111)
         else
@@ -626,7 +704,7 @@ functions:
 
         at([Fx indexF] ([Fy indexF]-1)) 
         if [.dots [FANx indexF] ([FANy indexF]-1)]=1
-           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
         elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
            color(142);write chr(111)
         else
@@ -640,7 +718,7 @@ functions:
      --vidas
      color(0)
 //     at(24 10); ."Comete esa hueá!"
-     at(17 27); ."1UP EXTRA"
+//     at(17 27); ."1UP EXTRA"
      at(17 27); write "        "
      .quitaFantasmas()
 
@@ -652,34 +730,35 @@ functions:
    end
 
    poneEstrella:=function:void
-     i:=number
+     i,y:=number
      colorFun:=$1:number
      desvanece:=^number
    begin:
-      
+      y<-Py
+      --y
       color(colorFun)
       if colorFun=104
          for i<-1 to 3
-            at(Px Py); write "V"
+            at(Px y);color(14); write "(\)"
             msleep(100000)
-            at(Px Py); write "<"
+            at(Px y);color(15); write "(|)"
             msleep(100000)
-            at(Px Py); write "^"
+            at(Px y);color(14); write "(/)"
             msleep(100000)
-            at(Px Py); write ">"
+            at(Px y);color(15); write "("+chr(196)+")"
             msleep(100000)
          next
       else
          desvanece<-^[6,4,8,0]
          for i<-1 to 4
             color([desvanece i])
-            at(Px Py); write "V"
+            at(Px y); write "(V)"
             msleep(100000-i*1000)
-            at(Px Py); write "<"
+            at(Px y); write "(<)"
             msleep(100000-i*1000)
-            at(Px Py); write "^"
+            at(Px y); write "(^)"
             msleep(100000-i*1000)
-            at(Px Py); write ">"
+            at(Px y); write "(>)"
             msleep(100000-i*1000)
          next
       endif
@@ -688,56 +767,109 @@ functions:
    end
 
    intermedio:=function:void
-      x:=number
+      x,indFruta,hPremio,mulFruta:=number
       sw:=boolean
+      Bcolor,Fcolor:=^number
    begin:
       color(0);cls
-      cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
+      use(Fcolor); drop; push{79,63,95,111}      //{12,11,13,6}
+      Bcolor<-^[4,3,5,6]
+      
+//      if tipoLab=2
+         cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
+//      elseif tipoLab=3 or tipoLab=4
+//         cmd(PATHs+"mspacman_acto_1.wav </dev/null >/dev/null 2>&1 &")
+//      elseif tipoLab=5
+//         cmd(PATHs+"mspacman_acto_2.wav </dev/null >/dev/null 2>&1 &")
+//      elseif tipoLab=6
+//         cmd(PATHs+"mspacman_acto_3.wav </dev/null >/dev/null 2>&1 &")
+//      endif
+      
+    
       not sw
       at(6 23); color(15);."S T A G E   "+($tipoLab)
       for x<-1 to 50
-         at(11 x);color(0);." ";color({x<43?104:0});write {sw?"<":"-"}
+         at(11 x);color({x<48?14:0});write " (",{sw?"<":"-"},")"
          not sw
+         at(11 1); color(0); write chr(219)*9
+         at(11 45);color(0); write chr(219)*15
          msleep(100000)
-         if (x-3)>11
-            at(11 (x-3)); color(0);." ";color({(x-3)<43?79:0});write "#"
+         if (x-3)>1
+            at(11 (x-3)); color([Bcolor 1]); ." ▄"
+            color([Fcolor 1]); write chr(236)
+            color([Bcolor 1]); ."▄"
          endif
-         if (x-5)>11
-            at(11 (x-5)); color(0);." ";color({(x-5)<43?63:0});write "$"
-         endif
-         if (x-7)>11
-            at(11 (x-7)); color(0);." ";color({(x-7)<43?95:0});write "@"
-         endif
-         if (x-9)>11
-            at(11 (x-9)); color(0);." ";color({(x-9)<43?111:0});write "%"
-         endif
+         at(11 1); color(0); write chr(219)*9
+         at(11 45);color(0); write chr(219)*15
+//         if (x-3)>11
+//            at(11 (x-3)); color(0);." ";color({(x-3)<43?79:0});write "#"
+//         endif
+//         if (x-5)>11
+//            at(11 (x-5)); color(0);." ";color({(x-5)<43?63:0});write "$"
+//         endif
+//         if (x-7)>11
+//            at(11 (x-7)); color(0);." ";color({(x-7)<43?95:0});write "@"
+//         endif
+//         if (x-9)>11
+//            at(11 (x-9)); color(0);." ";color({(x-9)<43?111:0});write "%"
+//         endif
       next
-      at(11 42);color(0);." "
-      msleep(300000)
-      cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
-      msleep(350000)
-      at(11 26);color(12);."O";color(10);."^";color(12);."O"
+   //   at(11 (x-3)); color(0); ." ▄",chr(236),"▄"
+//      at(11 42);color(0);."   "
+//      if tipoLab<6
+         msleep(300000)
+         cmd(PATHs+"pacman_intermission.wav </dev/null >/dev/null 2>&1 &")
+         msleep(350000)
+//      endif
+      //at(11 26);color(12);
+      if tipoLab=1   
+         indFruta<-2
+      elseif tipoLab=2
+         indFruta<-4
+      elseif tipoLab=3
+         indFruta<-6
+      elseif tipoLab>=4
+         indFruta<-8
+      endif
+      hPremio<-[hPuntos indFruta]
+      mulFruta<-(indFruta-1)*3
+      at(11 26); color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
+                 color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
+                 color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
+   
+         //."O";color(10);."^";color(12);."O"
       for x<-50 downto 1
-         at(11 x);color({x>9?104:0});write {sw?">":"-"};color(0);." "
+         at(11 x);color({x>1?14:0});write "(", {sw?">":"-"};.") "
          not sw
+         at(11 1); color(0); write chr(219)*9
+         at(11 45);color(0); write chr(219)*15
          msleep(90000)
-         if ((x+3)<43) and ((x+3)>10)
-            at(11 (x+3)); color({(x+3)>3?79:0});write "#";color(0);." "
+         if ((x+3)<50) and ((x+3)>1)
+            at(11 (x+3)); color([Bcolor 1]); ."▄"
+            color([Fcolor 1]); write chr(236)
+            color([Bcolor 1]); ."▄ "
          endif
-         if ((x+5)<43) and ((x+5)>10)
-            at(11 (x+5)); color({(x+5)>3?63:0});write "$";color(0);." "
-         endif
-         if ((x+7)<43) and ((x+7)>10)
-            at(11 (x+7)); color({(x+7)>3?95:0});write "@";color(0);." "
-         endif
-         if ((x+9)<43) and ((x+9)>10)
-            at(11 (x+9)); color({(x+9)>3?111:0});write "%";color(0);." "
-         endif
+         at(11 1); color(0); write chr(219)*9
+         at(11 45);color(0); write chr(219)*15
+//         if ((x+3)<43) and ((x+3)>10)
+//            at(11 (x+3)); color({(x+3)>3?79:0});write "#";color(0);." "
+//         endif
+//         if ((x+5)<43) and ((x+5)>10)
+//            at(11 (x+5)); color({(x+5)>3?63:0});write "$";color(0);." "
+//         endif
+//         if ((x+7)<43) and ((x+7)>10)
+//            at(11 (x+7)); color({(x+7)>3?95:0});write "@";color(0);." "
+//         endif
+//         if ((x+9)<43) and ((x+9)>10)
+//            at(11 (x+9)); color({(x+9)>3?111:0});write "%";color(0);." "
+//         endif
          if x=28
+            at(10 26); color(15); write hPremio
             cmd(PATHs+"pacman_eatfruit.wav </dev/null >/dev/null 2>&1 &")
          endif
       next
-      at(11 11);color(0);." "
+   //   at(11 11); color(0); ."▄",chr(236),"▄"
+//      at(11 11);color(0);."   "
       sleep(1)
    end
 
@@ -745,13 +877,13 @@ functions:
    begin:
       if swWaka
          swWaka<-false
-         cmd("kill -9 "+PIDWAKA+" </dev/null >/dev/null 2>&1 &")
+         cmd("kill "+PIDWAKA+" </dev/null >/dev/null 2>&1 &")
       endif
    end
 
    KILLPILLS():void
    begin:
-      cmd("kill -9 "+PIDPILLS+" </dev/null >/dev/null 2>&1 &")
+      cmd("kill "+PIDPILLS+" </dev/null >/dev/null 2>&1 &")
    end
    
    KILLSOUND:=function:void
@@ -759,8 +891,41 @@ functions:
      i:=number
    begin:
      PID<-fcmd("pidof "+cPLAY)
-     cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
+     cmd("kill "+PID+ " </dev/null >/dev/null 2>&1")
    end
+
+  otravez(TIPO:number):boolean
+  colx,c:=number
+  s:=string
+  ret:=boolean
+  begin:
+    if TIPO=1
+       cls
+       cursor 0    
+       color(3)
+       api "box=12,17,19,49,D"
+       color 11
+       colx<-24
+       at(14 colx); ." ▄   ▄▄  ▄  ▄  ▄   ▄"
+       at(15 colx); ."█▄█ █ ▄ █▄█ ▄ █ █ ▀ █"
+       at(16 colx); ."▀ ▀  ▀▀ ▀ ▀ ▀ ▀ ▀  ▄"
+    endif
+    c<-0
+    flush()
+    while c=0
+      readkey(c)
+      s<-strupper(chr(c))
+      if s="S" or s="Y"
+         ret<- true
+         break
+      elseif s="N"
+         ret<- false
+         break
+      endif
+    wend
+    return ret
+  end
+
 
 algorithm:
 
@@ -791,6 +956,31 @@ algorithm:
  endif
  PATHs<-cPLAY+" "+PATH // deja "afplay /home..../source/"
 
+// video 33 65
+// sw_death<-.otravez
+// goodbye
+
+// if STAGE<1 or STAGE>5
+//    tipoLab<-1
+// else
+//    tipoLab<-STAGE
+// endif 
+ 
+
+// cursor(0)
+// .intermedio()
+// cursor(1)
+// goodbye
+
+cursor 0
+if SIN_TITULO<>1 
+   .titulo()
+endif
+
+while true
+
+ seed(2048) 
+
  use frutas; drop
  push{"O","^","O", & //cereza
       "(",")","#", & //limón
@@ -802,17 +992,14 @@ algorithm:
       chr(213),chr(209),"8"} //llave
 
  colorFruta<-^[12,14,12,14,14,10,2,10,10,6,6,2,13,13,2,12,12,10,0,12,0,11,11,11]
- tipoLab<-1
 
+ tipoLab<-1
+ 
 // colorPacman<-14
  indFruta<-1
  indLimit<-1
  precision 0
  
-// .intermedio()
-// goodbye
-
- seed(2048) 
  
  .poneSecuenciaInicio(true)
 
@@ -824,27 +1011,32 @@ algorithm:
 // at(31 8);  color([colorFruta (1+mulFruta)]); write [frutas (1+mulFruta)]
 //            color([colorFruta (2+mulFruta)]); write [frutas (2+mulFruta)]
 //            color([colorFruta (3+mulFruta)]); write [frutas (3+mulFruta)]
-
+ c<-0
  while vidas>0
 
    sw_death<-false
    colorPacman<-14
    
-   cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
+   cmd(PATHs+PAC_SIREN+" </dev/null >/dev/null 2>&1 &")
 
+   tmpRET<-RETARDOF
+   
    while c<>KESCAPE
 
-     if (++retardoF)=  RETARDOF
-        retardoF<-0
+     if timer(retardoF RETARDOF)  //(++retardoF)=  RETARDOF
+//        retardoF<-0
        /* chequeo FANTASMAS */
 
         for indexF<-1 to 4
-         /* los fantasmas se mueven con una probabilidad: esto marca la diferencia
-            a la hora de perseguir al pacman */
+           /*
+             Los fantasmas deben pasar sobre los objetos sin borrarlos.
+             Las siguientes lineas hacen ese efecto, dado que no manejo
+             sprites.
+           */
 //           at([Fx indexF] [Fy indexF]) 
 //           if [.dots [FANx indexF] [FANy indexF]]=1
-//              //color( iif( (colorLAB=6) 12 14 ));write chr(250)
-//              color( {colorLAB=6?12:14} );write chr(250)
+//              //color( iif( (colorLAB=14) 12 14 ));write chr(250)
+//              color( {colorLAB=14?12:14} );write chr(250)
 //           elseif [.dots [FANx indexF] [FANy indexF]]=2
 //              color(142);write chr(111)
 //           else
@@ -853,7 +1045,7 @@ algorithm:
 
            at([Fx indexF] ([Fy indexF]+1)) 
            if [.dots [FANx indexF] ([FANy indexF]+1)]=1
-              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+              color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
            elseif [.dots [FANx indexF] ([FANy indexF]+1)]=2
               color(142);write chr(111)
            else
@@ -862,7 +1054,7 @@ algorithm:
            
            at([Fx indexF] ([Fy indexF]-1)) 
            if [.dots [FANx indexF] ([FANy indexF]-1)]=1
-              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+              color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
            elseif [.dots [FANx indexF] ([FANy indexF]-1)]=2
               color(142);write chr(111)
            else
@@ -871,7 +1063,7 @@ algorithm:
            
            at([Fx indexF] [Fy indexF]) 
            if [.dots [FANx indexF] [FANy indexF]]=1
-              color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+              color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
            elseif [.dots [FANx indexF] [FANy indexF]]=2
               color(142);write chr(111)
            else
@@ -880,6 +1072,9 @@ algorithm:
 
               
           /* chequea movimiento de fantasmas segun su direccion */
+          /* los fantasmas se mueven con una probabilidad: esto marca la diferencia
+            a la hora de perseguir al pacman */
+          
            fdir<-[fdireccion indexF]
            if fdir="E"
               [FANy indexF]<-[FANy indexF]-1
@@ -1479,18 +1674,19 @@ algorithm:
                  .KILLSOUND()
                  flush()
                  sleep(1)
-                 cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
+                 cmd(PATHs+PAC_DEATH+" </dev/null >/dev/null 2>&1 &")
                  .quitaFantasmas()
                  .poneEstrella(14)
                  .wrongEtapa()
                  sw_death<-true
+                 RETARDOF<-tmpRET
                  break
               else
                  ++cntPuntos
                  score<-+[Fpuntos cntPuntos]
                  at(14 30);color(143);write [Fpuntos cntPuntos]
                  .KILLWAKA()
-                 cmd(PATHs+"pacman_eatghost.wav </dev/null >/dev/null 2>&1 &")
+                 cmd(PATHs+PAC_EAT+" </dev/null >/dev/null 2>&1 &")
                  .poneScore()
                  //gosub "poneScore"
                  .QUITACOMIDO(indexF)
@@ -1529,8 +1725,8 @@ algorithm:
 
      
     /* chequeo PACMAN */
-     if (++retardoP)=RETARDOP //-POTENCIA
-        retardoP<-0
+     if timer(retardoP RETARDOP) //(++retardoP)=RETARDOP //-POTENCIA
+//        retardoP<-0
 //      if ~sw_dimension
        /* recibe key */
         readkey(c)
@@ -1538,7 +1734,7 @@ algorithm:
         if strupper(chr(c))="P"
            .KILLSOUND()
            pause
-           cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
+           cmd(PATHs+PAC_SIREN+" </dev/null >/dev/null 2>&1 &")
         endif
 
         at(Px (Py-1)); color(0); write "   ";color(10)  // si hay error por aquí, habilitar: ;color(10)
@@ -1546,18 +1742,16 @@ algorithm:
         at(Px (Py-1)) 
 //        try
         if [.dots mPx (mPy-1)]=1
-           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
         elseif [.dots mPx (mPy-1)]=2
            color(142);write chr(111)
         else
            color(0);." "  // pone un espacio
         endif
-//        exception
-//          
-//        tend           
+
         at(Px (Py+1)) 
         if [.dots mPx (mPy+1)]=1
-           color( {colorLAB=6?12:{colorLAB=10?15:14}} );write chr(250)
+           color( {colorLAB=14?12:{colorLAB=10?15:14}} );write chr(250)
         elseif [.dots mPx (mPy+1)]=2
            color(142);write chr(111)
         else
@@ -1659,6 +1853,7 @@ algorithm:
               elseif direccion="S"
                  if [.dots (mPx+1) mPy]<>0
                     ++Px;++mPx;direccion<-"S"; .verificaBoca("^" "|")
+                    
                  endif
               elseif direccion="E"
                  if [.dots mPx (mPy-1)]<>0
@@ -1678,13 +1873,13 @@ algorithm:
            score<-+10
            if totDots=limiteMariconazo
               sw_etapa<-true
-              use(fprobabilidad); drop; push {8,6,7,3}
+              use(fprobabilidad); drop; push {9,6,8,3}
               
            endif
            if ~swWaka
 //              color(79)
 //              write "ACTUAL=",fcmd("pidof "+cPLAY)," ; " ; pause
-              cmd(PATHs+"pacman_waca1.wav </dev/null >/dev/null 2>&1 &")
+              cmd(PATHs+PAC_WAKA+" </dev/null >/dev/null 2>&1 &")
               PIDWAKA<- fcmd("pidof "+cPLAY)
               //color(79)
 //              write "TOTAL=",PIDWAKA,"\n" ; pause
@@ -1705,14 +1900,17 @@ algorithm:
            .poneScore()
            if totDots=limiteMariconazo
               sw_etapa<-true
-              use(fprobabilidad); drop; push {8,6,7,3}
+              use(fprobabilidad); drop; push {9,6,8,3}
            endif
            
            //gosub "poneScore"
            sw_azul<-true
            cntPuntos<-0
            festado<-^[false,false,false,false]
-           RETARDOP <-> RETARDOF
+           RETARDOF<-tmpRET
+//           tmpRET<-RETARDOF
+           RETARDOF<-RETARDOF+(RETARDOF\3)
+//           RETARDOP <-> RETARDOF
 //           colorPacman<-112
 //           tmpRET<-RETARDOP
 //           RETARDOP<-RETARDOF
@@ -1728,7 +1926,7 @@ algorithm:
                  break
               endif
            next
-           cmd(PATHs+"pacman-pills.wav </dev/null >/dev/null 2>&1 &")
+           cmd(PATHs+PAC_PILLS+" </dev/null >/dev/null 2>&1 &")
            PIDPILLS<- fcmd("pidof "+cPLAY)
            nPills<-strntok((flag " ") PIDPILLS)
            PIDPILLS<-strtok(PIDPILLS 1)
@@ -1783,13 +1981,14 @@ algorithm:
 //              .recuperaFantasmas()
 //              use(Frecupera);drop
               sw_cambiaColor<-false
-              RETARDOP <-> RETARDOF
+              RETARDOF<-tmpRET
+//              RETARDOP <-> RETARDOF
 //              tmpRET<-RETARDOP
 //              RETARDOP<-RETARDOF
 //              RETARDOF<-tmpRET
               {retardoP,retardoF}<-0
               .KILLPILLS()
-              cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
+              cmd(PATHs+PAC_SIREN+" </dev/null >/dev/null 2>&1 &")
            elseif seconds(timenow)-timeAZUL >= (TIEMPOAZUL\2)
               sw_cambiaColor<-true
 //                 for indexF<-1 to 4
@@ -1811,12 +2010,13 @@ algorithm:
 
                     at(14 30);color(143);write [Fpuntos cntPuntos]
                     .KILLWAKA()
-                    cmd(PATHs+"pacman_eatghost.wav </dev/null >/dev/null 2>&1 &")
+                    cmd(PATHs+PAC_EAT+" </dev/null >/dev/null 2>&1 &")
                     .poneScore()
                     //gosub "poneScore"
                     .QUITACOMIDO(indexF)
                     
                     .poneEstrella(104)
+                    
                     at(14 30);color(0);write "    "
                     [fdireccion indexF]<-"O"
                     // use(Frecupera); push(indexF)
@@ -1833,7 +2033,7 @@ algorithm:
                        [FANx indexF]<-15; [FANy indexF]<-26; [Fx indexF]<-15; [Fy indexF]<-33
                     endif
 
-                    cmd(PATHs+"pacman_aftereatghost.wav </dev/null >/dev/null 2>&1 &")
+                    cmd(PATHs+PAC_AFTEREAT+" </dev/null >/dev/null 2>&1 &")
                     flush()
                  else
                     at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
@@ -1842,17 +2042,19 @@ algorithm:
                     .KILLSOUND()
                     flush()
                     sleep(1)
-                    cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
+                    cmd(PATHs+PAC_DEATH+" </dev/null >/dev/null 2>&1 &")
                     .quitaFantasmas()
                     .poneEstrella(14)
                     .wrongEtapa()
                     sw_death<-true
+                    RETARDOF<-tmpRET
                     break
                  endif
               endif
            next
         else  // veo si se lo comen
-           for indexF<-1 to 4
+           if totDots<numDots
+            for indexF<-1 to 4
               if mPx=[FANx indexF] and mPy=[FANy indexF]
                  //at(14 23); write (color(12)) "TRAPPED!"
                  at([Fx indexF] ([Fy indexF]-1)); color([Bcolor indexF]); ."▄"
@@ -1862,15 +2064,16 @@ algorithm:
                  .KILLSOUND()
                  flush()
                  sleep(1)
-                 cmd(PATHs+"pacman_death.wav </dev/null >/dev/null 2>&1 &")
+                 cmd(PATHs+PAC_DEATH+" </dev/null >/dev/null 2>&1 &")
                  .quitaFantasmas()
                  .poneEstrella(14)
                  .wrongEtapa()
                  sw_death<-true
                  break
               endif
-           next
-           brkif sw_death
+            next
+            brkif sw_death
+           endif
         endif
 
        /* verifica si puede tener una vida extra */
@@ -1878,14 +2081,14 @@ algorithm:
            if sw_vidas
               if score>=LIMITVIDAS
                  ++vidas
-                 cmd(PATHs+"pacman_extrapac.wav </dev/null >/dev/null 2>&1 &")
+                 cmd(PATHs+PAC_EXTRA+" </dev/null >/dev/null 2>&1 &")
                  .poneEncabezado()
                  if LIMITVIDAS=20000
                     {puertaVidas,sw_vidas}<-false  // se acabaron las vidas extra
                  endif
                  LIMITVIDAS<-20000
                  sw_msgvida<-true
-                 at(17 27);color(130);."1UP EXTRA"
+                 //at(17 27);color(130);."1UP EXTRA"
                  timevida<-seconds(timenow)
               endif
            endif
@@ -1898,7 +2101,7 @@ algorithm:
               else
                  color(130)
               endif
-              at(17 27); ."1UP EXTRA"
+             // at(17 27); ."1UP EXTRA"
            endif
         rend
 
@@ -1980,8 +2183,16 @@ algorithm:
               endif
            endif
           // aumenta levemente la velocidad de los protas
+           RETARDOF<-tmpRET // recupera valor original por si acaba en medio de azules
+          
            --RETARDOP
+           if RETARDOP<70
+              RETARDOP<-70
+           endif
            --RETARDOF
+           if RETARDOF<67
+              RETARDOF<-67
+           endif
            retardoP<-0
            retardoF<-0
            
@@ -1995,14 +2206,14 @@ algorithm:
            // despues de este limite, los fantasmas "cazan"
            limiteMariconazo<-mth.int(numDots-(numDots*[probLim indLimit]))
            .poneFrutas()           
-           cmd(PATHs+"pacman_siren-106.wav -v 0.3 </dev/null >/dev/null 2>&1 &")
+           cmd(PATHs+PAC_SIREN+" </dev/null >/dev/null 2>&1 &")
         endif
 //       endif //sw_dimension
       endif  // PACMAN
 
      /* PUNTOS DE PODER */
-      if (++retardoPAS)=10000  //RETARDOPAS
-         retardoPAS<-0
+      if timer(retardoPAS 150)  //(++retardoPAS)=10000  //RETARDOPAS
+//         retardoPAS<-0
          not sw_pastilla
          for Pi<-1 to 4
             color(14)
@@ -2016,16 +2227,33 @@ algorithm:
 
    wend
    brkif c=KESCAPE
-   if vidas>0
-      Fcolor<-^[79,63,95,111]
-      Bcolor<-^[4,3,5,6]
-      festado<-^[true,true,true,true]
+   Fcolor<-^[79,63,95,111]
+   Bcolor<-^[4,3,5,6]
+   festado<-^[true,true,true,true]
+   if vidas=0
+      at(17 27);color(10);."CONTINUE?"
+      if .otravez(0)  // si continua, no se guarda el score.
+         vidas<-5
+         score<-0
+         at(17 27);color(0);."CONTINUE?"
+         at(0 0); color(0); write chr(219)*65
+         .quitaFantasmas()
+         .iniciaFantasmas()
+         .iniciaPacman()
+         .poneEncabezado()
+         .poneGetReady(false)
+      endif
    endif
  wend
  sleep(1)
  .KILLSOUND()
+ .poneFinal()  // guarda el score si es mayor que el record del juego
+ 
+ if ~.otravez(1)
+    break
+ endif
+wend  
 
- .poneFinal()
- vtab(14)
+vtab(14)
 stop
 

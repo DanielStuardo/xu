@@ -1,6 +1,7 @@
 /*PONER DE FONDO LA MUSIC DE AVENGERS!! */
 name: Phoenix!!
 #use string,stack,math,matrix
+#define RETAVANCE 0.3
 vars:
    actores :=number   // n£mero de actores
    etapas:=number
@@ -12,77 +13,178 @@ vars:
     shotx, shoty,
     lTOPE,
     tarda_explosion} := ^number
-   {acabo_con_todos, ciclo} := boolean
+   {acabo_con_todos, ciclo,swetapa2} := boolean
     colores := ^number
    {x, y, dx, dy, i, j, e, r, px, py,
     b, sx, sy, ddx, ddy, c, disp, puntos, k} := number
    {retardo, pret, sret, shoterx, shotery, te, heroe} := number
    {resucita, rret, bret, tbret, tarda_fenix} := number
-    aleron := string
-   ret_heroe,sc := number
-   tope_resucita,etapa_resucita := number
+    aleron,tipoDisparo,tipoBomba := string
+   ret_heroe,sc,ctaDestruidos := number
+   tope_resucita,etapa_resucita,ctaPulso,timeFailure := number
    RETDISPARO,RETHEROE,RET2DISPARO:=number
-   poneVoz:=number
+   poneVoz,nPills:=number
+    swAntimateria,swAltaFrecuencia,swPulso,swOk:=boolean
+    ctaAntimateria,ctaAltaFrecuencia:=number
 
    {base_1, base_2, base_3, base_4,
     base_5, base_6, base_7, base_8,
-    base_9 } := string
+    base_9, base_0 } := string
 
-   cSYS,cPLAY,PATH:=string   // cosas del sistema huesped
+   cSYS,cPLAY,PATH,PIDPILLS,PATHf,tPATH:=string   // cosas del sistema huesped
+   ma:=^number
                                         
  functions:
 
-  titulo_grande := function: void
+  plotPoints(xc:number,yc:number,x1:number,y1:number,simbolo:string):void
   begin:
-    at 10 1
-    write "\t\n"
-    color 12
-    write "\t\t    █████  █   █  ███  ████ █   █ ███ █    █\n"
-    write "\t\t     █   █ █   █ █   █ █    ██  █  █   █  █\n"
-    color 14
-    write "\t\t     █   █ █   █ █   █ █    ███ █  █    ██\n"
-    color 15
-    write "\t\t     ████   ███  █   █ ███  █ ███  █    ██\n"
-    color 10
-    write "\t\t     █     █   █ █   █ █    █  ██  █   █  █\n"
-    write "\t\t    ███    █   █  ███  ████ █   █ ███ █    █\n"
-    write "\n\n"
-    color 15
-    write "\t\t                Z = Disparas contra los invasores\n"
-    write "\t\tFlechas laterales = desplazas el tanque atómico\n"
-    write "\t\t    Flecha arriba = te elevas a la siguiente etapa cuando\n"
-    write "\t\t                    hayas acabado con los pajarracos\n"
-    write "\t\t              ESC = Escapas como la vil rata que eres\n"
-    write "\n\n\t\tPresione una tecla para comenzar el juego"
-    cmd(PATH+"sirena.wav </dev/null >/dev/null 2>&1 ")
-//    pause 
-    cls
+    
+    at( (xc+x1) (yc+y1*3) ); write simbolo
+    at( (xc-x1) (yc+y1*3) ); write simbolo
+    at( (xc+x1) (yc-y1*3) ); write simbolo
+    at( (xc-x1) (yc-y1*3) ); write simbolo
+    at( (xc+y1) (yc+x1*3) ); write simbolo
+    at( (xc-y1) (yc+x1*3) ); write simbolo
+    at( (xc+y1) (yc-x1*3) ); write simbolo
+    at( (xc-y1) (yc-x1*3) ); write simbolo
   end
 
-
+  circulo(xc:number, yc:number, r:number,simbolo:string):void
+    x,y,p:=number
+  begin:
+    x<-0
+    y<-r
+    at( xc yc ); write simbolo
+    .plotPoints(xc yc x y simbolo)
+    p<-1-r
+    while x<y
+       if p<0
+          ++x
+          p<-p+2*x+1
+       else
+          ++x
+          --y
+          p<-p+2*(x-y)+1
+       endif
+       .plotPoints(xc yc x y (simbolo))
+    wend
+  end
+  
   pone_actor := function:void
      x := $1:number
      y := $2:number
      r := $3:number
      c := $4:number
   begin:
-     color c
-     at y x
+     at(y x)
+     if c=10
      if r=0
-        write "  v*v  "
+        color(2)
+        write "  V";color(15);."*";color(2);."V  "
+        at ((y+1) x)
+        color(10)
+        write  " /   \ " 
+     elseif r=1
+        write  " _. ._ "
+        at ((y+1) x)
+        color(10)
+        write  "( ";color(2);."V";color(7);."*";color(2);."V";color(10);." )"
+     else
+        color(10);write " \   / "
+        at ((y+1) x)
+        color(2)
+        write  "  V";color(8);."*";color(2);."V  "
+     endif
+     else
+     color c
+     
+     if r=0
+        write "  VOV  "
         at ((y+1) x)
         write  " /   \ " 
      elseif r=1
-        write "       "
+        write  " _   _ "
         at ((y+1) x)
-        write  "--v*v--"
+        write  "( VOV )"
      else
         write " \   / "
         at ((y+1) x)
-        write  "  v*v  "
+        write  "  VOV  "
+     endif
+     
      endif
      color 7
   end
+
+   KILLSOUND:=function:void
+     PID,WPID,wtemp:=string
+     i:=number
+   begin:
+     
+     PID<-fcmd("pidof "+cPLAY)
+     if strlen(strtrim((flag "A") PID))>0
+        cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
+     endif
+     
+   end
+
+  titulo_grande := function: void
+    c,r:=number
+  begin:
+    
+//    .elipse(15 35  10 25)
+//    pause
+    at 2 1
+    write "\t\n"
+    color 12
+    write "\t\t       █████  █   █  ███  ████ █   █ ███ █    █\n"
+    write "\t\t        █   █ █   █ █   █ █    ██  █  █   █  █\n"
+    color 14
+    write "\t\t        █   █ █   █ █   █ █    ███ █  █    ██\n"
+    color 15
+    write "\t\t        ████   ███  █   █ ███  █ ███  █    ██\n"
+    color 10
+    write "\t\t        █     █   █ █   █ █    █  ██  █   █  █\n"
+    write "\t\t       ███    █   █  ███  ████ █   █ ███ █    █\n"
+    write "\n\n"*3
+    color 14
+    write "\t\t           C = carga de protones  --> # ilimitado\n"
+    write "\t\t  Lásers:  X = de alta frecuencia --> # limitado\n"
+    write "\t\t           Z = de antimateria     --> # muy limitado\n"
+    color 10
+    write "\t\t  P.E.M.:  V = (LOW)  destruye bombas    --> 3\n"
+    color(11)
+    write "\t\t         ESP = (HIGH) destruye invasores --> 1\n"
+    write "\t\t               (CUIDADO: algunos sistemas fallarán)\n\n"
+    color 15
+    write "\t\t     Flechas\n"
+    write "\t\t   laterales = desplazas la nave atómica\n\n"
+    
+    write "\t\t      Flecha \n"
+    write "\t\t      arriba = te elevas al siguiente destino cuando\n"
+    write "\t\t               hayas acabado con los atacantes; también\n"
+    write "\t\t               detienes tu nave en la batalla\n\n"
+    write "\t\t         ESC = Escapas (como la vil rata que eres)\n\n"
+    color(10)
+    write "\t\t    <<< PRESIONA UNA TECLA CUANDO ESTéS LISTO >>>"
+//    write "\n\n\t\tPresione una tecla para comenzar el juego"
+      color(8)
+      at(34 50); ."█▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █"
+      at(35 50); ."█ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█"
+
+    cmd(PATH+"sirena.wav </dev/null >/dev/null 2>&1 &")
+    r<-1
+    while c=0
+       readkey(c)
+       .pone_actor(40 11 r 10)
+       r<-(-1), if r=2
+       ++r
+       millisec(200)
+    wend
+    .KILLSOUND()
+    cls
+  end
+
 
   saca_actor := function:void  // ver si sirve mejor escribir espacios en pone_actor
      x :=  $1:number
@@ -119,22 +221,25 @@ vars:
      write  " <(╩)> "
      at ((y-1) x)
      write  "   v   "    */
-     at((y-1) (x+1));." <v> "
-     at(    y (x+1));." /|\\ "
-     at((y+1) x);." /_O_\\ "
+     color(12)
+     at((y-1) (x+1));."  | "
+     color(15)
+     at(    y (x+1));." /";color(12);."|";color(15);."\\ "
+     at((y+1)     x);." /";color(12);."_O_";color(15);."\\ "
   
      color 7
   end
 
-  puntaje := function:void
-     puntos := $1:number
-     vidas := $2:number
-  begin:
-     color 207 //15/12
-     write (at 32 5) vidas
-     write (at 32 60) puntos
-     color 7
-  end
+/* estara comentado hasta que habilite un sistema de puntos, si es que vale la pena*/
+//  puntaje := function:void
+//     puntos := $1:number
+//     vidas := $2:number
+//  begin:
+//     color 207 //15/12
+//     write (at 32 5) vidas
+//     write (at 32 60) puntos
+//     color 7
+//  end
   
   pone_disparo := function:void
   begin:
@@ -144,15 +249,36 @@ vars:
      color 14
        --shotery
        at shotery shoterx 
-       write  chr(186)
+       write  tipoDisparo //"|" //chr(186)
      color 7
 
      if shotery=1   
        disp<-0
        at shotery shoterx 
+       {swAntimateria,swAltaFrecuencia}<-false
        write  " "
      endif
   end
+
+  pone_especiales():void
+  begin:
+    
+    
+    at(33 1); color({(ctaAntimateria>1)?32:112});
+    ."       Antimatter ";color(10);."|"* (ctaAntimateria-1);color(8);."|"*(8-(ctaAntimateria-1)) //"      "
+    at(33 30); color(112);." PEM "
+    color({(ctaPulso=3)?10:{(ctaPulso=2)?6:{(ctaPulso=1)?12:8}}}); ." LOW"
+    color({(swPulso)?10:8}); ." HIGH"
+    if swOk
+       color(10); ." ·SYSTEM ARMED·   "
+    else
+       color(12); ." ·SYSTEM FAILURE· "
+    endif
+     
+    color({(ctaAltaFrecuencia>1)?96:112})
+    at(34 1); ."   High Frecuency ";color(14);."|"*(ctaAltaFrecuencia-1);color(8);."|"*(60-(ctaAltaFrecuencia-1)) //,"      "
+  end
+
 
   verifica_disparo := function:number
      v := number
@@ -160,24 +286,63 @@ vars:
      y := $2:number
      j := $3:number
      sc := $4:number
+     tipoDisparo:=$5:number
   begin:
      v<-[ estado j]
 
-     if (shoterx>=(x+2)) and (shoterx<=(x+4)) 
-           if (shotery=y) 
-              disp<-0
-              if v=2 
+     //if (shoterx>=(x+2)) and (shoterx<=(x+4)) 
+     if between(shoterx (x+1) (x+7))
+        if (shotery=y) 
+           if tipoDisparo=1
+              disp<-0       
+              if v=4 
+                --v
+                [colores j]<-9
+                cmd(PATH+"phoenix_alien_tocado.wav </dev/null >/dev/null 2>&1 &")
+              elseif v=3
+                --v
+                [colores j]<-13
+                cmd(PATH+"phoenix_alien_tocado.wav </dev/null >/dev/null 2>&1 &")
+                
+              elseif v=2 
                 --v
                // sc<-"12"
                 [ colores j ]<-12
-                cmd(PATH+"pajaroTocado.wav </dev/null >/dev/null 2>&1 &")
+                cmd(PATH+"phoenix_alien_tocado.wav </dev/null >/dev/null 2>&1 &")
               elseif v=1 
                 --v
                 color 15
-                puntos<-puntos+100 
+                puntos<-puntos+10
                // .puntaje puntos heroe
-              endif   
+              endif
+           elseif tipoDisparo=2  // alta frecuencia
+              disp<-0
+              v<-0
+              swAltaFrecuencia<-false
+              color(15)
+              puntos<-puntos+5
+//              ++ctaDestruidos
+//              if ctaDestruidos=25
+//                 ++ctaAltaFrecuencia
+//                 cmd(PATH+"phoenix_add_laser.wav </dev/null >/dev/null 2>&1 &")
+//                 
+//                 .pone_especiales()
+//                 ctaDestruidos<-0
+//              endif
+           elseif tipoDisparo=3  // antimateria
+              v<-0
+//              ++ctaDestruidos
+//              if ctaDestruidos=25
+//                 ++ctaAltaFrecuencia
+//                 cmd(PATH+"phoenix_add_laser.wav </dev/null >/dev/null 2>&1 &")
+//                 
+//                 .pone_especiales()
+//                 ctaDestruidos<-0
+//              endif
+              
+              color(15)
            endif
+        endif
      endif
      return v
   end
@@ -195,37 +360,66 @@ vars:
            cmd(PATH+"BombExplosion.wav </dev/null >/dev/null 2>&1 &")
         endif
 
-        if t=4 
+        if t>4 ////t>=4 
            color 15
            s<-[ batir j]
            at y x
            if s=0 
-              write "  v*v  "
+              write "  @O@  "
               at ((y+1) x)
               write  " /   \ " 
            elseif s=1 
-              write "        "
+              write  " _   _ "
               at ((y+1) x)
-              write  "--v*v--"
+              write  "( @O@ )"
            else
               write " \   / "
               at ((y+1) x)
-              write "  v*v  "
+              write "  @O@  "
            endif
-
+        elseif t=4
+           color 15
+           s<-[ batir j]
+           at y x
+           if s=0 
+              write "  @█@  "
+              at ((y+1) x)
+              write  " █   █ " 
+           elseif s=1 
+              write  " _   _ "
+              at ((y+1) x)
+              write  "█ @██ )"
+           else
+              write " \   █ "
+              at ((y+1) x)
+              write "  ██@  "
+           endif
+        
         else
            color {t=3?15:{t=2?7:{t=1?8:0}}}
 
-           at (y (x-2))
-           write " .    ·  ."
-           at ((y+1) (x-2))
-           write "  ^  . _  "
-           at ((y+2) (x-2))
-           write ". ·  Y.   *"
-           at ((y+3) (x-2))
-           write "  /   . ·"
-           color 4
-           at 32 1
+           if t=3
+              at (y (x-2))  
+              write " .   ▄▀ ·  ."
+              at ((y+1) (x-2))
+              write "  ^ ████.▄ _"
+              at ((y+2) (x-2))
+              write ". ·▀ Y█.   *"
+              at ((y+3) (x-2))
+              write "  /   .▀ ·  "
+           else
+              at (y (x-2))  
+              write " .    ·  .  "
+              at ((y+1) (x-2))
+              write "  ^  . _    "
+              at ((y+2) (x-2))
+              write ". ·  Y.   * "
+              at ((y+3) (x-2))
+              write "  /   . ·   "
+           
+           endif
+         //  color 4
+          // at 32 1
 //           write ("█"*69)
 
            color 7
@@ -235,21 +429,21 @@ vars:
         
   end
 
-  titulo_chico := function:void
-     x := $1:number
-     y := $2:number
-     tcolor := $3:number
-  begin:
-     if tcolor=11 
-        color 1
-        at y x
-        write chr(176)*69
-     endif
-     color tcolor
-     at ((y+1) x)
-     write chr(176)*69
-     color 7 
-  end
+//  titulo_chico := function:void
+//     x := $1:number
+//     y := $2:number
+//     tcolor := $3:number
+//  begin:
+//     if tcolor=11 
+//        color 1
+//        at y x
+//        write chr(176)*69
+//     endif
+//     color tcolor
+//     at ((y+1) x)
+//     write chr(176)*69
+//     color 7 
+//  end
 
   pone_bomba := function:number
     j := $1:number
@@ -269,11 +463,11 @@ vars:
         write   " "
         ++y
         at  y x
-        write   "O"   
+        write   tipoBomba //"O"   
         [ shoty j]<- y
      endif
 
-     return {((x>=(px+1) and x<=(px+5)) and (y=(py-1) or y=py))?1:0}
+     return {((x>=(px+1) and x<=(px+5)) and (/*y=(py-1) or*/ y=py))?1:0}
 
   end
 
@@ -283,34 +477,91 @@ vars:
     {t, i} := number
 
   begin:
-     t<-4
-     i<-0
+     t<-5
+//     i<-0
      ////cmd("afplay BombExplosion.wav </dev/null >/dev/null 2>&1 &")
-     cmd(PATH+"ExplosionHeroe.wav </dev/null >/dev/null 2>&1 &")
      while t>=0
-      if (++i)=8000+RETARDO
-        i<-0
+//      if (++i)=4000+RETARDO
+//        i<-0
 
-        color {t=4?14:{t=3?15:{t=2?7:{t=1?8:0}}}}
-
-        at ((py-2) (px-2) )
-        write   " ·    v  \   "
-        at (py (px-2))
-        write   "  ^  . -  * ."
-        at ((py-1) (px-2)) 
-        write   "· |  `.   , "
-        at (py (px-2) )
-        write   " /    . o"
-        at ((py+1) (px-2))
-         write  "  *  \"  _ ^  .  "
-       /* color {py=30?"4" :"1"}
-        at py 1  //((py+1) 1)
+        color {t>=4?14:{t=3?15:{t=2?7:{t=1?8:0}}}}
+        if t=5
+           color(13)
+           at((py-1) (px+1));."  █ "
+           at((py  ) (px+1));." ███ "
+           at((py+1) (px+1));."█████"
+           millisec(70)
+           color(9)
+           at((py-1) (px+1));."  █ "
+           at((py  ) (px+1));." ███ "
+           at((py+1) (px+1));."█████"
+           millisec(50)
+           
+        elseif t=4
+           cmd(PATH+"ExplosionHeroe.wav </dev/null >/dev/null 2>&1 &")
+           
+           at ((py-2) (px-3) )
+           write   " ·    v  \   "
+           at (py (px-3))
+           write   "  ^  . -  * ."
+           at ((py-1) (px-3)) 
+           write  "· |▄ `. █ , ▀"
+           at (py (px-3) )
+           write  " /   ▀███o ▄"
+           at ((py+1) (px-3))
+           write  "  * ▄█████▄^  .  "
+        else
+           at ((py-2) (px-3) )
+           write   " ·    v  \   "
+           at (py (px-3))
+           write   "  ^  . -  * ."
+           at ((py-1) (px-3)) 
+           write  "· |  `.   , º"
+           at (py (px-3) )
+           write  " /   ·. :o ."
+           at ((py+1) (px-3))
+           write  "  * \" .'. ^  .  "
+        
+        endif
+       /* color {py=30?"▄4" :"1"}
+        at py 1  //((py+▀1) 1)
         write    ("█"*69) */
         color 7
         --t
-      endif
+        msleep(50000)
+//      endif
      wend
-     
+//     i<-1
+//     while i<=actores
+//       if [estado i]>0
+//          .pone_actor([posx i] [posy i] [batir i] [colores i])
+//       endif
+//       ++i
+//     wend
+     .pone_especiales()
+  end
+
+  PEM_bombas():void
+    j,x,y:=number
+  begin:
+     j<-1 
+     disp<-0
+     at shoterx shotery
+     write   " "
+     while j<=actores
+       if [bomba j] = 1
+          [bomba j]<-0
+          x<-[shotx j]
+          y<-[shoty j]
+          at(y x); ." "
+          color(11)
+          .circulo(y x 2 chr(220))//"·")
+          millisec(10)
+          color(0)
+          .circulo(y x 2 chr(220))//"·")
+       endif
+       ++j
+     wend
   end
 
   reset_bombas := function :void
@@ -345,15 +596,6 @@ vars:
     sleep(t)
   end
 
-  FIN_HORRIBLE := function:void
-  begin:
-    .delay 1
-    cls
-    write (10*"\n"), ("\t"*3), "Los Phoenix te han invadido\n"
-    .delay 2
-    vtab(5)
-  end
-
   SeElevaAlEspacio := function:void
     {i, j, t, p, o} := number
     x := $1:number
@@ -367,37 +609,70 @@ vars:
 
      use h
      drop
-     push {5000+RETARDO, 4500+RETARDO, 3860+RETARDO, 2900+RETARDO,&
-           2600+RETARDO, 2400+RETARDO, 2200+RETARDO, 2200+RETARDO,&
-           2200+RETARDO, 2200+RETARDO}
-
+//     push {2000+RETARDO, 1500+RETARDO, 1060+RETARDO, 900+RETARDO,&
+//           600+RETARDO, 400+RETARDO, 200+RETARDO, 200+RETARDO,&
+//           200+RETARDO, 200+RETARDO}
+//     push {600+RETARDO, 500+RETARDO, 450+RETARDO, 400+RETARDO,&
+//           300+RETARDO, 200+RETARDO, 150+RETARDO, 150+RETARDO,&
+//           150+RETARDO, 150+RETARDO}
+//     push {6765,4181,2584,1597,987,610,377,233,144,89,55,34,21,13,8,5,3,2,1,1} 
+     push {377,233,144,144,144,89,89,55,34,34} 
      fire<-true
+     
+     color(12)
+     at((y-1) (x+1));."  | "
+     color(15)
+     at(    y (x+1));." /";color(12);."|";color(15);."\\ "
+     at((y+1)     x);." /";color(12);."_O_";color(15);."\\ "
+     millisec(500)
+     color(12)
+     at((y-1) (x+1));."  _ "
+     color(15)
+     at(    y (x+1));." /";color(12);."O";color(15);."\\ "
+     at((y+1)     x);." /=";color(12);write chr(196);color(15);."=\\ "
+     millisec(200)
+     color(12)
+     at((y-1) (x+1));."  ",chr(196)," "
+     color(15)
+     at(    y (x+1));." /";color(12);."O";color(15);."\\ "
+     at((y+1)     x);." /I";color(12);."_";color(15);."I\\ "
+     millisec(200)
+
+     color(12)
+     at((y-1) (x+1));."  ^ "
+     color(15)
+     at(    y (x+1));." /";color(12);."O";color(15);."\\ "
+     at((y+1)     x);." /I";color(12);."=";color(15);."I\\ "
+     
      
      cmd(PATH+"ufo_launch.wav </dev/null >/dev/null 2>&1 &")
      
      while eter
-
+ 
        if o=p 
          o<-0
          color 15
  ///  at((y+2) x);."\/v\/" 
-     at((y-1) x);."  <v>   " 
-     at(    y x);."  /|\\  "
-     at((y+1) x);." /_O_\\ " 
+     at((y-1) x);color(12);."   ^   " ;color(15)
+     at(    y x);."  /";color(12);."O";color(15);."\\  "
+     at((y+1) x);." /I";color(12);."=";color(15);write "I\\ " 
      //    at y x
      //    write       " <(╩)> "
-         at ((y-1) x)
-         write   "   v   "
-         at ((y+1) x)
-         write   "       "
+//         at ((y-1) x)
+//         write   "   ^   "
+//         at ((y+1) x)
+//         write   "       "
          at ((y+2) x)
          write   "       "
          at ((y+3) x)
          write   "       "
          at ((y+4) x)
          write   "       "
+         at ((y+5) x)
+         write   "       "
+         
          --y
-         brkif y=1
+         brkif y=0
          ++t
          if t=4 
            t<-1
@@ -409,31 +684,41 @@ vars:
        ++o
 
        ++i
-       if i=450 
+       if i=50 
          i<-0
          color 14
          if fire 
-           at ((y+2) x)
-           write   "  ■█■  "
            at ((y+3) x)
-           write   "       "
+           write   "  ■█■  "
            at ((y+4) x)
+           write   "       "
+           at ((y+5) x)
            write   "       "
          else
-           at ((y+2) x)
-           write   "  ███  "
            at ((y+3) x)
-           write   "   ■   "
+           write   "  ███  "
            at ((y+4) x)
+           write   "   ■   "
+           at ((y+5) x)
            write   "       "
          endif
-         color 4
-         at 32 1
-         write     (" "*69)
+//         color 4
+//         at 32 1
+//         write     (" "*69)
          not fire  
        endif
+       color(0)
+       at(0 x);write chr(219)*6
+       at(1 x);write chr(219)*6
+       at(2 x);write chr(219)*6
+       .pone_especiales()
      wend
-  end                                  
+     color(0)
+       at(0 x);write chr(219)*6
+       at(1 x);write chr(219)*6
+       at(2 x);write chr(219)*6
+     color(12)     
+  end
 
   limpia_pilas := function:void
   begin:
@@ -451,9 +736,8 @@ vars:
       use bshot;   drop
   end
 
-  define_todo := function:void
+  define_todo(etapa:number, subetapa:number):void
      i := number
-     etapa := $1:number
   begin:
 
     {actores, i} <- {16, 1}    //16
@@ -494,11 +778,21 @@ vars:
          r<- (mth.int (mth.rand 3))
          push r
          use estado
-         push 2  // activo y funcionando
+         if subetapa>=4
+            push 2
+         elseif subetapa=3
+            push {(mth.rand(1)>0.8)?3:2}
+         elseif subetapa=2
+            push {(mth.rand(1)>0.5)?3:2}
+         else
+            push {(mth.rand(1)>0.7)?4:3}
+         endif
+         
+//         push { (subetapa>=3)?2:3 }  // activo y funcionando
          use colores
          push 10  
          use tarda_explosion
-         push 4   //   5
+         push 6   //   5
       endif
       use shotx
       push 0
@@ -513,41 +807,14 @@ vars:
     wend
   end
 
-   KILLSOUND:=function:void
-     PID,WPID,wtemp:=string
-     i:=number
-   begin:
-     
-     PID<-fcmd("pidof "+cPLAY)
-     if strlen(strtrim((flag "A") PID))>0
-        cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
-     endif
-     
- /*    PID<-fcmd("ps -fea | grep \""+cPLAY+"\" | awk '{if($8==\""+cPLAY+"\" && $8!=\"grep\") print $2}'")
-     WPID<-""
-     for i<-1 to strlcount(PID) 
-        wtemp<-strtrim(strlin(PID i))
-        if strlen(wtemp)<=6
-           WPID<-WPID+"  "+wtemp
-        endif
-     next
-     
-     WPID<-strchg(WPID "\n" " ")
-     //PID<-strchg(PID "Done" "")
-     if strlen(strtrim((flag "A") WPID))<>0
-        //at(3 45); write WPID
-        cmd("kill -9 "+WPID+ " </dev/null >/dev/null 2>&1 &")
-     endif */
-   end
-
    pone_mensaje(msg:string,linea:number):void
      k:=number
    begin:
       cursor(1)
       color(15)
       for k<-1 to strlen(msg)
-        at(linea (35+k)); write strcpy(msg k 1)
-        millisec(50)
+        at(linea (40+k)); write strcpy(msg k 1)
+        millisec(10)
       next
       cursor(0)
    end
@@ -559,98 +826,286 @@ vars:
       color(15)
       for k<-1 to strlen(msg)
         at(linea (13+k)); write strcpy(msg k 1)
-        millisec(50)
+        millisec(30)
       next
       cursor(0)
    end
-   
+
+   pone_bandera(indice:number,fila:number, columna:number):void
+   begin:
+   if indice=6  // egipto
+      at(fila columna); color(12); write "█████████"
+      at((fila+1) columna); color(7); write "████ ████" 
+      at((fila+1) (columna+4)); color(118);write chr(143)
+      at((fila+2) columna); color(8); write "█████████"
+   elseif indice=1
+      at(fila columna);     color(4); write "█████████"
+      at((fila+1) columna);            write "█████████"
+      at((fila+2) columna);            write "█████████"
+      at(fila (columna)); color(78);write "* :"
+//      at((fila+1) (columna));  write " ·"
+      
+   elseif indice=5 // francia
+      at(fila columna); color(1); write "███"; color(15);write "███"; color(4); write "███"
+      at((fila+1) columna); color(1); write "███"; color(15);write "███"; color(4); write "███"
+      at((fila+2) columna); color(1); write "███"; color(15);write "███"; color(4); write "███"
+   elseif indice=4
+      at(fila columna); color(31); write ":::"; color(124);write "▀▀▀▀▀▀"
+      at((fila+1) columna); color(31); write ":::"; color(124);write "▀▀▀▀▀▀"
+      at((fila+2) columna); color(124); write "▀▀▀"; color(124);write "▀▀▀▀▀▀"
+   elseif indice=3
+      at(fila columna); color(15); write "█████████"
+      at((fila+1) columna); color(1);  write "█████████"
+      at((fila+2) columna); color(12); write "█████████"
+   else
+      at(fila columna); color(6); write "█████████"
+      at((fila+1) columna); color(7); write "████ ████" 
+      at((fila+1) (columna+4)); color(113);write chr(233)
+      at((fila+2) columna); color(2); write "█████████"
+   endif
+   end   
+
+  imprime_mapa():void
+  begin:
+    at(04 10); write "           . _..::__:  ,-:-:._                 ,     _,.__"
+    at(05 10); write "   _.___ _ _<_>`!(._`.`-.    /         _._     `_ ,_/  '  '-._.---.-.__"
+    at(06 10); write ">.{     : : `-==,',._\{  \  / {)      / _ '>_,-' `                  _--'"
+    at(07 10); write "  \_.:--.       `._ )`^-. ''       , [_/(                       __,/-'"
+    at(08 10); write " ':'     \         '    _L        oD_,--'                )     /. (|"
+    at(09 10); write "          |           ,'          _)_.\\._<> 6              _,' /  '"
+    at(10 10); write "          `.         /           [_/_'` `'(                <'}  )"
+    at(11 10); write "           \\    .-. )           /   `-''..' `:.#          _)  '"
+    at(12 10); write "    `        \  (  `(           /         `:\  > \  ,-^.  /' '"
+    at(13 10); write "              `._,  .''         |           \`'   \|   ?_)  {\\"
+    at(14 10); write "                 `=.---.        `._._       ,'     '`  |' ,- '."
+    at(15 10); write "                   |    `-._         |     /          `:`<_|h--._"
+    at(16 10); write "                   (        >        .     | ,          `=.__.`-'\\"
+    at(17 10); write "                    `.     /         |     |{|              ,-.,\     ."
+    at(18 10); write "                     |   ,'           \   / `'            ,:     \\"
+    at(19 10); write "                     |  /              |_'                |  __  /"
+    at(20 10); write "                     | |                                  '-'  `-'   \."
+    at(21 10); write "                     |/                                         *    /"
+    at(22 10); write "                     \.                                             '"
+    at(23 10); write ""
+    at(24 10); write "                      ,/            ______._.--._ _..---.---------._"
+    at(25 10); write "     ,-----'-..?----_/ )      __,-''             '                  ("
+    at(26 10); write "-.._(                  `-----'                                       `-"
+  
+  end
+  
+  pone_mapa(etapa:number):void
+    i,j,x1,y1,x2,y2,x,y:=number
+    colores:=^number
+    cbox:=string
+  begin:
+    cls
+    color(10)
+    .imprime_mapa()
+    
+    color(12)
+    colores<-^[15,14,6,12,4,12,6,14]
+    
+    if etapa=1
+       cbox<-"box=11,63,13,67,S"
+       {x,y}<-{12,65}
+       {x1,y1,x2,y2}<-{11,63,13,67}
+    
+    elseif etapa=6   // egipto
+       cbox<-"box=10,47,12,51,S"
+       {x,y}<-{11,49}
+       {x1,y1,x2,y2}<-{10,47,12,51}
+       
+    elseif etapa=5
+       cbox<-"box=8,44,10,48,S"
+       {x,y}<-{9,46}
+       {x1,y1,x2,y2}<-{8,44,10,48}
+    elseif etapa=4
+       cbox<-"box=8,30,10,34,S"
+       {x,y}<-{9,32}
+       {x1,y1,x2,y2}<-{8,30,10,34}
+    elseif etapa=3
+       cbox<-"box=8,51,10,55,S"
+       {x,y}<-{9,53}
+       {x1,y1,x2,y2}<-{8,51,10,55}
+    elseif etapa=2
+       cbox<-"box=11,51,13,55,S"
+       {x,y}<-{12,53}
+       {x1,y1,x2,y2}<-{11,51,13,55}
+    endif
+    
+    i<-0
+    while (++i)<=3
+      j<-0
+      while (++j)<=8
+         color([colores j])
+         api cbox
+         at(x y); ."X"
+         millisec(50)
+      wend
+    wend
+        
+    color(12)
+    i<-1
+    while (++i)<=7
+       api ("box="+($x1)+","+($y1)+","+($x2)+","+($y2)+",S")
+       millisec(20)
+       --x1
+       y1<-y1-4
+       ++x2
+       y2<-y2+4
+    wend
+    cls
+  end
+
+   KILLPILLS():void
+   begin:
+      cmd("kill "+PIDPILLS+" </dev/null >/dev/null 2>&1 &")
+   end
 
    muestra_objetivo(n:number):void
      i,j,k:=number
      msg:=string
      sw:=boolean
    begin:
+     PIDPILLS<-""
        if n=200
-          cmd(PATH+"finalFelizPhoenix.wav </dev/null >/dev/null 2>&1 &")
+          cmd(PATH+"phoenix_fondo_final_feliz.wav </dev/null >/dev/null 2>&1 &")
        else   
 //          cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
-          cmd(PATH+"phoenixMision.wav </dev/null >/dev/null 2>&1 &")
+          cmd(PATHf+"mision.wav </dev/null >/dev/null 2>&1 &")
+          PIDPILLS<- fcmd("pidof ffplay")
+          nPills<-strntok((flag " ") PIDPILLS)
+          PIDPILLS<-strtok(PIDPILLS 1)
+          
+          if n<100
+             .pone_mapa(n)
+             color(8)
+             .imprime_mapa()
+          endif
        endif
        sw<-true
        for j<-1 to 12
-          if n=200 and j=4
-             cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+          if n=200 and j=5
+             cmd(PATHf+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+             PIDPILLS<- fcmd("pidof ffplay")
+             nPills<-strntok((flag " ") PIDPILLS)
+             PIDPILLS<-strtok(PIDPILLS 1)
           endif
           for i<-1 to 10
              //color([color_marciano_feo i])
              color(15)
-             if n=5
-                at(19 2);write "                 A"
-                at(20 2);write "                /_\\"
-                at(21 2);write "        :      /_|_\\"
-                at(22 2);write "       :::    /|__|_\\"
+             if n=1
+                color(6)
+                at(07 2);write "._._._A_._._._O         /("
+                at(08 2);write "===============`.___,--'/" 
+                at(09 2);write "               __._,--'/" 
+                at(10 2);write "~~~~~~~~~~~~~~'l ,.  /" 
+                color(12)
+                at(11 2);write "_!_!_.-._!_!_!(_)||/            __"
+                at(12 2);write "__!!_|;|_!!____|_||        __,-'//" 
+                color(6)
+                at(13 2);write "-----'='-----------`=---=='    //" 
+                at(14 2);write "                           ,--' |" 
+                at(15 2);write "~~~~~~~~~~~~~~~~~~~~~~~~~~',.  /"
+                color(4) 
+                at(16 2);write "._,-------._,-------.____  ||/" 
+                at(17 2);write "'!`======='!`======='!___|/||" 
+                at(18 2);write "-||-| | |-!!--------||---| ||" 
+                at(19 2);write "O|| |'|'| ||O_____O_____Ol_ll_O____" 
+                at(20 2);write "|-----------| o o H o o H o o H o o" 
+                at(21 2);write " =========== O____H_____H_____H____" 
+                color(7)
+                at(22 2);write "=============|\\" 
+                at(23 2);write "==== +-+ ====' ()______()______()__" 
+                at(24 2);write "==== |_| ===== |\{_}{_}||{_}{_}||{_" 
+                at(25 2);write "== s(   )s ====| \     ||      ||"   
+                at(26 2);write "===============  ()================" 
+                at(27 2);write "---------------- |\----------------" 
+                color(14)
+                at(28 2);write "-----------------| \ "
+                at(29 2);write "-----------------'  ()" 
+                at(30 2);write "------------------- |\    --'--'--'" 
+                at(31 2);write "--------------------| \    '--'" 
+                at(32 2);write "____________________|  ()"           
+
+             elseif n=6
+                color(7)
+                at(19 2);write "                 A "
+                at(20 2);write "                /_\ "
+                at(21 2);write "        :      /_|_\ "
+                at(22 2);write "       :::    /|__|_\ "
+                color(14)
                 at(23 2);write "      ::.::  /|_|__|_\      :"
                 at(24 2);write "     ::.:.::/__|_|__|_\    :.:"
                 at(25 2);write "    :..:.:./_|__|__|__|\  :.:.:"
                 at(26 2);write "   :.:..:./|__|___|__|__\:.:..::"
                 at(27 2);write "..::..:../__|___|__|___|_\..:..::"
                 at(28 2);write ".:..:..:/_|__|___|___|___|\:..:.."
-                at(29 2);write ":.:..:./___|___|___|___|___\...."
-                at(30 2);write "....../..!...!...!...!...!..\."
+                color(6)
+                at(29 2);write ":.:..:./___|___|___|___|___\.... "
+                at(30 2);write "....../..!...!...!...!...!..\.   "
                 
-             elseif n=4
-                at(10 2);write "              ()"
-                at(11 2);write "              /\\"
-                at(12 2);write "             |==|"
-                at(13 2);write "             ===="
-                at(14 2);write "              XX"
-                at(15 2);write "             xXXx"
-                at(16 2);write "             X||X"
-                at(17 2);write "             X||X"
-                at(18 2);write "             X||X"
-                at(19 2);write "            xX==Xx"
-                at(20 2);write "            X=XX=X"
-                at(21 2);write "            XXXXXX"
-                at(22 2);write "           x_|_|_|x"
-                at(23 2);write "           XXXXXXXX"
-                at(24 2);write "          xXXXXXXXXx"
-                at(25 2);write "          XXXXXXXXXX"
-                at(26 2);write "         XXXXX  XXXXX"
-                at(27 2);write "        xXXXX'  'XXXXx"
-                at(28 2);write "       XXXXXxxxxxxXXXXX"
-                at(29 2);write "     xXXXXX''''''''XXXXXx"
-                at(30 2);write "   xXXXXXX'        'XXXXXXx"
+             elseif n=5
+                color(15)
+                at(10 2);write "              () "
+                at(11 2);write "              /\ "
+                color(13)
+                at(12 2);write "             |==| "
+                at(13 2);write "             ==== "
+                color(5)
+                at(14 2);write "              XX "
+                at(15 2);write "             xXXx "
+                at(16 2);write "             X";color(13);."||";color(5);."X "
+                at(17 2);write "             X";color(13);."||";color(5);."X "
+                at(18 2);write "             X";color(13);."||";color(5);."X "
+                at(19 2);write "            xX";color(9);."==";color(5);."Xx "
+                at(20 2);write "            X";color(9);."=";color(5);."XX";color(9);."=";color(5);."X "
+                at(21 2);write "            XXXXXX "
+                at(22 2);write "           x";color(14);."_|_|_|";color(5);."x "
+                color(5)
+                at(23 2);write "           XXXXXXXX "
+                at(24 2);write "          xXXXXXXXXx "
+                at(25 2);write "          XXXXXXXXXX "
+                at(26 2);write "         XXXXX  XXXXX "
+                at(27 2);write "        xXXXX'  'XXXXx "
+                at(28 2);write "       XXXXXxxxxxxXXXXX "
+                at(29 2);write "     xXXXXX''''''''XXXXXx "
+                at(30 2);write "   xXXXXXX'        'XXXXXXx "
                 at(31 2);write "xxXXXXXXX            XXXXXXXxx"
+             elseif n=4
+                color(10)
+                at(04 6);write " ("
+                at(05 6);write "(_)"
+                at(06 6);write "###       ."
+                at(07 6);write "(#c    __\|/__"
+                at(08 6);write " #\     wWWWw"
+                at(09 6);write " \ \-. (/. .\)"
+                at(10 6);write " /\ /`\/\   /\\"
+                at(11 6);write " |\/   \_) (_|"
+                at(12 6);write " `\.' ; ; `' ;`\\"
+                color(11)
+                at(13 6);write "   `\;  ;    .  ;/\\"
+                at(14 6);write "     `\;    ;  ;|  \\"
+                at(15 6);write "      ;   .'  ' ;  /"
+                at(16 6);write "      |_.'   ;  | /)"
+                at(17 6);write "      (     ''._;/`"
+                at(18 6);write "      |    ' . ;"
+                at(19 6);write "      |.-'   .:)"
+                at(20 6);write "      |        |"
+                at(21 6);write "      (  .'  : |"
+                color(3)
+                at(22 6);write "      |,-  .:: |"
+                at(23 6);write "      | ,-'  .;|"
+                at(24 6);write "     _/___,_.:_\_"
+                at(25 6);write "    [I_I_I_I_I_I_]"
+                at(26 6);write "    | __________ |"
+                at(27 6);write "    | || |  | || |"
+                at(28 6);write "   _| ||_|__|_|| |_"
+                at(29 6);write "  /=--------------=\\"
+                at(30 6);write " /                  \\"
+                at(31 6);write "|                    |"
              elseif n=3
-                at(04 2);write " ("
-                at(05 2);write "(_)"
-                at(06 2);write "###       ."
-                at(07 2);write "(#c    __\|/__"
-                at(08 2);write " #\     wWWWw"
-                at(09 2);write " \ \-. (/. .\)"
-                at(10 2);write " /\ /`\/\   /\\"
-                at(11 2);write " |\/   \_) (_|"
-                at(12 2);write " `\.' ; ; `' ;`\\"
-                at(13 2);write "   `\;  ;    .  ;/\\"
-                at(14 2);write "     `\;    ;  ;|  \\"
-                at(15 2);write "      ;   .'  ' ;  /"
-                at(16 2);write "      |_.'   ;  | /)"
-                at(17 2);write "      (     ''._;/`"
-                at(18 2);write "      |    ' . ;"
-                at(19 2);write "      |.-'   .:)"
-                at(20 2);write "      |        |"
-                at(21 2);write "      (  .'  : |"
-                at(22 2);write "      |,-  .:: |"
-                at(23 2);write "      | ,-'  .;|"
-                at(24 2);write "     _/___,_.:_\_"
-                at(25 2);write "    [I_I_I_I_I_I_]"
-                at(26 2);write "    | __________ |"
-                at(27 2);write "    | || |  | || |"
-                at(28 2);write "   _| ||_|__|_|| |_"
-                at(29 2);write "  /=--------------=\\"
-                at(30 2);write " /                  \\"
-                at(31 2);write "|                    |"
-             elseif n=2
+                color(14)
                 at(04 2);write "           ."
                 at(05 2);write "           T "
                 at(06 2);write "          ( ) "
@@ -660,40 +1115,48 @@ vars:
                 at(10 2);write "          J||F "
                 at(11 2);write "          F||J "
                 at(12 2);write "         /\/\/\ "
+                color(15)
                 at(13 2);write "         F++++J "
                 at(14 2);write "        J{}{}{}F         . "
                 at(15 2);write "     .  F{}{}{}J         T "
                 at(16 2);write "     T J{}{}{}{}F        ;; "
+                color(9)
                 at(17 2);write "    /|\F \/ \/ \J  .   ,;;;;. "
                 at(18 2);write "  .'/|\\\:========F T ./;;;;;;\ "
                 at(19 2);write " ///|||\\\\\\\''''''' / \I\;;;;;;/"
                 at(20 2);write " \\\\\\\|////..[]...xXXXx.|====| "
                 at(21 2);write " :.:.:.:.:||[]|/xXXXXXx\||||| "
+                color(10)
                 at(22 2);write " `;:;:;:;'=====\XXXXXXX/=====. "
                 at(23 2);write "\.|,|,|,| ( )( )| | | |.=..=.| "
+                color(6)
                 at(24 2);write "/(_)(_)(_) _  _ | | | |'-''-'| "
                 at(25 2);write ":|\"\"\"\"\"\"\"|/ \/ \|=====|======| "
+                color(14)
                 at(26 2);write "|| ,. .. || || |/\/\/\/ | | || "
                 at(27 2);write ".| || || ||-||-|/\/\/\+|+| | | "
                 at(28 2);write "='======='============/\/\=====." 
+                color(11)
                 at(29 2);write "|__..,__|===========/||\|\====| "
                 at(30 2);write "|,;:::::         |========|   | "
                 at(31 2);write "::;::::::________|========|___|_"
 
-             elseif n=1
+             elseif n=2
+                color(15)
                 at(08 2);write "               I"
                 at(09 2);write "               Y"
                 at(10 2);write "               T"
                 at(11 2);write "             .' '."
                 at(12 2);write "           _;-----;_"
-                at(13 2);write "         .':::::    '."
-                at(14 2);write "        /:::::::      \\"          
-                at(15 2);write "   |   ::::::::        :   |"
-                at(16 2);write " ,' ', |:::::::        | ,' ', "
+                at(13 2);write "         .'";color(7);.":::::";color(15);."    '."
+                at(14 2);write "        /";color(7);.":::::::";color(15);."      \\"          
+                at(15 2);write "   |   ";color(7);."::::::::";color(15);."        :   |"
+                at(16 2);write " ,' ', |";color(7);.":::::::";color(15);."        | ,' ', "
                 at(17 2);write "(:.___)\:::____________/(:.___)"
-                at(18 2);write " |(_)V__)-------------(__V(_)| "
+                at(18 2);write " |(_)V__)";color(13);."-------------";color(15);."(__V(_)| "
                 at(19 2);write ".----|  _______________  |----."
-                at(20 2);write "| __ | [,-------------,] | __ |"
+                at(20 2);write "| __ | [,";color(13);."-------------";color(15);.",] | __ |"
+                color(7)
                 at(21 2);write "|/  \| [|    _.-._    |] |/  \|"
                 at(22 2);write "||  || [|   /  '::\   |] ||  ||"
                 at(23 2);write "||__|| []  |    :::|  [] ||__||"
@@ -701,6 +1164,7 @@ vars:
                 at(25 2);write "|/  \| []  |    :::|  [] |/  \|"
                 at(26 2);write "||  || []  |     ::|  [] ||  ||"
                 at(27 2);write "||__||_[]__|_____::|__[]_||__||"
+                color(6)
                 at(28 2);write "-------------------------------"
                 at(29 2);write "                               "
                 at(30 2);write "_______________________________"
@@ -769,12 +1233,43 @@ vars:
              endif
              millisec(200)
           next
-          if n=5
+          if n=1
+             if j=1
+                .pone_mensaje("OBJETIVO A DEFENDER:" 3)
+             elseif j=2
+                .pone_bandera(n 5 45)
+             elseif j=3
+                .pone_mensaje("P E K I N - R E P . P O P. C H I N A" 10)
+             elseif j=4
+                .pone_mensaje("COORDENADAS: 39°54'18'' NORTE" 12 )
+                .pone_mensaje("             116°23'29'' ESTE" 13 )
+             elseif j=5
+                .pone_mensaje(("SUPERFICIE(PAíS) : 9,596,960 KM"+chr(253)) 14 )
+             elseif j=6
+                .pone_mensaje( "POBLACIóN(PAíS)  : 1,403.5 M. DE HABS" 15 )
+             elseif j=8
+                .pone_mensaje("LA CIUDAD PROHIBIDA ESTá SITUADA EN" 17)
+                .pone_mensaje("PEKíN. DURANTE 500 AñOS, DESDE LA" 18)
+                .pone_mensaje("DINASTíA MING HASTA LA DINASTíA QING,", 19)
+                .pone_mensaje("FUE LA RESIDENCIA DE LOS EMPERADORES" 20)
+                .pone_mensaje("DE CHINA, CENTRO CEREMONIAL Y POLíTICO." 21)
+                .pone_mensaje("ESTE LUGAR ES UN OBJETIVO DEL INVASOR." 22)
+             elseif j=9
+                .pone_mensaje("SU MISIóN ES PROTEGER ESTE MONUMENTO" 24)
+                .pone_mensaje("DESTRUYENDO LA AVANZADA ENEMIGA." 25)
+                .pone_mensaje(("CUENTA CON "+($heroe)+" NAVES.") 26)
+             elseif j=10
+                .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 28)
+                .pone_mensaje("LA TECLA <flecha-arriba>" 29)
+             endif
+             
+          elseif n=6
              if j=2
-                at(5 45); color(12); write "█████████"
-                at(6 45); color(7); write "████ ████" 
-                at(6 49); color(118);write chr(143)
-                at(7 45); color(8); write "█████████"
+                .pone_bandera(n 5 45)
+//                at(5 45); color(12); write "█████████"
+//                at(6 45); color(7); write "████ ████" 
+//                at(6 49); color(118);write chr(143)
+//                at(7 45); color(8); write "█████████"
              elseif j=1
                 .pone_mensaje("OBJETIVO A DEFENDER:" 3)
              elseif j=3
@@ -804,11 +1299,12 @@ vars:
                 .pone_mensaje("CUIDADO! NO ES FáCIL ACABAR CON ELLOS." 30)
              endif
              
-          elseif n=4
+          elseif n=5
              if j=2
-                at(5 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
-                at(6 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
-                at(7 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+                .pone_bandera(n 5 45)
+//                at(5 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+//                at(6 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
+//                at(7 45); color(1); write "███"; color(15);write "███"; color(4); write "███"
              elseif j=1
                 .pone_mensaje("OBJETIVO A DEFENDER:" 3)
              elseif j=3
@@ -836,12 +1332,12 @@ vars:
                 .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
                 .pone_mensaje("LA TECLA <flecha-arriba>" 30)
              endif
-          elseif n=3
+          elseif n=4
              if j=2
-                
-                at(5 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
-                at(6 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
-                at(7 45); color(124); write "▀▀▀"; color(124);write "▀▀▀▀▀▀"
+                .pone_bandera(n 5 45)
+//                at(5 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
+//                at(6 45); color(31); write "···"; color(124);write "▀▀▀▀▀▀"
+//                at(7 45); color(124); write "▀▀▀"; color(124);write "▀▀▀▀▀▀"
              elseif j=1                     
                 .pone_mensaje("OBJETIVO A DEFENDER:" 3)
              elseif j=3                     
@@ -870,11 +1366,12 @@ vars:
                 .pone_mensaje("CUANDO ACABE CON ELLOS, ELéVESE CON" 29)
                 .pone_mensaje("LA TECLA <flecha-arriba>" 30)
              endif
-          elseif n=2
+          elseif n=3
              if j=2
-                at(5 45); color(15); write "█████████"
-                at(6 45); color(1);  write "█████████"
-                at(7 45); color(12); write "█████████"
+                .pone_bandera(n 5 45)
+//                at(5 45); color(15); write "█████████"
+//                at(6 45); color(1);  write "█████████"
+//                at(7 45); color(12); write "█████████"
              elseif j=1
                 .pone_mensaje("OBJETIVO A DEFENDER:" 3)
              elseif j=3
@@ -903,13 +1400,14 @@ vars:
                 .pone_mensaje("LA TECLA <flecha-arriba>" 30)
              endif
 
-          elseif n=1
+          elseif n=2
              if j=2
-                
-                at(5 45); color(6); write "█████████"
-                at(6 45); color(7); write "████ ████" 
-                at(6 49); color(113);write chr(233)
-                at(7 45); color(2); write "█████████"
+                .pone_bandera(n 5 45)
+//                
+//                at(5 45); color(6); write "█████████"
+//                at(6 45); color(7); write "████ ████" 
+//                at(6 49); color(113);write chr(233)
+//                at(7 45); color(2); write "█████████"
              elseif j=1                     
                 .pone_mensaje("OBJETIVO A DEFENDER:" 3)
              elseif j=3                     
@@ -957,122 +1455,270 @@ vars:
              elseif j=5
                 .pone_final_mensaje(("CUENTAS CON "+($heroe)+" NAVES.") 24)
              elseif j=6
-                .pone_final_mensaje("ESTA VEZ PODRáS DETENER TU NAVE CON LA TECLA" 26)
-                .pone_final_mensaje("<flecha-arriba>" 27)
+                .pone_final_mensaje("CONTARáS CON EL LáSER ANTIMATERIA, NUESTRA" 26)
+                .pone_final_mensaje("ARMA MáS PODEROSA." 27)
              elseif j=8
                 .pone_final_mensaje("BUENA SUERTE!!" 29)
                 break
              endif
           elseif n=200
              if j=1
-                .pone_final_mensaje("LA AMENAZA HA SIDO ELIMINADA!!" 10)
+                .pone_final_mensaje("LA AMENAZA HA SIDO ELIMINADA!!" 7)
              elseif j=2
-                .pone_final_mensaje("LA TIERRA CELEBRA A SUS HéROES, A LOS CAíDOS Y" 12)
-                .pone_final_mensaje("A USTEDES, NUESTROS FIEROS COMBATIENTES!" 13)
+                .pone_final_mensaje("LA TIERRA CELEBRA A SUS HéROES, A LOS CAíDOS Y" 9)
+                .pone_final_mensaje("A TI, NUESTRO FIERO COMBATIENTE!" 10)
              elseif j=4
-                .pone_final_mensaje("PERO, NO DEBEMOS BAJAR LA GUARDIA..." 15)
-             elseif j=5
-                .pone_final_mensaje("INTELIGENCIA NOS HA INFORMADO QUE LA FLOTA DEL" 17)
-                .pone_final_mensaje("INVASOR SE APOSTA EN EL CINTURóN DE ASTEROIDES" 18)
-                .pone_final_mensaje("UBICADO MáS ALLá DE LA óRBITA DE PLUTóN." 19)
+                .pone_final_mensaje("PERO, NO DEBEMOS BAJAR LA GUARDIA..." 13)
              elseif j=6
-                .pone_final_mensaje("ESTA ERA TAN SOLO UNA AVANZADA ENEMIGA..." 21)
-                .pone_final_mensaje("UNA INVASIóN MáS PELIGROSA SE PREPARA EN ESE" 22)
-                .pone_final_mensaje("LUGAR." 23)
+                .pone_final_mensaje("INTELIGENCIA NOS HA INFORMADO QUE LA FLOTA DEL" 15)
+                .pone_final_mensaje("INVASOR SE APOSTA EN EL CINTURóN DE ASTEROIDES" 16)
+                .pone_final_mensaje("UBICADO MáS ALLá DE LA óRBITA DE PLUTóN." 17)
+             elseif j=7
+                .pone_final_mensaje("ESTA ERA TAN SOLO UNA AVANZADA ENEMIGA..." 19)
+                .pone_final_mensaje("UNA INVASIóN MáS PELIGROSA SE PREPARA EN ESE" 20)
+                .pone_final_mensaje("LUGAR..." 21)
              elseif j=8
+                .pone_final_mensaje("NOMBRE CLAVE DE LA OPERACIóN: SPACE INVADERS." 23)
+             elseif j=9
                 .pone_final_mensaje("CUáNDO Y DóNDE SERá? ES UN MISTERIO..." 25)
+             elseif j=10
                 break
              endif
           endif
        next
-       .KILLSOUND()
-       sleep(2)
+       if strlen(PIDPILLS)>0
+          .KILLPILLS()
+       else
+          .KILLSOUND()
+       endif
+       flush()
+       color(10)
+       at(32 42); ."<<< PRESIONE UNA TECLA >>>"
+       pause
    end
 
+  pone_puntos(indice_resucita:number):void
+    i,j,k,x:=number
+    sa,sb:=string
+    lsa,lsb,px,rx,nA,nB:=number
+  begin:
+    sb<-($heroe)
+    sa<-($indice_resucita)
+    lsa<-strlen(sa)
+    lsb<-strlen(sb)
+    px<-77
+    rx<-75
+
+    // borra cifra anterior
+    color(0)
+    api "box=9,73,30,79,"+chr(219)
+    
+    // pone nueva cifra
+    color(15)
+    at(11 73); ."█"
+    at(12 73); ."█"
+    at(13 73); ."█"
+    at(14 73); ."█"
+    at(15 73); ."███"
+    
+    color(10)
+    if indice_resucita=2
+       color(14)
+    elseif indice_resucita=3
+       color(12)
+    elseif indice_resucita=4
+       color(11)
+    endif
+    
+    for k<-1 to lsa
+      nA<-(# strcpy(sa k 1))
+      x<-1   
+      for i<-11 to 15
+        for j<-px to (px+2)
+          at(i j); write chr([.ma (nA+1) x]*219)
+          ++x
+        next
+      next
+      px<-+4
+    next
+    
+    if heroe>0
+       rx<-rx-(2*(mth.floor(mth.log(heroe))))
+    endif
+    
+    color(15)
+    if between (heroe 3 6)  
+       color(6)
+    elseif heroe<=2
+       color(12)
+    endif
+    
+    for k<-1 to lsb
+      nB<-(#strcpy(sb k 1))
+      x<-1
+      for i<-18 to 22
+        for j<-rx to (rx+2)
+          at(i j); write chr([.ma (nB+1) x]*219)
+          ++x
+        next
+      next
+      rx<-+4
+    next
+  end
+  
+  pone_ready():void
+  begin:
+   at(12 25); ." ▄   ▄▄  ▄  ▄▄  ▄ ▄"
+   at(13 25); ."█▄▀ █▀  █▄█ █ █ ▀▄▀"
+   at(14 25); ."▀ ▀  ▀▀ ▀ ▀ ▀▄▀  ▀ "
+  end
 
   ETAPA_1(hasta_donde:number,swetapa:number):boolean
     tip := boolean
     {tope, dtopex} := number
-//    hasta_donde := $1:number
-    ret_city,RETCITY:=number
-
+    half_resucita:=number
+    limite_fondo:=^number
+    indice_resucita,indiceTmp,tope_resucita:=number
+    string_fondo:=^string
+    le_tope,ri_tope:=number  // extensión del objetivo para lanzar bombas
   begin:
 
     cls
+    
     .limpia_pilas
 
-    .define_todo 1
+    .define_todo 1 swetapa
 
     .muestra_objetivo(swetapa)
     cls
-    
+
+   /* define retardo de los pajarracos según el numero que hay */    
     use lTOPE
-    push {500+RETARDO, 500+RETARDO, 450+RETARDO, 450+RETARDO,&
-          300+RETARDO, 300+RETARDO, 200+RETARDO, 200+RETARDO,&
-          200+RETARDO, 100+RETARDO, 100+RETARDO, 100+RETARDO}
-    RETDISPARO<-300+RETARDO
-    RETHEROE<-600+RETARDO
-    RET2DISPARO<-80+RETARDO
-    ret_city<-0
-    RETCITY<-650+RETARDO
+//    push {500+RETARDO, 500+RETARDO, 450+RETARDO, 450+RETARDO,&
+//          300+RETARDO, 300+RETARDO, 200+RETARDO, 200+RETARDO,&
+//          200+RETARDO, 100+RETARDO, 100+RETARDO, 100+RETARDO}
+//    push {500+RETARDO, 500+RETARDO, 450+RETARDO, 450+RETARDO,&
+//          380+RETARDO, 380+RETARDO, 270+RETARDO, 270+RETARDO,&
+//          270+RETARDO, 180+RETARDO, 180+RETARDO, 180+RETARDO}
+    push {20, 15, 15, 10,&
+          10, 7, 7, 7,&
+          7, 7, 7, 7}
+
+    RETDISPARO<-17 //350+RETARDO   //290+RETARDO
+    RETHEROE<-7 //200+RETARDO //600+RETARDO
         
     i<-1
     tip<-true
 
     {px, py} <- {30, 30}
     { retardo, pret, puntos, ret_heroe, disp }<-0
-    { ddx, k }<-1
+    ddx<-0 //RETAVANCE  empieza estatico
+    k<-1
     tope<-5
     dtopex<-1
+    ctaDestruidos<-0
+    tipoDisparo<-"|"
+    tipoBomba<-chr(157)
    
+    /*chequea alcance de las bombas enemigas 
+      En las primeras etapas, el alcance será máximo, pero en las 
+      ultimas, será menor, dado que habrá un racimo de bombas cayendo
+      y la idea es que nuestro héroe pueda ganar. */
+    if swetapa>=4
+       {le_tope,ri_tope}<-{(-3),8}  // {1,5} no solo se limita a la nave, sino a su alrededor
+    else
+       {le_tope,ri_tope}<-{2,4}
+    endif
+    
+    // chequea armamento
+    swPulso<-false   // PEM fuerte
+    if swetapa<=2
+       swPulso<-true
+    endif
+    ctaPulso<-0
+    if swetapa<=3    // PEM débil
+       ctaPulso<-3
+    endif
+    swAntimateria<-false
+    swAltaFrecuencia<-false
+    ctaAltaFrecuencia<-1+(7-swetapa)*10 // incrementa en 10 cad etapa. inicial=10
+    ctaAntimateria<-1
+    if swetapa<5   // cañon de antimateria
+       ctaAntimateria<-10-swetapa  // incrementara en 1 por cada etapa. inicial=3
+    endif
+    // system ready
+    swOk<-true
+    
+    .pone_especiales()
+    
     .pone_heroe px py
 
- //   .titulo_chico 1 31 12
 //    .puntaje puntos heroe  
 //goodbye
     {resucita, tbret,  tarda_fenix}<-0
     
-    at(13 32); color(14);write "READY!"
+    string_fondo<-^["phoenix_fondo_1.wav","phoenix_fondo_2.wav", &
+                    "phoenix_fondo_4.wav","phoenix_fondo_3.wav"]
+    
+    tope_resucita<-hasta_donde\4
+    half_resucita<-hasta_donde\2
+    dim limite_fondo(4)
+    indice_resucita<-1
+    while indice_resucita<=4
+       [limite_fondo indice_resucita]<-tope_resucita
+       tope_resucita<-+tope_resucita
+       ++indice_resucita
+    wend
+    {indiceTmp,indice_resucita}<-1
+    .pone_puntos(indice_resucita)
+    
+    .pone_bandera(swetapa 3 73)
+    
+    //at(13 31); color(14);write "READY!"
+    color(14)
+    .pone_ready()
+    cmd(PATH+"phoenix_inicia_batalla.wav </dev/null >/dev/null 2>&1")
+   
+    color(0)
+    .pone_ready()
+    //at(13 31); write "      "
 
-    cmd(PATH+"phoenix2Inicio.wav </dev/null >/dev/null 2>&1")
-    
-    at(13 32); write "      "
-    
-    cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
-    
+    cmd(PATHf+[string_fondo indice_resucita]+" </dev/null >/dev/null 2>&1 &")
+    PIDPILLS<- fcmd("pidof ffplay")
+    nPills<-strntok((flag " ") PIDPILLS)
+    PIDPILLS<-strtok(PIDPILLS 1)
+     
     while tip
 
-    if retardo=[lTOPE (tope-4)]  //ret_heroe=RETHEROE
-       color(8)
-       color(15)
-       .pone_heroe px py 
-    endif
-
-     if retardo=[lTOPE (tope-4)]
+     if timer(retardo [lTOPE (tope-4)])  //retardo=[lTOPE (tope-4)]
        ++i
 
        .obtiene_valores
 
        if [ bomba i]=1   
-         if (.pone_bomba i 30)=1 
-           flush
-           .KILLSOUND()
-           .reset_bombas
-           at shotery shoterx
-           write   " "
-           .explota_heroe px py
-           --heroe
-           //.puntaje puntos heroe  //14
-           
-           cmd(PATH+"RedAlert.wav  </dev/null >/dev/null 2>&1 &")
-           
-           sleep(1)
-           brkif heroe=0 
-           ///.delay 1      //espera 1 segundo
-           { px, py}<-30
-           .pone_heroe px py
-           disp<-0
-           cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
+         if (.pone_bomba i 30)=1
+              flush
+              .KILLPILLS()
+              .reset_bombas()
+              at shotery shoterx
+              write   " "
+              .explota_heroe px py
+              --heroe
+              .pone_puntos(indice_resucita)
+              //.puntaje puntos heroe  //14
+                         
+              cmd(PATH+"RedAlert.wav  </dev/null >/dev/null 2>&1") // debe causar una pausa
+                         
+              // sleep(2)
+              brkif heroe=0 
+              ///.delay 1      //espera 1 segundo
+              { px, py}<-30
+              .pone_heroe px py
+              disp<-0
+              cmd(PATHf+[string_fondo indice_resucita]+" </dev/null >/dev/null 2>&1 &")
+              PIDPILLS<- fcmd("pidof ffplay")
+              nPills<-strntok((flag " ") PIDPILLS)
+              PIDPILLS<-strtok(PIDPILLS 1)
          endif
        endif
 
@@ -1082,42 +1728,81 @@ vars:
          //  .puntaje puntos heroe
 
          elseif resucita<=hasta_donde 
-           rret<-(mth.int (mth.rand 100))
-           if rret>=80
+           //rret<-(mth.int (mth.rand 100))
+           //if rret>=50
               ++resucita
-              tope<-tope+dtopex, if tope<actores
               
-              if resucita<=15
-                 cmd(PATH+"alive.wav </dev/null >/dev/null 2>&1 &")
-              else
+              tope<-tope+dtopex, if tope<actores
+              //at(5 75); ."T=",($tope)
+              
+              for indice_resucita<-1 to 4
+                 if resucita<[limite_fondo indice_resucita]
+                    if indice_resucita<>indiceTmp
+//                       .KILLSOUND()
+                       .KILLPILLS()
+                       cmd(PATHf+[string_fondo indice_resucita]+" </dev/null >/dev/null 2>&1 &")
+                       PIDPILLS<- fcmd("pidof ffplay")
+                       nPills<-strntok((flag " ") PIDPILLS)
+                       PIDPILLS<-strtok(PIDPILLS 1)
+                       
+                       indiceTmp<-indice_resucita
+                       .pone_puntos(indice_resucita)
+                       
+                    endif
+                    break
+                 endif
+              next
+             // at(6 75); ."L=",($indice_resucita)
+             // at(7 75); ."N(l)=",($[limite_fondo indice_resucita])
+              if resucita<=half_resucita
                  poneVoz<-mth.rand(10)
-                 if poneVoz>4 
-                    cmd(PATH+"condicionRed.wav </dev/null >/dev/null 2>&1 &")
-                 else
+                 if poneVoz>6
                     cmd(PATH+"alive.wav </dev/null >/dev/null 2>&1 &")
                  endif
+              else
+                 poneVoz<-mth.rand(10)
+                 if poneVoz>7 
+                    cmd(PATH+"condicionRed.wav </dev/null >/dev/null 2>&1 &")
+                 elseif poneVoz>6
+                    cmd(PATH+"alive.wav </dev/null >/dev/null 2>&1 &")
+                 endif
+                 
+                 [lTOPE 12]<-5
               endif
 
-              e<-2    // resucita fenix!!!
+              if swetapa>=5
+                 e<-2
+              elseif swetapa=4
+                 e<-{ {(mth.rand(1)>0.8)?3:2}}
+              elseif swetapa=3
+                 e<-{ {(mth.rand(1)>0.5)?3:2}}
+              else
+                 e<-{ {(mth.rand(1)>0.7)?4:3}}
+              endif
+//              e<-{ {(swetapa>=3)?2:3} }    // resucita fenix!!!
               [ estado i]<- e
-              [ tarda_explosion i]<- 4
+              [ tarda_explosion i]<- 6
               x<- (mth.int (mth.rand 60))
               x<-4, if x<4
-              y<- (mth.int (mth.rand 20))
+              
+              y<- (mth.int (mth.rand 15))
               y<-4, if y<4
+              
               [ posx i]<- x
               [ posy i]<- y
               [ colores i]<- 10
-           endif
+           //endif
          endif
        endif
 
        if e>0 
           if ([ bomba i])=0 
-            if x=(px+2) 
+            if between (x (px+le_tope) (px+ri_tope))  //x=(px+2) 
+              if mth.rand(10)>swetapa  // lanzarán mas bombas conforme avance etapas
               [ bomba i]<- 1
-              [ shotx i]<- (x+3)
+              [ shotx i]<- x //(x+3)
               [ shoty i]<- y
+              endif
             endif
           endif
           .saca_actor x y
@@ -1167,7 +1852,7 @@ vars:
        endif
 
        ++pret
-       retardo<-0
+//       retardo<-0
 
        i<-0, if i=tope       //actores
 
@@ -1175,8 +1860,8 @@ vars:
 
      if disp>0 
        mat.row (use lTOPE) (tope-4)
-       if sret= RETDISPARO 
-         sret<-0
+       if timer(sret RETDISPARO) //(++sret)= RETDISPARO 
+//         sret<-0
          .pone_disparo 
          
          j<-1
@@ -1185,57 +1870,162 @@ vars:
            if ([ estado j])>0 
               x<-[ posx j]
               y<-[ posy j]
-              e<-(.verifica_disparo x y j sc)
+              if swAltaFrecuencia
+                 e<-(.verifica_disparo x y j sc 2)
+              elseif swAntimateria
+                 e<-(.verifica_disparo x y j sc 3)
+              else
+                 e<-(.verifica_disparo x y j sc 1)
+              endif
               [ estado j]<- e
            endif
            ++j
          
          until j>tope
-       else
-         ++sret
        endif
+//       if swAntimateria
+//          swAntimateria<-false
+//       endif
+//       if swAltaFrecuencia
+//          swAltaFrecuencia<-false
+//       endif
      endif
 
-     if ret_heroe=RETHEROE       // 35
+     room ~swOk
+        if (seconds("")-timeFailure)>=16
+          swOk<-true
+          .pone_especiales()
+          
+        endif
+     rend
+
+     if timer(ret_heroe RETHEROE)  //ret_heroe=RETHEROE       // 35
 
        readkey(c)
+       flush()
+       
        if c=19 
-          ddx<-(-1)
+          ddx<-(-RETAVANCE) //(-1)
        elseif c=4 
-          ddx<-1
+          ddx<-RETAVANCE //1
+       
+       // cando el sistema falle, esto es lo único que podrá hacer
+       elseif c=99      // c=dispara carga de protones
+          if disp=0
+             disp<-1
+             {shoterx, shotery} <- {(px+3), (py-1)}
+             tipoDisparo<-"|"
+             //
+             cmd(PATH+"Laser-SoundBible.wav </dev/null >/dev/null 2>&1 &")
+          endif
+        
+       elseif c=27 
+          not tip
+          .reset_bombas()
+       endif
+       // ahora, sistemas que pueden fallar con el PEM fuerte
+       room swOk
+       if c=118  // v= pulso PEM debil resetea bombas
+          if swetapa<=3
+             if ctaPulso>0
+                cmd(PATH+"phoenix_heroe_tocado.wav </dev/null >/dev/null 2>&1 &")
+                .PEM_bombas()
+                --ctaPulso
+                .pone_especiales()
+             endif
+          endif
+       elseif c=32   // PEM fuerte: acaba con la mayoría de los pajarracos
+         
+          if swetapa<=2
+            if swPulso  
+              j<-1
+              cmd(PATH+"phoenix_heroe_tocado.wav </dev/null >/dev/null 2>&1 &")
+              .PEM_bombas()
+              
+              do
+                       
+                if ([ estado j])>0
+                   if mth.rand(1)>0.2
+                      [estado j]<-0
+                      x<-[ posx j]
+                      y<-[ posy j]
+                      color(11)
+                      .circulo(y x 2 chr(220))//"·")
+                      millisec(10)
+                      color(0)
+                      .circulo(y x 2 chr(220))//"·")
+                   endif
+                endif
+                ++j
+                       
+              until j>tope
+              swPulso<-false
+              swOk<-false
+              timeFailure<-seconds("")
+              cmd(PATH+"phoenix_alarma_falla.wav </dev/null >/dev/null 2>&1 &")
+              
+              .pone_especiales()
+            endif
+          endif
+         
        elseif c=112 
-          .KILLSOUND()
+          .KILLPILLS()
           pause
-          cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
+          //cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
+          cmd(PATHf+[string_fondo indice_resucita]+" </dev/null >/dev/null 2>&1 &")
+          PIDPILLS<- fcmd("pidof ffplay")
+          nPills<-strntok((flag " ") PIDPILLS)
+          PIDPILLS<-strtok(PIDPILLS 1)
+          
        elseif c=5     // verifico si ha terminado todo
           tip<- false   // dejo falso. si no hay nada m s, termina seccion
           j<-1
           do
           
             if [ estado j] >0 
-               tip<-isnear(1 1) //true    // sigue!!
+               tip<-true    // sigue!!
             endif
             ++j
           
           until j>tope
 
           if ~tip
-             acabo_con_todos<-isnear(1 1) //true
+             acabo_con_todos<-isnear(1 1) //true: si, lo puse solo para recordar que existe isnear
+             .reset_bombas()
+          else
+             ddx<-0   // sino: detiene el tanque
           endif
 
           brkif acabo_con_todos
 
-       elseif c=122      // dispara  5=flecha arriba
-          if disp=0 
-             disp<-1
-             {shoterx, shotery} <- {(px+3), (py-1)}
-             //
-             cmd(PATH+"Laser-SoundBible.wav </dev/null >/dev/null 2>&1 &")
+       elseif c=122    // z= dispara laser antimateria
+          if swetapa<5
+          if disp=0
+             if (--ctaAntimateria)>0
+                disp<-1
+                {shoterx, shotery} <- {(px+3), (py-1)}
+                swAntimateria<-true
+                tipoDisparo<-chr(219)
+                .pone_especiales()
+                cmd(PATH+"phoenix_laser_antimateria.wav </dev/null >/dev/null 2>&1 &")
+             endif
           endif
-       elseif c=27 
-          not tip 
+          endif
+       elseif c=120  // x= dispara laser de alta frecuencia
+          if disp=0
+             if (--ctaAltaFrecuencia)>0
+                disp<-1
+                {shoterx, shotery} <- {(px+3), (py-1)}
+                swAltaFrecuencia<-true
+                tipoDisparo<-chr(223)
+                .pone_especiales()
+                cmd(PATH+"Laser_01.wav </dev/null >/dev/null 2>&1 &")
+             endif
+          endif
        endif
-       ret_heroe<-0
+       rend   // swOk
+
+//       ret_heroe<-0
        px<-px+ddx
 
        if px<2 
@@ -1246,8 +2036,8 @@ vars:
        .pone_heroe px py
 
      endif
-     ++ret_heroe
-     ++retardo
+//     ++ret_heroe
+//     ++retardo
 
    wend
 
@@ -1266,8 +2056,9 @@ vars:
     base_5<-"█"*37
     base_6<-"█"*39
     base_7<-"█"*41
-    base_8<-"█"*41   // █
+    base_8<-"█"*41   // █ cinta rotatoria
     base_9<-"█"*41   //
+    base_0<-"█"*41
   end
 
   pone_cabeza_madre := function:void
@@ -1292,6 +2083,9 @@ vars:
      at ((t+6) 15)
      write    " / :                                         : \ "
      at ((t+7) 15)
+     write    "/  :                                         :  \\"
+     
+     at ((t+8) 15)
      write    "====                                         ===="
      color 7
 
@@ -1306,6 +2100,9 @@ vars:
      s<-strcpy base_8 41 1
      base_8<-s+(strcpy base_8 1 40)
 
+     s<-strcpy base_0 41 1
+     base_0<-s+(strcpy base_0 1 40)
+
   end
 
   pone_nave_madre := function:void
@@ -1315,28 +2112,30 @@ vars:
 
      color 15
      at ((t+5) 19)
-     write     base_9
+     write     base_0
      at ((t+6) 19)
+     write     base_9
+     at ((t+7) 19)
      write     base_8
 
      color 14
-     at ((t+7) 19)
+     at ((t+8) 19)
      write     base_7
-     at ((t+8) 20)
+     at ((t+9) 20)
      write     base_6
 
-     color 12
-     at ((t+9) 21)
+     color 6
+     at ((t+10) 21)
      write     base_5
-     at ((t+10) 22)
+     at ((t+11) 22)
      write    base_4
 
-     color 4
-     at ((t+11) 24)
+     color 12
+     at ((t+12) 24)
      write    base_3
-     at ((t+12) 27)
+     at ((t+13) 27)
      write    base_2
-     at ((t+13) 31)
+     at ((t+14) 31)
      write    base_1
 
      color 7
@@ -1375,6 +2174,46 @@ vars:
   end
 
 
+  pone_gran_explosion():void
+    xc,yc,r,i:=number
+    colores:=^number
+    simbolo:=string
+  begin:
+  xc<-15
+  yc<-40
+  r<-1
+  
+  colores<-^[15,15,14,14,12,12,4,4,4,5,5,1,1,8,8,0]
+  i<-0
+  while (++i)<=16
+     color([colores i])
+     if between(i 1 5)
+        simbolo<-"█"
+     elseif between(i 6 10)
+        simbolo<-chr(223)
+     elseif between(i 11 13)
+        simbolo<-"*"
+     else
+        simbolo<-"·"
+     endif
+     while (++r)<20
+       .circulo(xc yc r (simbolo*8))
+       if i=16
+         millisec(130)
+       elseif i<=5
+        cmd(PATH+"phoenix_cluster.wav </dev/null >/dev/null 2>&1 &")
+         
+         msleep(2000)
+       elseif i<=7
+         msleep(4500)
+       endif
+       ++r
+     wend  
+     r<-1
+  wend  
+  
+  end
+
   ETAPA_2 := function:boolean
      tip := boolean
      {contador, avance, ctl, t, tope} := number
@@ -1391,72 +2230,58 @@ vars:
      { retardo, pret, ret_heroe, disp }<-0
      { ddx, k, i, j}<-1
      ctl<-0
-     actores<-77
-     n_bombas<-10
+     //actores<-77
+     n_bombas<-5
 
      .limpia_pilas
-     .define_todo 2
+     .define_todo 2 0
      .crea_nave_madre
 
      .pone_heroe px py
 //     .titulo_chico 1 31 11
      //.puntaje puntos heroe  
 
+//     color(14)
+//     at(0 10);."    \ o  ###       \ \  /  __        .   .     .--.  /"
+//     at(1 10);."     \      .     . \.-.---                   `--'  /"
+//     at(2 10);."      `.             `-'      .                   .'"
+//     at(3 10);."        `.    o     / | `           O     .     .'"
+//     at(4 10);."          `-.      /  |        o             .-'"
+//     at(5 10);."             `-.          .         .     .-'"
+//     at(6 10);."                `---.        .       .---'"
+//     at(7 10);."                     `--------------'"
+//           
+//     color(15)
+
      .pone_cabeza_madre 0
      .pone_nave_madre 0
 
      tope<-actores
+     tipoDisparo<-chr(219)
+     tipoBomba<-chr(157)
 
-     cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+     cmd(PATHf+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+     PIDPILLS<- fcmd("pidof ffplay")
+     nPills<-strntok((flag " ") PIDPILLS)
+     PIDPILLS<-strtok(PIDPILLS 1)
+     RET2DISPARO<-15  //70+RETARDO
+
+     .pone_puntos(3)
 
      while tip
-    ///    if ret_heroe=100+RETARDO
-    /*       color(8)
-           at(27 10);."                     .--------------."
-           at(28 10);."                .---'  o        .    `---."
-           at(29 10);."             .-'    .    O  .         .   `-."
-           at(30 10);."          .-'     ######       .             `-."
-           at(31 10);."        .'##   ###########       #######   .    `."
-           at(32 10);."      .*###  ##############     #########         `."
-           at(33 10);."     /###  o ##############     #########     O     \\"
-           at(34 10);."    /        ##############  #   ######### ##     .  \\"
-           at(35 10);."   /#  o      ###########   .  ##  ###########     ## \\"
-           at(36 10);."  /###      .   ###### o       #  ############# o #### \\"
-           at(11 0);." /#####                  # .      ##############  ##### \\"
-           at(12 0);." |#####    O    `.-./  .        .  #############   ###  |"
-           at(13 0);."/ #####        --`-'       o        ########### ###    . \\"
-           at(14 0);."|# #### .  #  #    `    #            ##      . ######    |"
-           at(15 0);."|   ##                         o    ##   .     ######    |"
-           at(16 0);."|  .     #   # #       o              ##   o   ######.   |"
-           at(17 0);."\     #    #       #       .-.       ####       ###      /"
-           at(18 0);." |  #    #  #              `-'     . ####     .    .    |"
-           at(19 0);." \ .  o       #  ####  .              ##  .           . /"
-           at(20 0);."  \      ###    ######       .                   o     /"
-           at(21 0);."   \    #####   ##\##    /        O          .        /"
-           at(22 0);."    \ o  ###       \ \  /  __        .   .     .--.  /"
-           at(23 0);."     \      .     . \.-.---                   `--'  /"
-           at(24 0);."      `.             `-'      .                   .'"
-           at(25 0);."        `.    o     / | `           O     .     .'"
-           at(26 0);."          `-.      /  |        o             .-'"
-           at(27 0);."             `-.          .         .     .-'"
-           at(28 0);."                `---.        .       .---'"
-           at(29 0);."                     `--------------'"
-           */
-    //       color(15)
-    //    endif
-
-        ++contador
-        if contador= 60000+RETARDO
-           contador<-0
+//        ++contador
+        if timer(contador 15000) //contador= 60000+RETARDO
+//           contador<-0
            .pone_cabeza_madre (++avance)
            if avance>=8
               cmd(PATH+"condicionRed.wav </dev/null >/dev/null 2>&1 &")
+              n_bombas<-2
            endif
         endif
 
-        if (++rot_cin)=300+RETARDO 
+        if timer(rot_cin 70)  //(++rot_cin)=400+RETARDO 
            .rota_cinta
-           rot_cin<-0
+//           rot_cin<-0
         endif
         
         if avance=24 
@@ -1471,11 +2296,14 @@ vars:
 
         .pone_nave_madre avance
 
-        ++i
-        i<-1, if i=tope
+//        ++i
+//        i<-1, if i=tope
 
-        if (++retbombas)=9+RETARDO
-           retbombas<-0
+//        if (++retbombas)=9
+//           retbombas<-0
+        if timer(retbombas 1)
+           ++i
+           i<-1, if i=tope
            if [ bomba i]=1 
              if (.pone_bomba i 30)=1 
                flush
@@ -1483,7 +2311,7 @@ vars:
                at shotery shoterx
                write   " "
                flush()
-               .KILLSOUND()
+               .KILLPILLS()
                .explota_heroe px py
                --heroe
               // .puntaje puntos heroe  //14
@@ -1492,13 +2320,18 @@ vars:
                .delay 1      //espera 1 segundo
                { px, py}<-{36, 30}
                .pone_heroe px py
-               cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+               .pone_puntos(3)
+               cmd(PATHf+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+               PIDPILLS<- fcmd("pidof ffplay")
+               nPills<-strntok((flag " ") PIDPILLS)
+               PIDPILLS<-strtok(PIDPILLS 1)
+               
              endif
            endif
         endif
 
-        if (++retardo)=n_bombas 
-           retardo<-0
+        if timer(retardo n_bombas) //(++retardo)=n_bombas 
+//           retardo<-0
            ++j
            j<-1, if j=tope
 
@@ -1512,18 +2345,18 @@ vars:
            endif
         endif
 
-        if (++ctl)=700+RETARDO       
-           ctl<-0
+        if timer(ctl 200)  //(++ctl)=700+RETARDO       
+//           ctl<-0
            .centro avance
         endif
 
         if disp>0 
-          if sret=RET2DISPARO      //35   
-            sret<-0
+          if timer(sret RET2DISPARO)  //sret=RET2DISPARO      //35   
+//            sret<-0
             .pone_disparo
             // debo evaluar todas las bases...
             
-            if shotery=(avance+13) 
+            if shotery=(avance+14) 
               if between(shoterx 31 48 )
                  if strcpy(base_1 (shoterx-30) 1)="█" 
                    color 15
@@ -1536,7 +2369,7 @@ vars:
                    cmd(PATH+"ladrillo.wav </dev/null >/dev/null 2>&1 &")
                  endif
               endif
-            elseif shotery=(avance+12) 
+            elseif shotery=(avance+13) 
               if between(shoterx 27 52 )
                  if strcpy(base_2 (shoterx-26) 1)="█" 
                    color 15
@@ -1549,7 +2382,7 @@ vars:
                    cmd(PATH+"ladrillo.wav </dev/null >/dev/null 2>&1 &")
                  endif
               endif
-            elseif shotery=(avance+11) 
+            elseif shotery=(avance+12) 
               if between(shoterx 24 55 )
                  if strcpy( base_3 (shoterx-23) 1)="█" 
                     color 15
@@ -1562,7 +2395,7 @@ vars:
                    cmd(PATH+"ladrillo.wav </dev/null >/dev/null 2>&1 &")
                  endif
               endif
-            elseif shotery=(avance+10) 
+            elseif shotery=(avance+11) 
               if between(shoterx 22 56 )
                  if strcpy (base_4 (shoterx-21) 1)<>" " 
                    color 15
@@ -1575,7 +2408,7 @@ vars:
                    cmd(PATH+"ladrillo.wav </dev/null >/dev/null 2>&1 &")
                  endif
               endif
-            elseif shotery=(avance+9) 
+            elseif shotery=(avance+10) 
               if between(shoterx 21 57 )
                  if strcpy (base_5 (shoterx-20) 1)<>" " 
                    color 15
@@ -1588,7 +2421,7 @@ vars:
                    cmd(PATH+"ladrillo.wav </dev/null >/dev/null 2>&1 &")
                  endif
               endif  
-            elseif shotery=(avance+8) 
+            elseif shotery=(avance+9) 
               if between(shoterx 20 58 )
                  if strcpy (base_6 (shoterx-19) 1)<>" " 
                    color 15
@@ -1602,7 +2435,7 @@ vars:
                  endif
               endif
 
-            elseif shotery=(avance+7) 
+            elseif shotery=(avance+8) 
               if between(shoterx 19 59 )
                  if strcpy (base_7 (shoterx-18) 1)<>" " 
                    color 15
@@ -1625,7 +2458,7 @@ vars:
                  disp<-0
                  cmd(PATH+"falla.wav </dev/null >/dev/null 2>&1 &")
               endif
-            elseif shotery=(avance+6) 
+            elseif shotery=(avance+7) 
               if between(shoterx 19 59 )
                  if strcpy( base_8 (shoterx-18) 1)<>" " 
                    cmd(PATH+"pajaroTocado.wav </dev/null >/dev/null 2>&1 &")
@@ -1638,7 +2471,7 @@ vars:
                    disp<-0
                  endif
               endif  
-            elseif shotery=(avance+5) 
+            elseif shotery=(avance+6) 
               if between(shoterx 19 59 )
                  if strcpy( base_9 (shoterx-18) 1)<>" " 
                    cmd(PATH+"pajaroTocado.wav </dev/null >/dev/null 2>&1 &")
@@ -1650,7 +2483,21 @@ vars:
                    write   " "
                    disp<-0
                  endif
+              endif
+            elseif shotery=(avance+5) 
+              if between(shoterx 19 59 )
+                 if strcpy( base_0 (shoterx-18) 1)<>" " 
+                   cmd(PATH+"pajaroTocado.wav </dev/null >/dev/null 2>&1 &")
+                   color 15
+                   puntos<-puntos+100
+                   //.puntaje puntos heroe
+                   base_0<-strrepc( base_0 " " (shoterx-18))
+                   at shoterx shotery
+                   write   " "
+                   disp<-0
+                 endif
               endif  
+            
             elseif shotery=(avance+4) 
               if shoterx=39 
                  disp<-0
@@ -1663,13 +2510,14 @@ vars:
               endif
             endif
 
-          else
-            ++sret
+//          else
+//            ++sret
           endif
         endif
 
-        if ret_heroe=100+RETARDO        //65 
+        if timer(ret_heroe 30) //ret_heroe=100+RETARDO        //65 
           readkey(c)
+          flush()
           if c=19 
              ddx<-(-1)
           elseif c=4 
@@ -1677,19 +2525,23 @@ vars:
           elseif c=5 
              ddx<-0
           elseif c=112
-             .KILLSOUND()
+             .KILLPILLS()
              pause
-             cmd(PATH+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+             cmd(PATHf+"spaceInvadersFondo.wav </dev/null >/dev/null 2>&1 &")
+             PIDPILLS<- fcmd("pidof ffplay")
+             nPills<-strntok((flag " ") PIDPILLS)
+             PIDPILLS<-strtok(PIDPILLS 1)
+             
           elseif c=122      // dispara  5=flecha arriba
              if disp=0 
                 disp<-1
                 {shoterx, shotery} <- {(px+3), (py-1)}
-                cmd(PATH+"Laser_01.wav </dev/null >/dev/null 2>&1 &")
+                cmd(PATH+"phoenix_laser_antimateria.wav </dev/null >/dev/null 2>&1 &")
              endif
        /*   elseif c=27 
              not tip*/
           endif
-          ret_heroe<-0
+//          ret_heroe<-0
           px<-px+ddx
 
           if px<3 
@@ -1699,7 +2551,7 @@ vars:
           endif
           .pone_heroe px py
         endif
-        ++ret_heroe
+//        ++ret_heroe
         
      wend
 
@@ -1709,7 +2561,7 @@ vars:
         push {35, 26,  43, 57, 15}
 
         j<-1
-        .KILLSOUND()
+        .KILLPILLS()
         while j<=5
            mat.row j
            ddx<-(mat.get)
@@ -1718,14 +2570,26 @@ vars:
            while t>=0
               if (++rret)=8000+RETARDO
                  color {t=4?15:{t=3?14:{t=2?7:{t=1?8:0}}}}
-                 at ((avance+1) ddx )
-                 write   " .    #  \ "
-                 at ((avance+2) ddx )
-                 write   "  O  . *  "
-                 at ((avance+3) ddx )
-                 write   "· ^  >.   +"
-                 at ((avance+4) ddx )
-                 write   "  /   . ·"
+                 if t=3           
+                    at ((avance+1) ddx )  
+                    write " .   ▄▀ ·  ."
+                    at ((avance+2) ddx )
+                    write "  ^ ████.▄ _"
+                    at ((avance+3) ddx )
+                    write ". ·▀ Y█.   *"
+                    at ((avance+4) ddx )
+                    write "  /   .▀ ·  "
+                 else
+                    at ((avance+1) ddx )  
+                    write " .    ·  .  "
+                    at ((avance+2) ddx )
+                    write "  ^  . _    "
+                    at ((avance+3) ddx )
+                    write ". ·  Y.   * "
+                    at ((avance+4) ddx )
+                    write "  /   . ·   "
+                            
+                 endif
                  rret<-0
                  --t
               endif
@@ -1734,6 +2598,7 @@ vars:
            ++j
         wend
         cmd(PATH+"ExplosionHeroe.wav  </dev/null >/dev/null 2>&1 &")
+        .pone_gran_explosion()
         sleep(1)
         color 7
      endif
@@ -1742,6 +2607,59 @@ vars:
      return gana
   end
 
+  otravez():boolean
+  colx,c:=number
+  s:=string
+  ret:=boolean
+  begin:
+    cls
+    color(3)
+    api "box=12,27,19,59,D"
+    color 11
+    colx<-33
+    at(14 colx); ." ▄   ▄▄  ▄  ▄  ▄   ▄"
+    at(15 colx); ."█▄█ █ ▄ █▄█ ▄ █ █ ▀ █"
+    at(16 colx); ."▀ ▀  ▀▀ ▀ ▀ ▀ ▀ ▀  ▄"
+    c<-0
+    flush()
+    while c=0
+      readkey(c)
+      s<-strupper(chr(c))
+      if s="S" or s="Y"
+         ret<- true
+         break
+      elseif s="N"
+         ret<- false
+         break
+      endif
+    wend
+    cls
+    return ret
+  end
+
+    game_over := function:void
+       colx:=number
+    begin:
+      cls
+      color 6
+      colx<-33
+      at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+      at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+      at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+      at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+      at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+      at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+
+      sleep(3)
+      color 0
+      at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+      at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+      at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+      at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+      at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+      at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+      
+    end
 
 //######################### PROGRAMA PRINCIPAL
 
@@ -1771,37 +2689,68 @@ algorithm:
     ."Problemas... [",cSYS,"]"
     goodbye
  endif
+
+ PATHf<-"ffplay -nodisp -loop 9999 "+PATH
+ tPATH<-PATH
+
  PATH<-cPLAY+" "+PATH // deja "afplay /home..../source/"
 
- video(37,75)
+ video(37,85)
 
  precision 0
 
  cursor 0 
  cls
- .titulo_grande
- tope_resucita<-30
+ 
+// swetapa2<-.otravez()
+// .game_over() 
+// goodbye
+//    .muestra_objetivo(200)
+// goodbye 
 
-// .ETAPA_2()
- etapas<-6
+.titulo_grande
+
+ma<-^[[1,1,1,1,0,1,1,0,1,1,0,1,1,1,1],  &
+      [1,1,0,0,1,0,0,1,0,0,1,0,1,1,1],  &
+      [1,1,1,0,0,1,1,1,1,1,0,0,1,1,1],  &
+      [1,1,1,0,0,1,0,1,1,0,0,1,1,1,1],  &
+      [1,0,1,1,0,1,1,1,1,0,0,1,0,0,1],  &
+      [1,1,1,1,0,0,1,1,1,0,0,1,1,1,1],  &
+      [1,0,0,1,0,0,1,1,1,1,0,1,1,1,1],  &
+      [1,1,1,0,0,1,0,0,1,0,0,1,0,0,1],  &
+      [1,1,1,1,0,1,1,1,1,1,0,1,1,1,1],  &
+      [1,1,1,1,0,1,1,1,1,0,0,1,0,0,1] ]
+
+while true
+ 
+ tope_resucita<-57
+
+ etapas<-1
+ swetapa2<-true
+ 
  while (--etapas)>0
     if .ETAPA_1 (tope_resucita etapas)
        .KILLSOUND()
-       tope_resucita<-+15
+       .KILLPILLS()
+       tope_resucita<-+29
        .SeElevaAlEspacio px py
        sleep(2)
        cls
        if ~acabo_con_todos
-         write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
-         vtab(5)
-         goodbye
+         //write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
+         //write (5*"\n")
+         swetapa2<-false
+         break
        endif
     else
-       .FIN_HORRIBLE()
-       vtab(5)
-       goodbye 
+       //.FIN_HORRIBLE()
+       //vtab(5)
+       swetapa2<-false
+       break 
     endif 
  wend
+
+ if swetapa2 
  .muestra_objetivo(100)
  cls 
  if .ETAPA_2  
@@ -1822,84 +2771,15 @@ algorithm:
 //    cmd(PATH+"finalFelizPhoenix.wav </dev/null >/dev/null 2>&1")
     .muestra_objetivo(200)
     vtab(5)
- else
-    .FIN_HORRIBLE
  endif
+endif
+if ~.otravez()
+   break
+endif
+wend
 
-/*
- if .ETAPA_1 (tope_resucita 3)
-   .KILLSOUND()
-   tope_resucita<-30
-   .SeElevaAlEspacio px py
-   sleep(2)
-   cls
-   if acabo_con_todos
-      if .ETAPA_1 (tope_resucita 2)
-         .KILLSOUND()
-         .SeElevaAlEspacio px py
-         tope_resucita<-40
-         sleep(2)
-         cls 
-         if acabo_con_todos        
-            if .ETAPA_1 (tope_resucita 1)
-               .KILLSOUND()
-               .SeElevaAlEspacio px py
-               tope_resucita<-50
-               sleep(2)
-               cls 
-               if acabo_con_todos
-                  color 14
-                  api "box=8,6,17,66,D"
-                  color 15
-                  at(10 10);write "Ahora, ¡acaba con la amenaza Phoenix desde el origen!"
-                  at(12 10);write "   Debes traspasar el campo de fuerza de la nave"
-                  at(13 10);write " madre y disparar a la cabeza, el centro de mando."
-                  at(15 10);write "    Podrás detener el tanque con flecha arriba."
-                  cmd(PATH+"intermedioPhoenix.wav </dev/null >/dev/null 2>&1 &")
-                  .delay 9
-                  cls 
-                  // hagase el weon
-                  if .ETAPA_2  
-                     cls
-                     flush()
-                     .KILLSOUND()
-                     color 14
-                     api "box=8,6,18,64,D"
-                     color 15
-                     at(10 10);write "   ¡Has acabado con esos pajarracos espaciales!"
-                     at(12 10);write " Aunque lo único que querían era que compartieras"
-                     at(13 10);write "     tu comida con sus raquíticos polluelos."
-                     at(15 10);write "  Si explotabas cuando te lanzaban huevos, era"
-                     at(16 10);write "      porque eres alérgico a los huevos :("
-                    
-                     .delay 1
-                     cmd(PATH+"finalFelizPhoenix.wav </dev/null >/dev/null 2>&1")
-                     vtab(5)
-                  else
-                     .FIN_HORRIBLE
-                  endif
-               else
-                  write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
-                  vtab(5)
-               endif
-            else
-               .FIN_HORRIBLE
-            endif
-         else        
-            write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
-            vtab(5)
-         endif
-      else
-         .FIN_HORRIBLE
-      endif
-   else
-      write (10*"\n"), "\t\tEscapaste como la vil rata que eres\n"
-      vtab(5)
-   endif
- else
-   .FIN_HORRIBLE
- endif
-*/
+ .game_over()
+ cls
  cursor 1
  
  stop

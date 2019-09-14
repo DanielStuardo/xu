@@ -1,16 +1,25 @@
 #use string, math, matrix,stack
-#define RET_HEROE    900
-#define RET_INVASOR  4500
-#define RET_DISPARO  500
-#define RET_OVNI     1100
-#define RET_BOMBAS   500
-#define RET_EXPLOSION 7000
+
+/*
+  Cambia aplay por ffplay. debe instalarse con sudo apt install ffmpeg
+  linea de ejecucion:
+  
+  ffplay -af "atempo=2" -nodisp -loop 9999 dataPacman/come.wav </dev/null >/dev/null 2>&1 &
+*/
+
+//#define RET_HEROE    900
+//#define RET_INVASOR  4500
+//#define RET_DISPARO  400
+//#define RET_OVNI     1100
+//#define RET_BOMBAS   500
+//#define RET_EXPLOSION 7000
+#define TOTAL_BOMBAS 5   // este valor no cambia
 
 vars:
   escape,ciclo,estado,gana,pierde,sw,swPunto1,swPunto2:=boolean
   ret_heroe,x,y,py,ddy,high:=number
   c,stage,xpos,xxpos,lpos,rpos,nivel_sound:=number
-  PATH,cSYS,cPLAY:=string
+  PATH,cSYS,cPLAY,PATHf,tPATH:=string
   ret_invasor,fila,filai,filaf,nInv,ix,im:=number
   inv_estado:=^boolean
   columnai,columnaf:=number
@@ -18,6 +27,8 @@ vars:
   ret_shot,puntos,vidas:=number
   barrera0,barrera1,barrera2,ladrillo:=string
   invasor,caracter,cabeza:=^string
+  /*varioables de tiempo del juego*/
+  RET_EXPLOSION,RET_OVNI,RET_BOMBAS,RET_INVASOR,RET_DISPARO,RET_HEROE:=number
   
   bombarderos,estado_bomba:=^boolean
   pos_bombarderos:=^number
@@ -72,9 +83,14 @@ color(15)
 at(22 24);  ."              50 pts   30 pts   10 pts "
 color(12)
 at(24 24);  ."    ___"                         
-at(25 24);  ."   /···\ ";color(15);."=  ??? MISTERIO."; color(12)
-at(26 24);  ."   \ooo/" 
+at(25 24);  ."   /OOO\  ";color(15);."=  ??? MISTERIO."; color(12)
+//at(26 24);  ."   \U=U/" 
 at(28 29); color(10); ."EXTRA A LOS 5,000 Y 10,000 PTS."
+
+     color(8)
+     at(32 60); ."█▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █"
+     at(33 60); ."█ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█"
+
 pause
 //goodbye
 end
@@ -113,6 +129,11 @@ begin:
   if strlen(strtrim((flag "A") PID))>0
      cmd("kill "+PID+ " </dev/null >/dev/null 2>&1")
   endif
+  PID<-fcmd("pidof ffplay")
+  if strlen(strtrim((flag "A") PID))>0
+     cmd("kill "+PID+ " </dev/null >/dev/null 2>&1")
+  endif
+  
 end
 
 baja_invasores():void
@@ -400,9 +421,63 @@ end
 
 KILLPILLS(PID:string):void
 begin:
-   cmd("kill -9 "+PID+" </dev/null >/dev/null 2>&1 &")
+   cmd("kill "+PID+" </dev/null >/dev/null 2>&1 &")
 end
 
+
+  otravez():boolean
+  colx,c:=number
+  s:=string
+  ret:=boolean
+  begin:
+    cls
+    cursor 0
+    color(3)
+    api "box=12,17,19,49,D"
+    color 11
+    colx<-24
+    at(14 colx); ." ▄   ▄▄  ▄  ▄  ▄   ▄"
+    at(15 colx); ."█▄█ █ ▄ █▄█ ▄ █ █ ▀ █"
+    at(16 colx); ."▀ ▀  ▀▀ ▀ ▀ ▀ ▀ ▀  ▄"
+    c<-0
+    flush()
+    while c=0
+      readkey(c)
+      s<-strupper(chr(c))
+      if s="S" or s="Y"
+         ret<- true
+         break
+      elseif s="N"
+         ret<- false
+         break
+      endif
+    wend
+    return ret
+  end
+
+    game_over := function:void
+       colx:=number
+    begin:
+      color (6)
+      colx<-47
+      at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+      at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+      at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+      at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+      at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+      at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+
+//      write (at 15 28) "GAME OVER"
+      sleep(3)
+      color 0
+      at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+      at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+      at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+      at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+      at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+      at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+      
+    end
 
 algorithm:
   
@@ -430,10 +505,10 @@ algorithm:
      ."Problemas... [",cSYS,"]"
      goodbye
   endif
-  PATH<-cPLAY+" "+PATH // deja "afplay /home..../source/"
-
-  high<-.carga_high_score()
+  PATHf<-"ffplay -nodisp -loop 9999 "+PATH
+  tPATH<-PATH
   
+  PATH<-cPLAY+" "+PATH // deja "afplay /home..../source/"
 
   video(34,91)
 //  api "box=0,0,30,90,D"
@@ -444,9 +519,15 @@ algorithm:
   .titulo()
 //  goodbye
   
-  not ciclo
-  not gana
-  last_fila<-3
+
+while true
+
+  high<-.carga_high_score()
+  
+
+  ciclo<-true
+  gana<-true
+  last_fila<-2
   puntos<-0
   vidas<-4
   {swPunto1,swPunto2}<-true
@@ -468,7 +549,7 @@ algorithm:
   cls
   ++stage
 
-  if 1=1
+  if 1=0
   /*muestra marciano feo*/
   if stage=1
      .muestra_marciano(1) 
@@ -533,16 +614,16 @@ algorithm:
                   " <> "*15 , &
                   " >< "*15 , &
                   " <> "*15 })
-  not estado
+  estado<-true
   
-  avance<-800+(last_fila*5)
+ // avance<-800+(last_fila*5)
   ix<-5
   columnai<-17
   columnaf<-columnai+61
   nInv<-(-1)
-  ret_heroe<-RET_HEROE
+  ret_heroe<-0 //RET_HEROE
   ret_shot<-0
-  ret_invasor<-RET_INVASOR-avance
+  ret_invasor<-0 //RET_INVASOR-avance
   cta_eliminados<-0
   pierde<-false
   im<-0
@@ -577,8 +658,10 @@ algorithm:
   next
   millisec(500)
 
-  cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
-  PIDFONDO<- fcmd("pidof "+cPLAY)
+//  cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
+  cmd(PATHf+"invaders_fondo.wav </dev/null >/dev/null 2>&1 &")
+  
+  PIDFONDO<- fcmd("pidof ffplay")
   nFondo<-strntok((flag " ") PIDFONDO)
   PIDFONDO<-strtok(PIDFONDO 1)
 
@@ -587,10 +670,11 @@ algorithm:
   consulta_ovni<-true
   .pone_vidas()
   total_ovni<-0
-  dim bomba(5)
-  dim posx_bomba(5)
-  dim posy_bomba(5)
-  dim estado_bomba(5)
+  dim bomba(TOTAL_BOMBAS)
+  dim posx_bomba(TOTAL_BOMBAS)
+  dim posy_bomba(TOTAL_BOMBAS)
+  dim estado_bomba(TOTAL_BOMBAS)
+  
 //  cta_bombas<-1
   ibomba<-0
   nivel_sound<-1  // para poner el fondo correcto cuando el tanque es destruido
@@ -600,12 +684,21 @@ algorithm:
   tasa_bombas<-0.75  // probabilidad de un 20% de lanzar bombas, inicial
   {barr1,barr2,barr3}<-false
   
-  flush()  
+  flush()
+  RET_EXPLOSION<-250-(stage-1)*10  // revisar...
+  if RET_EXPLOSION<50
+     RET_EXPLOSION<-50
+  endif
+  RET_INVASOR<-151
+  RET_DISPARO<-20
+  RET_HEROE<-40
+  RET_BOMBAS<-25
+  RET_OVNI<-40
   while ciclo
 
      if explota_ovni
-        if (++ret_exp_ovni)=(RET_EXPLOSION-((stage-1)*100))
-           ret_exp_ovni<-0
+        if timer(ret_exp_ovni RET_EXPLOSION)  //(++ret_exp_ovni)=(RET_EXPLOSION-((stage-1)*100))
+//           ret_exp_ovni<-0
            if [[@cola_bomba] 2]=3
               explota_ovni<-false
            endif
@@ -627,8 +720,8 @@ algorithm:
      ///endif
      else
      
-     if ret_invasor=(RET_INVASOR-avance)
-        ret_invasor<-0
+     if timer(ret_invasor RET_INVASOR)  //ret_invasor=(RET_INVASOR-avance)
+//        ret_invasor<-0
 
         --ix
         if ix=0
@@ -636,7 +729,7 @@ algorithm:
               
            ix<-5
            
-           if columnai=1
+           if columnai<=1
               nInv<-1
               .baja_invasores()
              /* chequea el final */
@@ -649,7 +742,7 @@ algorithm:
               next
               columnaf<-j, if columnaf>j*/
               
-           elseif columnaf=90  //columnai=30
+           elseif columnaf>=90  //columnai=30
               nInv<-(-1)
               .baja_invasores()
              /* chequea el comienzo */
@@ -739,12 +832,16 @@ algorithm:
         endif
         //endif
      endif
-     ++ret_invasor
+//     ++ret_invasor
      
      endif  // explota_ovni
 
      /* movimiento del heroe */
-     if ret_heroe=RET_HEROE
+//     if c=0
+//        readkey(c)
+//        flush()
+//     endif
+     if timer(ret_heroe RET_HEROE)  //ret_heroe=RET_HEROE
         readkey(c)
         flush()
         if c=19 
@@ -768,10 +865,38 @@ algorithm:
         elseif c=112
            .KILLSOUND()
            pause
-           cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
-           PIDFONDO<- fcmd("pidof "+cPLAY)
+           if nivel_sound=1
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo.wav </dev/null >/dev/null 2>&1 &")
+           elseif nivel_sound=2 
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
+             
+           elseif nivel_sound=3
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+//              cmd(PATH+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+           elseif nivel_sound=4
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+//              cmd(PATH+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+           elseif nivel_sound=5
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
+//              cmd(PATH+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
+           elseif nivel_sound=6
+              PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+              cmd(PATHf+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+//              cmd(PATH+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           PIDFONDO<- fcmd("pidof ffplay")
            nFondo<-strntok((flag " ") PIDFONDO)
            PIDFONDO<-strtok(PIDFONDO 1)
+
+//           cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
+//           PIDFONDO<- fcmd("pidof "+cPLAY)
+//           nFondo<-strntok((flag " ") PIDFONDO)
+//           PIDFONDO<-strtok(PIDFONDO 1)
            
         elseif c=122      // dispara  5=flecha arriba
            if disp=0 
@@ -783,7 +908,7 @@ algorithm:
            ddy<-0
         
         endif
-        ret_heroe<-0
+//        ret_heroe<-0
         py<-y
         y<-y+ddy
         if y<5
@@ -792,13 +917,13 @@ algorithm:
            y<-80
         endif
         .pone_heroe(y py)
-        flush()
+//        c<-0
      endif
-     ++ret_heroe
+//     ++ret_heroe
   
 //     if cta_bombas>0
-        if (++ret_bombas)=RET_BOMBAS
-           ret_bombas<-0
+        if timer(ret_bombas RET_BOMBAS) //(++ret_bombas)=RET_BOMBAS
+//           ret_bombas<-0
            ++ibomba
            if ibomba=5
               ibomba<-1
@@ -821,8 +946,22 @@ algorithm:
                        write "\\"
                        [estado_bomba ibomba]<-true
                     endif
+                    
+//                    // evalua si un laser toca la bomba
+//                    if shotery=xxpos and shoterx=xpos
+//                       at((shotery-1) (shoterx+1)); ."."  
+//                       at((shotery)   (shoterx-1)); ."· * ·" 
+//                       at((shotery+1) (shoterx+1)); ."'"  
+//                       cmd(PATH+"invaders_explota_marciano.wav </dev/null >/dev/null 2>&1 &")
+//                       explota_ovni<-true
+//                       use cola_bomba
+//                       push{shoterx,shotery,1}
+//
+//                       [bomba ibomba]<-0
+//                       continue
+//                    endif
 
-                    /* evalua si ha tocdo al tanque */
+                    /* evalua si ha tocado al tanque */
                     if xxpos=30
                        if xpos between y (y+5)
                           .KILLSOUND()
@@ -846,19 +985,30 @@ algorithm:
                           {x,y}<-{29,44}
                           
                           if nivel_sound=1
-                             cmd(PATH+"fondoEtapa1.wav </dev/null >/dev/null 2>&1 &")
-                          elseif nivel_sound=2 or nivel_sound=3
-                             cmd(PATH+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo.wav </dev/null >/dev/null 2>&1 &")
+                          elseif nivel_sound=2 
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
+                            
+                          elseif nivel_sound=3
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
                           elseif nivel_sound=4
-                             cmd(PATH+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
                           elseif nivel_sound=5
-                             cmd(PATH+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
                           elseif nivel_sound=6
-                             cmd(PATH+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
-                          elseif nivel_sound=7
-                             cmd(PATH+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
                           endif
-                          PIDFONDO<- fcmd("pidof "+cPLAY)
+                          PIDFONDO<- fcmd("pidof ffplay")
                           nFondo<-strntok((flag " ") PIDFONDO)
                           PIDFONDO<-strtok(PIDFONDO 1)
                        endif
@@ -923,7 +1073,33 @@ algorithm:
                  endif
               endif
 //           next
-          
+          for i<-1 to 5
+              if [bomba i]=1
+                            
+                 xpos<-[posy_bomba i]
+                 xxpos<-[posx_bomba i]
+
+                 // evalua si un laser toca la bomba
+                 if shotery=xxpos and shoterx=xpos
+                    if mth.rand(1)>=0.5
+                       at((shotery-1) (shoterx+1)); ."."  
+                       at((shotery)   (shoterx-1)); ."· * ·" 
+                       at((shotery+1) (shoterx+1)); ."'"  
+                       cmd(PATH+"invaders_explota_marciano.wav </dev/null >/dev/null 2>&1 &")
+                       explota_ovni<-true
+                       ret_exp_ovni<-seconds("")
+                       use cola_bomba
+                       push{shoterx,shotery,1}
+//                       disp<-0
+
+                       [bomba i]<-0
+                       //continue
+                       break
+                    endif
+                    disp<-0
+                 endif
+              endif
+          next
         endif
 //     endif
      
@@ -937,7 +1113,7 @@ algorithm:
            else
               po<-87
            endif
-           ret_ovni<-0
+           ret_ovni<-seconds("")
            cmd(PATH+"invaders_ovni.wav </dev/null >/dev/null 2>&1 &")
            PIDPILLS<- fcmd("pidof "+cPLAY)
            nPills<-strntok((flag " ") PIDPILLS)
@@ -956,7 +1132,7 @@ algorithm:
            else
               po<-87
            endif
-           ret_ovni<-0
+           ret_ovni<-seconds("")
            cmd(PATH+"invaders_ovni.wav </dev/null >/dev/null 2>&1 &")
            PIDPILLS<- fcmd("pidof "+cPLAY)
            nPills<-strntok((flag " ") PIDPILLS)
@@ -968,12 +1144,12 @@ algorithm:
      endif
      
      room swOvni
-        if ret_ovni=RET_OVNI
-           ret_ovni<-0
+        if timer(ret_ovni RET_OVNI)  //ret_ovni=RET_OVNI
+//           ret_ovni<-0
            //at(1 po); color(0); write "/OXO\\"
            at(1 po); color(0); write " ___"
-           at(2 po);           write "/···\\"
-           at(3 po);           write "\ooo/"
+           at(2 po);           write "/OOO\\"
+//           at(3 po);           write "\ooo/"
            po<-po+odir
            if odir=1
              if po=87
@@ -982,9 +1158,9 @@ algorithm:
                 ++total_ovni
                 .KILLPILLS(PIDPILLS)
              else
-                at(1 po); color(01); write " ___"
-                at(2 po); color(09); write "/···\\"
-                at(3 po); color(11); write "\ooo/"
+                at(1 po); color(12); write " ___"
+                at(2 po); /*color(12);*/ write "/OOO\\"
+  //              at(3 po); color(11); write "\ooo/"
              endif
            else
              if po=0
@@ -994,19 +1170,19 @@ algorithm:
                 .KILLPILLS(PIDPILLS)
              else
                 //at(1 po); color(12); write "/OXO\\"
-                at(1 po); color(01); write " ___"
-                at(2 po); color(09); write "/···\\"
-                at(3 po); color(11); write "\ooo/"
+                at(1 po); color(12); write " ___"
+                at(2 po); /*color(09);*/ write "/OOO\\"
+             //   at(3 po); color(11); write "\ooo/"
              endif
            endif
            
         endif
-        ++ret_ovni
+//        ++ret_ovni
      rend
      
      if disp>0
-        if ret_shot=RET_DISPARO //(RET_DISPARO-(last_fila*20))
-           ret_shot<-0
+        if timer(ret_shot RET_DISPARO)  //ret_shot=RET_DISPARO //(RET_DISPARO-(last_fila*20))
+//           ret_shot<-0
            .pone_disparo()
            
            /* verifica si le dio a ovni */
@@ -1016,7 +1192,7 @@ algorithm:
                     puntos<-puntos+2000
                     at(1 po); color(0); write " ___"
                     at(2 po);           write "/···\\"
-                    at(3 po);           write "\ooo/"
+                   // at(3 po);           write "\ooo/"
                     .KILLPILLS(PIDPILLS)
                     
                     at(2 po); color(10); ."  2000  "
@@ -1037,7 +1213,7 @@ algorithm:
                     puntos<-puntos+1000
                     at(1 po); color(0); write " ___"
                     at(2 po);           write "/···\\"
-                    at(3 po);           write "\ooo/"
+                   // at(3 po);           write "\ooo/"
                     .KILLPILLS(PIDPILLS)
                     
                     at(2 po); color(10); ."  1000  "
@@ -1059,7 +1235,7 @@ algorithm:
                     puntos<-puntos+1000
                     at(1 po); color(0); write " ___"
                     at(2 po);           write "/···\\"
-                    at(3 po);           write "\ooo/"
+                   // at(3 po);           write "\ooo/"
                     .KILLPILLS(PIDPILLS)
                     at(2 po); color(10); ."  1000  "
                     cmd(PATH+"invaders_ovniMedio.wav </dev/null >/dev/null 2>&1")
@@ -1080,7 +1256,7 @@ algorithm:
                     puntos<-puntos+500
                     at(1 po); color(0); write " ___"
                     at(2 po);           write "/···\\"
-                    at(3 po);           write "\ooo/"
+                   // at(3 po);           write "\ooo/"
                     .KILLPILLS(PIDPILLS)
                     at(2 po); color(10); ."  500   "
                     cmd(PATH+"invaders_ovniMedio.wav </dev/null >/dev/null 2>&1")
@@ -1094,7 +1270,7 @@ algorithm:
                     puntos<-puntos+500
                     at(1 po); color(0); write " ___"
                     at(2 po);           write "/···\\"
-                    at(3 po);           write "\ooo/"
+                   // at(3 po);           write "\ooo/"
                     .KILLPILLS(PIDPILLS)
                     at(2 po); color(10); ."  500   "
                     cmd(PATH+"invaders_ovniMedio.wav </dev/null >/dev/null 2>&1")
@@ -1196,6 +1372,7 @@ algorithm:
                              //millisec(500)
                              cmd(PATH+"invaders_explota_marciano.wav </dev/null >/dev/null 2>&1 &")
                              explota_ovni<-true
+                             ret_exp_ovni<-seconds("")
                              //tipo_explosion<-1
                              //{expx,expy}<-{shoterx,shotery}
                              use cola_bomba
@@ -1210,6 +1387,7 @@ algorithm:
                              //millisec(500)
                              cmd(PATH+"invaders_explota_marciano.wav </dev/null >/dev/null 2>&1 &")
                              explota_ovni<-true
+                             ret_exp_ovni<-seconds("")
                              //tipo_explosion<-2
                              use cola_bomba
                              push{shoterx,shotery,2}
@@ -1261,12 +1439,65 @@ algorithm:
                           if cta_eliminados=20
                              tasa_bombas<-0.7
                           elseif cta_eliminados=40
-                             tasa_bombas<-0.6
+                             tasa_bombas<-0.5
                           elseif cta_eliminados=50
-                             tasa_bombas<-0.8
+                             tasa_bombas<-0.6
                           endif
-                          if cta_eliminados=20
-                             avance<-2000+last_fila; ret_invasor<-0
+                          
+                          RET_INVASOR<--2
+                          ret_invasor<-0
+                          if cta_eliminados=30
+                             .KILLPILLS(PIDFONDO)
+                             nivel_sound<-2
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
+                             PIDFONDO<- fcmd("pidof ffplay")
+                             nFondo<-strntok((flag " ") PIDFONDO)
+                             PIDFONDO<-strtok(PIDFONDO 1)
+                          elseif cta_eliminados=50
+                             .KILLPILLS(PIDFONDO)
+                             nivel_sound<-3
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
+                             PIDFONDO<- fcmd("pidof ffplay")
+                             nFondo<-strntok((flag " ") PIDFONDO)
+                             PIDFONDO<-strtok(PIDFONDO 1)
+                          elseif cta_eliminados=65
+                             .KILLPILLS(PIDFONDO)
+                             nivel_sound<-4
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
+                             PIDFONDO<- fcmd("pidof ffplay")
+                             nFondo<-strntok((flag " ") PIDFONDO)
+                             PIDFONDO<-strtok(PIDFONDO 1)
+                          elseif cta_eliminados=75
+                             .KILLPILLS(PIDFONDO)
+                             nivel_sound<-5
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
+                             PIDFONDO<- fcmd("pidof ffplay")
+                             nFondo<-strntok((flag " ") PIDFONDO)
+                             PIDFONDO<-strtok(PIDFONDO 1)
+                          elseif cta_eliminados=76
+                             .KILLPILLS(PIDFONDO)
+                             nivel_sound<-6
+                             PATHf<-"ffplay -nodisp -loop 9999 "+tPATH
+                             cmd(PATHf+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+//                             cmd(PATH+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
+                             PIDFONDO<- fcmd("pidof ffplay")
+                             nFondo<-strntok((flag " ") PIDFONDO)
+                             PIDFONDO<-strtok(PIDFONDO 1)
+                          endif
+//                          at(0 60); ."V=",RET_INVASOR
+
+                        /*  if cta_eliminados=30
+                             //avance<-2000+last_fila
+                             RET_INVASOR<-90// -50
+                             ret_invasor<-0
                              //.KILLSOUND()
                              .KILLPILLS(PIDFONDO)
                              nivel_sound<-2
@@ -1274,54 +1505,67 @@ algorithm:
                              PIDFONDO<- fcmd("pidof "+cPLAY)
                              nFondo<-strntok((flag " ") PIDFONDO)
                              PIDFONDO<-strtok(PIDFONDO 1)
+                          elseif between(cta_eliminados 31 39)
+                             //avance<-+1000+last_fila; 
+                             --RET_INVASOR //-30
+                             ret_invasor<-0
                              
-                          elseif cta_eliminados=35
-                             avance<-+1000+last_fila; ret_invasor<-0
-                             ///.KILLSOUND()
-                             .KILLPILLS(PIDFONDO)
-                             nivel_sound<-3
-                             cmd(PATH+"invaders_fondo2.wav </dev/null >/dev/null 2>&1 &")
-                             PIDFONDO<- fcmd("pidof "+cPLAY)
-                             nFondo<-strntok((flag " ") PIDFONDO)
-                             PIDFONDO<-strtok(PIDFONDO 1)
-                          elseif cta_eliminados=45
-                             avance<-+500+last_fila; ret_invasor<-0
+                          elseif cta_eliminados=40
+                             //avance<-+1000+last_fila; 
+                             RET_INVASOR<-70 //-30
+                             ret_invasor<-0
+                          elseif cta_eliminados=50  //45
+                             //avance<-+500+last_fila; 
+                             RET_INVASOR<-40 //-20
+                             ret_invasor<-0
                              //.KILLSOUND()
                              .KILLPILLS(PIDFONDO)
-                             nivel_sound<-4
+                             nivel_sound<-3
                              cmd(PATH+"invaders_fondo3.wav </dev/null >/dev/null 2>&1 &")
                              PIDFONDO<- fcmd("pidof "+cPLAY)
                              nFondo<-strntok((flag " ") PIDFONDO)
                              PIDFONDO<-strtok(PIDFONDO 1)
-                          elseif cta_eliminados=55
-                             avance<-+400+last_fila; ret_invasor<-0
+                          elseif cta_eliminados=60
+                             RET_INVASOR<-30 //-30
+                             ret_invasor<-0
+                          elseif cta_eliminados=65  //55
+                             //avance<-+400+last_fila; 
+                             RET_INVASOR<-20 //-20
+                             ret_invasor<-0
                              //.KILLSOUND()
                              .KILLPILLS(PIDFONDO)
-                             nivel_sound<-5
+                             nivel_sound<-4
                              cmd(PATH+"invaders_fondo4.wav </dev/null >/dev/null 2>&1 &")
                              PIDFONDO<- fcmd("pidof "+cPLAY)
                              nFondo<-strntok((flag " ") PIDFONDO)
                              PIDFONDO<-strtok(PIDFONDO 1)
-                          elseif cta_eliminados=65
-                             avance<-+300+last_fila; ret_invasor<-0
+                          elseif between (cta_eliminados 70 74) //55
+                             //avance<-+400+last_fila; 
+                             RET_INVASOR<--2 //10 //-20
+                             ret_invasor<-0
+                          elseif cta_eliminados= 75  //65
+                             //avance<-+300+last_fila; 
+                             RET_INVASOR<-7 //-20
+                             ret_invasor<-0
                              ///.KILLSOUND()
                              .KILLPILLS(PIDFONDO)
-                             nivel_sound<-6
+                             nivel_sound<-5
                              cmd(PATH+"invaders_fondo5.wav </dev/null >/dev/null 2>&1 &")
                              PIDFONDO<- fcmd("pidof "+cPLAY)
                              nFondo<-strntok((flag " ") PIDFONDO)
                              PIDFONDO<-strtok(PIDFONDO 1)
-                          elseif cta_eliminados=76
-                             avance<-+150+last_fila; ret_invasor<-0
+                          elseif cta_eliminados= 76
+                             //avance<-+150+last_fila; 
+                             RET_INVASOR<-3 //-5
+                             ret_invasor<-0
                              //.KILLSOUND()
                              .KILLPILLS(PIDFONDO)
-                             nivel_sound<-7
+                             nivel_sound<-6
                              cmd(PATH+"invaders_fondo6.wav </dev/null >/dev/null 2>&1 &")
                              PIDFONDO<- fcmd("pidof "+cPLAY)
                              nFondo<-strntok((flag " ") PIDFONDO)
                              PIDFONDO<-strtok(PIDFONDO 1)
-                             
-                          endif
+                          endif */
                           disp<-0
                           break
                           
@@ -1336,7 +1580,7 @@ algorithm:
               endif
            endif
         endif
-        ++ret_shot
+//        ++ret_shot
      endif
 
   wend
@@ -1353,11 +1597,18 @@ algorithm:
   endif
   color(14)
   
-  ladrillo<-"G A M E  O V E R"  
-  for i<-1 to 16
-     at(12 (35+i)); write strcpy(ladrillo i 1)
-     millisec(100)
-  next
+  .game_over()
+//  ladrillo<-"G A M E  O V E R"  
+//  for i<-1 to 16
+//     at(12 (35+i)); write strcpy(ladrillo i 1)
+//     millisec(100)
+//  next
   sleep(3)
+  
+  if ~.otravez()
+     break
+  endif
+wend  
+  
   cursor(1)
 stop

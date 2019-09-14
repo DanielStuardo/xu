@@ -1,0 +1,566 @@
+// Programa XU
+/* ALGORITMO DE BRESENHAM
+  
+   Dibujo de círculos. Para normalizar coordenadas en modo gráfico, 
+   use funciones convert
+*/
+
+#use math,trig
+
+//#include
+
+name: <descripcion del programa>
+
+functions:
+
+  convertxc(k:number):number
+  begin:
+    return k
+  end
+  
+  convertyc(k:number):number
+  begin:
+    return k
+  end
+  
+  convertx(k:number):number
+  begin:
+    return k
+  end
+  
+  converty(k:number):number
+  begin:
+    return k
+  end
+  
+  plotPoints(xc:number,yc:number,x1:number,y1:number,simbolo:string):void
+  begin:
+    
+    at( (xc+x1) (yc+y1*1) ); write simbolo
+    at( (xc-x1) (yc+y1*1) ); write simbolo
+    at( (xc+x1) (yc-y1*1) ); write simbolo
+    at( (xc-x1) (yc-y1*1) ); write simbolo
+    at( (xc+y1) (yc+x1*1) ); write simbolo
+    at( (xc-y1) (yc+x1*1) ); write simbolo
+    at( (xc+y1) (yc-x1*1) ); write simbolo
+    at( (xc-y1) (yc-x1*1) ); write simbolo
+  end
+  
+  circulo(xc:number, yc:number, r:number,simbolo:string):void
+    x,y,p:=number
+  begin:
+    x<-0
+    y<-r
+    at( xc yc ); write simbolo
+    .plotPoints(xc yc x y simbolo)
+    p<-1-r
+    while x<y
+       if p<0
+          ++x
+          p<-p+2*x+1
+       else
+          ++x
+          --y
+          p<-p+2*(x-y)+1
+       endif
+       .plotPoints(xc yc x y (simbolo))
+    wend
+  end
+
+  linea(X1:number, Y1:number,X2:number,Y2:number):void
+    dY,dX,IncYi,IncXi,k:=number
+    IncXr,IncYr:=number
+    X,Y,av,avR,avI:=number
+  begin:
+      // 0 - Distancias que se desplazan en cada eje
+      dY <- (Y2 - Y1)
+      dX <- (X2 - X1)
+    
+      // 1 - Incrementos para las secciones con avance inclinado
+      if (dY >= 0)
+          IncYi <- 1
+      else
+          dY <- (-dY)
+          IncYi <- (-1)
+      endif
+    
+      if (dX >= 0)
+          IncXi <- 1
+      else
+          dX <- (-dX)
+          IncXi <- (-1)
+      endif
+    
+      // 2 - Incrementos para las secciones con avance recto:
+      if (dX >= dY)
+          IncYr <- 0
+          IncXr <- IncXi
+      else
+          IncXr <- 0
+          IncYr <- IncYi
+    
+          // Cuando dy es mayor que dx, se intercambian, para reutilizar el mismo bucle.
+          // ver octantes blancos en la imagen encima del código
+          k <- dX; dX <- dY; dY <- k
+      endif
+    
+      // 3  - Inicializar valores (y de error).
+      X <- X1; Y <- Y1
+      avR <- (2 * dY)
+      av <- (avR - dX)
+      avI <- (av - dX)
+    
+      // 4  - Bucle para el trazado de las línea.
+      do
+          at(X Y); write "█"
+        //  pixel(X Y Color) // Como mínimo se dibujará siempre 1 píxel (punto).
+//          Mensaje(av + " ") // (debug) para ver los valores de error global que van apareciendo.
+          if (av >= 0)
+              X <- (X + IncXi)     // X aumenta en inclinado.
+              Y <- (Y + IncYi)     // Y aumenta en inclinado.
+              av <- (av + avI)     // Avance Inclinado
+          else
+              X <- (X + IncXr)     // X aumenta en recto.
+              Y <- (Y + IncYr)     // Y aumenta en recto.
+              av <- (av + avR)     // Avance Recto
+          endif
+      until (X = X2) // NOTA: La condición de 'Repetir Hasta', se debe cambiar si se elige 'Repetir Mientras'
+  
+  end
+
+  DDAlinea(x1:number, y1:number,x2:number,y2:number):void
+   x, y, dx, dy, paso:=number
+   i, gm:=number
+  begin:
+   dx <- (x2 - x1)// + 1
+   dy <- (y2 - y1)// + 1
+   if (mth.abs(dx) >= mth.abs(dy))
+      paso <- mth.abs(dx)
+   else
+      paso <- mth.abs(dy)
+   endif
+   // incremento   
+   dx <- dx / paso
+   dy <- dy / paso
+//   x <- x1
+//   y <- y1
+   i <- 0
+   while(i <= paso)
+      at(x1 y1); write "█"
+//      putpixel(x, y, 5);
+      x1 <- x1 + dx
+      y1 <- y1 + dy
+      ++i //i <- i + 1
+  //    delay(100);
+   wend
+  end
+
+  
+  drawPoli(verticesx:^number, verticesy:^number,N:number):void
+    i:=number
+  begin:
+    for i <- 2 to N
+        .DDAlinea( [verticesx (i-1)] [verticesy (i-1)] [verticesx i] [verticesy i] )
+    next
+    .DDAlinea( [verticesx N] [verticesy N] [verticesx 1] [verticesy 1] )
+  end
+
+  poligono(N:number,cx:number,cy:number,radio:number):void
+    verticesx,verticesy:=^number
+    alfa,i:=number
+  begin:
+    alfa<- (2* 3.141592) / N
+    dim verticesx(N)
+    dim verticesy(N)
+    for i<- 1 to N
+       [verticesx i] <- (cx + radio * trg.cos( (i-1)*alfa ))
+       [verticesy i] <- (cy + radio * trg.sin( (i-1)*alfa ))
+    next
+    .drawPoli( verticesx verticesy  N )
+  end
+
+  precalculo():^number
+    tsencos:=^number
+    i,angulo:=number
+  begin:
+    dim tsencos(2,360)
+    for i<-1 to 360
+       angulo <- trg.d2r(i)
+       [.tsencos 1 i] <- trg.sin(angulo)
+       [.tsencos 2 i] <- trg.cos(angulo)
+    next
+    return tsencos
+  end
+
+  vdraw(vertices:^number):void
+    i:=number
+    N:=number
+  begin:
+    N<-[[@vertices] 2]
+    for i <- 2 to N
+        .DDAlinea( [.vertices (i-1) 1] [.vertices (i-1) 2] [.vertices i 1] [.vertices i 2] )
+    next
+    .DDAlinea( [.vertices N 1] [.vertices N 2] [.vertices 1 1] [.vertices 1 2] )
+  end
+
+  vpoligono(N:number,cx:number,cy:number,radio:number):^number
+    vertices:=^number
+    alfa,i:=number
+  begin:
+    alfa<- (2* 3.141592) / N
+    dim vertices(N,2)
+    for i<- 1 to N
+       [.vertices i 1] <- (cx + radio * trg.cos( (i-1)*alfa ))  // X
+       [.vertices i 2] <- (cy + radio * trg.sin( (i-1)*alfa ))  // Y
+    next
+    return vertices
+//    .drawPoli( verticesx verticesy  N )
+  end
+
+  rotacion(vertices:^number(ref),xc:number,yc:number,angulo:number):void
+    r:=^number
+    N,i,angSen,angCos:=number
+    fang,deltax,deltay:=number
+    
+  begin:
+    N<-[[@vertices] 2]
+    dim r(N,2)
+//       angulo <- (3.141592*angulo)/180.0
+//       angulo <- trg.d2r(angulo) //(3.141592*angulo)/180.0
+    fang<-1
+    if angulo<0
+       fang<-(-1)
+       angulo<-|angulo|
+    endif
+    angSen <- [.tsencos 1 angulo]*fang
+    angCos <- [.tsencos 2 angulo]
+    for i<-1 to N
+       [.r i 1] <- (xc + ( ([.vertices i 1]-xc)* angCos ) - &
+                          (([.vertices i 2]-yc)* angSen ) )
+       [.r i 2] <- (yc + ( ([.vertices i 1]-xc)* angSen ) + &
+                          (([.vertices i 2]-yc)* angCos ) )
+//       [.r 1 i] <- (xc + ( ([.vertices 1 i]-xc)*trg.cos(angulo)) - &
+//                          (([.vertices 2 i]-yc)*trg.sin(angulo)) )
+//       [.r 2 i] <- (yc + ( ([.vertices 1 i]-xc)*trg.sin(angulo)) + &
+//                          (([.vertices 2 i]-yc)*trg.cos(angulo)) )
+    next
+    vertices<-r
+  end
+
+  vparabola( xc:number, yc:number, p:number, bound:number, tipo:number):^number
+    x,y,d:=number
+    p2, p4:=number
+    parabx,paraby:=^number
+  begin:
+    p2 <- 2*p
+    p4 <- 2*p2
+    x <- 0
+    y <- 0
+    d <- 1 - p
+
+    //region 1
+    use parabx; drop
+    use paraby; drop
+    
+    while(y <= p and x<=bound)
+      if tipo=0  // quiero todo
+        use parabx
+        push {(xc+x),(xc+x)}
+        use paraby
+        push {(yc+y),(yc-y)}
+      elseif tipo=1  // solo quiero izquierda
+        use parabx
+        push (xc+x)
+        use paraby
+        push (yc-y)
+      else
+        use parabx
+        push (xc+x)
+        use paraby
+        push (yc+y)
+      endif
+//        
+//      at((xc+x) (yc+y)); ."█"
+//      at((xc+x) (yc-y)); ."█"
+      if(d >= 0)
+        ++x
+        d <- d - p2
+      endif
+      ++y
+      d <- d + 2*y +1
+    wend
+    if(d = 1) 
+      d <- 1 - p4
+    else 
+      d <- 1 - p2
+    endif
+
+   //region 2
+
+    while(x<=bound)
+      if tipo=0  // quiero todo
+        use parabx
+        push {(xc+x),(xc+x)}
+        use paraby
+        push {(yc+y),(yc-y)}
+      elseif tipo=1  // solo quiero izquierda
+        use parabx
+        push (xc+x)
+        use paraby
+        push (yc-y)
+      else
+        use parabx
+        push (xc+x)
+        use paraby
+        push (yc+y)
+      endif
+    
+//      at((xc+x) (yc+y)); ."█"
+//      at((xc+x) (yc-y)); ."█"
+      if(d <= 0)
+        ++y
+        d <- d + 4*y
+      endif
+      ++x
+      d <- d - p4
+    wend
+//    at(5 5); write "PARABX=",[@parabx]," PARABY=",[@paraby]
+//    pause
+    return [+| parabx paraby]
+  end
+
+
+  parabola( xc:number, yc:number, p:number, bound:number):void
+    x,y,d:=number
+    p2, p4:=number
+  begin:
+    p2 <- 2*p
+    p4 <- 2*p2
+    x <- 0
+    y <- 0
+    d <- 1 - p
+
+    //region 1
+
+    while(y <= p and x<=bound)
+//      .DDAlinea( (xc+x) (yc+y) (xc+x) (yc+y))
+//      .DDAlinea((xc+x) (yc-y) (xc+x) (yc-y))
+      at((xc+x) (yc+y)); ."█"
+      at((xc+x) (yc-y)); ."█"
+//      .linea( (xc+x) (yc+y) (xc+x) (yc+y))
+//      .linea((xc+x) (yc-y) (xc+x) (yc-y))
+      if(d >= 0)
+        ++x
+        d <- d - p2
+      endif
+      ++y
+      d <- d + 2*y +1
+    wend
+    if(d = 1) 
+      d <- 1 - p4
+    else 
+      d <- 1 - p2
+    endif
+
+   //region 2
+
+    while(x<=bound)
+      at((xc+x) (yc+y)); ."█"
+      at((xc+x) (yc-y)); ."█"
+//      .DDAlinea((xc+x) (yc+y) (xc+x) (yc+y))
+//      .DDAlinea((xc+x) (yc-y) (xc+x) (yc-y))
+//      .linea((xc+x) (yc+y) (xc+x) (yc+y))
+//      .linea((xc+x) (yc-y) (xc+x) (yc-y))
+      if(d <= 0)
+        ++y
+        d <- d + 4*y
+      endif
+      ++x
+      d <- d - p4
+    wend
+  end
+
+  elipse(xc:number, yc:number, rx:number, ry:number):void
+    x,y,rx2,ry2,p1,p2:=number
+  begin:
+    at( xc yc ); ."█"
+    x<-(-1)
+    y<-ry
+    rx2<-rx^2
+    ry2<-ry^2
+    p1<-ry2-(rx2*ry)+(0.25*rx2)
+    while ((ry2*x) <= (rx2*y))
+       if(p1<=0)
+          ++x
+          p1<-p1+(2*ry2*x)+ry2
+       else
+          ++x; --y
+          p1<-p1+(2*ry2*x)-(2*rx2*y)+ry2
+       endif
+       at((xc+x) (yc+y)); ."█"
+       at((xc-x) (yc+y)); ."█"
+       at((xc+x) (yc-y)); ."█"
+       at((xc-x) (yc-y)); ."█"
+    wend
+    p2<-(ry2)* ((x+0.5)^2) +(rx2) * ((y-1)^2) - (rx2*ry2)
+    while (y>=0)
+       if (p2>=0)
+          --y
+          p2<-p2-(2*rx2*y) +rx2
+       else
+          ++x; --y
+          p2<-p2+ (2*ry2*x)-(2*rx2*y)+rx2
+       endif
+       at((xc+x) (yc+y)); ."█"
+       at((xc-x) (yc+y)); ."█"
+       at((xc+x) (yc-y)); ."█"
+       at((xc-x) (yc-y)); ."█"
+    wend
+  end
+  
+  drawPoints(puntos:^number):void
+    i,gSize:=number
+  begin:
+     gSize<-[[@puntos] 2]  // numero de filas es numero de puntos
+     for i<-1 to gSize
+        at([.puntos i 1] [.puntos i 2]); ."█"
+     next
+  end
+
+vars:
+  xc,yc,r,i,c:=number
+  colores,tsencos:=^number
+  simbolo:=string
+  poli,poli2,tpoli,tpoli2:=^number
+  MaxX,MaxY,right,left:=number
+  xmin, ymin, xmax, ymax:=number
+  
+algorithm:
+  video(200 400)
+  xc<-25
+  yc<-50
+  r<-1
+
+  tsencos<-.precalculo()
+
+  color 14  
+  .circulo(xc yc 15 "█")
+  color 13
+  .linea(30 10 30 100)
+  .DDAlinea(32 10 32 100)
+  color 10
+  .linea(10 10 50 100)
+  .linea(50 120 5 3 )
+  color 14
+  .DDAlinea(20 10 3 150)
+  color(12)
+  .DDAlinea(8 20 100 35)
+  color(15)
+  .poligono(7 50 100 30)
+  color 13
+  .poligono(3 60 30 15)
+
+  color(15)
+  .elipse(50 250 20 80)
+  .elipse(150 260 30 20)
+  color 10
+  .parabola( 100  150 250 13)
+  poli<-.vparabola(50 150 80 20 0)
+  color 10
+  .drawPoints(poli)
+  sleep(1)
+  poli<-.vparabola(50 150 80 20 1)
+  color 12
+  .drawPoints(poli)
+  sleep(1)
+  poli<-.vparabola(50 150 80 20 2)
+  color 15
+  .drawPoints(poli)
+  sleep 1
+  poli<-.vparabola(50 150 80 20 0)
+  .rotacion(poli 60 150 180)
+  .drawPoints(poli)
+    
+  
+  poli2<- .vpoligono(3 60 30 15) 
+  poli<-  .vpoligono(7 50 100 25)
+  
+  tpoli<-poli
+  tpoli2<-poli2
+  
+  color(15)
+     at(1 1); write poli,"\n"
+  
+  flush()
+  c<-0
+//  colores<-^[15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
+//  i<-1
+  at(150 110); ." ▄▄▄    ▄   ▄   ▄  ▄▄▄▄  ▄▄▄▄ ▄▄▄▄   ▄▄▄  ▄▄▄▄   ▄▄▄▄  ▄▄▄  ▄   ▄  "
+  at(151 110); ."█▀ ▀█ ▄█▀█▄ █   █ █▀    █▀    █  ▀█ █▀  ▀ █  ▀█ █▀    █▀  ▀ █   █  "
+  at(152 110); ."█▄ ▄█ █   █ █   █ ▀█▄▄  ██▄▄  █▄▄█▀ █     █   █ ██▄▄  █ ▄▄  ██▄██  "
+  at(153 110); ."█▀▀▀  █▀▀▀█ █▄ ▄█    ▀█ █▀    █  ▀█ █     █   █ █▀    █  ▀█ █▀ ▀█  "
+  at(154 110); ."█     █   █ ▀███▀ ▄▄▄█▀ ▀█▄▄▄ █▄▄█▀ ▀█▄▄▀ █▄▄█▀ █     ▀█▄█▀ █   █  "
+
+  cursor 0
+  while true
+     readkey(c)
+     break, if c=27
+     at(3 1); color(14);write poli,"\n"
+     .rotacion(poli 50 100 5)
+     .rotacion(poli2 60 30 (-5))
+     at(6 1);color(10); write poli,"\n"
+
+     color(12)
+     .DDAlinea(8 20 100 35)
+     color(0)
+     .vdraw(tpoli)
+     .vdraw(tpoli2)
+     
+     color 10     
+     .vdraw(poli)
+     color 14  //(16-i)
+     .vdraw(poli2)
+     tpoli<-poli
+     tpoli2<-poli2
+     millisec(50)
+//     ++i
+//     i<-1,if i=16
+  wend
+
+  cursor 1
+//  sleep(5)
+  flush()  // estas dos lineas son necesarias para mantenerse en la ventana
+  pause    // una vez haya terminado el programa
+  
+  goodbye
+  colores<-^[15,15,14,14,12,12,4,4,4,5,5,1,1,8,8,15]
+  i<-0
+  while (++i)<=16
+     color([colores i])
+     if between(i 1 5)
+        simbolo<-"█"
+     elseif between(i 6 10)
+        simbolo<-"█" //chr(223)
+     elseif between(i 11 13)
+        simbolo<-"█"
+     else
+        simbolo<-"█"
+     endif
+     while (++r)<20
+       .circulo(xc yc r (simbolo*1))
+       if i=16
+         //millisec(130)
+         sleep(2)
+       elseif i<=5
+         //msleep(2000)
+         sleep(2)
+       elseif i<=7
+         //msleep(4500)
+         sleep(2)
+       endif
+       ++r
+     wend
+     r<-1
+  wend
+  pause
+stop
