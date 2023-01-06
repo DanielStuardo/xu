@@ -4,36 +4,54 @@
 ; si no sabe qué color puede usar, ejecute el programa "./xu colores" y obtendrá una secuencia de
 ; colores y su número. También puede llamarlo desde LAICA y ejecutarlo.
 ;
-; map=nombre,help,text,string,menu,cursor_mod,seccion,keyword,preprocesado,comentarios,linea destacada
+; map=nombre,help,text,string,menu,cursor_mod,seccion,keyword,preprocesado,comentarios,linea destacada,bordes,numbers
 ; si no quiere destacar la línea, ponga 0
 ;
-map=Africa Salvaje,14,6,10,87,100,11,14,12,1,10,87
-map=Arauco Domado,14,6,15,23,100,15,14,13,2,14,23
-map=Veracruz,14,6,11,23,100,11,3,9,2,10,23
-map=Carretera Austral,14,7,15,112,100,9,14,13,2,15,112
-map=Noche en La Antártida,14,7,14,112,100,15,3,13,8,11,112
-map=Noche en Arica,14,7,14,96,100,14,3,13,1,15,96
-map=Noche en Viña,14,7,14,23,100,9,3,13,2,15,23
-map=Noche en Mamalluca,14,6,14,87,100,9,13,7,5,15,87
-map=Valle de la Luna,14,6,7,96,100,9,14,13,1,14,96
-map=Bosque de Cucao,14,2,14,32,100,15,10,13,1,10,32
-map=Ralco,14,2,14,112,100,15,10,13,1,10,32
-map=Lago Llanquihue,14,3,15,112,100,10,11,9,5,14,23
-map=Playa de Cartagena,14,112,117,23,100,120,113,125,115,112,23
-map=Playa de La Serena,14,112,116,23,100,120,120,117,115,112,23
-map=Farellones,14,112,117,87,100,120,116,115,121,112,87
-map=Oceano Pacífico,14,23,30,112,100,31,27,29,18,31,112
-map=Oceano Atlántico,14,23,30,112,100,31,27,26,19,31,112
+;map=Africa Salvaje,14,6,10,87,79,11,14,12,1,0,87,12,6,6,6
+;map=Arauco Domado,14,6,15,23,79,15,14,13,2,0,23,12,6,6,6
+;map=Veracruz,14,6,7,23,79,11,3,9,1,0,23,2,4,13,10
+map=Carretera Austral,14,7,6,112,79,9,2,13,1,0,112,10,4,13,14
+map=Noche en La Antártida,14,3,6,112,79,15,7,13,1,0,112,6,9,9,9
+map=Noche en Arica,14,7,2,6,79,6,3,13,5,0,96,2,6,6,6
+map=Noche en Viña,14,7,6,23,79,9,3,13,2,0,23,6,12,9,10
+map=Noche en Mamalluca,14,6,14,87,79,9,13,95,1,0,87,14,4,3,11
+map=Valle de la Luna,14,6,14,2,79,2,3,86,5,0,96,14,2,2,2
+map=Bosque de Cucao,14,2,3,32,79,15,10,13,1,0,32,3,9,12,11
+map=Ralco,14,6,9,2,79,7,2,13,1,0,32,9,3,3,3
+map=Lago Llanquihue,14,3,12,112,79,10,11,9,5,0,23,12,13,13,13
+map=Playa de Cartagena,14,112,117,23,79,120,113,31,115,0,23,117,125,116,124
+map=Playa de La Serena,14,112,125,23,79,120,117,96,115,0,23,125,116,113,124
+map=Farellones,14,112,117,87,79,120,116,63,114,0,87,117,113,113,113
+map=Parque Conguillío,14,112,117,87,79,120,113,125,115,0,87,117,116,113,113
+map=Oceano Pacífico,14,23,30,112,79,31,22,37,18,0,112,30,27,27,26
+map=Oceano Atlántico,14,23,26,6,79,31,27,95,19,0,112,26,22,18,18
+map=Edicion hexadecimal,14,112,116,112,79,120,113,10,114,0,87,116,117,117,117
+;map=Amazing Hopper,14,112,117,87,79,113,112,116,114,0,96,115,112,112,112
+map=Amazing Hopper,14,87,94,96,79,95,82,125,80,0,79,94,91,91,91
+map=Black & White,14,112,116,2,79,120,113,95,114,0,7,116,117,117,117
+map=Flow Language,14,112,116,2,79,120,121,125,114,0,7,116,113,113,117
  ;
+; map=nombre,help,text,string,menu,cursor_mod,seccion,keyword,preprocesado,comentarios,linea destacada,bordes,numbers,strfunc,matfunc,logfunc
+; si no quiere destacar la línea, ponga 0
 
 ; Tabulación. Numero de espacios a agregar
-tab=5
+tab=6
 
 ; AvPag y RePag. Si se omite, por defecto su valor es el total de líneas de la ventana.
 ; pag=20
 
 ; desplazamiento ALT-flecha derecha y ALT-flecha izquierda a lo largo de una linea.
 ctrl_lz=10
+
+; terminal.
+; Cuando se invoca LAICA sin la opción "-noterm", se abre una ventana nueva para la ejecución.
+; Se debe escribir la linea de invocacion del terminal, especificando al final la opcion para 
+; añadir el comando a ejecutar, cosa que es añadida por LAICA.
+; Aquí debe configurar el terminal que usted desee, o que su sistema permita:
+
+;terminal=gnome-terminal --geometry=120x30 -- bash -c
+terminal=xfce4-terminal --window --hide-menubar --fullscreen --command 
+
 
 
 ; Puede añadir su compilador favorito aquí, agregando las líneas según lo expresado
@@ -53,26 +71,67 @@ ctrl_lz=10
 ; e = es ejecutable
 ; ne = es un script.
 ; esto último es importante: si no especifica "e" o "ne", o si lo especifica mal, su programa no ejecutará.
+com=ne,hopper3 %path%%name%.com  %params%, <none>, (.com) HOPPER EXECUTE,//,/*,*/
+com=ne,hopper3 %path%%name%.com  %params% -ne, <none>, (.com) HOPPER SOLO ANALISIS,//,/*,*/
+com=ne,hopper3 %path%%name%.com  %params% -p -ne, <none>, (.com) HOPPER PREPROCESO,//,/*,*/
+com=ne,hopper3 %path%%name%.com  %params% -d, <none>, (.com) HOPPER DEBUG,//,/*,*/
+com=ne,hopper3 %path%%name%.com  %params% -x, <none>, (.com) HOPPER GEN BINARY,//,/*,*/
 
-xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, xu -s %name% %params%, XU - Ejecutable FUENTE,//
-xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, <none>, XU - Compilación FUENTE,//
-xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, xu %path%%name% %params%, XU - Ejecutable con path,//
-xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, <none>, XU - Compilación con path,//
-xu=e,xuc %name%.xu -s -m -v -wret -sys,<none>, XU - Información de debugueo de programa,//
-xu=e,xuc %name%.xu -s -l -wret -sys,<none>, XU - Librería (.lib),//
-def=ne,<none>,<none>, XU - header.,//
+bas=ne,hopper3 %path%%name%.bas  %params%, <none>, (.bas) H-BASIC EXECUTE,//,/*,*/
+bas=ne,hopper3 %path%%name%.bas  %params% -ne, <none>, (.bas) H-BASIC SOLO ANALISIS,//,/*,*/
+bas=ne,hopper3 %path%%name%.bas  %params% -p -ne, <none>, (.bas) H-BASIC PREPROCESO,//,/*,*/
+bas=ne,hopper3 %path%%name%.bas  %params% -d, <none>, (.bas) H-BASIC DEBUG,//,/*,*/
+bas=ne,hopper3 %path%%name%.bas  %params% -x -o bin/out, <none>, (.bas) H-BASIC GEN BINARY,//,/*,*/
+
+flw=ne,hopper3 %path%%name%.flw  %params%, <none>, (.flw) FLOW EXECUTE,//,/*,*/
+flw=ne,hopper3 %path%%name%.flw  %params% -ne, <none>, (.flw) FLOW SOLO ANALISIS,//,/*,*/
+flw=ne,hopper3 %path%%name%.flw  %params% -p -ne, <none>, (.flw) FLOW PREPROCESO,//,/*,*/
+flw=ne,hopper3 %path%%name%.flw  %params% -d, <none>, (.flw) FLOW DEBUG,//,/*,*/
+flw=ne,hopper3 %path%%name%.flw  %params% -x -o bin/out, <none>, (.flw) FLOW GEN BINARY,//,/*,*/
+
+jambo=ne,hopper3 %path%%name%.jambo  %params%, <none>, (.jambo) JAMBO EXECUTE,//,/*,*/
+jambo=ne,hopper3 %path%%name%.jambo  %params% -ne, <none>, (.jambo) JAMBO SOLO ANALISIS,//,/*,*/
+jambo=ne,hopper3 %path%%name%.jambo  %params% -p -ne, <none>, (.jambo) JAMBO PREPROCESO,//,/*,*/
+jambo=ne,hopper3 %path%%name%.jambo  %params% -d, <none>, (.jambo) JAMBO DEBUG,//,/*,*/
+jambo=ne,hopper3 %path%%name%.jambo  %params% -x -o bin/%name%, <none>, (.jambo) JAMBO GEN BINARY,//,/*,*/
+
+hopper=ne,hopper3 %path%%name%.hopper %params%, <none>, (.hopper) HOPPER EXECUTE,//,/*,*/
+hopper=ne,hopper3 %path%%name%.hopper %params% -ne, <none>, (.hopper) HOPPER SOLO ANALISIS,//,/*,*/
+hopper=ne,hopper3 %path%%name%.hopper %params% -p -ne, <none>, (.hopper) HOPPER PREPROCESO,//,/*,*/
+hopper=ne,hopper3 %path%%name%.hopper %params% -d, <none>, (.hopper) HOPPER DEBUG,//,/*,*/
+hopper=ne,hopper3 %path%%name%.hopper %params% -x, <none>, (.hopper) HOPPER GEN BINARY,//,/*,*/
+
+hop=ne,hopper3 %path%%name%.hop  %params%, <none>, (.hop) HOPPER EXECUTE,//,/*,*/
+hop=ne,hopper3 %path%%name%.hop  %params%, <none>, (.hop) HOPPER SOLO ANALISIS,//,/*,*/
+hop=ne,hopper3 %path%%name%.hop  %params% -p -ne, <none>, (.hop) HOPPER PREPROCESO,//,/*,*/
+hop=ne,hopper3 %path%%name%.hop  %params% -d, <none>, (.hop) HOPPER DEBUG,//,/*,*/
+hop=ne,hopper3 %path%%name%.hop  %params% -x, <none>, (.hop) HOPPER GEN BINARY,//,/*,*/
+
+;com=ne,hopper3 %name%.com -p, <none>, HOPPER exe,//,/*,*/
+
+xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, xu -s %name% %params%, XU - Ejecutable FUENTE,//,/*,*/
+xu=e,xuc %name%.xu -s -x -m -v -wret -p -sys, <none>, XU - Compilación FUENTE,//,/*,*/
+xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, xu %path%%name% %params%, XU - Ejecutable con path,//,/*,*/
+xu=e,xuc %path%%name%.xu -x -m -v -wret -p -sys, <none>, XU - Compilación con path,//,/*,*/
+xu=e,xuc %name%.xu -s -m -v -wret -sys,<none>, XU - Información de debugueo de programa,//,/*,*/
+xu=e,xuc %name%.xu -s -l -wret -sys,<none>, XU - Librería (.lib),//,/*,*/
+def=ne,<none>,<none>, XU - header.,//,/*,*/
+
+jl=ne,julia %path%%name%.jl %params%,<none>,JULIA SCRIPT,#
 
 ; compilador y ejecucion de programa ANSI C simple
-c=e,gcc %path%%name%.c -o %path%%name%, %path%./%name% %params%, GCC - Ejecutable con path,//
-c=e,gcc %name%.c -o %name%, ./%name% %params%, GCC - Ejecutable,//
-c=e,gcc %path%%name%.c -o %path%%name%, valgrind %path%./%name% %params%, GCC - Valgrind,//
-c=e,gcc %path%%name%.c -o %path%%name%, valgrind --leak-check=full %path%./%name% %params%, GCC - Valgrind Mem Leaks,//
-h=ne,<none>,<none>, GCC - Header.,//
+c=e,gcc %path%%name%.c -o %path%%name% -lm, %path%./%name% %params%, GCC - Ejecutable con path,//,/*,*/
+c=e,./ccpre.sh %name%, %path%./%name% %params%, GCC - Ejecutable con GADGET,//,/*,*/
+c=e,./ccpre.sh %name% . -c, <none>, GCC - Ejecutable con GADGET con VALGRIND,//,/*,*/
+c=e,gcc %name%.c -o %name% -lm, ./%name% %params%, GCC - Ejecutable,//,/*,*/
+c=e,gcc %path%%name%.c -o %path%%name% -lm, valgrind %path%./%name% %params%, GCC - Valgrind,//,/*,*/
+c=e,gcc %path%%name%.c -o %path%%name% -lm, valgrind --leak-check=full %path%./%name% %params%, GCC - Valgrind Mem Leaks,//,/*,*/
+h=ne,<none>,<none>, GCC - Header.,//,/*,*/
 
 ; compilador C++
-cpp=e,g++ %path%%name%.cpp -o %path%%name%, %path%./%name% %params%, C++ - Ejecutable con path,//
-cpp=e,g++ %name%.cpp -o %name%, ./%name% %params%, C++ - Ejecutable,//
-h=ne,<none>,<none>, C++ - Header.,//
+cpp=e,g++ %path%%name%.cpp -o %path%%name%, %path%./%name% %params%, C++ - Ejecutable con path,//,/*,*/
+cpp=e,g++ %name%.cpp -o %name%, ./%name% %params%, C++ - Ejecutable,//,/*,*/
+h=ne,<none>,<none>, C++ - Header.,//,/*,*/
 
 ; ***** AGREGUE SUS LINEAS DE COMPILACION DESDE AQUI *****
 ; Para hacer compilaciones complejas, declare la herramienta adecuada. Por ejemplo,
@@ -81,20 +140,22 @@ h=ne,<none>,<none>, C++ - Header.,//
 ; Matlab. Es complejo. hay que setearlo con cuidado y depende de donde esta instalado, y de la
 ; version del lenguaje. En este caso, se puede usar un batch que ejecute, por todas las variables
 ; de entorno que esta hueá usa. Es un cacho. Mejor use "C" y librerías Blas y Openmp.
-m=ne,matlab -nodisplay -r "%name%(); quit",<none>,MATLAB - Script,%
-m=ne,matlab -nodisplay -r "%path%%name%.m",<none>,MATLAB - Script con path,%
-m=ne,matlab -nodisplay -r "%name%(%params%); quit",<none>,MATLAB - Params,%
+; en mi pc, el path es /usr/local/MATLAB/R2017a/bin/matlab
+;m=ne,/usr/local/MATLAB/R2018a/bin/matlab -nodisplay -nojvm -r "oldF=cd('%path%'); correArimSP();quit",<none>,MATLAB - Script Arim,%
+m=ne,/usr/local/MATLAB/R2018a/bin/matlab -nodisplay -r "oldF=cd('%path%'); %name%(%params%); cd(oldF); quit",<none>,MATLAB - Script,%
+m=ne,/usr/local/MATLAB/R2018a/bin/matlab -nodisplay -nojvm -r "%path%%name%.m",<none>,MATLAB - Script con path,%
+;m=ne,/usr/local/MATLAB/R2018a/bin/matlab -nodisplay -nojvm -r "%name%(%params%); quit",<none>,MATLAB - Params,%
 
 ;
 ; HARBOUR
 ;/opt/harbour/bin/hbmk2  -lhbct -lhbmisc -blinker -nodebug  -D_MAC64_ -static xuc
-prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR MAC- Ejecutable simple,//
-prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR MAC- Ejecutable CT.LIB,//
-prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR MAC- ED4XU,//
-prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR LINUX- Ejecutable simple,//
-prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR LINUX- Ejecutable CT.LIB,//
-prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR LINUX- ED4XU,//
-ch=ne,<none>,<none>, HARBOUR - header.,//
+prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR MAC- Ejecutable simple,//,/*,*/
+prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR MAC- Ejecutable CT.LIB,//,/*,*/
+prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR MAC- ED4XU,//,/*,*/
+prg=e,hbmk2 -static %name%, ./%name% %params%, HARBOUR LINUX- Ejecutable simple,//,/*,*/
+prg=e,hbmk2 -lhbct -static %name%, ./%name% %params%,HARBOUR LINUX- Ejecutable CT.LIB,//,/*,*/
+prg=e,hbmk2 -lhbct -static %name%,<none>,HARBOUR LINUX- ED4XU,//,/*,*/
+ch=ne,<none>,<none>, HARBOUR - header.,//,/*,*/
 
 ; Python
 py=ne,python3 %path%%name%.py %params%,<none>,PYTHON - script con path,#
@@ -126,9 +187,229 @@ end_compiler_definition
 
 ;txt
 colours=txt
-preproc=1,2,3,4
-sections=X
-keywords=1,2,3,4,5,6,7,8,9,10,11,12,13,&,%
+preproc=1
+sections=2
+keywords=3
+keywords=\
+
+colours=flw,h
+preprocs=#include,#define-a,#define,#defn,#proto,#synon,#synonymous,#prototype,#context-free,#context,#!/usr/bin/hopper
+preprocs=#import,#compute,#fx,#hl,#high-level,#enum,<flow.h>,<flow-flow.h>,<flow-term.h>,<flow-regexp.h>
+
+sections=DEF-FUN,DEF-MAIN,RETURN,RET,END,RUTINES,PROCEDURES,PROCS,FUNCTIONS,FUNCS,ENDMAIN
+
+// instructions
+;strfuncs=CPY,MOV,COPY-TO,MOVE-TO,NL,MEM,VAR,DUP,RETAIN,FORGET-ALL,FORGET,CLR-MARK,CLR-RANGE,CLR-INTERVAL,CLR-ALL-MARKS,MCLEAR,CLEAR
+strfuncs=INCL,EXCL,NL
+;,TRUE,FALSE,SYS,VOID,SET-ENV,PUT-PAG,ODD-ROWS-COLS,ODD-ROWS-EVEN-COLS,EVEN-ROWS-COLS,EVEN-ROWS-ODD-COLS
+;strfuncs=ODD-ROWS,ODD-COLS,ODD-POS,ODD-PAGS,EVEN-ROWS,EVEN-COLS,EVEN-POS,EVEN-PAGS,MPUSH,PUSH
+;strfuncs=PRNL,PRN,PRN-TABLE,PRNF,LOCATE,LOC-ROW,LOC-COL
+;strfuncs=DIM,AS-NAN,AS-ZEROS,AS-ONES,AS-EYES,AS-RAND,AS-ALPHA,AS-FILL,AS-INT-RAND 
+
+;MSET,SET,MSTOR,LET,STOR
+
+// functions
+logfuncs=IS-EQ?,IS-LE?,IS-GT?,IS-GE?,IS-LT?,IS-NOT-EQ?,IS-NOT-NULL?
+logfuncs=IS-INF?,IS-NAN?,IS-ODD?,IS-ZERO?,IS-NULL?,IS-POS?,IS-NEG?,IS-ARRAY?,IS-NUMERIC?,IS-STRING?,IS-ENV-VAR?,IS-ANY?
+logfuncs=IS-BETWEEN?,IS-ALL?,IS-EMPTY?,IS-FILE-ERROR?,IS-MEM-BUSY?,IS-MEM-EMPTY?,KEY-PRESSED?,IS-CHAR?,IS-ALL-TYPE?,WHERE-NOT?
+logfuncs=EXACT-OCC?,OCCURS?,NOT-EQ-ARR?,EQ-ARR?,NOT-EQ?,EQ?,LE?,LT?,GT?,GE?
+logfuncs=IS-LEAP-YEAR?,IS-TIME-VALID?,IS-DATE-VALID?,(,)
+
+
+;,NOT,NAND,NOR,XOR,AND,OR
+;logfuncs=DATE-ADD,DATE-DIFF,ELAP-TIME,IS-LEAP-YEAR?,IS-TIME-VALID?,IS-DATE-VALID?,IS-LEAP-YEAR?,IS-TIME-VALID?,IS-DATE-VALID?
+;logfuncs=DATE-TIME-STR,DATE-NOW-STR,TIME-NOW-STR,MONTH-STR,DAYS-MONTH,DAY-WEEK,DAY-YEAR,DAY-STR,DAY,WEEK,MONTH,YEAR,HOUR,MINUTE,SECOND
+;logfuncs=SECS-FROM-MIDNIGHT,SQR-DIFF-TO,SQR-ADD-TO,EUCL-DIST-TO,MULTIPLY-ALL-TO,ADD-ALL-TO,MULTIPLY-ALL,ADD-ALL,ADD,SUB,MUL,INT-DIV
+;logfuncs=DIV,MOD,POW,ROUND,GCD,LCM,ADDED-TO,SUBTRACTED-FROM,MULTIPLIES,INT-DIVIDES,DIVIDES,MODULUS-OF,POWER-OF,ROUNDS-TO
+;logfuncs=PLUS,MINUS,MUL-BY,DIV-INTO,INT-DIV-INTO,MODULE,POW-BY,ROUND-BY,TIMES,SET-ROUND,MINUS-ONE,MINUS-TWO,PLUS-ONE,PLUS-TWO,++,--
+;logfuncs=SRAND,SQRT,CBRT,CEIL,FLOOR,TRUNC,LEN-INT,INT,SGN,SCI-FORMAT,FACT,ABS,EXP2,EXP10,EXP,LOG2,LOG10,LOG,RAND,INV-SQR,INV-CUB 
+;logfuncs=INV-QUA,INV,SQR,CUB,QUA,A-HALF,A-THIRD,A-QUARTER,RADIAN,DEGREE,ACOSH,ASINH,ATANH,ACOS,ASIN,ATAN,COSH,SINH,TANH,COS,SIN,TAN
+;logfuncs=TOK-SEP,TOK-INIT,TOK-COUNT,TOK-GET,TOK-REPL,TOK-DEL,TOK-SWAP,GET-SEP,TOK,REPLICATE,REPLY-BY,MCAT,CAT,+,CUT-RIGHT,CUT-BTWN,CUT
+;logfuncs=BASE-NAME,FULL-PATH,JOIN-TO,JOIN,UCAS,LCAS,HEX,BIN,OCT,BIN-SIZE,UTF8-TO-STR,STR-TO-UTF8,TRM-RIGHT,TRM-LEFT,TRM
+;logfuncs=PAD-CENTER,PAD-LEFT,PAD-RIGHT,TYPE,MID,RIGHT,LEFT,SEGMNT,FND-FIRST,FND-LAST,FND-AT,FND,CNT-AT,MULTIPASS-ON,MULTIPASS-OFF
+;logfuncs=TRAN-FIRST,TRAN-LAST,TRAN-TO,TRAN-TO-ALL,TRAN-FROM-TO,TRAN,REPL-CHR-LEFT,REPL-CHR-RIGHT,REPL-CHR,REPL,INS,DEL-CHAR,DEL
+;logfuncs=UNIQ-CHR,ONLY-CHR,ROT-STR-LEFT,ROT-STR-RIGHT,POS-CHR-LEFT,POS-CHR-RIGHT,REVER-STR,MASK,MONEY,FORMAT,LEN,CHAR,ASCII,STR,VAL,BOOL
+;logfuncs=HTML-NORM,HTML-VOID,UNPARS,ARGV,REG-COMP,REG-VALID,REG-MATCH,STR-ERROR,GET-ENV,UNSET-ENV,EXEC,APND-LST
+;logfuncs=APND-ROW,MPUSH,PUSH,QPOP,POP,HEAD,TAIL,LOOK,NOT-EMPTY,EMPTY,LENGTH,GET-ROW,GET-COL,CAT-ROWS,CAT-COLS,GET-PAG
+;logfuncs=S-CGET,S-GET,CGET,GET,ADIMS,AROWS,ACOLS,APAGS,
+
+
+// flows
+matfuncs=GET-SQR-ADD
+matfuncs=REL-LESS-EQUAL?,REL-LESS?,REL-GREAT-EQUAL?,REL-GREAT?,REL-NOT-EQUAL?,REL-EQUAL?,REL-NOT-EQUAL-ARR?,REL-EQUAL-ARR?     
+matfuncs=ADD-IT,SUB-IT,MUL-IT,INT-DIV-IT,DIV-IT,APPLY-MOD,APPLY-POW,APPLY-ROUND,COMP-GCD,COMP-LCM
+matfuncs=THIS-INF?,THIS-NAN?,THIS-ODD?,THIS-ZERO?,THIS-NOT-NULL?,THIS-NULL?,THIS-POS?,THIS-NEG?,THIS-ARRAY?,THIS-NUMERIC?,THIS-STRING?,THIS-ENV-VAR?
+
+matfuncs=GET-SQR-DIFF,GET-SQR-ADD,GET-EUCL-DIST,PUT-SRAND,GET-SQRT,GET-CBRT,GET-CEIL,GET-FLOOR,GET-TRUNC
+matfuncs=GET-LEN-INT,GET-INT,GET-SGN,GET-SCI-FORMAT,COMP-FACT,GET-ABS,GET-EXP2,GET-EXP10,GET-EXP,GET-LOG2,GET-LOG10,GET-LOG,GET-RAND
+matfuncs=GET-INV-SQR,GET-INV-CUB,GET-INV-QUA,GET-INV,GET-SQR,GET-CUB,GET-QUA,GET-A-HALF,GET-A-THIRD,GET-A-QUARTER,GET-RADIAN
+matfuncs=GET-DEGREE,GET-ACOSH,GET-ASINH,GET-ATANH,GET-ACOS,GET-ASIN,GET-ATAN,GET-COSH,GET-SINH,GET-TANH,GET-COS,GET-SIN,GET-TAN
+matfuncs=GET-RADIAN,GET-DEGREE,GET-ACOSH,GET-ASINH,GET-ATANH,GET-ACOS,GET-ASIN,GET-ATAN,GET-COSH,GET-SINH,GET-TANH,GET-COS,GET-SIN
+matfuncs=GET-TAN,GET-LEN,GET-CHR,GET-ASCII,CONV-TO-STR,CONV-TO-VAL,CONV-TO-BOOL,APPLY-PAD-CENTER,APPLY-PAD-LEFT,APPLY-PAD-RIGHT,GET-TYPE,GET-UCAS
+matfuncs=GET-LCAS,GET-HEX,GET-BIN,GET-OCT,GET-STR,GET-UTF8,APPLY-TRM-RIGHT,APPLY-TRM-LEFT,APPLY-TRM,APPLY-CAT
+matfuncs=EXEC-IT,CALL-SYS,GET-LENGTH,CONCAT-IT,SORT-IT,DISTR-IT,GET-MAX-VALUE,GET-MIN-VALUE,GET-MAX-POS,GET-MIN-POS
+matfuncs=APPLY-AND-BIT,APPLY-XOR-BIT,APPLY-OR-BIT,APPLY-NOT-BIT,CLR-BIT,SET-BIT,HEX-TO-DEC,OCT-TO-DEC,BIN-TO-DEC
+matfuncs=GET-UNION,GET-INTERSECT,GET-SIM-DIFF,GET-DIFFERENCE,DISJOINT?,SUBSET?,SUPERSET?
+matfuncs=GET-SUMMATORY,GET-MULTIPLICATORY,GET-GEO-MEAN,GET-HAR-MEAN,GET-MEAN,GET-STURG-CLASS,GET-BIN-CLASS,GET-CLASS,GET-ADD-SUB-SUCC
+matfuncs=GET-SUB-ADD-SUCC,GET-SUM-COL,GET-SUM-ROW,GET-MUL-COL,GET-MUL-ROW,GET-STR-ERROR,GET-STR-FILE-ERROR
+matfuncs=SET-INVERSE-OFF,SET-INVERSE,SET-BOLD-OFF,SET-BOLD,SET-ITALIC-OFF,SET-ITALIC,SET-UNDER-LINE-OFF,SET-UNDER-LINE
+
+// control structures
+keywords=DO,CALL,ITERATE,FOR,WHILE,NEXT,WEND,LOOP,PERF-UP,PERF-DOWN,PERF-EACH-TKN,PERF-EACH-CHR,BACK-IF,BACK,FOR-ALL
+keywords=BACK-IF-POS,BACK-IF-NEG,BACK-IF-NOT-ZERO,BACK-IF-ZERO,BACK-IF-NOT-NULL,BACK-IF-NULL,BACK-IF-LE,BACK-IF-LT,BACK-IF-GT
+keywords=BACK-IF-GE,BACK-IF-EQ,BACK-IF-NOT-EQ,BACK-IF-EQ,BACK-IF-NOT,ON-GOTO,ON-GOSUB,ON-OPTION
+keywords=WHEN,{,},[,],GOTO,JUMP-TO,GOSUB,BREAK-IF,BREAK,CONTINUE,THEN-JUMP,THEN-GOSUB,THEN-GOTO
+keywords=PERFORM,COND,ELS-COND,ELS,CEND,TRY,RAISE,CATCH,FREE-TRY,FINISH,SELECT,CASE,BETW,EXACT-OCC,OCCURS,ON-LST,EXIT,SELEND
+keywords=BREAK-ON,STACK,IS-NOT-ZERO,IS-ZERO,IS-FALSE,IS-TRUE,IS-NOT-NULL,IS-NULL,IS-NEG,IS-POS,IS-INF,IS-NAN,HAVE-NAN,IS-ENTER
+keywords=IS-ESCAPE,IS-EMPTY,IF,%
+keywords=JUMP-IF-POS,GOTO-IF-POS,JUMP-IF-NEG,GOTO-IF-NEG,JUMP-IF-NOT-ZERO,GOTO-IF-NOT-ZERO,JUMP-IF-ZERO,GOTO-IF-ZERO
+keywords=JUMP-IF-NOT-NULL,GOTO-IF-NOT-NULL,JUMP-IF-NULL,GOTO-IF-NULL,JUMP-IF-LE,GOTO-IF-LE,JUMP-IF-LT,GOTO-IF-LT,JUMP-IF-GT,GOTO-IF-GT
+keywords=JUMP-IF-GE,GOTO-IF-GE,JUMP-IF-EQ,GOTO-IF-EQ,JUMP-IF-NOT-EQ,GOTO-IF-NOT-EQ,JUMP-IF-NOT,GOTO-IF-NOT,JUMP-IF,GOTO-IF                  
+keywords=\
+
+colours=bas,h
+preprocs=#include,#define-a,#define,#defn,#proto,#synon,#synonymous,#prototype,#context-free,#context,#!/usr/bin/hopper
+preprocs=#import,#compute,#fx,#hl,#high-level,#enum,<hbasic.h>,<hopper.h>,<pivot.h>
+sections=Begin,End,Subrutines,Option,While,Repeat,Until,When,Next,Wend,Try,Raise,Catch,Finish,Pivot,Flush
+sections=If,Else,For,For Up,For Down,For,Iterator,For Each,Do Case,End Do,Return,Exit
+sections=Break,Continue,For Each Tkn,For Each Line,For Each Chr,Iif,Get If,Move If,For All,Stop
+sections=If Key,If Key Up,If Key Down,If Key Forward,If Key Back,If Key Escape,If Key Pressed,If Key Supr,If Key Bksp
+sections=If Key Enter,If Key Tab,If CtrlC
+sections=If Negative?,If Positive?,If False?,If True?,If String Not Void?,If String Void?,If Not File Error?
+sections=If File Error?,If Inf?,If NaN?,If Not Inf?,If Not NaN?,If Zero?,If Not Zero?,If Array?,If Not Array?      
+sections=If Any Nan?,If Not Any NaN,If Mem Busy?,If Not Mem Busy?,If Mem Empty?,If Not Mem Empty?,If Empty?
+sections=Until False,Until Not Zero,Until Zero,Until Positive,Until Negative,Until String Void,Until String Not Void
+sections=Until Inf,Until Not Inf,Until Not NaN,Until NaN,Until Escape,Until Break,Until Key Pressed,Until Eof,Exit If
+sections=On Goto,On Gosub,On Option,Goto,Gosub,Back
+sections=While False,While Not Zero,While Zero,While Positive,While Negative,While String Void,While String Not Void 
+sections=While Inf,While Not Inf,While NaN,While Not NaN,While Not Escape,While Not Break,While Not Key Pressed,While Not Eof
+sections=#RAND,#RNDV,#LOOP,#ENDLOOP,##ENDLOOP,%LOOP,%ENDLOOP,%%ENDLOOP,%%LOOP,#CATCH,#ENDCATCH,%CATCH,%ENDCATCH,##CODEMRK
+sections=##ENDIF,#ENDIF,#ENDIIF,%ENDIF,%ENDIIF,##CODEIF,%CODEIF,%%CODEIF,#GENCODE,#ENDGEN,#LIST,#REVLIST,#ITV,#HERE,%%MARK,%MARK
+sections=#FATOM,#ATOM#CMPLX,#ATOM,#CMPLX,#IF,#ELSE,#EIF,#OPTIMLOG,#RNDV,##CODESW,%%CODESW,%CODESW,#VOID,#ATCMLIST,%RAND
+sections=Dim,Declare as,Dec as,as Numeric,as Alpha,as True,as False,as Stack,as Void Array,as NaN Array,as Zeros Array
+sections=as Ones Array,as Eyes Array,as Rand Array,as Int Rnd Array,Ctrl+C,Stack,Declare,as Record,as RecordLP,for a Fill Array
+sections=as Variant
+
+; strings
+strfuncs=ReadLine$,ReadStr$,WriteLine$,WriteStr$,ReadLinesFromPos$,GetSLine$,String File Error$,Modify$,SaveString$,LoadString$
+strfuncs=LoadStr$,SaveStr$,GetLine$,DateAdd$,ElapTime$,DateTime$,DateNow$,TimeNow$,Month$,Day$,Commit$,Utf8$
+strfuncs=Upper$,Lower$,Hex$,Bin$,Octal$,Utf82Str$,Str2Utf8$,Rtrim$,LTrim$,Trim$,CPad$,LPad$,RPad$,Type$,Replicate$
+strfuncs=MCat$,Cat$,RCut$,Cut$,BtwnCut$,DelFront$,DelBack$,BaseName$,FullPath$,Mid$,TranFirst$,TranLast$,Tranto$
+strfuncs=TranToAll$,TranFromTo$,Tran$,LReplChar$,RReplChar$,ReplChar$,Repl$,Ins$,DelChar$,Del$,UniqueChar$,OnlyChar$
+strfuncs=LRot$,RRot$,LPosChar$,RPosChar$,Rever$,Join$,SJoin$,Mask$,Money$,Format$,ChrUtf8$,Chr$,Str$,TokenSep$,GetChar$
+strfuncs=Month$,Day$,StringLP$,String$,Replyby,Reply by,Separator$,Token Separator$,Token$
+strfuncs=ParsNormal$,ParsOnly$,UnPars$,Right$,Left$,UCase$,LCase$
+
+; logicas
+logfuncs=And,Or,Xor,Nand,Nor,lAnd,lOr,iAnd,iOr,Not,Le,Lt,Ge,Gt,Eq,Neq,EqArray,NeqArray,end,?
+logfuncs=Aproach,Inf,NaN,Odd,Zero,StringVoid,String Void,Positive,Negative,Array,Numeric,String,ExistFile
+logfuncs=Exist File,EnvVar,ExactOccursIt,Exact Occurs It,OccursIt,Occurs It,Any,All?,Empty,Char
+logfuncs=AllType,All Type,WhereNot,Where Not,LeapYear,Leap Year,DateValid,Date Valid,TimeValid
+logfuncs=Time Valid,Escape,Enter,Is,Are
+
+; bits
+matfuncs=Bit,AndBit,OrBit,XorBit,NotBit,ClrBit,MirrByte,RotBit
+matfuncs=RShift,LShift,Hex2Dec,Oct2Dec,Bin2Dec
+
+; dejar funciones en una sola palabra, y defines con palabras separadas.
+; estadisticas
+matfuncs=Summatory,Sum All,Multiplicatory,Multiply All,GeoMean,Geometric Mean,HarMean,Harmonic Mean,Mean,SturgClass,
+matfuncs=Sturges Class,BinClass,Bin Class,AddSubSucc,SubAddSucc,SumCol,Sum Columns,SumCols,SumRow,Sum Rows,MulCol
+matfuncs=Multiply Columns,Multiply Cols,MulRow,Multiply Rows
+
+; conjuntos
+matfuncs=Set,Union,Intersect,SimDiff,Diff,Disjoint,SubSet,SuperSet
+
+; proveedoras matematicas:
+matfuncs=Seed,Length,LinSpaced,Sequence,CLamp,MaxValue,MinValue,MaxPos,MinPos,FindFirst,FindLast,FindAt,Find,CountAt
+matfuncs=Len,Asc,CountLin,Val,GetCh,GetSLinePos,GetSPosLine,SizeFile,Size File,Month,Day,Year,Days Month,Day Week,Day Year
+matfuncs=Day,Week,Hour,Minute,Second,NumberLP,Number,TotalTokens,Seconds From Midnight,Secs From Midnight
+
+; basicas
+matfuncs=Add,Mul,Sub,IntDiv,Int Div,iDiv,Mod,Pow,Round,GCD,LCM
+
+matfuncs=AddIt,Add It,SubIt,Sub It,SubstractIt,Substract It,MulIt,Mul It,MultiplyIt,Multiply It,
+matfuncs=DivIt,Div It,DivideIt,Divide It,iDivIt,iDiv It,iDivideIt,iDivide It,IntDivIt,Int Div It,IntDivideIt,Int Divide It
+matfuncs=PowIt,Pow It,PowerIt,Power It,RountIt,Rount It
+
+matfuncs=Addedto,Added to,Subtractedfrom,Subtracted from,Multiplies,Divides,IntDivides,Int Divides,iDivides,Modulusof
+matfuncs=Modulus of,Powerof,Power of,Roundsto,Rounds to
+matfuncs=Plus,Minus,Mulby,Mul by,Divby,Div by,IntDivby,Int Div by,iDivby,iDiv by,Module,Powby,Pow by,Poweredby,Powered by
+matfuncs=Roundby,Round by,Times,Precision,Decimal
+
+; funciones matematicas:
+matfuncs=Ceil,Floor,Trunc,LenInt,Len Int,Int,Sign,Cbrt,Sqrt,Sci,Fact,Abs,Exp2,Exp10,Exp,Log2,Log10,Log,Rand
+matfuncs=InvSqr,InvCub,InvQua,Inv,Sqr,Cub,Qua,a Half,a Third,a Quarter,SqrDiff,SqrAdd,Hypot,
+
+; funciones trigonometricas:
+matfuncs=Radian,Degree,ArcCosh,ArcSinh,ArcTanh,ArcCos,ArcSin,ArcTan,Cosh,Sinh,Tanh,Cos,Sin,Tan
+
+; comunes
+keywords={,},[,],<,>,=,;,~,+,-,*,/,\,^,&,%,!,:,(,)
+keywords=Get,SGet,Put,SPut,True,False,Clear,Cls,Clear All,Let,Bool,Locate,LocRow,LocCol,CurX,CurY,Print It with
+keywords=with,with a New line,Print Table,a Newl,Newl,Print It Using Token,Print It Using Tkn
+keywords=Print Using Token,Print Using Tkn,PrintF,Print,Print It,Pause
+keywords=Take,Mem,Copy,Move,With,PutKey,KeyPressed,Case,Betw,Exact,Occurs,List,Duplicate It,Duplicate,Dup It,Dup
+keywords=Tic,Toc,At Interval,Define Interval,Def Interval,Seconds,LookTime,MicroSec,Sec2Time,Sleep,TimeCpu,ClocksPerSec
+keywords=Prepare Data,LenData,Read,Data,Forget All,Forget,Retain,SetEnv,GetEnv,UnsetEnv,Execute,System,VargIn
+keywords=ArgCount,ArgNumber,ArgString,Params,GetParam,GetArgs
+keywords=Open,Create,SetPos,GetPos,Seek,SetInit,SetEnd,Search Lines,Search,Stat,Eof,Close
+keywords=Actual Calendar,Radial Calendar,Calendar,Token Sep
+keywords=Open Server TCP,Send,Recv,Open Client TCP,Connect,Open Server UDP,Send to,Recv From,Close Socket
+keywords=Push All,Push,QPop,Pop,Head,Tail,Look,Empty,Range
+keywords=Redim,NewRow,New Row,Save Matrix,Load Matrix,ReadRow,Read Row,WriteRow,Write Row,FindAll,Find All
+keywords=UniformRand,LetMap,Map,GetRows,GetCols,CatRows,CatCols,GetPage,PutPage,Split,Compact,Cartesian
+keywords=MyDims,MyRows,MyCols,MyPages,Dims,Rows,Cols,Pages,SwapRows,SwapCols,SwapPages,SwapInterval,EnumArray,EnumString
+keywords=Insert,Delete,Resize,ZapRange,Concat,Sort,RevScan,Scan,ScanTable,Distrib
+keywords=OddRows,Odd Rows,OddCols,Odd Cols,EvenRows,Even Rows,EvenCols,Even Cols,OddPos,Odd Pos,EvenPos,Even Pos
+keywords=EvenPages,Even Pages,OddPages,Odd Pages
+keywords=FieldStr,FieldNum,Fields,Field
+keywords=Hide Cursor,Show Cursor,FillBox,ClrScr,ClrLines,Fw,Bw,Scroll Up,Scroll Down,ScrollScr,Reset Scroll
+keywords=JumpLines,PrevLines,Up,Down,ResizTerm,SizeTerm,Cursor Save,Cursor Rest,Save Screen,Rest Screen
+keywords=Foreground,Background,Color,RGBF,RGBB,Canvas Paper,Canvas Terminal,Canvas Old,Canvas Ocean,White Pencil
+keywords=Black Pencil,Amber Pencil,Green Pencil,Bold Off,Bold,Inversed Off,Inversed,Italic Off,Italic
+keywords=Underline Off,Underline,Token,TokenRepl,TokenSwap,Token Init,TokenDel
+keywords=Free Pivot,Update,Backup,RECompile,REValid,REMatch,REFree
+keywords=\
+
+colours=com,ppo,hh,lib,hopper,hop
+;preprocs=#include,#define,#defn,#proto,#fx,#synon,#synonymous,#compute,#prototype,#context-free,#context,#high-level
+preprocs=#include,#define,#defn,#proto,#synon,#synonymous,#prototype,#context-free,#context,#!/usr/bin/hopper
+;preprocs=#hl
+sections=main:,.locals,.local,.stack,#compute,#fx,#hl,#high-level,#FATOM,#ATOM,#CMPLX,#IF,#ELSE,#EIF,{,},[,]
+sections=#RAND,#RNDV,#LOOP,#ENDLOOP,##ENDLOOP,%LOOP,%ENDLOOP,%%ENDLOOP,%%LOOP,#CATCH,#ENDCATCH,%CATCH,%ENDCATCH
+sections=##ENDIF,#ENDIF,#ENDIIF,%ENDIF,%ENDIIF,##CODEIF,%CODEIF,%%CODEIF
+sections=:,<,>,=,;,~,?,+,-,*,/,\,^,&,%,(,),!
+keywords=pause,clearmark,clearstack,clear mark,clear stack,clearinterval,clear interval,dowith,do with,do
+keywords=jmp,jeq,jneq,jlt,jle,jgt,jge,jt,jnt,jv,jnv,jz,jnz,jneg,jpos,gosub,jcase,jsub,back,return,kill,clear,keep
+keywords=eq?,neq?,noteq?,lt?,le?,gt?,ge?,neg?,pos?,cin?,occursin?,ecin?,exactoccursin?,kbhit?,kbesc?,kbctrlc?
+keywords=zero?,void?,between?,emptystack?,env?,exist?,nan?,inf?,all?,any?,odd?,error?,numeric?,string?,array?
+keywords=true,false,eqto,neqto,lthan,lethan,gthan,gethan,xor,nand,nor,and,or,not
+keywords=kbfree,multipasson,multipassoff,multipass on,multipass off,clockpersec
+keywords=$,postfix,clearrange,clear range,pinc,pdec
+keywords=iszero,isvoid,isbetween,isemptystack,isenv,isexist,isnan,isinf,isall,isany,isodd,iserror,isnumeric,isstring,isarray
+keywords=iscin,isoccursin,isecin,isexactoccursin,iskbctrlc,iskbhit,iskbesc,goxy,inc,dec,ipush,ipop
+keywords=iseq,isneq,isnoteq,islt,isle,isgt,isge,isneg,ispos
+keywords=add,sub,mul,div,idiv,pow,mod,round,max,min,divby,div by,powby,pow by,idivby,idiv by,mulby,mul by
+keywords=plus,minus,roundby,round by,exp,int,sign,log,log10,sqrt,sin,cos,tan,arcsin,arccos,arctan,arc sin,arc cos,arc tan
+keywords=arcsinh,arccosh,arctanh,arc sinh,arc cosh,arc tanh,sinh,cosh,tanh,xtostr,xtobool,xtonum,replyby,reply by
+keywords=floor,abs,chr,ceil,exp2,log2,exp10,hex,bin,oct,lennum,fact,mulmat,mul mat,printusingtoken,print using token
+keywords=sci,notation,d2r,r2d,cbrt,rand,trunc,neg,execv,loc2,loc1,interval1,interval2,interval3,offset1,offset2
+keywords=print,echo,show,mov,date,datenow,date now,daysdiff,days diff,elaptime,elap time,elapsedtime,elapsed time
+keywords=addrow,add row,seconds,millisecs,sleep,strtoutf8,utf8tostr,bit,cpy,copy,transform,mask,money,cat,time
+keywords=get,put,lower,upper,padleft,padcenter,padrigth,len,find,findat,find at,countat,count at,replace,insert,delete
+keywords=deletechar,delete char,replicate,asc,trim,cut,rcut,prec,randarray,newarray,zerosarray,onesarray
+keywords=eyesarray,escape,rand array,new array,zeros array,ones array,eyes array,nanarray,nan array,toksep,tok sep
+keywords=onechar,one char,poschar,pos char,puts,countfile,setenv,unsetenv,search,open,seek,close,readline,read line
+keywords=readrow,read row,fileerror,file error,totaltoken,total token,fillarray,fill array,size,sizebin,precision
+keywords=reverse,readrow,read row,lastkey,getrow,getcol,get row,get col,getcolumn,get column,catrow,cat row,catcol
+keywords=cat col,catcolumn,cat column,getpage,get page,putpage,put page,type,empty,readline,read line,writeline,write line
+keywords=eof,create,writerow,write row,reshape,stats,sets,join,array,calendar,load,save,exec,popcatch,swtrap,throw,gettry
+keywords=savestring,save string,loadstring,load string,getline,get line,packarray,pack array,packstring,pack string
+keywords=countlines,count lines,timer,push,pop,qpop,tail,head,onlychar,only char,rleft,rright,rall,statistic
+keywords=voidarray,void array,saturate,cartesian,socket,totalarg,total arg,length,trimright,trimleft,gettoken,modtoken
+keywords=recv,send,connect,recvfrom,sendto,opecod,qcreate,qset,qsend,qrecv,qremove,assert,parser,unparser
+keywords=regcompile,regfree,clamp,timecpu,range,voidarray,sequencespaced,seqsp,sequence,seq,regvalid,regmatch
 keywords=\
 
 ; latex
@@ -162,9 +443,8 @@ keywords=\bibliography,\bibliographystyle,{,}
 keywords=\
 
 colours=xu,def
-preprocs=#include,#use,#import,#define,:=
-;preprocs=?,:,~
-sections=vars:,functions:,algorithm:,stop,goodbye
+preprocs=#include,#use,#import,#define,:,<,>,=,;,~,?,+,-,*,/,\,^,&,%
+sections=vars:,functions:,algorithm:,down:,up,stop,goodbye
 keywords=for each,for,next,while,wend,begin:,endif,elseif
 keywords=else,try,exception,tend,loop,lend,until
 keywords=downto,step,inlist,and,or,xor,function
@@ -173,14 +453,53 @@ keywords=boolean,(ref),(*),void,gosub,sub,back,room,rend,exitif
 keywords=again,return,raise,if,true,do
 keywords=break,continue,eval,case,otherwise,evend,end,to,in,false
 keywords=brkz,brkif,brknz,brkgz,brkgez,brklz,brklez
-keywords=(,),{,},[,]
-;keywords=($,(#,(^,(%,{,},(,),(int,(long,(double
-;keywords=(BDx,(HDx,(ODx,(Hx,(Bx,(Ox,(BIT ,(XOR ,(OR ,(AND ,(<<,(>>,(ON ,(OFF ,(NOT
-;keywords=[,],[.,[:,[_,[>,[@,[=,[\,[%,[!,[<,[+|,[+-,[--,[-|,[^-,[^|,[*',[*|,[*-,[$,[*,^[,|,&
+keywords=($,(#,(^,(%,{,},(,),(int,(long,(double
+keywords=(BDx,(HDx,(ODx,(Hx,(Bx,(Ox,(BIT ,(XOR ,(OR ,(AND ,(<<,(>>,(ON ,(OFF ,(NOT
+keywords=[,],[.,[:,[_,[>,[@,[=,[\,[%,[!,[<,[+|,[+-,[--,[-|,[^-,[^|,[*',[*|,[*-,[$,[*,^[,|
+keywords=(,),{,}
+keywords=\
+
+
+colours=html,xml
+preprocs={,},||,(,),[,],;,!,?,:,&,|
+preprocs=lt;,amp;,gt;,quot;,acute;,grave;,circ;,uml;,tilde;,caron;,nbsp;,excl;,quest;,ang;,quo;,brvbar;,curren;,sect;,para;,cent;
+preprocs=pound;,yen;,euro;,permil;,copy;,reg;,trade;,bull;,hellip;,dash;,not;,macr;,ordm;,ordf;,deg;,arr;,Arr;
+;,<=,>=,!=,==,=,<<,>>,<,>,!,+,-,*,/,^
+sections=<!DOCTYPE,<![CDATA[,function,return,if,else,for,while,var
+sections=-family,-size,-weight,-height,-style,-variant,-caps,-kening,-ligatures,-numeric,-position,-features,-setting,-synthesis
+sections=-adjust,-stretch,-align,-width,line-,text-,-spacing,-decoration,-indent,-transform,-shadow,-vertical
+sections=-space,-top,-right,-bottom,-left,-radius,-color,-padding,-image,-position,-attachment,-type,-side,-sizing
+sections=-repeat,-clip,-origin,-collapse,-side,-cells,-layout,-content,-self
+sections=box-,vertical-,border-,flex-,font-,outline-,align-,justify-,z-index,list-,table-caption,empty-,background-,padding-,margin-
+sections=text-,line-,white-,word-,min-,max-
+;sections=color,direction,display,width,overflow,cursor,background,vertical
+keywords==,<,>,+,-,*,/,^,<html>,<head>,<title>,<body>,<header>,<html,<head,<title,<meta,<style,<body,<header
+keywords=</html>,</head>,</title>,</style>,</body>,</header>
+keywords=<h1 ,<h2 ,<h3 ,<h4 ,<h5 ,<h6 ,<font 
+keywords=<script>,<link>,<span>,<button>,<a>,<div>,<li>,<ul>,<form>,<i>,<section>,<ins>,<p>,<svg>,<strong>,<tbody>,<table>,<b>,<tr>,<td>,<pre>
+keywords=<border>,<dd>,<dl>,<dt>,<data>,<datalist>,<cite>,<em>,<center>,<footer>,<href>
+keywords=<code>,<col>,<colgroup>,<caption>,<embed>,<object>,<base>,<iframe>,<img>,<input>,<label>,<map>,<nav>,<ol>
+keywords=<option>,<optgroup>,<param>,<progress>,<picture>,<q>,<rp>,<rt>,<ruby>,<s>,<select>,<small>,<source>,<sub>,<sup>,<template>
+keywords=<textarea>,<tfoot>,<th>,<thead>,<time>,<u>,<var>,<video>,<track>,<font>
+;
+keywords=<script ,<link ,<span ,<button ,<a ,<div ,<li ,<ul ,<form ,<i ,<section ,<ins ,<p ,<svg ,<strong ,<tbody ,<table ,<b 
+keywords=<tr ,<td ,<pre 
+keywords=<border ,<dd ,<dl ,<dt ,<data ,<datalist ,<cite ,<em ,<center ,<footer ,<href 
+keywords=<code ,<col ,<colgroup ,<caption ,<embed ,<object ,<base ,<iframe ,<img ,<input ,<label ,<map ,<nav ,<ol 
+keywords=<option ,<optgroup ,<param ,<progress ,<picture ,<q ,<rp ,<rt ,<ruby ,<s ,<select ,<small ,<source ,<sub ,<sup ,<template 
+keywords=<textarea ,<tfoot ,<th ,<thead ,<time ,<u ,<var ,<video ,<track 
+keywords=</script>,</link>,</span>,</button>,</div>,</li>,</ul>,</form>,</i>,</section>,</ins>,</p>,</svg>,</strong>,</tbody>,</table>,</b>,</tr>,</td>,</pre>,</font>,</meta>
+keywords=<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,</border>,</a>,</dd>,</dl>,</dt>,</data>,</datalist>,</cite>,</em>,</center>,</footer>,<hr>
+keywords=</code>,</col>,</colgroup>,</caption>,<br>,</embed>,</object>,</base>,</iframe>,</img>,</input>,</label>,</map>,</nav>,</ol>
+keywords=</option>,</optgroup>,</param>,</progress>,</picture>,</q>,</rp>,</rt>,</ruby>,</s>,</select>,</small>,</source>,</sub>,</sup>,</template>
+keywords=</textarea>,</tfoot>,</th>,</thead>,</time>,</u>,</var>,</video>,</track>
+keywords=</h1>,</h2>,</h3>,</h4>,</h5>,</h6>
 keywords=\
 
 colours=c,h
-preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef,?,:,&,|
+preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef
+sections=?,:,&,|,<,>,!,=,+,-,*,/,^
+;;preprocs=0,1,2,3,4,5,6,7,8,9
 sections=main,return
 keywords=NULL,auto,break,case,char,const,continue,default,do,double,else,enum,extern,float,for
 keywords=goto,if,int,long,register,return,short,signed,sizeof,static,struct,switch,typedef,union,do
@@ -189,7 +508,8 @@ keywords={,},(,),[,],int8_t,int16_t,int32_t,int64_t
 keywords=\
 
 colours=cpp,h
-preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef,?,:,&,|
+preprocs=#include,#define,#ifdef,#ifndef,#endif,#elif,#else,#if,#message,#undef
+sections=?,:,&,|,<,>,!,=,+,-,*,/,^
 sections=main,return
 keywords=asm,auto,bool,break,case,catch,char,class,const,const_cast,continue,default,delete
 keywords=do,double,dynamic_cast,else,enum,explicit,extern,false,float,for,friend,goto,if,while
@@ -206,34 +526,41 @@ sections=function,return,exit
 keywords=echo,for,while,select,until,done,elif,else,case,esac,continue,let,local,set,shift,then,do
 keywords=alias,unalias,getopts,unset,awk,true,false
 keywords=fi,do,in,if,$,(,),{,},$RANDOM,$HOME,$OPTARG,$OPTIND,$PATH,$PS1,$PS2
-keywords=test,readonly,read,[,]
+keywords=test,readonly,read,[,],+,-,*,/,<,>,=
 keywords=\
 
 colours=prg,ch
 preprocs=#define,#include,#ifdef,#ifndef,#undef,#error,#command,#xcommand,#stdout,#endif,#pragma
-preprocs=BEGINDUMP,ENDDUMP,HB_FUNC,nil,NIL,.T.,.F.,.and.,.or.,!,.t.,.f.,.AND.,.OR.
+preprocs=BEGINDUMP,ENDDUMP,HB_FUNC,nil,NIL,.T.,.F.,.and.,.or.,.t.,.f.,.AND.,.OR.
+preprocs={,},(,),[,],;,?,:,&,|,<,>,!,=,+,-,*,/,^,$,@,#
 sections=function,procedure,return,FUNCTION,PROCEDURE,RETURN
 keywords=for,while,case,exit,loop,local,memvar,public,switch,otherwise
-keywords=elseif,else,end,if,static
+keywords=elseif,else,end,if,static,clear
 keywords=release,RELEASE,step,STEP
 keywords=FOR,WHILE,CASE,EXIT,LOOP,LOCAL,MEMVAR,PUBLIC,SWITCH,OTHERWISE
-keywords=ELSEIF,ELSE,END,IF,STATIC
-keywords=to,quit,{,},(,),[,],?
+keywords=ELSEIF,ELSE,END,IF,STATIC,CLEAR
+keywords=to,quit
 keywords=TO,QUIT
 keywords=\
 
 colours=py
-preprocs=import,from
+preprocs=import,from,as,+,-,*,/,^,%,<,>,=,!
 sections=def,lambda,class,return,global
-keywords=print,for,while,break,continue,yield,assert,except,try,finally,elif,else,raise,except,as
+keywords=print,for,while,break,continue,yield,assert,except,try,finally,elif,else,raise,except
 keywords=exec,not,and,or,is,if,del,{,},(,),[,],:
 keywords=\
 
 colours=m
-preprocs=<none>
-sections=function,return
-keywords=break,case,catch,continue,else,elseif,end,for,global,if,otherwise,persistent,switch,try,while
-keywords=||,&&,~,sprintf,fprintf,disp,pause,@,save,load,ode45,ode23,ode113,ode15s,ode23s,ode23t,ode23tb
-keywords=ode15i,min,max,zeros,ones,eyes,random,odeset,reshape,repmat,linspace,{,},(,),[,],:
+preprocs=...,<,>,=,~,+,-,*,/,%,;,@,{,},(,),[,],:,|,&,^
+preprocs=break,case,catch,continue,else,elseif,end,for,global,if,otherwise,persistent,switch,try,while
+sections=function,return,save,load,input,format,tic,toc,clear,pause,clearvars,plot,subplot,title,xlabel,ylabel
+sections=figure,zlabel,text,legend,gca,xlim,ylim,zlim,surf,mesh,box,axis,grid,xticks,yticks,zticks
+keywords=sprintf,fprintf,disp,ode45,ode23,ode113,ode15s,ode23s,ode23t,ode23tb
+keywords=ode15i,min,max,zeros,ones,eyes,random,odeset,reshape,repmat,linspace,sparse,rng,rand,mnrnd
+keywords=struct,find,sum,mean,std,var,size,isempty,abs,mod,sqrt,log,log10,floor,ceil,length
+keywords=isnan,isinf,round,fix,sign,rem,isreal,cplxpair,unwrap,real,imag,conj,complex,angle,log2,exp,pow2,
+keywords=realpow,reallog,realsqrt,sind,sinh,sin,asind,asinh,asin,cosd,cosh,cos,acosd,acosh,acos,tand,tanh,tan
+keywords=atand,atan2d,atan2,atanh,atan,asecd,asech,asec,secd,sech,sec,cscd,csch,csc,acscd,acsch,acsc,cotd
+keywords=coth,cot,acotd,acoth,acot,hypot,deg2rad,rad2deg,cell2mat,mat2cell,cell,num2str,any,all
 keywords=\
 
