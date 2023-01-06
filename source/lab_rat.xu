@@ -1,0 +1,3494 @@
+/*
+   This program makes 10x10 mazes and prints them on the screen.  No
+   promise of portability is made, but it does seem to work on NS GNX
+
+   Public Domain by Jonathan Guthrie.
+   version XU por Dr. Dalien.
+   
+   MUTANT-RAT _º> ºvº <º_ o^o
+   una ratita mutante que debe rescatar a su amado de un nefasto laberinto encerrado en un laboratorio.
+   Solo tiene 60 segundos para hacerlo antes de que lleguen los científicos.
+   Puede: roer y poner bombas de ruido.
+   una bomba de ruido reduce el tiempo en 5 segundos.
+   
+*/
+
+#use matrix, bit,string,math
+
+// macros direccion
+#define KUP       5
+#define KDOWN     24
+#define KLEFT     19
+#define KRIGHT    4
+#define KESCAPE   27
+
+#define HORZ 40 //40
+#define VERT 60   //70
+
+// macros codigo de laberinto
+#define UP  1
+#define DN  2
+#define LT  4
+#define RT  8
+#define MUL 3
+
+functions:
+
+  carga_high_score():number
+    pathScore:=string
+  begin:
+    pathScore<-PATH+"scoreLabRat.txt"
+    pathScore<-strtrim((flag "A") strchg(pathScore "aplay" ""))
+    flag ""  // limpio los flags existentes.
+    
+    if fexist(pathScore)
+       high<-(#strload(pathScore))
+       if high<20000
+          high<-20000
+       endif
+    else
+       strsave(pathScore "20000")
+       high<-20000
+    endif
+    return high
+  end
+
+  pone_vidas():void
+     i,k:=number
+  begin:
+     color(0)
+     api "box=31,61,31,89,"+chr(219)
+     color(14)
+     i<-0
+     at(31,63)
+     ."ºvº ", while (++i)<vidas
+//     k<-1
+//     for i<-1 to (vidas-1)
+//        at(k,62)
+//        ."ºvº"
+//        k<-+2
+//     next
+     color(0)
+  end
+  
+  pone_puntos():void
+    rx,ln,s:=number
+    sp:=string
+  begin:
+    sp<-($puntos)
+    ln<-strlen(sp)
+    rx<-87
+    if puntos>0
+       rx<-rx-(2*(mth.floor(mth.log(puntos))))
+    endif
+    color(0)
+    api "box=7,64,9,89,"+chr(219)
+    color(10)
+    for i<-1 to ln
+       s<-(#strcpy(sp,i,1))
+       at(7,rx); write [numL1 (s+1)]
+       at(8,rx)
+       if s=3 or s=7
+          write " "+[numL2 (s+1)]
+       else
+          write [numL2 (s+1)]
+       endif
+       at(9,rx)
+       if s=4 or s=7
+          write " "+[numL3 (s+1)]
+       else
+          write [numL3 (s+1)]
+       endif
+       rx<-+2
+    next
+    if swExtra1
+       if puntos>=10000
+          swExtra1<-false
+          ++vidas
+          if swSound
+             cmd(PATHs+"rat_extra.wav </dev/null >/dev/null 2>&1 &")
+          endif
+          .pone_vidas()
+       endif
+    elseif swExtra2
+       if puntos>=20000
+          swExtra2<-false
+          ++vidas
+          if swSound
+             cmd(PATHs+"rat_extra.wav </dev/null >/dev/null 2>&1 &")
+          endif
+          .pone_vidas()
+       endif
+    endif
+  end
+
+  pone_score(B:number,posx:number,posy:number):void
+    i,j,k,x:=number
+    sa,sb:=string
+    lsa,lsb,px,rx,nA,nB:=number
+  begin:
+    sb<-($B)
+    lsb<-strlen(sb)
+    rx<-posy  //67
+    if B>0
+       rx<-rx-(2*(mth.floor(mth.log(B))))
+    endif
+
+    for k<-1 to lsb
+      nB<-(#strcpy(sb k 1))
+      x<-1
+      for i<-posx to posx+4
+        for j<-rx to (rx+2)
+          at(i j); write chr([.ma (nB+1), x]*219)
+          ++x
+        next
+      next
+      rx<-+4
+    next
+  end
+
+
+  congratulaciones():void
+     i,j:=number
+     colores:=^number
+  begin:
+     color(96)
+     cls
+     colores<-^[96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111]
+     if swSound
+        cmd(PATHs+"rat_record.wav </dev/null >/dev/null 2>&1 &")
+     endif
+//     puntos<-107980
+     color(108)
+     .pone_score(puntos,17,43)
+     for i<-1 to 8
+        for j<-1 to 16
+           color([colores j])
+           at(4,18);  ." ▄  ▄   ▄   ▄▄  ▄   ▄  ▄ ▄ ▄ ▄ ▄   ▄  ▄ ▄ ▄  ▄   ▄   ▄"
+           at(5,18);  ."█  █ █ █ █ █ ▄ █▄▀ █▄█  █  █ █ █  █▄█  █  ▄ █ █ █ █ ▀▄"
+           at(6,18);  ." ▀  ▀  ▀ ▀  ▀▀ ▀ ▀ ▀ ▀  ▀   ▀   ▀ ▀ ▀  ▀  ▀  ▀  ▀ ▀ ▀ "
+           at(10,29); ."▄ ▄ ▄  ▄▄ ▄ ▄   ▄  ▄  ▄   ▄   ▄▄ "
+           at(11,29); ."█▄█ ▄ █ ▄ █▄█  ▀▄ █  █ █ █▄▀ █▀  "
+           at(12,29); ."▀ ▀ ▀  ▀▀ ▀ ▀  ▀   ▀  ▀  ▀ ▀  ▀▀ "
+           millisec(43)
+        next
+        millisec(43)
+     next
+  end
+
+  salva_high_score():void
+    pathScore:=string
+  begin:
+    pathScore<-PATHs+"scoreLabRat.txt"
+    pathScore<-strtrim((flag "A") strchg(pathScore "aplay" ""))
+    flag ""  // limpio los flags existentes.
+    
+    if puntos>high
+       high<-puntos
+       .congratulaciones()
+    endif
+    strsave(pathScore ($high))
+  end
+
+
+   logo():void
+     f,c,Fhalf,Chalf:=number
+   begin:
+     crtdim(f c)
+     {Fhalf,Chalf}<-{f\2-12, c\2-29}
+     at((Fhalf+0) Chalf);."  ▄▄▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄▄▄  "
+     at((Fhalf+1) Chalf);."▄▀                  W O R L D   O F                     ▀▄"
+     at((Fhalf+2) Chalf);."█                                                        █"
+     at((Fhalf+3) Chalf);."█       █    ▄▀▀▄     ▄▄██▄▄     █    ▄▀▀▄     █████     █"
+     at((Fhalf+4) Chalf);."█      ███   █   █ ▄█████████▄  ███   █   ▀▄  ███▀▀▀     █"
+     at((Fhalf+5) Chalf);."█     █▀█▀█  ██ █ ▄██▀▄█▀▀▀    █▀█▀█  █    |  █|         █"
+     at((Fhalf+6) Chalf);."█     ▀▄█▄▀  |▄█▄ ▀█████▄▄▄    ▀▄█▄▀  |    █ █████       █"
+     at((Fhalf+7) Chalf);."█     █▀ ▀█  █  ▀▄ ▀█████████▀ █▀ ▀█  |   ▄▀ ██          █"
+     at((Fhalf+8) Chalf);."█    ▀▄   ▄▀ ▀▄  █    ▀▀██▀▀  ▀▄   ▄▀ ▀▄▄▀  █████        █"
+     at((Fhalf+9) Chalf);."█                                                        █"
+     at((Fhalf+10) Chalf);."█                  ▄▀▀▄ ▄▀▀  ▄▀▀ █ █                     █"
+     at((Fhalf+11) Chalf);."█                  █▄▄█ ▀▄  █    █ █                     █"
+     at((Fhalf+12) Chalf);."█                  █  █ ▄▄▀  ▀▄▄ █ █                     █"
+     at((Fhalf+13) Chalf);."█                                                        █"
+     at((Fhalf+14) Chalf);."█                   PRESENTADO  POR                      █"
+     at((Fhalf+15) Chalf);."█                                                        █"
+     at((Fhalf+16) Chalf);."█           █▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █               █"
+     at((Fhalf+17) Chalf);."█           █ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█               █"
+     at((Fhalf+18) Chalf);."█                                                        █"
+     at((Fhalf+19) Chalf);."█                     POWERED  BY                        █"
+     at((Fhalf+20) Chalf);."█                                                        █"
+     at((Fhalf+21) Chalf);."█                     ▀▄ ▄▀  █  █                        █"
+     at((Fhalf+22) Chalf);."█                      ▄▀▄   █  █                        █"
+     at((Fhalf+23) Chalf);."█                     ▀   ▀   ▀▀                         █"
+     at((Fhalf+24) Chalf);." ▀▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▀ " 
+     sleep(5)
+     cls
+   end
+
+  pone_mensaje(msg:string,linea:number,col:number):void
+    k:=number
+  begin:
+     cursor(1)
+     for k<-1 to strlen(msg)
+       at(linea (col+k)); write strcpy(msg k 1)
+       millisec(10)
+     next
+     cursor(0)
+  end
+
+  titulo():void
+     r,s:=string
+  begin:
+     .carga_high_score()
+     color(15)
+     at(3,13);."▀▀▀▀▀▀▀▀▀█      ▄███▄    █    ▄     █████     ▄███▄  ███████▀▀▀▀▀"
+     color(14)
+     at(4,13);."▀▀▀▀▀▀▀▀█      █     █  █      █   █     █   █     █    █▀▀▀▀▀▀▀▀"
+     color(6)
+     at(5,13);."▀▀▀▀▀▀▀█      █     █  █          █   ███   █     █    █▀▀▀▀▀▀▀▀▀"
+     color(12)
+     at(6,13);."▀▀▀▀▀▀█      ███████  ██████     █████     ███████    █▀▀▀▀▀▀▀▀▀▀"
+     color(4)
+     at(7,13);."▀▀▀▀▀█      █     █  █      █   █     █   █     █    █▀▀▀▀▀▀▀▀▀▀▀"
+     color(5)
+     at(8,13);."▀▀▀▀████████     ████  █████   █       ███     ███  █▀▀▀▀▀▀▀▀▀▀▀▀"
+     at(9,13);."                                  (Soundtrack by \"New Rally-X\"!!)"
+     color(8)
+     at(31 48); ."█▄ ▄█  ▄  █▀▄ ▄▀▄ █  ▀ ██ █▄ █"
+     at(32 48); ."█ ▀ █ █   █▄▀ █▀█ █▄ █ █▄ █ ▀█"
+     
+     color(96)
+     api "box=10,12,30,78,"+chr(219)
+
+     color(104)
+
+     .pone_mensaje("B Y   D O D G I N G   R E D   C Y B E R - C A T S", 12,21)
+     color(108)
+     r<-($flags); s<-""
+     for i<-1 to strlen(r)
+        s<-+strcpy(r,i,1)
+        if i<strlen(r)
+           s<-+" "
+        endif
+     next
+     .pone_mensaje(("    C L E A R    "+s+"    F L A G S    "), 13,26)
+     .pone_mensaje( "    B E F O R E   T I M E   O U T    ", 14,26)
+     .pone_mensaje( "         TIME OUT = GAME OVER        ", 16,26)
+     color(79)
+     .pone_mensaje((" HIGH SCORE = "+($high)+" "),18,35 )
+     color(111)
+     .pone_mensaje("   FLAGS    = 100 PTS. " 20,26)
+     .pone_mensaje("     S      = SPECIAL CHECK POINT (1000x2) " 21,26)
+     .pone_mensaje("     L      = LUCKY CHECK POINT " 22,26)
+     .pone_mensaje("    «?»     = \"MISTERY\" " 23,26)
+     .pone_mensaje(" ALT-ARROWS = THE RAT GNAWS WALL (-1 SEC.)" 24,26)
+     color(110)
+     .pone_mensaje("EXTRA RAT AT 10.000 AND 20.000 POINTS",26,26)
+     color(97)
+     .pone_mensaje("         G O O D   L U C K !", 28 26)
+     pause
+     color(0)
+  end
+
+  pone_tiempo(B:number,posx:number,posy:number,tipo:number):void
+    i,j,k,x:=number
+    sa,sb:=string
+    lsa,lsb,px,rx,nA,nB:=number
+  begin:
+    sb<-($B)
+//    sa<-($indice_resucita)
+//    lsa<-strlen(sa)
+    lsb<-strlen(sb)
+//    px<-77
+    rx<-posy  //67
+    if B>0
+       rx<-rx-(2*(mth.floor(mth.log(B))))
+    endif
+
+    // borra cifra anterior
+    color(0)
+    if tipo=0
+       api "box=1,66,5,89,"+chr(219)
+       color(14)
+    else
+       api "box=1,66,5,89,"+chr(219)
+       if Tiempo=15
+          if swSound
+             cmd(PATHs+"rat_poco_tiempo.wav </dev/null >/dev/null 2>&1 &")
+          endif
+       endif  
+       color({(Tiempo>15)?14:12})
+    endif
+    
+    for k<-1 to lsb
+      nB<-(#strcpy(sb k 1))
+      x<-1
+      for i<-posx to posx+4
+        for j<-rx to (rx+2)
+          at(i j); write chr([.ma (nB+1), x]*219)
+          ++x
+        next
+      next
+      rx<-+4
+    next
+  end
+
+  busca_intersecciones():void
+    i,j,k:=number
+    sx,sy:=number
+    x0,x1,x2:=string
+  begin:
+
+    use guardaEtapa; drop
+
+    use guardaEtapa
+    push (enemyTope)
+    
+    dim wx(enemyTope); dim wy(enemyTope)
+
+    sx<-[[@lab] 2]-1
+    sy<-[[@lab] 3]-1
+    
+    dim codos(sx,sy)
+    dim enemigos(sx,sy)
+    k<-1
+    for i<-2 to sx
+       for j<-3 to sy
+          if [.lab i,j]=32
+             x1<-chr([.lab (i-1),(j-2)])+chr([.lab (i-1),(j-1)])+chr([.lab (i-1),j])+chr([.lab (i-1),(j+1)])+chr([.lab (i-1),(j+2)])
+             x0<-chr([.lab i,(j-2)])+chr([.lab i,(j-1)])+chr([.lab i,j])+chr([.lab i,(j+1)])+chr([.lab i,(j+2)])
+             x2<-chr([.lab (i+1),(j-2)])+chr([.lab (i+1),(j-1)])+chr([.lab (i+1),j])+chr([.lab (i+1),(j+1)])+chr([.lab (i+1),(j+2)])
+             
+             if x1="█   █"
+                if x0="     "
+                   if x2="█████"
+//                      [.lab i,j]<-193  //┴
+                      [.codos i,j]<-193  //┴
+                   elseif x2="█   █"
+//                      [.lab i,j]<-197  //┼
+                      [.codos i,j]<-197  //
+                      
+                      if i>(sx-20)
+                         if k<=enemyTope
+                            [wx k]<-i
+                            [wy k]<-j
+           //                 ."x=",i," y=",j,"\n"
+                            use guardaEtapa
+                            push {i,j}
+                            ++k
+                         endif
+                      endif
+
+                   endif
+                elseif x0="█   █"
+                   if x2="█████"
+//                      [.lab i,j]<-94  //^
+                      [.codos i,j]<-94  //^
+                   endif
+                elseif x0="    █"
+                   if x2="█   █"
+//                      [.lab i,j]<-180 //┤
+                      [.codos i,j]<-180 //┤
+                   elseif x2="█████"
+//                      [.lab i,j]<-217  //┘
+                      [.codos i,j]<-217  //┘
+                   endif
+                elseif x0="█    "
+                   if x2="█   █"
+//                      [.lab i,j]<-195  //├
+                      [.codos i,j]<-195  //
+                   elseif x2="█████"
+//                      [.lab i,j]<-192  //└
+                      [.codos i,j]<-192  //└
+                   endif
+                endif
+             elseif x1="█████"
+                if x0="     "
+                   if x2="█   █"
+//                      [.lab i,j]<-194  //┬
+                      [.codos i,j]<-194  //
+                   endif
+                elseif x0="█    "
+                   if x2="█████"
+//                      [.lab i,j]<-62  //>
+                      [.codos i,j]<-62  //>
+                   elseif x2="█   █"
+//                      [.lab i,j]<-218  //┌
+                      [.codos i,j]<-218  //┌
+                   endif
+                elseif x0="█   █"
+                   if x2="█   █"
+//                      [.lab i,j]<-118 //v
+                      [.codos i,j]<-118 //v
+                   endif
+                elseif x0="    █"
+                   if x2="█████"
+//                      [.lab i,j]<-60  //<
+                      [.codos i,j]<-60  //<
+                   elseif x2="█   █"
+//                      [.lab i,j]<-191  //┐
+                      [.codos i,j]<-191  //┐
+                   endif
+                endif
+             endif
+          endif   
+       next
+    next
+    enemigos<-255
+    for i<-1 to (enemyTope-1)
+       [.enemigos [wx i] ([wy i]-1)]<-40;[.enemigos [wx i] [wy i]]<-35;[.enemigos [wx i] ([wy i]+1)]<-41 // Φ#Φ Θ∞Θ 
+    next
+    try
+    [.enemigos [wx enemyTope] ([wy enemyTope]-1)]<-174
+    exception
+       at(10,10);."X=",[wx enemyTope]," Y=",[wy enemyTope]-1
+       pause
+    tend
+    [.enemigos [wx enemyTope] [wy  enemyTope]]<-63
+    [.enemigos [wx enemyTope] ([wy enemyTope]+1)]<-175 // Φ#Φ Θ∞Θ 
+
+  end
+  
+  labFull():void
+     ss,t:=string
+     i,j,c,tope:=number
+     sw:=boolean
+  begin:
+//     out "lab.txt"
+     out (PATH+"lab.txt")
+     screen(0)
+     ss<-"219,"*125//165  //125
+     ss<-+"32\n"
+     //write "219,"+("32,"*123/*163*/)+"219,32\n"
+     write ss
+     for i<-1 to 80
+        sw<-true
+        ss<-"219,"
+        t<-ss
+        for j<-1 to 40
+           if sw
+              if mth.rand(1)>0.5
+                 ss<-+"32,32,32," //"32,32,"
+                 t<-+"32,32,32,"
+              else
+                 ss<-+"219,219,219," //",219,219,"
+                 t<-+"219,177,219,"
+              endif
+              not sw
+           else
+              ss<-+"219,219,219,"
+              t<-+"219,177,219,"
+              not sw
+           endif
+        next
+        ss<-+"32,32,32,219,32\n"
+        t<-+"32,32,32,219,32\n"
+        write ss
+//        if mth.rand(1)>0.3
+           c<-mth.ceil(mth.rand(5))
+           tope<-80-c
+           
+           while (++i)<(tope-1)
+              write t //ss
+              brkz (--c)
+           wend
+           write ss
+//        endif
+        write "219,"+("32,"*123/*163*/)+"219,32\n"
+//        write "219,"+("32,"*163/*123*/)+"219,32\n"
+     next
+     
+     ss<-("219,"*125/*165*/)+"32\n"
+     write ss
+     write "32,"*125/*165*/+"32\n"
+     
+     out ""
+     mat.load((flag ",") lab (PATH+"lab.txt")  )//"/home/xu/Proyectos/xuesp/LINUX-64bits/output/lab.txt")
+     .busca_intersecciones()
+     screen(1)
+     
+  end
+  
+  
+//  labVert():void
+//     ss:=string
+//     i,j,c,tope:=number
+//     sw:=boolean
+//  begin:
+//     out (PATH+"lab.txt")
+//     screen(0)
+//     ss<-"219,"*125  //125
+//     ss<-+"32\n"
+//     write "219,"+("32,"*123/*123*/)+"219,32\n"
+//     write ss
+//     for i<-1 to 80
+//        sw<-true
+//        ss<-"219,"
+//        for j<-1 to 40
+//           if sw
+//              ss<-+"32,32,32,"
+//              not sw
+//           else
+//              ss<-+"219,219,219,"
+//              not sw
+//           endif
+//        next
+//        ss<-+"32,32,32,219,32\n"
+//        write ss
+//           c<-mth.ceil(mth.rand(8))
+//           tope<-80-c
+//           while (++i)<tope
+//              write ss
+//              brkz (--c)
+//           wend
+//        write "219,"+("32,"*123/*123*/)+"219,32\n"
+//     next
+//     
+//     ss<-("219,"*125/*125*/)+"32\n"
+//     write ss
+//     write "32,"*125/*125*/+"32\n"
+//     
+//     out ""
+//     mat.load((flag ",") lab (PATH+"lab.txt")  )//"/home/xu/Proyectos/xuesp/LINUX-64bits/output/lab.txt")
+//     .busca_intersecciones()
+//     screen(1)
+//     
+//  end  
+
+  labSquare():void
+     ss:=string
+     i,j:=number
+     sw:=boolean
+  begin:
+     out (PATH+"lab.txt")
+     screen(0)
+     ss<-"219,"*185  //125
+     ss<-+"32\n"
+     write "219,"+("32,"*183/*123*/)+"219,32\n"
+     write ss
+     for i<-1 to 20
+        sw<-true
+        ss<-"219,"
+        for j<-1 to 40
+           if sw
+              ss<-+"32,32,32,"
+              not sw
+           else
+              ss<-+"219,219,219,219,219,219,"
+              not sw
+           endif
+        next
+        ss<-+"32,32,32,219,32\n"
+        
+        write ss
+        write ss
+        write ss
+        write "219,"+("32,"*183/*123*/)+"219,32\n"
+     next
+     
+     ss<-("219,"*185/*125*/)+"32\n"
+     write ss
+     write "32,"*185/*125*/+"32\n"
+     
+     out ""
+     mat.load((flag ",") lab (PATH+"lab.txt")  )//"/home/xu/Proyectos/xuesp/LINUX-64bits/output/lab.txt")
+     .busca_intersecciones()
+     screen(1)
+  end
+  
+/*  labHorz():void
+     ss:=string
+     i,j:=number
+     sw:=boolean
+  begin:
+//     out "lab.txt"
+     out (PATH+"lab.txt")
+     screen(0)
+     ss<-"219,"*125  //165
+     ss<-+"32\n"
+     write "219,"+("32,"*123)+"219,32\n"
+     write ss
+     for i<-1 to 20
+        sw<-true
+        ss<-"219,"
+        for j<-1 to 40
+           if sw
+              if mth.rand(1)>0.5
+                 ss<-+"32,32,32,"
+              else
+                 ss<-+"219,219,219,"
+              endif
+              not sw
+           else
+              ss<-+"219,219,219,"
+              not sw
+           endif
+        next
+        ss<-+"32,32,32,219,32\n"
+        
+        write ss
+        write ss
+        write "219,"+("32,"*123)+"219,32\n"
+//        write "219,"+("32,"*123)+"219,32\n"
+     next
+     
+     ss<-("219,"*125)+"32\n"
+     write ss
+     write "32,"*125+"32\n"
+     
+     out ""
+     mat.load((flag ",") lab (PATH+"lab.txt")  )//"/home/xu/Proyectos/xuesp/LINUX-64bits/output/lab.txt")
+     .busca_intersecciones()
+     screen(1)
+  end
+*/
+  llenaLab():void
+    ss:=string
+    i,j,b:=number
+    r:=^number
+  begin:
+  out (PATH+"lab.txt")
+  screen(0)
+  
+  ss<-"219,"*129 //172  //129
+  ss<-+"32\n"   //strcpy(ss 1 (strlen(ss)-1))+"32,\n"
+  write ss
+  write ss
+//  ss<-"219,"+("118,"*127)+"219,32\n"
+//  write ss
+ 
+  for i<-1 to 3
+     ss<-"219,"
+     ss<-+"32,"*127 //170  //127
+     ss<-+"219,32\n"
+     ss<-+ss
+     write ss
+  next
+  ss<-""
+  for i<-1 to [vsiz 2]
+     ss<-ss+"219,219,219,"
+     for j<-1 to [vsiz 3]
+        ss<-ss+"32,32,32,"
+        b<-[.s i j]
+        if (AND b RT)>0
+           ss<-ss+"32,32,32,"
+        else  
+           ss<-ss+"219,219,219,"
+        endif
+     next
+     ss<-+"32\n"  //strcpy(ss 1 (strlen(ss)-1))+",32\n"
+     for j<-1 to [vsiz 3]
+        ss<-ss+"219,219,219,"
+        b<-[.s i j]
+        if (AND b DN)>0
+           ss<-ss+"32,32,32,"
+        else  
+           ss<-ss+"219,219,219,"
+        endif
+     next
+     ss<-+"219,219,219,32\n"
+     write ss
+     ss<-""
+  next
+  ss<-"32,"*129 //172 //129
+  ss<-+"32\n" //strcpy(ss 1 (strlen(ss)-1))+",32\n"
+  write ss
+  
+  out ""
+  mat.load((flag ",") lab (PATH+"lab.txt")  )//"/home/xu/Proyectos/xuesp/LINUX-64bits/output/lab.txt")
+  .busca_intersecciones()
+  
+  r<-[=1 [[@codos] 3] [[@codos] 3] ]
+  r<-[*| 2 r ] //^[2] r ]
+  [>codos r]<-118
+  use r; drop
+  screen(1)
+  end
+//
+  labTecho(file:string):void
+    r,siz,t:=^number
+    i,j,fil,col:=number
+  begin:
+    mat.load((flag ",") tlab (PATH+file)  )
+    siz<-[@tlab]
+    fil<-[siz 2]
+    col<-[siz 3]
+    dim t(1)
+    for i<-col downto 1
+       t<-i
+       r<-[*| fil t]
+       tlab<-[+| tlab [<tlab r]]
+    next
+    for i<-fil downto 1
+       t<-i
+       r<-[*- t (col*2)]   // creo un mapa de la columna "i"
+       tlab<-[+- tlab [<tlab r]]  // concateno columna "i" con matriz
+    next
+    use t; drop
+    use r; drop
+    use siz; drop
+  end
+
+//
+  labManual(file:string):void
+    r,siz,t:=^number
+    i,j,fil,col:=number
+  begin:
+    mat.load((flag ",") lab (PATH+file)  )
+//    mat.load((flag ",") lab (PATH+file+"map")  )   // para otro juego o una nueva versión
+//    mat.load(           clab (PATH+file+"color")  )  
+    siz<-[@lab]
+    fil<-[siz 2]
+    col<-[siz 3]
+    dim t(1)
+    for i<-col downto 1
+       t<-i
+       r<-[*| fil t]
+       lab<-[+| lab [<lab r]]
+    next
+    for i<-fil downto 1
+       t<-i
+       r<-[*- t (col*2)]   // creo un mapa de la columna "i"
+       lab<-[+- lab [<lab r]]  // concateno columna "i" con matriz
+    next
+    
+//    dim t((fil*2),1)  // no es necesario.
+//    t<-32
+//    lab<-[+| lab t]
+//    dim t(1,((col*2)+1))
+//    t<-32
+//    lab<-[+- lab t]
+    use t; drop
+    use r; drop
+    use siz; drop
+    
+    .busca_intersecciones()
+     
+  end
+
+
+  tonorte():void
+  begin:
+     if rx=10
+       if b>1
+          --b
+          ++rx
+          at(1 1); color(labColor)
+          writmap(lab clab b 0 x (x+59) 0)
+          at(1,1)
+          writmap(enemigos elab b 0 x (x+59) 0)
+       endif
+     endif
+//     color(15)
+//     at(rx,ry); write last
+  end
+  
+  tosur():void
+  begin:
+     if rx=vf-10
+       if b<labxsiz
+          ++b
+          --rx
+          at(1 1); color(labColor)
+          writmap(lab clab b 0 x (x+59) 0)
+          at(1,1)
+          writmap(enemigos elab b 0 x (x+59) 0)
+       endif
+     endif
+//     color(15)
+//     at(rx,ry); write last
+  end
+  
+  toeste():void
+  begin:
+     if ry=vc-45
+        if x<labysiz
+           ++x
+           --ry
+           at(1 1); color(labColor)
+           writmap(lab clab b 0 x (x+59) 0)
+           at(1,1)
+           writmap(enemigos elab b 0 x (x+59) 0)
+        endif
+     endif
+//     color(15)
+//     at(rx,ry); write last
+  end
+  
+  tooeste():void
+  begin:
+     if ry=15
+        if x>1
+           --x
+           ++ry
+           at(1 1); color(labColor)
+           writmap(lab clab b 0 x (x+59) 0)
+           at(1,1)
+           writmap(enemigos elab b 0 x (x+59) 0)
+        endif
+     endif
+//     color(15)
+//     at(rx,ry); write last
+  end
+
+  
+/*  muestraLab(from:number,fini:number):void
+    cont:=number
+    vs:=^number
+    i,j:=number
+    ss:=string
+  begin:
+  vs<-[@lab]
+  cont<-from
+  --from
+//  ss<-""
+  for i<-fini to [vs 2]
+     at((i+from) 1)
+     ss<-""
+     for j<-1 to [vs 3]
+        ss<-+chr([.lab i j])
+//        write chr([.lab i j])
+     next
+     write ss
+//     ss<-+"\n "
+     ++cont
+     brkif cont=vf
+  next
+//  at((fini+from) 0); write ss
+  end
+*/
+
+   KILLPILLS(PID:string):void
+   begin:
+      cmd("kill -9 "+PID+" </dev/null >/dev/null 2>&1 &")
+   end
+
+   KILLSOUND:=function:void
+     PID:=string
+   begin:
+     PID<-stronly( fcmd("pidof "+cPLAY) "0123456789 ")
+     if strlen(PID)>0
+        cmd("kill -9 "+PID+ " </dev/null >/dev/null 2>&1")
+     endif
+   end
+
+   quita_punto(x:number,y:number):void
+      i:=number
+   begin:
+      for i<-1 to flags  //32
+         if [.mapa i,1]=x
+            if [.mapa i,2]=y
+               [.mapa i,3]<-0
+               break
+            endif
+         endif
+      next
+   end
+   
+   pone_mapa():void
+      i:=number
+   begin:
+      color(0)
+      api "box=12,64,29,87,"+chr(219)
+//      color(7)
+//      api "box=11,63,30,88,S" //+chr(219)
+      
+      color(14)
+      for i<-1 to (flags-2)  //30
+         if [.mapa i,3]
+            at([.mapa i,1], [.mapa i,2]); ."·"
+         endif
+      next
+      color(10)
+      if [.mapa (flags-1),3]  //[.mapa 31,3]
+         at([.mapa (flags-1),1], [.mapa (flags-1),2]); write "+"
+      endif
+      color(4)
+      if [.mapa flags,3]  //[.mapa 31,3]
+         at([.mapa flags,1], [.mapa flags,2]); write "+"
+      endif
+      
+   end
+
+   mata_rata():void
+     colores:=^number
+     i,j:=number
+   begin:
+     colores<-^[108,100,96]
+     if swSound
+        cmd(PATHs+"rat_muere.wav </dev/null >/dev/null 2>&1 &")
+        cmd(PATHs+"rat_pierde.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     --ry
+     for j<-1 to 6
+        for i<-1 to 3
+           color([colores i])
+           at(rx ry);       ." . · "
+           millisec(10)
+           at(rx ry);   ."*:.·:"
+           millisec(10)
+        next
+     next
+     at(rx ry);       ."     "
+     sleep(2)
+   end
+   
+   reiniciaJuego():void
+      i,k:=number
+   begin:
+     k<-1
+     enemyTope<-[guardaEtapa k]
+     enemigos<-255
+     for i<-1 to enemyTope
+        [wx i]<-[guardaEtapa (++k)]
+        [wy i]<-[guardaEtapa (++k)]
+        [.enemigos [wx i] ([wy i]-1)]<-40;[.enemigos [wx i] [wy i]]<-35;[.enemigos [wx i] ([wy i]+1)]<-41 // Φ#Φ Θ∞Θ 
+//        
+//        [.enemigos x (y-1)]<-232;[.enemigos x y]<-35;[.enemigos x (y+1)]<-232 // Φ#Φ Θ∞Θ 
+     next
+     b<-[guardaEtapa (++k)]
+     x<-[guardaEtapa (++k)]
+     for i<-1 to enemyTope
+        [dx i]<-[guardaEtapa (++k)]
+        [dy i]<-[guardaEtapa (++k)]
+     next
+     rx<-[guardaEtapa (++k)]
+     ry<-[guardaEtapa (++k)]
+     lx<-[guardaEtapa (++k)]
+     ly<-[guardaEtapa (++k)]
+     
+     
+     color(labColor);at(1,1)
+     writmap(lab clab b 0 x (x+59) 0)
+     color(heroeColor)
+     last<-"ºvº"
+     at(rx,ry); write last
+     at(1,1);color(0)
+     writmap(enemigos elab b 0 x (x+59) 0)
+     color(heroeColor)
+     at(rx,ry); write last
+     pdireccion<-"X"
+     direccion<-"X"
+     multiplicador<-1
+     .pone_mapa()
+     t<-seconds("")
+     t2<-seconds("")
+     t3<-seconds("")
+     t4<-seconds("")
+     
+//     show guardaEtapa 0
+//     pause
+   end
+
+  challenge_square():void
+  begin:
+     color(96)
+     cls
+     color(100)
+     at(4,15); ." ▄ ▄ ▄  ▄  ▄  ▄   ▄▄  ▄   ▄▄  ▄▄    ▄  ▄▄  ▄ ▄  ▄   ▄   ▄▄"
+     at(5,15); ."█  █▄█ █▄█ █  █  █▀  █ █ █ ▄ █▀    ▀▄ █  █ █ █ █▄█ █▄▀ █▀ "
+     at(6,15); ." ▀ ▀ ▀ ▀ ▀  ▀  ▀  ▀▀ ▀ ▀  ▀▀  ▀▀   ▀   ▀█   ▀  ▀ ▀ ▀ ▀  ▀▀"
+     if swSound
+        cmd(PATHs+"rat_intermedio.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     color(104)
+     .pone_mensaje("SUPERA EL SIGUIENTE LABERINTO DENTRO DEL TIEMPO" 10,20)
+     .pone_mensaje("ASIGNADO."  11,20)
+     color(111)
+     .pone_mensaje("EL ENEMIGO TE PERSEGUIRá DESDE EL PRINCIPIO." 13,20)
+     millisec(900)
+     .pone_mensaje("EL LABERINTO ES HOMOGéNEO, POR LO QUE TENDRáS" 15,20)
+     .pone_mensaje("DIFICULTADES PARA EVADIR A TUS ENEMIGOS." 16,20)
+     millisec(500)
+     color(79)
+     .pone_mensaje("BONO DE 5.000 PUNTOS SI NO ROES LA MURALLA." 18,20)
+     
+     sleep(1)
+     color(111)
+     .pone_mensaje("BUENA SUERTE!" 20,20)
+     sleep(3)
+     color(0)
+     cls
+  end
+
+  challenge_stage():void
+  begin:
+     color(96)
+     cls
+     color(100)
+     at(4,18); ." ▄ ▄ ▄  ▄  ▄  ▄   ▄▄  ▄   ▄▄  ▄▄    ▄ ▄ ▄  ▄   ▄▄  ▄▄"
+     at(5,18); ."█  █▄█ █▄█ █  █  █▀  █ █ █ ▄ █▀    ▀▄  █  █▄█ █ ▄ █▀ "
+     at(6,18); ." ▀ ▀ ▀ ▀ ▀  ▀  ▀  ▀▀ ▀ ▀  ▀▀  ▀▀   ▀   ▀  ▀ ▀  ▀▀  ▀▀"
+     if swSound
+        cmd(PATHs+"rat_intermedio.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     color(104)
+     .pone_mensaje("SUPERA EL SIGUIENTE LABERINTO DENTRO DEL TIEMPO" 10,20)
+     .pone_mensaje("ASIGNADO."  11,20)
+     color(111)
+     .pone_mensaje("EL ENEMIGO NO SE MOVERá." 13,20)
+     .pone_mensaje("                          SIN EMBARGO..." 14,20)
+     millisec(900)
+     color(108)
+     .pone_mensaje("A 45 SEGUNDOS DEL FINAL, EL ENEMIGO COMENZARá A" 16,20)
+     .pone_mensaje("PERSEGUIRTE!" 17,20)
+     
+     millisec(500)
+     color(79)
+     .pone_mensaje("BONO DE 5.000 PUNTOS SI NO ROES LA MURALLA." 19,20)
+     sleep(1)
+     color(111)
+     .pone_mensaje("BUENA SUERTE!" 21,20)
+     sleep(3)
+     color(0)
+     cls
+  end
+
+  mensaje_final():boolean
+    c:=number
+    ret:=boolean
+  begin:
+     color(96)
+     cls
+     color(100)
+     at(4,24); ." ▄ ▄  ▄   ▄  ▄    ▄ ▄   ▄▄  ▄  ▄  ▄   ▄▄  ▄▄"
+     at(5,24); ."█▄ ▄ █ █ █▄█ █   █ █ █ █▀  ▀▄ ▀▄ █▄█ █ ▄ █▀ "
+     at(6,24); ."▀  ▀ ▀ ▀ ▀ ▀  ▀  ▀ ▀ ▀  ▀▀ ▀  ▀  ▀ ▀  ▀▀  ▀▀"
+     if swSound
+        cmd(PATHs+"rat_intermedio.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     color(104)
+     .pone_mensaje("DE TODAS LAS RATITAS DEL EXPERIMENTO, Tú ERES LA" 10,20)
+     .pone_mensaje("úNICA QUE HA LOGRADO VENCER TODOS LOS RETOS."  11,20)
+     color(111)
+     .pone_mensaje("GRACIAS A TU INTELIGENCIA (Y AL SUERO EXPERIMENTAL" 13,20)
+     .pone_mensaje("QUE INYECTAMOS EN TU CEREBRITO :P) MILLONES SERáN " 14,20)
+     .pone_mensaje("SALVADOS DE UNA ENFERMEDAD MORTAL!!" 15,20)
+     millisec(900)
+     color(108)
+     .pone_mensaje("CREAREMOS MILES DE CLONES BASADOS EN TU ADN, RATITA." 17,20)
+     .pone_mensaje("AHORA SERáS LA INTEGRANTE Nro 7 DE ESTE LABORATORIO!" 18,20)
+     sleep(1)
+     color(111)
+     .pone_mensaje("MUCHAS GRACIAS, Y FELICIDADES!" 20,20)
+     sleep(2)
+     .pone_mensaje("DESEAS CONTINUAR EL JUEGO PARA SUMAR PUNTOS (S/N)?" 22,20)
+     c<-0
+     readkey(c), while (c<>115 and c<>83 and c<>110 and c<>78)
+     if c=115 or c=83
+        ret<-true
+     else
+        ret<-false
+     endif
+//     millisec(600)
+//     .pone_mensaje("                      PODEMOS RESOLVERLO!" 22,20)
+//     sleep(5)
+     color(0)
+     cls
+     return ret
+  end
+  
+  lab_gift():void
+  begin:
+     color(96)
+     cls
+     color(100)
+     at(4,20); ." ▄ ▄  ▄   ▄  ▄    ▄ ▄ ▄  ▄  ▄  ▄   ▄▄  ▄   ▄▄  ▄▄"
+     at(5,20); ."█▄ ▄ █ █ █▄█ █   █  █▄█ █▄█ █  █  █▀  █ █ █ ▄ █▀ "
+     at(6,20); ."▀  ▀ ▀ ▀ ▀ ▀  ▀   ▀ ▀ ▀ ▀ ▀  ▀  ▀  ▀▀ ▀ ▀  ▀▀  ▀▀"
+     if swSound
+        cmd(PATHs+"rat_intermedio.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     color(104)
+     .pone_mensaje("HAS PASADO CON éXITO TODAS LAS PRUEBAS, RATITA!" 10,20)
+     .pone_mensaje("AHORA, QUIEREN PROBAR TU CAPACIDAD DE DECISIóN."  11,20)
+     color(111)
+     .pone_mensaje("EL CIENTíFICO QUIERE PROBAR TU DESTREZA, SU RATA" 13,20)
+     .pone_mensaje("PREFERIDA, EN TRES LABERINTOS COMPLICADOS. " 14,20)
+     millisec(900)
+     color(108)
+     .pone_mensaje("LOS ENEMIGOS TE PERSEGUIRáN. PODRáS ROER, PODRáS" 16,20)
+     .pone_mensaje("EVALUAR: LA DECISIóN ES TUYA. " 17,20)
+     sleep(1)
+     color(111)
+     .pone_mensaje("BUENA SUERTE!" 19,20)
+     sleep(3)
+     color(0)
+     cls
+  end
+  
+  lab_shadow():void
+  begin:
+     color(96)
+     cls
+     color(100)
+     at(4,18); ." ▄ ▄ ▄  ▄  ▄  ▄   ▄▄  ▄   ▄▄  ▄▄    ▄ ▄ ▄  ▄  ▄▄   ▄  ▄ ▄ ▄"
+     at(5,18); ."█  █▄█ █▄█ █  █  █▀  █ █ █ ▄ █▀    ▀▄ █▄█ █▄█ █ █ █ █ █ █ █"
+     at(6,18); ." ▀ ▀ ▀ ▀ ▀  ▀  ▀  ▀▀ ▀ ▀  ▀▀  ▀▀   ▀  ▀ ▀ ▀ ▀ ▀▄▀  ▀   ▀ ▀"
+     if swSound
+        cmd(PATHs+"rat_intermedio.wav </dev/null >/dev/null 2>&1 &")
+     endif
+     color(104)
+     .pone_mensaje("ESTA ES LA PENúLTIMA ETAPA DE ESTA TANDA DE RETOS." 10,20)
+     .pone_mensaje("SE MEDIRá TU SENTIDO DE LA ORIENTACIóN."  11,20)
+     color(111)
+     .pone_mensaje("EL CIENTíFICO A CARGO DEL LABORATORIO APAGó LA LUZ" 13,20)
+     .pone_mensaje("Y SOLO PODRáS GUIARTE CON EL MAPA. " 14,20)
+     millisec(900)
+     color(108)
+     .pone_mensaje("TENDRáS QUE RECOGER TODOS LOS FLAGS, Y LOS ENEMIGOS" 16,20)
+     .pone_mensaje("TE PERSEGUIRáN FALTANDO 45 SEGUNDOS DEL FINAL. " 17,20)
+     sleep(1)
+     color(111)
+     .pone_mensaje("BUENA SUERTE!" 19,20)
+     sleep(3)
+     color(0)
+     cls
+  end
+
+  pone_pausa():void
+    colx:=number
+    r:=boolean
+  begin:
+    if swSound
+       .KILLSOUND()
+    endif
+    color(30)   
+    api "box=12,20,16,47,S"
+    colx<-25
+    at(13 colx); ." ▄   ▄  ▄ ▄  ▄  ▄▄"
+    at(14 colx); ."█▄█ █▄█ █ █ ▀▄ █▀ "
+    at(15 colx); ."▀   ▀ ▀  ▀  ▀   ▀▀"
+    pause
+  end
+
+  bonus():void
+     colx:=number
+  begin:
+    if swSound
+       .KILLSOUND()
+    endif
+    color(79)   
+    api "box=12,20,16,47,S"
+    colx<-25
+    at(13 colx); ." ▄   ▄   ▄  ▄ ▄  ▄ "
+    at(14 colx); ."█▄▀ █ █ █ █ █ █ ▀▄ "
+    at(15 colx); ."▀▄▀  ▀  ▀ ▀  ▀  ▀  "
+    if swSound
+       cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+    endif
+    api "box=12,20,16,47,S"
+    colx<-25
+    at(13 colx); ."  ▄▄    ▄   ▄   ▄ "
+    at(14 colx); ." █▄▄   █ █ █ █ █ █"
+    at(15 colx); ." ▄▄▀ ▄ ▀▄▀ ▀▄▀ ▀▄▀"
+    
+    puntos<-puntos+5000
+    .pone_puntos()
+    sleep(1)
+  end
+
+  time_out():void
+     colx:=number
+  begin:
+    color 12
+    colx<-31
+    at(13 colx); ." ▄ ▄ ▄  ▄ ▄   ▄▄ "
+    at(14 colx); ."  █  ▄ █ █ █ █▀  "
+    at(15 colx); ."  ▀  ▀ ▀ ▀ ▀  ▀▀ "
+    at(16 colx); ."    ▄  ▄ ▄ ▄ ▄   "
+    at(17 colx); ."   █ █ █ █  █    "
+    at(18 colx); ."    ▀   ▀   ▀    "
+
+    sleep(3)
+    color 0
+    at(13 colx); ." ▄ ▄ ▄  ▄ ▄   ▄▄ "
+    at(14 colx); ."  █  ▄ █ █ █ █▀  "
+    at(15 colx); ."  ▀  ▀ ▀ ▀ ▀  ▀▀ "
+    at(16 colx); ."    ▄  ▄ ▄ ▄ ▄   "
+    at(17 colx); ."   █ █ █ █  █    "
+    at(18 colx); ."    ▀   ▀   ▀    "
+  end
+     
+  game_over := function:void
+     colx:=number
+  begin:
+    cls
+    color 6
+    colx<-33
+    at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+    at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+    at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+    at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+    at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+    at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+
+    sleep(1)
+    color 0
+    at(13 colx); ." ▄▄  ▄   ▄ ▄   ▄▄"
+    at(14 colx); ."█ ▄ █▄█ █ █ █ █▀ "
+    at(15 colx); ." ▀▀ ▀ ▀ ▀ ▀ ▀  ▀▀"
+    at(16 colx); ."  ▄  ▄ ▄  ▄▄  ▄  "
+    at(17 colx); ." █ █ █ █ █▀  █▄▀ "
+    at(18 colx); ."  ▀   ▀   ▀▀ ▀ ▀ "
+    
+  end
+
+  pone_ready():void
+  begin:
+   at(13 35); ." ▄   ▄▄  ▄  ▄▄  ▄ ▄"
+   at(14 35); ."█▄▀ █▀  █▄█ █ █ ▀▄▀"
+   at(15 35); ."▀ ▀  ▀▀ ▀ ▀ ▀▄▀  ▀ "
+  end
+
+  level_clear():void
+    colx:=number
+  begin:
+    color(46)
+    api "box=12,19,19,46,S"
+    colx<-24
+    at(13 colx); ."▄   ▄▄ ▄ ▄  ▄▄ ▄  "
+    at(14 colx); ."█  █▀  █ █ █▀  █  "
+    at(15 colx); ." ▀  ▀▀  ▀   ▀▀  ▀"
+    at(16 colx); ." ▄ ▄   ▄▄  ▄   ▄ "
+    at(17 colx); ."█  █  █▀  █▄█ █▄▀"
+    at(18 colx); ." ▀  ▀  ▀▀ ▀ ▀ ▀ ▀"
+    color(0)
+  end
+
+  you_win():void
+    colx,i,j:=number
+    colores:=^number
+  begin:
+    colores<-^[46,30,78,110,94,62,46]
+     if swSound
+        cmd(PATHs+"rat_record.wav </dev/null >/dev/null 2>&1 &")
+     endif
+    j<-1
+    for i<-1 to 90
+       color([colores j])
+       api "box=12,20,19,47,S"
+       colx<-25
+       at(13 colx); ."   ▄ ▄  ▄  ▄ ▄  "
+       at(14 colx); ."   ▀▄▀ █ █ █ █  "
+       at(15 colx); ."    ▀   ▀   ▀   "
+       at(16 colx); ."  ▄ ▄ ▄ ▄  ▄  █ "
+       at(17 colx); ."  █ █ █ ▄ █ █ ▀ "
+       at(18 colx); ."   ▀ ▀  ▀ ▀ ▀ ▀ " 
+       millisec(100)
+       ++j
+       if j=8
+          j<-1
+       endif
+    next
+  end
+
+  otravez():boolean
+  colx,c:=number
+  s:=string
+  ret:=boolean
+  begin:
+    cls
+    color(3)
+    api "box=12,27,19,59,D"
+    color 11
+    colx<-33
+    at(14 colx); ." ▄   ▄▄  ▄  ▄  ▄   ▄"
+    at(15 colx); ."█▄█ █ ▄ █▄█ ▄ █ █ ▀ █"
+    at(16 colx); ."▀ ▀  ▀▀ ▀ ▀ ▀ ▀ ▀  ▄"
+    c<-0
+    flush()
+    while c=0
+      readkey(c)
+      s<-strupper(chr(c))
+      if s="S" or s="Y"
+         ret<- true
+         break
+      elseif s="N"
+         ret<- false
+         break
+      endif
+    wend
+    cls
+    return ret
+  end
+
+  plotPoints(xc:number,yc:number,x1:number,y1:number,simbolo:string):void
+  begin:
+    
+    at( (xc+x1) (yc+y1*1) ); write simbolo
+    at( (xc-x1) (yc+y1*1) ); write simbolo
+    at( (xc+x1) (yc-y1*1) ); write simbolo
+    at( (xc-x1) (yc-y1*1) ); write simbolo
+    at( (xc+y1) (yc+x1*1) ); write simbolo
+    at( (xc-y1) (yc+x1*1) ); write simbolo
+    at( (xc+y1) (yc-x1*1) ); write simbolo
+    at( (xc-y1) (yc-x1*1) ); write simbolo
+  end
+  
+  circulo(xc:number, yc:number, r:number,simbolo:string):void
+    x,y,p:=number
+  begin:
+    x<-0
+    y<-r
+    at( xc yc ); write simbolo
+    .plotPoints(xc yc x y simbolo)
+    p<-1-r
+    while x<y
+       if p<0
+          ++x
+          p<-p+2*x+1
+       else
+          ++x
+          --y
+          p<-p+2*(x-y)+1
+       endif
+       .plotPoints(xc yc x y (simbolo))
+    wend
+  end
+
+  pone_destello():void
+     i:=number
+     Color:=^number
+  begin:
+     Color<-^[12,14,15]
+     for j<-1 to 3
+        for i<-1 to 3
+           color([Color i])
+           .circulo(rx (ry+1) i chr(220))
+           millisec(25)
+           //color(0)
+           at(1 1); //color(labColor)
+           writmap(lab clab b 0 x (x+59) 0)
+           
+           //.circulo(rx ry i chr(220))
+        next
+     next
+  end
+
+  suma_tiempo():void
+    i,nPills:=number
+    PIDPILLS:=string
+  begin:
+    if swSound
+       cmd(PATHs+"rat_cuenta_puntos.wav </dev/null >/dev/null 2>&1 &")
+       PIDPILLS<- fcmd("pidof "+cPLAY)
+       nPills<-strntok((flag " ") PIDPILLS)
+       PIDPILLS<-strtok(PIDPILLS 1)
+    endif
+    
+    for i<-1 downto 30
+       ++Tiempo
+       .pone_tiempo(Tiempo,1,75,0)
+       millisec(40)
+    next
+    if swSound
+       .KILLPILLS(PIDPILLS)
+    endif
+  end
+  
+  suma_recorrido():void
+    i,nPills:=number
+    PIDPILLS:=string
+  begin:
+    if swSound
+       cmd(PATHs+"rat_cuenta_puntos.wav </dev/null >/dev/null 2>&1 &")
+       PIDPILLS<- fcmd("pidof "+cPLAY)
+       nPills<-strntok((flag " ") PIDPILLS)
+       PIDPILLS<-strtok(PIDPILLS 1)
+    endif
+    
+    for i<-nRecorrido downto 1
+       --nRecorrido
+       at(10,64); color(11); .">>ROAD OFF [",color(6) ($nRecorrido), color(11) "%] "
+       
+       puntos<-+ 10
+       .pone_puntos()
+       millisec(30)
+    next
+    if swSound
+       .KILLPILLS(PIDPILLS)
+    endif
+    //sleep(2)
+  end
+  
+  suma_puntos():void
+    i,nPills:=number
+    PIDPILLS:=string
+  begin:
+    if swSound
+       cmd(PATHs+"rat_cuenta_puntos.wav </dev/null >/dev/null 2>&1 &")
+       PIDPILLS<- fcmd("pidof "+cPLAY)
+       nPills<-strntok((flag " ") PIDPILLS)
+       PIDPILLS<-strtok(PIDPILLS 1)
+    endif
+    
+    for i<-Tiempo downto 1
+       --Tiempo
+       .pone_tiempo(Tiempo,1,75,0)
+       puntos<-+ (10*multiplicador)
+       .pone_puntos()
+       millisec(30)
+    next
+    if swSound
+       .KILLPILLS(PIDPILLS)
+    endif
+    //sleep(2)
+  end
+
+   
+vars:
+  s,lab,clab,elab,tlab,ctlab:=^number
+  i,j,k,b,c,vc,vf,cont,tx,ty,px,py,posx,posy,oldx,oldy:=number
+  vsiz,lm,/*colores,*/addPuntos:=^number
+  x,rx,ry,lx,ly,labxsiz,labysiz,indPuntos:=number
+  t,t2,t3,t4,t5,updownt,tipoLab,enemyTope:=number
+  swPierde,sw,swFinal,swExtra1,swExtra2,swSound,swRoe,swTecho,swtieneTecho:=boolean
+  swCepilla,swRetarda:=boolean
+  mapax,mapay,puntos,multiplicador,delLastEnemy,ctaCepillo,ctaRetarda:=number
+  //swup,swdown,swleft,swright:=boolean
+  last,direccion,pdireccion:=string
+  from,labColor,heroeColor,z,nlm,Tiempo,oldTiempo,q,sTiempo:=number
+  ma:=^number
+  mapa,enemigos,codos:=^number
+  PATH,cSYS,cPLAY,PATHs,musicaFondo:=string
+  numL1,numL2,numL3:=^string
+  wx,wy,dx,dy,tmpdx,tmpdy:=^number
+  guardaEtapa:=^number
+  vidas,etapa,subetapa,high,flags,misterio,nround:=number
+  swNoFrizz:=boolean
+  fTiempo,tf:=number
+  totalRecorrido,nRecorrido,cRecorrido:=number
+  
+  
+algorithm:
+
+PATH<-getenv("PATH_XU")
+if strlz(PATH)
+   ."\nNo encuentro variable de entorno PATH_XU\n\n"
+   ."Necesito que declares PATH_XU=ruta-donde-esta-xu\n"
+   goodbye
+else
+  /* esta ruta accederá a todos los recursos del
+     juego, dentro de SOURCE */
+   PATH<-PATH+"/source/dataLabRat/"
+endif
+
+// chequeo de sistema operativo
+cSYS<-strupper(strcpy(system(),1,strat((flag "L")" ",system()) ))
+ 
+cSYS<-strtrim((flag "A")cSYS ) 
+if cSYS = "DARWIN"
+   cPLAY<-"afplay"
+elseif cSYS="LINUX"
+   cPLAY<-"aplay"
+else
+   // puede que windows, cuando lo tenga listo
+   ."Problemas... [",cSYS,"]"
+   goodbye
+endif
+PATHs<-cPLAY+" "+PATH // deja "afplay /home..../source/"
+
+precision 0
+video(35 92) //31,90  130)
+crtdim(vf vc)
+
+numL1<-^["┌┐","┐","┌┐","┌┐","┐┐","┌┐","┌┐","┌┐","┌┐","┌┐"]
+numL2<-^["││","│","┌┘"," ┤","└┤","└┐","├┐"," │","├┤","└┤"]
+numL3<-^["└┘","┴","└┘","└┘"," ┘","└┘","└┘"," ┴","└┘","└┘"]
+//  ┌┐┐┌┐┌┐┐┐┌┐┌┐┌┐┌┐┌┐  
+//  │││┌┘ ┤└┤└┐├┐ │├┤└┤
+//  └┘┴└┘└┘ ┘└┘└┘ ┴└┘└┘
+use ma; drop
+ 
+ma<-^[[1,1,1,1,0,1,1,0,1,1,0,1,1,1,1],  &
+      [1,1,0,0,1,0,0,1,0,0,1,0,1,1,1],  &
+      [1,1,1,0,0,1,1,1,1,1,0,0,1,1,1],  &
+      [1,1,1,0,0,1,0,1,1,0,0,1,1,1,1],  &
+      [1,0,1,1,0,1,1,1,1,0,0,1,0,0,1],  &
+      [1,1,1,1,0,0,1,1,1,0,0,1,1,1,1],  &
+      [1,0,0,1,0,0,1,1,1,1,0,1,1,1,1],  &
+      [1,1,1,0,0,1,0,0,1,0,0,1,0,0,1],  &
+      [1,1,1,1,0,1,1,1,1,1,0,1,1,1,1],  &
+      [1,1,1,1,0,1,1,1,1,0,0,1,0,0,1] ]
+
+//colores<-^[97,101,97,98,99,105,105,109]
+addPuntos<-^[1000,1000,1500,1700,1700,2000,2000,2500,3000,3000]
+vidas<-3
+etapa<-1
+subetapa<-1
+swFinal<-false
+flags<-12
+swSound<-true
+{swExtra1,swExtra2}<-true
+//clab<-^[13,111,83,106,76,104]//,200,0]
+clab<-^[13,47,83,31,76,79]//,200,0]
+//elab<-^[35,108,40,100,41,100,63,100,174,111,175,111]
+elab<-^[35,12,40,4,41,4,63,100,174,111,175,111]
+use ctlab; drop
+
+keyput(256,1)
+
+//Tiempo<-115
+//.suma_puntos()
+//.challenge_stage()
+//goodbye
+
+//.congratulaciones()
+//goodbye
+.logo()
+.titulo()
+//goodbye
+/*  CICLO PRINCIPAL DEL JUEGO */
+
+while vidas
+  color(0)
+  cls
+  use lab; drop
+  Tiempo<-90 //115
+
+
+//  if subetapa=4 or subetapa=12   // resetea colores de los protas.
+//     [clab 2]<-15; [clab 4]<-10; [clab 6]<-13
+//     [elab 2]<-12; [elab 4]<-4; [elab 6]<-4; [elab 8]<-4 ; [elab 10]<-15; [elab 12]<-15
+//  else
+//     [clab 2]<-111; [clab 4]<-106; [clab 6]<-104
+//     [elab 2]<-108; [elab 4]<-100; [elab 6]<-100; [elab 8]<-100; [elab 10]<-111; [elab 12]<-111
+//  endif
+  {swTecho,swtieneTecho}<-false
+  use codos; drop
+  use enemigos; drop
+  use mapa; drop
+
+  color(14)
+  .pone_ready()
+  
+  if subetapa<=3
+//     .labFull();
+     enemyTope<-3+etapa
+     .labManual("base04.txt")
+//     .labManual("laberinto01")   // laberinto01.map y laberinto01.color
+     from<-5
+     tipoLab<-1
+     if etapa=1
+        if subetapa=1
+           tipoLab<-0  // solo en la primera etapa corre solo.
+        endif
+     endif
+     musicaFondo<-"rat_fondo.wav"
+     labColor<-101
+  elseif subetapa=4
+    // challenge stage
+     .challenge_stage()
+     cmd( PATH+"maze_1") //"/home/xu/Proyectos/xuesp/LINUX-64bits/maze_1 ")
+     mat.load((flag ",") s (PATH+"laberinto.txt"))
+     
+     vsiz<-[@s]
+     if etapa>=3
+        enemyTope<-3
+     else
+        enemyTope<-2 //etapa
+     endif
+     
+     .llenaLab(); from<-20; tipoLab<-0
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-101
+     
+  elseif between (subetapa 5 7)
+     enemyTope<-4+etapa
+     .labManual("base05.txt"); from<-5 
+     tipoLab<-1
+     if etapa=1
+        if subetapa=5
+           tipoLab<-0
+        endif
+     endif
+     musicaFondo<-"rat_fondo.wav"
+     labColor<-109
+     .labTecho("ceil05.txt")
+     swtieneTecho<-true
+     
+  elseif subetapa=8
+     .challenge_square()
+     enemyTope<-4+etapa
+     .labSquare(); from<-5; tipoLab<-1
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-109
+     
+  elseif between(subetapa 9 11) 
+     enemyTope<-4+etapa
+     .labManual("base06.txt")
+     from<-5; 
+     tipoLab<-1
+     if etapa=1
+        if subetapa=9
+           tipoLab<-0
+        endif
+     endif
+     musicaFondo<-"rat_fondo.wav"
+     labColor<-97
+     .labTecho("ceil06.txt")
+     swtieneTecho<-true
+  elseif subetapa=12
+     .lab_shadow()
+//     flags<-12
+     enemyTope<-4+etapa
+     if etapa>2
+        .labFull()
+     else
+        .labSquare()
+     endif
+     from<-5; tipoLab<-0
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-0
+  elseif subetapa=13
+     enemyTope<-4+etapa
+     .labManual("base03.txt")
+     from<-5; tipoLab<-0
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-99
+  elseif subetapa=14
+     enemyTope<-4+etapa
+     .labManual("base03.txt")
+     from<-5; tipoLab<-1
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-99
+  elseif subetapa=15
+     enemyTope<-4+etapa
+     .labManual("base03.txt")
+     from<-5; tipoLab<-1
+     musicaFondo<-"rat_fondo_challenge.wav"
+     labColor<-99
+  elseif between (subetapa 16 18)
+     
+     if subetapa=16
+        if etapa=1
+           .lab_gift()
+        endif
+        enemyTope<-2+etapa; tipoLab<-0
+     else
+        enemyTope<-3+etapa; tipoLab<-1
+     endif
+     cmd( PATH+"maze_1") //"/home/xu/Proyectos/xuesp/LINUX-64bits/maze_1 ")
+     mat.load((flag ",") s (PATH+"laberinto.txt"))
+     
+     vsiz<-[@s]
+
+     .llenaLab(); from<-20
+     musicaFondo<-"rat_fondo_challenge.wav"
+     Tiempo<-120
+     labColor<-104
+  
+  endif
+//  elseif etapa=3
+//  .labHorz(); from<-5; tipoLab<-1; enemyTope<-4
+//  .labVert(); from<-5; tipoLab<-1; enemyTope<-4
+  use s; drop
+
+  labxsiz<-[[@lab] 2]  // numero de filas del laberinto
+  labysiz<-[[@lab] 3]  // numero de cols del laberinto
+  multiplicador<-1 
+  swRoe<-false
+//  dim codos(labxsiz,labysiz)
+//  dim enemigos(labxsiz,labysiz)
+  // pone frutas.
+  lm<-[\ lab "=" 32]   // cuento cantidad de espacios en blanco. Me sirve para dos propósitos:
+                       // ver donde pongo los flags, y calcular porcentaje de camino recorrido.
+  
+  nlm<-[[@lm] 2]
+  
+  totalRecorrido<-nlm\3
+  cRecorrido<-0
+  
+  cont<-0
+  dim mapa(flags,3)
+  
+  color(7)
+  api "box=11,63,30,88,S" //+chr(219)
+   
+  while cont<(flags-2)  //30
+     z<-mth.ceil(mth.rand(nlm))
+     if [.lm z 1]>from and [.lm z 1]<labxsiz-2
+        if [.lm z 2]<labysiz-2
+           if (([.lab [.lm z 1] ([.lm z 2]-1)])=32) and (([.lab [.lm z 1] ([.lm z 2]+1)])=32) 
+              // coloca os puntos en el mapa:
+              mapax<-((17*[.lm z 1])\labxsiz) + 12
+              mapay<-((22*[.lm z 2])\labysiz)+ 64
+              sw<-false
+              for i<-1 to cont
+                 if [.mapa i,1]=mapax and [.mapa i,2]=mapay
+                    sw<-true
+                    break
+                 endif
+              next
+              if ~sw
+                 ++cont
+                 [.lab [.lm z 1] [.lm z 2]]<-13
+                 at(mapax,mapay); write "·"
+                 [.mapa cont,1]<-mapax
+                 [.mapa cont,2]<-mapay
+                 [.mapa cont,3]<-1
+              endif
+           endif
+        endif
+     endif
+  wend
+  color(10)
+  while cont<(flags-1)  // 31
+     z<-mth.ceil(mth.rand(nlm))
+     if [.lm z 1]>from and [.lm z 1]<labxsiz-2
+        if [.lm z 2]<labysiz-2
+           if (([.lab [.lm z 1] ([.lm z 2]-1)])=32) and (([.lab [.lm z 1] ([.lm z 2]+1)])=32) 
+              mapax<-((17*[.lm z 1])\labxsiz) + 12
+              mapay<-((22*[.lm z 2])\labysiz)+ 64
+              sw<-false
+              for i<-1 to cont
+                 if [.mapa i,1]=mapax and [.mapa i,2]=mapay
+                    sw<-true
+                    break
+                 endif
+              next
+              if ~sw
+                 ++cont
+                 [.lab [.lm z 1] [.lm z 2]]<-83  //36
+                 at(mapax,mapay); write "+" //chr(15)
+                 [.mapa cont,1]<-mapax
+                 [.mapa cont,2]<-mapay
+                 [.mapa cont,3]<-1
+              endif
+           endif
+        endif
+     endif
+  wend
+  color(4)
+  while cont<flags   // 32
+     z<-mth.ceil(mth.rand(nlm))
+     if [.lm z 1]>from and [.lm z 1]<labxsiz-2
+        if [.lm z 2]<labysiz-2
+           if (([.lab [.lm z 1] ([.lm z 2]-1)])=32) and (([.lab [.lm z 1] ([.lm z 2]+1)])=32) 
+              mapax<-((17*[.lm z 1])\labxsiz) + 12
+              mapay<-((22*[.lm z 2])\labysiz)+ 64
+              sw<-false
+              for i<-1 to cont
+                 if [.mapa i,1]=mapax and [.mapa i,2]=mapay
+                    sw<-true
+                    break
+                 endif
+              next
+              if ~sw
+                 ++cont
+                 [.lab [.lm z 1] [.lm z 2]]<-76  //158
+                 at(mapax,mapay); write "+" //chr(15)
+                 [.mapa cont,1]<-mapax
+                 [.mapa cont,2]<-mapay
+                 [.mapa cont,3]<-1
+              endif
+           endif
+        endif
+     endif
+  wend
+/*  
+  use guardaEtapa; drop
+
+  use guardaEtapa
+  push (enemyTope)
+  
+  dim wx(enemyTope); dim wy(enemyTope)
+  k<-1
+  // colocar los perseguidores segun el mismo algoritmo.
+  for i<-1 to labxsiz
+     for j<-1 to labysiz
+        if [.lab i,j]=180
+           [.codos i,j]<-180
+           [.lab i,j]<-32
+        elseif [.lab i,j]=118
+           [.codos i,j]<-118
+           [.lab i,j]<-32
+        elseif [.lab i,j]=197
+           [.codos i,j]<-197
+           [.lab i,j]<-32
+           if i>(labxsiz-20)
+              if k<=enemyTope
+                 [wx k]<-i
+                 [wy k]<-j
+//                 ."x=",i," y=",j,"\n"
+                 use guardaEtapa
+                 push {i,j}
+                 ++k
+              endif
+           endif
+        elseif [.lab i,j]=62
+           [.codos i,j]<-62
+           [.lab i,j]<-32
+        elseif [.lab i,j]=218
+           [.codos i,j]<-218
+           [.lab i,j]<-32
+        elseif [.lab i,j]=192
+           [.codos i,j]<-192
+           [.lab i,j]<-32
+        elseif [.lab i,j]=194
+           [.codos i,j]<-194
+           [.lab i,j]<-32
+        elseif [.lab i,j]=193
+           [.codos i,j]<-193
+           [.lab i,j]<-32
+        elseif [.lab i,j]=60
+           [.codos i,j]<-60
+           [.lab i,j]<-32
+        elseif [.lab i,j]=94
+           [.codos i,j]<-94
+           [.lab i,j]<-32
+        elseif [.lab i,j]=191
+           [.codos i,j]<-191
+           [.lab i,j]<-32
+        elseif [.lab i,j]=217
+           [.codos i,j]<-217
+           [.lab i,j]<-32
+        elseif [.lab i,j]=195
+           [.codos i,j]<-195
+           [.lab i,j]<-32
+        endif
+     next
+  next
+  
+  enemigos<-255
+  for i<-1 to (enemyTope-1)
+     [.enemigos [wx i] ([wy i]-1)]<-40;[.enemigos [wx i] [wy i]]<-35;[.enemigos [wx i] ([wy i]+1)]<-41 // Φ#Φ Θ∞Θ 
+  next
+  try
+  [.enemigos [wx enemyTope] ([wy enemyTope]-1)]<-174
+  exception
+     at(10,10);."X=",[wx enemyTope]," Y=",[wy enemyTope]-1
+     pause
+  tend
+  [.enemigos [wx enemyTope] [wy  enemyTope]]<-63
+  [.enemigos [wx enemyTope] ([wy enemyTope]+1)]<-175 // Φ#Φ Θ∞Θ 
+*/  
+  delLastEnemy<-0
+  if subetapa=4 or subetapa=8 or subetapa=12
+     delLastEnemy<-1
+  endif
+  
+  use lm; drop
+
+  b<-1
+  x<-20
+  
+  use guardaEtapa
+  push {b,x}
+  
+  {direccion,pdireccion}<-{"S","S"}
+  
+//     .muestraLab(b x)
+  heroeColor<-120   //104
+  if subetapa<>12
+//     labColor<-[colores mth.ceil(mth.rand(8))]  //114 //94
+     at(1 1); //color(labColor)
+     writmap(lab clab b 0 x (x+59) 0)
+//     .you_win()
+//     goodbye
+  else
+     sw<-true
+     Tiempo<-2000
+     for i<-1 to 14
+        if sw
+           color(109)
+           sw<-false
+        else
+           color(0)
+           sw<-true
+        endif
+        at(1 1)
+        writmap(lab clab b 0 x (x+59) 0)
+        millisec(Tiempo)
+        Tiempo<-Tiempo-(Tiempo\2)
+     next
+     labColor<-0
+     Tiempo<-90
+  endif
+  sw<-false
+  
+  ry<-31
+  rx<-5
+  loop
+     lx<-b+rx-1; ly<-x+ry-1
+     if [.lab lx ly]<>219 and [.lab lx (ly+1)]<>219 and [.lab lx (ly+2)]<>219
+        break
+     else
+        ++rx
+     endif
+  lend
+  // posicion de enemigos
+  dim dx(enemyTope); dim dy(enemyTope) 
+//  [.enemigos lx, (ly+1)]<-35
+  for i<-1 to enemyTope
+     tx<-[wx i]
+     ty<-[wy i]
+     if [.lab (tx+1),ty]=32
+        [dx i]<-1
+        [dy i]<-0 //(-1)
+     elseif [.lab tx,(ty-1)]=32
+        [dx i]<-0
+        [dy i]<-(-1)
+     elseif [.lab tx,(ty+1)]=32
+        [dx i]<-0
+        [dy i]<-1
+     endif
+     use guardaEtapa
+     push {[dx i],[dy i]}
+  next
+  
+  use guardaEtapa
+  push {rx,ry,lx,ly}
+  
+  at(rx ry); last<-"ºvº"; write last
+  cursor(0)
+//  .level_clear()  
+//  goodbye
+
+  updownt<-80
+  ctaCepillo<-0
+  ctaRetarda<-0
+  
+  .pone_vidas()
+  .pone_tiempo(Tiempo,1,75,1)
+  .pone_puntos()
+  ++nround
+  color(10)
+//  at(33,63);."R O U N D  ",($nround)
+  at(33,63);."E X P E R I M E N T   ",($nround)
+  if etapa=1 and subetapa=1
+     cmd(PATHs+"rat_inicio.wav </dev/null >/dev/null 2>&1")
+  else
+     sleep(2)
+  endif
+  
+  swPierde<-false
+  swNoFrizz<-true
+  if swSound
+     cmd(PATHs+musicaFondo+" </dev/null >/dev/null 2>&1 &")
+  endif
+
+  t<-seconds("")
+  t2<-seconds("")
+  t3<-seconds("")
+  t4<-seconds("")
+  t5<-seconds("")
+
+  while true
+     /* Perseguidores */
+     if tipoLab  // <>0: hay perseguidores
+        if timer(t2 50)
+           //at(kx,ky); write " "
+           posx<-b+rx-1
+           posy<-x+ry-1
+//           at(12,70); write "X=",posx," Y=",posy,"    "
+           .pone_mapa()
+           for i<-1 to (enemyTope-delLastEnemy)
+              px<-[wx i]
+              py<-[wy i]
+              if posx=px and between(py posy (posy+2))
+                 if i=enemyTope
+                    misterio<-mth.rand(1)
+                    if misterio<=0.05   // apaga el laberinto
+                       if swSound
+                          cmd(PATHs+"rat_muere.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       sw<-true
+                       sTiempo<-1000
+                       for j<-1 to 14
+                          if sw
+                             color(labColor)
+                             sw<-false
+                          else
+                             color(8)
+                             sw<-true
+                          endif
+                          at(1 1)
+                          writmap(lab clab b 0 x (x+59) 0)
+                          millisec(sTiempo)
+                          sTiempo<-sTiempo-(sTiempo\2)
+                       next
+//                       [clab 2]<-15; [clab 4]<-10; [clab 6]<-13
+//                       [elab 2]<-12; [elab 4]<-4; [elab 6]<-4; [elab 8]<-4 ; [elab 10]<-15; [elab 12]<-15
+                       
+                       labColor<-8
+                    elseif misterio<=0.1  // vida extra!
+                       ++vidas
+                       color(15)
+                       at(rx,ry);." EXTRA "
+                       
+                       if swSound
+                          cmd(PATHs+"rat_extra.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       .pone_vidas()
+//                    elseif misterio<=0.3   // tiempo extra
+//                       if swSound
+//                          cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+//                       endif
+//                       .suma_tiempo()
+                    elseif misterio<=0.8    // frizz cyber-cats
+                       if swSound
+                          cmd(PATHs+"rat_frizz.wav </dev/null >/dev/null 2>&1 &")
+                       endif
+                       millisec(500)
+                       .pone_destello()
+                       swNoFrizz<-false
+                       fTiempo<-10
+                       tmpdx<-dx  // respaldo direcciones
+                       tmpdy<-dy 
+                       dx<-0  // 0 para que no se muevan
+                       dy<-0
+                       tf<-seconds("")
+                       
+                    else      // suma puntos aleatorios
+                       indPuntos<-mth.ceil(mth.rand(10))
+                       color(15)
+                       at(rx,ry);." "+($[addPuntos indPuntos])+" "
+                       if swSound
+                          cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       puntos<-puntos+[addPuntos indPuntos]
+                       .pone_puntos()
+                    endif
+                    delLastEnemy<-1  // anulo al loquillo
+                    
+                 else
+                    .KILLSOUND()
+                    .mata_rata()
+                    swPierde<-true
+                    break
+                 endif
+              endif
+              
+              q<-[.codos px,py]
+//              at(13,70); write "Q=",q," TX=",tx," TY=",ty,"   "
+              tx<-[dx i]
+              ty<-[dy i]
+//              at(14,70); write "Q=",q," DX=",tx," DY=",ty,"   "
+              
+              if swNoFrizz
+              
+                 if q=218    // ┌
+                    if tx=0 and ty=(-1)
+                       {[dx i],[dy i]}<-{1,0}
+                    elseif tx=(-1) and ty=0
+                       {[dx i],[dy i]}<-{0,1}
+                    endif
+                 elseif q=192  // └
+                    if tx=1 and ty=0
+                       {[dx i],[dy i]}<-{0,1}
+                    elseif tx=0 and ty=(-1)
+                       {[dx i],[dy i]}<-{(-1),0}
+                    endif
+                 elseif q=191   // ┐
+                    if tx=0 and ty=1
+                       {[dx i],[dy i]}<-{1,0}
+                    elseif tx=(-1) and ty=0
+                       {[dx i],[dy i]}<-{0,(-1)}
+                    endif
+                 elseif q=217  // ┘
+                    if tx=1 and ty=0
+                       {[dx i],[dy i]}<-{0,(-1)}
+                    elseif tx=0 and ty=1
+                       {[dx i],[dy i]}<-{(-1),0}
+                    endif
+                 elseif q=60   // <
+                    if tx=0 and ty=1
+                       {[dx i],[dy i]}<-{0,(-1)}
+                    endif
+                 elseif q=94   // ^
+                    if tx=1 and ty=0
+                       {[dx i],[dy i]}<-{(-1),0}
+                    endif
+                 elseif q=62   //>
+                    if tx=0 and ty=(-1)
+                       {[dx i],[dy i]}<-{0,1}
+                    endif
+                 elseif q=118   //v
+                    if tx=(-1) and ty=0
+                       {[dx i],[dy i]}<-{1,0}
+                    endif
+             ///
+                 elseif q=194  // ┬
+                    if tx=0 
+                       if ty=(-1)  // viene hacia la izquierda
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,(-1)}
+                             else
+                                {[dx i],[dy i]}<-{1,0}
+                             endif
+                          else
+                             if posx<=px
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{0,(-1)}
+                                else
+                                   {[dx i],[dy i]}<-{1,0}
+                                endif
+                             else
+                                if posy>py
+                                   {[dx i],[dy i]}<-{1,0}
+                                else
+                                   {[dx i],[dy i]}<-{0,(-1)}
+                                endif
+                             endif
+                          endif
+                       else  // viene hacia la derecha
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,1}
+                             else
+                                {[dx i],[dy i]}<-{1,0}
+                             endif
+                          else
+                             if posx<=px
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{1,0}
+                                else
+                                   {[dx i],[dy i]}<-{0,1}
+                                endif
+                             else
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{1,0}
+                                else
+                                   {[dx i],[dy i]}<-{0,1}
+                                endif
+                             endif
+                          endif
+                       endif
+                    else  //if tx=(-1) and ty=0
+                       if i=enemyTope
+                          if mth.rand(1)>0.5
+                             {[dx i],[dy i]}<-{0,(-1)}
+                          else
+                             {[dx i],[dy i]}<-{0,1}
+                          endif
+                       else
+                          if posx<=px
+                             {[dx i],[dy i]}<-{0,(-1)}
+                          else
+                             {[dx i],[dy i]}<-{0,1}
+                          endif
+                       endif
+                    endif
+                 elseif q=180   // ┤
+                    if tx=0 and ty=1  // hacia derecha
+                       if i=enemyTope
+                          if mth.rand(1)>0.5
+                             {[dx i],[dy i]}<-{(-1),0}
+                          else
+                             {[dx i],[dy i]}<-{1,0}
+                          endif
+                       else
+                          if posx<=px
+                             {[dx i],[dy i]}<-{(-1),0}
+                          else
+                             {[dx i],[dy i]}<-{1,0}
+                          endif
+                       endif
+                    elseif ty=0  // 
+                       if tx=(-1)   // sube 
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{(-1),0}
+                             else
+                                {[dx i],[dy i]}<-{0,(-1)}
+                             endif
+                          else
+                             if posx<=px
+                                if mth.rand(0.5)>0.5
+                                   {[dx i],[dy i]}<-{(-1),0}  // sigue
+                                else
+                                   {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                                endif
+                             else
+                                {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                             endif
+                          endif
+                       elseif tx=1   // baja
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,(-1)}
+                             else
+                                {[dx i],[dy i]}<-{1,0}
+                             endif
+                          else
+                             if posx>=px
+                                if mth.rand(0.5)>0.5
+                                   {[dx i],[dy i]}<-{1,0}  // sigue
+                                else
+                                   {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                                endif
+                             else
+                                {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                             endif
+                          endif
+                       endif
+                    endif
+                 elseif q=193   //┴
+                    if tx=0    // horizontal
+                       if ty=1  // hacia la derecha
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{(-1),0}
+                             else
+                                {[dx i],[dy i]}<-{0,1}
+                             endif
+                          else
+                             if posx<=px
+                                {[dx i],[dy i]}<-{(-1),0}  // sube
+                             else
+                                {[dx i],[dy i]}<-{0,1}  // sigue
+                             endif
+                          endif
+                       elseif ty=(-1)  // hacia la izquierda
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{(-1),0}
+                             else
+                                {[dx i],[dy i]}<-{0,(-1)}
+                             endif
+                          else
+                             if posx<=px
+                                if mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{(-1),0}  // sube
+                                else
+                                   {[dx i],[dy i]}<-{0,(-1)}  // sigue
+                                endif
+                             else
+                                {[dx i],[dy i]}<-{0,(-1)}  // sigue
+                             endif
+                          endif
+                       endif
+                    else   //tx=1 and ty=0  // hacia abajo
+                       if i=enemyTope
+                          if mth.rand(1)>0.5
+                             {[dx i],[dy i]}<-{0,(-1)}
+                          else
+                             {[dx i],[dy i]}<-{0,1}
+                          endif
+                       else
+                          if posy<=py
+                             {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                          else
+                             {[dx i],[dy i]}<-{0,1}   // derecha
+                          endif
+                       endif
+                    endif
+                 elseif q=195   // ├
+                    if ty=0  // viene bajando o subiendo
+                       if tx=1  // bajando
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,1}
+                             else
+                                {[dx i],[dy i]}<-{1,0}
+                             endif
+                          else
+                             if posx<=px
+                                {[dx i],[dy i]}<-{0,1}  // derecha
+                             else
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{1,0}  // baja
+                                else
+                                   {[dx i],[dy i]}<-{0,1}  // derecha
+                                endif
+                             endif
+                          endif
+                       else   //tx=(-1) and ty=0   // viene subiendo
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{(-1),0}
+                             else
+                                {[dx i],[dy i]}<-{0,1}
+                             endif
+                          else
+                             if posx<=px
+                                {[dx i],[dy i]}<-{(-1),0}  // sigue
+                             else
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{(-1),0}  // sigue
+                                else
+                                   {[dx i],[dy i]}<-{0,1} // derecha
+                                endif
+                             endif
+                          endif
+                       endif
+                    else   //tx=0 and ty=(-1)   // viene hacia la izquierda
+                       if i=enemyTope
+                          if mth.rand(1)>0.5
+                             {[dx i],[dy i]}<-{(-1),0}
+                          else
+                             {[dx i],[dy i]}<-{1,0}
+                          endif
+                       else
+                          if posx<=px
+                             {[dx i],[dy i]}<-{(-1),0}  // sube
+                          else
+                             {[dx i],[dy i]}<-{1,0} // baja
+                          endif
+                       endif
+                    endif
+                 elseif q=197   // ┼
+                    if ty=0  // viene bajando o subiendo
+                       if tx=1   // bajando
+                          if i=enemyTope
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,(-1)}
+                             elseif mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{1,0}
+                             else
+                                {[dx i],[dy i]}<-{0,1}
+                             endif
+                          else
+                             if posx<=px
+                                if posy<=py
+                                   {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                                else
+                                   {[dx i],[dy i]}<-{0,1}  // derecha
+                                endif
+                             else
+                                {[dx i],[dy i]}<-{1,0}  // sigo
+                             endif
+                          endif
+                       else  //tx=(-1) and ty=0  // viene subiendo
+                          if posx<=px
+                             if posy<=py
+                                if mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                                else
+                                   {[dx i],[dy i]}<-{(-1),0}  // sigo
+                                endif
+                             else
+                                if mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{0,1}  // derecha
+                                else
+                                   {[dx i],[dy i]}<-{(-1),0}  // sigo
+                                endif
+                             endif
+                          else
+                             if mth.rand(1)>0.5
+                                {[dx i],[dy i]}<-{0,(-1)}  // izquierda
+                             else
+                                {[dx i],[dy i]}<-{0,1}  // derecha
+                             endif
+                          endif
+                       endif
+                    else
+                       if tx=0   ///and ty=1   // viene hacia la derecha o hacia la izquierda
+                          if ty=1   // derecha
+                             if i=enemyTope
+                                if mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{(-1),0}
+                                elseif mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{0,1}
+                                else
+                                   {[dx i],[dy i]}<-{1,0}
+                                endif
+                             else
+                                if posx<=px
+                                   if posy<=py
+                                      {[dx i],[dy i]}<-{(-1),0}  // subo
+                                   else
+                                      {[dx i],[dy i]}<-{0,1}  // sigo
+                                   endif
+                                else
+                                   if posy<=py
+                                      {[dx i],[dy i]}<-{1,0}   // bajo
+                                   else
+                                      {[dx i],[dy i]}<-{0,1}  // sigo
+                                   endif
+                                endif
+                             endif
+                          else   //if tx=0 and ty=(-1)  // viene hacia la izquierda
+                             if i=enemyTope
+                                if mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{(-1),0}
+                                elseif mth.rand(1)>0.5
+                                   {[dx i],[dy i]}<-{0,(-1)}
+                                else
+                                   {[dx i],[dy i]}<-{1,0}
+                                endif
+                             else
+                                if posx<=px
+                                   if posy<=py
+                                      {[dx i],[dy i]}<-{0,(-1)}  // sigo
+                                   else
+                                      {[dx i],[dy i]}<-{(-1),0}  // subo
+                                   endif
+                                else
+                                   if posy<=py
+                                      {[dx i],[dy i]}<-{0,(-1)}  // sigo
+                                   else
+                                      {[dx i],[dy i]}<-{1,0}   // bajo
+                                   endif
+                                endif
+                             endif
+                          endif
+                       endif
+                    endif
+                 endif
+              endif  // swNoFrizz
+              mapax<-((17*[wx i])\labxsiz) + 12
+              mapay<-((22*[wy i])\labysiz)+ 64
+              at(mapax,mapay); write " "
+
+//              [.enemigos [wx i],[wy i]]<-255
+              [.enemigos [wx i] ([wy i]-1)]<-255;[.enemigos [wx i] [wy i]]<-255;[.enemigos [wx i] ([wy i]+1)]<-255
+              
+              [wx i]<-[wx i]+[dx i]
+              [wy i]<-[wy i]+[dy i]
+//              [.enemigos [wx i],[wy i]]<-35
+              if i<>enemyTope
+                 [.enemigos [wx i] ([wy i]-1)]<-40;[.enemigos [wx i] [wy i]]<-35;[.enemigos [wx i] ([wy i]+1)]<-41
+                 mapax<-((17*[wx i])\labxsiz) + 12
+                 mapay<-((22*[wy i])\labysiz)+ 64
+                 color(12)
+                 at(mapax,mapay); write "#"
+              else
+                 [.enemigos [wx i] ([wy i]-1)]<-174;[.enemigos [wx i] [wy i]]<-63;[.enemigos [wx i] ([wy i]+1)]<-175
+              endif
+           next
+         //
+           if swPierde
+              swPierde<-false
+              sleep(2)
+              if subetapa=4 or subetapa=8
+                 ++subetapa
+                 break
+              endif
+              .reiniciaJuego()
+              if ~swNoFrizz
+                 swNoFrizz<-true
+                 use tmpdx; drop
+                 use tmpdy; drop
+                 at(0,(vc\2-14)); color(0); ."CYBER-CATS STOP TO ",($fTiempo)," SECONDS "
+              endif           
+              
+              --vidas
+              if vidas=0
+                 swFinal<-true
+                 break
+              endif
+              .pone_vidas()
+              if swSound
+                 cmd(PATHs+musicaFondo+" </dev/null >/dev/null 2>&1 &")
+              endif
+              continue
+           endif
+           
+           color(labColor);at(1,1)
+           writmap(lab clab b 0 x (x+59) 0)
+           color(heroeColor)
+           at(rx,ry); write last
+           at(1,1);color(0)
+           writmap(enemigos elab b 0 x (x+59) 0)
+           color(heroeColor)
+           at(rx,ry); write last
+        endif
+     else  // debe imprimir igual para evitar el rastreo
+        if timer(t2 50)
+           .pone_mapa()
+           color(labColor);at(1,1)
+           writmap(lab clab b 0 x (x+59) 0)
+           color(heroeColor)
+           
+//     at(1 1); color(labColor)
+//     writmap(codos clab b 0 x (x+59) 0)
+           
+           at(rx,ry); write last
+           at(1,1);color(0)
+           writmap(enemigos elab b 0 x (x+59) 0)
+           color(heroeColor)
+           at(rx,ry); write last
+        endif 
+     endif
+     
+     if ~swNoFrizz
+        at(0,(vc\2-14)); color(79); ."CYBER-CATS STOP TO ",($fTiempo)," SECONDS "
+        if timer(tf 1000)
+           if swSound
+              cmd(PATHs+"rat_alarma_frizz.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           --fTiempo
+           if fTiempo<0
+//              if swSound
+//                 cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+//              endif
+              swNoFrizz<-true
+              dy<-tmpdy
+              dx<-tmpdx
+              use tmpdx; drop  // limpio
+              use tmpdy; drop
+              at(0,(vc\2-14)); color(0); ."CYBER-CATS STOP TO ",($fTiempo)," SECONDS   "
+           endif
+        endif
+     endif
+     
+     if timer(t3 1000)
+        --Tiempo,if Tiempo>0
+        .pone_tiempo(Tiempo,1,75,1)
+        if Tiempo=45
+           if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+              tipoLab<-1
+           endif
+        elseif Tiempo=60   // al transcurrir 30 segundos, pone techo
+           if swtieneTecho
+              if swSound
+                  cmd(PATHs+"rat_alerta.wav </dev/null >/dev/null 2>&1 &")
+              endif
+              swTecho<-true
+           endif
+        elseif Tiempo<=0
+           .KILLSOUND()
+           .mata_rata()
+           sleep(1)
+           .time_out()
+           swFinal<-true
+           break
+        endif
+     endif
+     /* Ratón */
+     if timer(t updownt)
+        readkey(c)
+//        flush()
+        if c>0
+//           at(rx ry); ."   "
+           oldx<-rx
+           oldy<-ry
+           mapax<-((17*(b+rx-1))\labxsiz) + 12
+           mapay<-((22*(x+ry))\labysiz)+ 64
+           color(0)
+           at(mapax,mapay); write " "
+           
+           sw<-false
+           pdireccion<-"X"
+           if c=KUP
+              if (lx-1)>1
+              if [.lab (lx-1) ly]<176 //>176 //<>219
+                 if [.lab (lx-1) (ly+1)]<176 //>176//<>219
+                    if [.lab (lx-1) (ly+2)]<176 //>176 //<>219
+                       --rx;--lx;direccion<-"N"; last<-"o^o" //; .verificaBoca("V" "|")
+                       .tonorte()
+                       updownt<-VERT
+                       sw<-true
+                    else
+                       pdireccion<-"N";flush()
+                    endif
+                 else
+                    pdireccion<-"N";flush()
+                 endif
+              else
+                 pdireccion<-"N";flush()
+              endif
+              endif
+           elseif c=KDOWN
+              if (lx+1)<labxsiz
+              if [.lab (lx+1) ly]<176 //>176 //<>219
+                 if [.lab (lx+1) (ly+1)]<176 //>176 //<>219
+                    if [.lab (lx+1) (ly+2)]<176 //>176 //<>219
+                       ++rx;++lx;direccion<-"S"; last<-"ºvº" //;ºÜº .verificaBoca("^" "|")
+                       .tosur()
+                       updownt<-VERT
+                       sw<-true
+                    else
+                       pdireccion<-"S";flush()
+                    endif
+                 else
+                    pdireccion<-"S";flush()
+                 endif
+              else
+                 pdireccion<-"S";flush()
+              endif
+              endif
+           elseif c=KLEFT
+              if (ly-1)>1
+              if [.lab lx (ly-1)]<176 //>176 //<>219
+                 --ry;--ly;direccion<-"E"; last<-"<?_" //;<?_ .verificaBoca(">" "─")
+                 .tooeste()
+                 updownt<-HORZ
+                 sw<-true
+              else
+                 pdireccion<-"E";flush()
+              endif
+              endif
+           elseif c=KRIGHT
+              if (ly+3)<labysiz
+              if [.lab lx (ly+3)]<176 //>176 //<>219
+                 ++ry;++ly;direccion<-"O" ;last<-"_?>"//;_?Ω> .verificaBoca("<" "─")
+                 .toeste()
+                 updownt<-HORZ
+                 sw<-true
+              else
+                 pdireccion<-"O";flush()
+              endif
+              endif
+           elseif c=408   // ALT-flecha arriba
+              if (lx-1)>1
+              if     [.lab (lx-1) ly]=219
+                     [.lab (lx-1) ly]<-178
+                     if (lx-1)>1
+                        [.lab (lx-1) (ly+1)]<-178
+                        [.lab (lx-1) (ly+2)]<-178
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx-1) ly]=178
+                     [.lab (lx-1) ly]<-177
+                     if (lx-1)>1
+                        [.lab (lx-1) (ly+1)]<-177
+                        [.lab (lx-1) (ly+2)]<-177
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx-1) ly]=177
+                     [.lab (lx-1) ly]<-176
+                     if (lx-1)>1
+                        [.lab (lx-1) (ly+1)]<-176
+                        [.lab (lx-1) (ly+2)]<-176
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx-1) ly]=176
+                     [.lab (lx-1) ly]<-32
+                     if (lx-1)>1
+                        [.lab (lx-1) (ly+1)]<-32
+                        [.lab (lx-1) (ly+2)]<-32
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                        cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+                 --rx;--lx;direccion<-"N"; last<-"o^o" //; .verificaBoca("V" "|")
+                 .tonorte()
+                 updownt<-VERT
+                 sw<-true
+              endif
+              endif
+           elseif c=416   // ALT-flecha abajo
+              if (lx+2)<labxsiz
+              if     [.lab (lx+1) ly]=219
+                     [.lab (lx+1) ly]<-178
+                     if (lx+1)>1
+                        [.lab (lx+1) (ly+1)]<-178
+                        [.lab (lx+1) (ly+2)]<-178
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx+1) ly]=178
+                     [.lab (lx+1) ly]<-177
+                     if (lx+1)>1
+                        [.lab (lx+1) (ly+1)]<-177
+                        [.lab (lx+1) (ly+2)]<-177
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx+1) ly]=177
+                     [.lab (lx+1) ly]<-176
+                     if (lx+1)>1
+                        [.lab (lx+1) (ly+1)]<-176
+                        [.lab (lx+1) (ly+2)]<-176
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab (lx+1) ly]=176
+                     [.lab (lx+1) ly]<-32
+                     if (lx+1)>1
+                        [.lab (lx+1) (ly+1)]<-32
+                        [.lab (lx+1) (ly+2)]<-32
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+                 ++rx;++lx;direccion<-"S"; last<-"ºvº" //; .verificaBoca("V" "|")
+                 .tosur()
+                 updownt<-VERT
+                 sw<-true
+              endif
+              endif
+           elseif c=413   // ALT-flecha derecha
+              if (ly+5)<labysiz
+              if     [.lab lx (ly+3)]=219
+                     [.lab lx (ly+3)]<-178
+                     if (ly+5)<labysiz
+                        [.lab lx (ly+4)]<-178
+                        [.lab lx (ly+5)]<-178
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly+3)]=178
+                     [.lab lx (ly+3)]<-177
+                     if (ly+5)<labysiz
+                        [.lab lx (ly+4)]<-177
+                        [.lab lx (ly+5)]<-177
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly+3)]=177
+                     [.lab lx (ly+3)]<-176
+                     if (ly+5)<labysiz
+                        [.lab lx (ly+4)]<-176
+                        [.lab lx (ly+5)]<-176
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly+3)]=176
+                     [.lab lx (ly+3)]<-32
+                     if (ly+5)<labysiz
+                        [.lab lx (ly+4)]<-32
+                        [.lab lx (ly+5)]<-32
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+                 ++ry;++ly;direccion<-"O" ;last<-"_?>"//;_?Ω> .verificaBoca("<" "─")
+                 .toeste()
+                 updownt<-HORZ
+                 sw<-true
+              endif
+              endif
+           elseif c=411   // ALT-flecha izquierda
+              if (ly-3)>1
+              if     [.lab lx (ly-1)]=219
+                     [.lab lx (ly-1)]<-178
+                     if ly>3
+                        [.lab lx (ly-2)]<-178
+                        [.lab lx (ly-3)]<-178
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly-1)]=178
+                     [.lab lx (ly-1)]<-177
+                     if ly>3
+                        [.lab lx (ly-2)]<-177
+                        [.lab lx (ly-3)]<-177
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly-1)]=177
+                     [.lab lx (ly-1)]<-176
+                     if ly>3
+                        [.lab lx (ly-2)]<-176
+                        [.lab lx (ly-3)]<-176
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+              elseif [.lab lx (ly-1)]=176
+                     [.lab lx (ly-1)]<-32
+                     if ly>3
+                        [.lab lx (ly-2)]<-32
+                        [.lab lx (ly-3)]<-32
+                     endif
+                     --Tiempo
+                     if Tiempo=45
+                        if subetapa=4 or subetapa=12 // si esta en challenge, comienzan a moverse los enemigos
+                           tipoLab<-1
+                        endif
+                     endif
+                     if swSound
+                         cmd(PATHs+"rat_humo.wav </dev/null >/dev/null 2>&1 &")
+                     endif
+                     swRoe<-true
+                 --ry;--ly;direccion<-"E"; last<-"<?_" //;<?_ .verificaBoca(">" "─")
+                 .tooeste()
+                 updownt<-HORZ
+                 sw<-true
+              endif
+              endif
+           endif
+           if ~sw    // no pudo cambiar de dirección: analiza la direccion que seguia
+              if direccion="N"
+                 if [.lab (lx-1) ly]<176 //>176 //<>219
+                    if [.lab (lx-1) (ly+1)]<176 //>176 //<>219
+                       if [.lab (lx-1) (ly+2)]<176 //>176 //<>219
+                          --rx;--lx;direccion<-"N"; last<-"o^o" //; .verificaBoca("V" "|")
+                          .tonorte()
+                          updownt<-VERT
+                       endif
+                    endif
+                 endif
+              elseif direccion="S"
+                 if [.lab (lx+1) ly]<176 //>176 //<>219
+                    if [.lab (lx+1) (ly+1)]<176 //>176 //<>219
+                       if [.lab (lx+1) (ly+2)]<176 //>176 //<>219
+                          ++rx;++lx;direccion<-"S"; last<-"ºvº" //; .verificaBoca("^" "|")
+                          .tosur()
+                          updownt<-VERT
+                       endif
+                    endif
+                 endif
+              elseif direccion="E"
+                 if [.lab lx (ly-1)]<176 //>176 //<>219
+                    --ry;--ly;direccion<-"E"; last<-"<?_" //; .verificaBoca(">" "─")
+                    .tooeste()
+                    updownt<-HORZ
+                 endif
+              elseif direccion="O"
+                 if [.lab rx (ly+3)]<176 //>176 //<>219
+                    ++ry;++ly;direccion<-"O"; last<-"_?>"  //; .verificaBoca("<" "─")
+                    .toeste()
+                    updownt<-HORZ
+                 endif
+              endif
+           endif
+        else  // no ha presionado ninguna tecla: sigue direccion en curso
+           sw<-false
+           oldx<-rx
+           oldy<-ry
+//           at(rx ry); ."   "
+           mapax<-((17*(b+rx-1))\labxsiz) + 12
+           mapay<-((22*(x+ry))\labysiz)+ 64
+           color(0)
+           at(mapax,mapay); write " "
+
+           if pdireccion<>"X"   // ha sugerido direccion posible
+              if pdireccion="N"
+                 if [.lab (lx-1) ly]<176 //>176 //<>219
+                    if [.lab (lx-1) (ly+1)]<176 //>176 //<>219
+                       if [.lab (lx-1) (ly+2)]<176 //>176 //<>219
+                          --rx;--lx;direccion<-"N" ;last<-"o^o"//; .verificaBoca("V" "|")
+                          .tonorte()
+                          updownt<-VERT
+                          sw<-true
+                       endif
+                    endif
+                 endif
+              elseif pdireccion="S"
+                 if [.lab (lx+1) ly]<176 //<>219
+                    if [.lab (lx+1) (ly+1)]<176 //<>219
+                       if [.lab (lx+1) (ly+2)]<176 //<>219
+                          ++rx;++lx;direccion<-"S" ;last<-"ºvº"//; .verificaBoca("^" "|")
+                          .tosur()
+                          updownt<-VERT
+                          sw<-true
+                       endif
+                    endif
+                 endif
+              elseif pdireccion="E"
+                 if [.lab lx (ly-1)]<176 //<>219
+                    --ry;--ly;direccion<-"E";last<-"<?_" //; .verificaBoca(">" "─")
+                    .tooeste()
+                    updownt<-HORZ
+                    sw<-true
+                 endif
+              elseif pdireccion="O"
+                 if [.lab lx (ly+3)]<176 //<>219
+                    ++ry;++ly;direccion<-"O";last<-"_?>" //; .verificaBoca("<" "─")
+                    .toeste()
+                    updownt<-HORZ
+                    sw<-true
+                 endif
+              endif
+           endif
+           if (~sw) or pdireccion="X"   // no pudo tomar direccion sugerida o no hay sugerencia
+
+              if direccion="N"       // la direccion que lleva es valida en el siguiente paso?
+                 if [.lab (lx-1) ly]<176 //<>219
+                    if [.lab (lx-1) (ly+1)]<176 //<>219
+                       if [.lab (lx-1) (ly+2)]<176 //<>219
+                          --rx;--lx;direccion<-"N"; last<-"o^o" //; .verificaBoca("V" "|")
+                          .tonorte()
+                          updownt<-VERT
+                       endif
+                    endif
+                 endif
+              elseif direccion="S"
+                 if [.lab (lx+1) ly]<176 //<>219
+                    if [.lab (lx+1) (ly+1)]<176 //<>219
+                       if [.lab (lx+1) (ly+2)]<176 //<>219
+                          ++rx;++lx;direccion<-"S"; last<-"ºvº" //; .verificaBoca("^" "|")
+                          .tosur()
+                          updownt<-VERT
+                       endif
+                    endif
+                 endif
+              elseif direccion="E"
+                 if [.lab lx (ly-1)]<176 //<>219
+                    --ry;--ly;direccion<-"E"; last<-"<?_" //; .verificaBoca(">" "─")
+                    .tooeste()
+                    updownt<-HORZ
+                 endif
+              elseif direccion="O"
+                 if [.lab lx (ly+3)]<176 //<>219
+                    ++ry;++ly;direccion<-"O"; last<-"_?>" //; .verificaBoca("<" "─")
+                    .toeste()
+                    updownt<-HORZ
+                 endif
+              endif
+           endif
+        endif
+        
+        if [.lab lx ly]=43   // aumenta velocidad
+           if updownt=VERT
+              updownt<-VERT\4
+              swCepilla<-true
+           elseif updownt=HORZ
+              updownt<-HORZ\4
+              swCepilla<-true  
+           endif
+        elseif [.lab lx (ly+1)]=43   // por si baja o sube
+           if updownt=VERT
+              updownt<-VERT\4  
+              swCepilla<-true  
+           elseif updownt=HORZ
+              updownt<-HORZ\4
+              swCepilla<-true  
+           endif
+        elseif [.lab lx ly]=45   // disminuye velocidad
+           if updownt=VERT
+              updownt<-VERT*2
+              swRetarda<-true
+           elseif updownt=HORZ
+              updownt<-HORZ*2
+              swRetarda<-true
+           endif
+        elseif [.lab lx (ly+1)]=45   // por si baja o sube
+           if updownt=VERT
+              updownt<-VERT*2  
+              swRetarda<-true
+           elseif updownt=HORZ
+              updownt<-HORZ*2
+              swRetarda<-true
+           endif
+        else
+           swCepilla<-false
+           swRetarda<-false
+           ctaCepillo<-0
+           ctaRetarda<-0
+        endif
+        
+        room swCepilla
+           ++ctaCepillo
+           if ctaCepillo=1
+              if swSound
+                 cmd(PATHs+"rat_cepilla.wav </dev/null >/dev/null 2>&1 &")
+              endif
+           endif
+           swCepilla<-false
+        rend
+        
+        room swRetarda
+           ++ctaRetarda
+           if ctaRetarda=1
+              if swSound
+                 cmd(PATHs+"rat_retarda.wav </dev/null >/dev/null 2>&1 &")
+              endif
+           endif
+           swRetarda<-false
+        rend
+        
+        
+        if [.lab lx ly]=13
+           [.lab lx ly]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*ly)\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_bandera.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           puntos<-+100*multiplicador
+           .pone_puntos()
+           --cont
+        elseif [.lab lx (ly+1)]=13
+           [.lab lx (ly+1)]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+1))\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_bandera.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           puntos<-+100*multiplicador
+           .pone_puntos()
+           --cont
+        elseif [.lab lx (ly+2)]=13
+           [.lab lx (ly+2)]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+2))\labysiz)+ 64
+//           at(mapax,mapay); write  " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_bandera.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           puntos<-+100*multiplicador
+           .pone_puntos()
+           --cont
+        elseif [.lab lx ly]=83
+           [.lab lx ly]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*ly)\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1 &")
+           endif
+//           .pone_destello()
+           puntos<-+1000
+           multiplicador<-2
+           .pone_puntos()
+           --cont
+        elseif [.lab lx (ly+1)]=83
+           [.lab lx (ly+1)]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+1))\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1 &")
+           endif
+//           .pone_destello()
+           puntos<-+1000
+           multiplicador<-2
+           .pone_puntos()
+           --cont
+        elseif [.lab lx (ly+2)]=83
+           [.lab lx (ly+2)]<-32
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+2))\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           if swSound
+              cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1 &")
+           endif
+//           .pone_destello()
+           puntos<-+1000
+           multiplicador<-2
+           .pone_puntos()
+           --cont
+
+        elseif [.lab lx ly]=76
+           [.lab lx ly]<-32
+//           cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*ly)\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           --cont
+           if cont
+              oldTiempo<-Tiempo 
+              .suma_puntos()
+              Tiempo<-oldTiempo
+           endif
+        elseif [.lab lx (ly+1)]=76
+           [.lab lx (ly+1)]<-32
+//           cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+1))\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           --cont
+           if cont
+              oldTiempo<-Tiempo 
+              .suma_puntos()
+              Tiempo<-oldTiempo
+           endif
+        elseif [.lab lx (ly+2)]=76
+           [.lab lx (ly+2)]<-32
+//           cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+           mapax<-((17*lx)\labxsiz) + 12
+           mapay<-((22*(ly+2))\labysiz)+ 64
+//           at(mapax,mapay); write " "
+           .quita_punto(mapax,mapay)
+           .pone_mapa()
+           --cont
+           if cont
+              oldTiempo<-Tiempo 
+              .suma_puntos()
+              Tiempo<-oldTiempo
+           endif
+
+        else  // camino recorrido
+           cRecorrido<-+2
+           nRecorrido<-100-(100*cRecorrido)\totalRecorrido
+           nRecorrido<-0,if nRecorrido<0
+           at(10,64); color(11); .">>ROAD OFF [",color(6) ($nRecorrido), color(11) "%] "
+        endif
+        color(heroeColor)
+        at(oldx oldy); ."   " //"███"
+         
+        //color(heroeColor)
+        at(rx ry); write last
+        mapax<-((17*(b+rx-1))\labxsiz) + 12
+        mapay<-((22*(x+ry))\labysiz)+ 64
+        color(13)
+        at(mapax,mapay); write "*"
+        if cont=0
+           //at(15 30); ." NIVEL LIMPIO!! "
+           .level_clear()
+           color(0)
+           if swSound
+              .KILLSOUND()
+              cmd(PATHs+"rat_etapa_superada.wav </dev/null >/dev/null 2>&1 &")
+           endif
+           sleep(2)
+           
+           .suma_puntos()
+           sleep(1)
+           .suma_recorrido()
+           if subetapa=4 or subetapa=8 or between(subetapa 13 18)
+              if ~swRoe
+                 color(labColor);at(1,1)
+                 writmap(lab clab b 0 x (x+59) 0)
+                 .bonus()
+              endif
+           endif
+           ++subetapa
+           sleep(1)
+           break
+        endif
+        if tipoLab=1
+           posx<-b+rx-1
+           posy<-x+ry
+           
+           for i<-1 to (enemyTope-delLastEnemy)
+              px<-[wx i]
+              py<-[wy i]
+              if posx=px and between(py posy (posy+2))
+                 if i=enemyTope
+                    misterio<-mth.rand(1)
+                    if misterio<=0.05
+                       if swSound
+                          cmd(PATHs+"rat_muere.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       sw<-true
+                       sTiempo<-1000
+                       for j<-1 to 14
+                          if sw
+                             color(labColor)
+                             sw<-false
+                          else
+                             color(8)
+                             sw<-true
+                          endif
+                          at(1 1)
+                          writmap(lab clab b 0 x (x+59) 0)
+                          millisec(sTiempo)
+                          sTiempo<-sTiempo-(sTiempo\2)
+                       next
+                       [clab 2]<-15; [clab 4]<-10; [clab 6]<-13
+//                       [elab 2]<-12; [elab 4]<-4; [elab 6]<-15; [elab 8]<-15
+                       [elab 2]<-12; [elab 4]<-4; [elab 6]<-4; [elab 8]<-4 ; [elab 10]<-15; [elab 12]<-15
+                       labColor<-8
+
+                    elseif misterio<=0.1
+                       ++vidas
+                       color(15)
+                       at(rx,ry);." EXTRA "
+                       
+                       if swSound
+                          cmd(PATHs+"rat_extra.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       .pone_vidas()
+                       
+                    elseif misterio<=0.8    // frizz cyber-cats
+                       if swSound
+                          cmd(PATHs+"rat_frizz.wav </dev/null >/dev/null 2>&1 &")
+                       endif
+                       millisec(500)
+                       .pone_destello()
+                       swNoFrizz<-false
+                       fTiempo<-10
+                       tmpdx<-dx  // respaldo direcciones
+                       tmpdy<-dy 
+                       dx<-0  // 0 para que no se muevan
+                       dy<-0
+                       tf<-seconds("")
+                       
+                    else
+                       indPuntos<-mth.ceil(mth.rand(10))
+                       color(15)
+                       at(rx,ry);." "+($[addPuntos indPuntos])+" "
+                       if swSound
+                          cmd(PATHs+"rat_multiplicador.wav </dev/null >/dev/null 2>&1")
+                       endif
+                       puntos<-puntos+[addPuntos indPuntos]
+                       .pone_puntos()
+
+                    endif
+                    delLastEnemy<-1  // anulo al loquillo
+                    
+                 else
+      //              cmd(PATHs+"rat_pierde.wav </dev/null >/dev/null 2>&1 &")
+                    if swSound
+                       .KILLSOUND()
+                    endif
+                    .mata_rata()
+                    swPierde<-true
+                    break
+                 endif
+              endif
+           next
+        endif
+        if c=KESCAPE
+           swFinal<-true
+           break
+           
+//        elseif c=102  //f  frizz solo para pruebas. Si seactiva, puede generar error si se topa con misterio
+//                       if swSound
+//                          cmd(PATHs+"rat_frizz.wav </dev/null >/dev/null 2>&1 &")
+//                       endif
+//                       millisec(500)
+//                       .pone_destello()
+//                       swNoFrizz<-false
+//                       fTiempo<-10
+//                       tmpdx<-dx  // respaldo direcciones
+//                       tmpdy<-dy 
+//                       dx<-0  // 0 para que no se muevan
+//                       dy<-0
+//                       tf<-seconds("")
+        
+        elseif c=115  //s quita y pòne sonido
+           if swSound
+              .KILLSOUND()
+              swSound<-false
+           else
+              swSound<-true
+              cmd(PATHs+musicaFondo+" </dev/null >/dev/null 2>&1 &")
+           endif
+        elseif c=112  //p
+           if swSound
+              .KILLSOUND()
+           endif
+           .pone_pausa()
+           color(labColor);at(1,1)
+           writmap(lab clab b 0 x (x+59) 0)
+           color(heroeColor)
+           at(rx,ry); write last
+           at(1,1);color(0)
+           writmap(enemigos elab b 0 x (x+59) 0)
+           color(heroeColor)
+           at(rx,ry); write last
+           if swSound
+              cmd(PATHs+musicaFondo+" </dev/null >/dev/null 2>&1 &")
+           endif
+        endif
+     endif /* fin ratón */
+     if swPierde
+        swPierde<-false
+        sleep(2)
+        if subetapa=4 or subetapa=8
+           ++subetapa
+           break
+        endif
+        
+        --vidas
+        if vidas=0
+           swFinal<-true
+           break
+        endif
+        .reiniciaJuego()
+        if ~swNoFrizz
+           swNoFrizz<-true
+           use tmpdx; drop
+           use tmpdy; drop
+           at(0,(vc\2-14)); color(0); ."CYBER-CATS STOP TO ",($fTiempo)," SECONDS   "
+        endif           
+        .pone_vidas()
+        if swSound
+           cmd(PATHs+musicaFondo+" </dev/null >/dev/null 2>&1 &")
+        endif
+     endif
+     if swTecho
+        color(12);at(1,1)
+        writmap(tlab ctlab b 0 x (x+59) 0)
+     endif
+  wend
+  if swSound
+     .KILLSOUND()
+  endif
+  if swFinal
+     color(0)
+     if ~.otravez()
+        break
+     endif
+     etapa<-1
+     subetapa<-1
+     vidas<-3
+     puntos<-0
+     swFinal<-false
+     {swExtra1,swExtra2}<-true
+  endif
+  if subetapa>18
+     color(labColor);at(1,1)
+     writmap(lab clab b 0 x (x+59) 0)
+  
+     if etapa=1
+        .you_win()
+        sleep(1)
+        if ~(.mensaje_final())
+           break
+        endif
+     endif
+     ++etapa
+     if etapa=5
+        etapa<-4
+     endif
+     subetapa<-1
+  endif
+wend
+
+cls
+.game_over()
+.salva_high_score()
+cursor(1)
+color(0)
+cls
+//  for i<-17 downto 1 step 1
+//     .muestraLab(i 1 [vsiz 2])
+//     millisec(50)
+//  next
+  
+    
+//  for i<-1 to [vsiz 2] //(i=1 ; i<SIZ-1 ; ++i)
+//        write chr(219)*MUL //putchar('*');
+//        for j<-1 to [vsiz 3] //(j=1 ; j<SIZ-1 ; ++j)
+//              ." "*MUL  //putchar(' ');
+//              b<-[.s i j]
+//              if (AND b RT)>0
+//                    ." "*MUL
+//              else  
+//                    write chr(219)*MUL
+//              endif
+//        next
+//        ."\n"
+//        brkif cont>vf
+//        for j<-1 to [vsiz 3]  //(j=1 ; j<SIZ-1 ; ++j)
+//              write chr(219)*MUL
+//              b<-[.s i j]
+//              if (AND b DN)>0
+//                    ." "*MUL
+//              else  
+//                    write chr(219)*MUL
+//              endif
+//        next
+//        write chr(219)*MUL,"\n"//*2
+//        brkif cont>vf
+//  next
+//  sleep(2)
+stop
