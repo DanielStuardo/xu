@@ -12,6 +12,9 @@
 //#include "simpleio.ch"
 
 //#define THREAD 3
+#include "inkey.ch"
+#include "achoice.ch"
+#include "memoedit.ch"
 
 REQUEST HB_LANG_ES
 HB_LANGSELECT( "ES" )
@@ -39,7 +42,7 @@ iParam:=1
 if hb_pValue(1)=="-s"
    _sw_source:=.T.
    if numParam>=2
-      _file:=hb_pValue(2)    // el nombre del archivo
+      _file:=hb_utf8tostr(hb_pValue(2))    // el nombre del archivo
       iParam:=3
    else
       _header()
@@ -48,7 +51,7 @@ if hb_pValue(1)=="-s"
       quit
    end
 else
-   _file:=hb_pValue(1)    // el nombre del archivo
+   _file:=hb_utf8tostr(hb_pValue(1))    // el nombre del archivo
    iParam:=2
 end
 
@@ -221,6 +224,8 @@ PUBLIC __PTDAT:=ARRAY(5)
 PUBLIC __PDAT2COD:=ARRAY(8)
 PUBLIC __PXCODCN:=ARRAY(5)
 PUBLIC __PXCODCCC:=ARRAY(3)
+PUBLIC __PMISCFUN:=ARRAY(15)
+PUBLIC __PSUB1_CODE:=ARRAY(13)
 
 PUBLIC __POPEMATNOR1D:=ARRAY(13)
 
@@ -239,9 +244,9 @@ __P[5]:=@FUNROUND()
 __P[6]:=@FUNPOSCHAR()
 __P[7]:=@FUNUNIQUE()
 __P[8]:=@FUNSETCODE()
-__P[9]:=@FUNCLS()
+__P[9]:=0  
 __P[10]:=@FUNJT()
-__P[11]:=@FUNGOODBYE()
+__P[11]:=0  
 __P[12]:=0
 __P[13]:=@FUNJNT()
 __P[14]:=@FUNLASTKEY()
@@ -252,17 +257,17 @@ __P[18]:=@FUNSTRLOAD()
 __P[19]:=@NEGATION()
 __P[20]:=@FUNSTRDIFF()
 __P[21]:=@XCODE2_NC()
-__P[22]:=@FUNPOSITIVE()
+__P[22]:=0  
 __P[23]:=@FUNJMP()
 __P[24]:=@FUNFREADS()
 __P[25]:=@FUNSTOP()
-__P[26]:=@FUNPAUSE()
-__P[27]:=@FUNISANY()
-__P[28]:=@FUNNEGATIVE()
+__P[26]:=0  
+__P[27]:=0
+__P[28]:=0  
 __P[29]:=@FUNREADKEY()
 __P[30]:=@FUNBETWEEN()
 __P[31]:=@FUNFLAG()
-__P[32]:=@FUNISALL()
+__P[32]:=0 
 __P[33]:=@FUNTRIGESPECIAL()
 __P[34]:=@FUNSYSTEM()
 __P[35]:=@FUNIIF()
@@ -271,7 +276,7 @@ __P[37]:=@FUNFCREATE()
 __P[38]:=@FUNTRIGCOMMON()
 __P[39]:=@FUNXUMLUNPARSER()
 __P[40]:=@FUNNOP()
-__P[41]:=@FUNTOSTRING()
+__P[41]:=0  
 __P[42]:=@FUNJUDF()
 __P[43]:=@FUNADD()
 __P[44]:=@XCODE_CN()
@@ -297,11 +302,11 @@ __P[63]:=@XUCODESTATIC()
 __P[64]:=@FUNSUBSADDSTR()
 __P[65]:=@FUNSUBSSUBSTR()
 __P[66]:=@FUNSWAP()
-__P[67]:=@FUNCONSOLE()
-__P[68]:=@FUNVIDEO()
+__P[67]:=0  
+__P[68]:=0  
 __P[69]:=@XCODE_NC()
 __P[70]:=@FUNSEQUENCE()
-__P[71]:=@FUNNEAR()
+__P[71]:=0
 __P[72]:=@META_SMINMAX()
 __P[73]:=@FUNBLKCOPY()
 __P[74]:=@FUNCONFIGARRAY()
@@ -348,42 +353,42 @@ __P[114]:=@FUNGETGBIT()
 __P[115]:=@FUNMATCOMMON()
 __P[116]:=@FUNSETGBIT()
 __P[117]:=@FUNFEXIST()
-__P[118]:=@FUNISTYPE()
+__P[118]:=0
 __P[119]:=@TRSTK_CODE()
-__P[120]:=@FUNISEMPTY()
+__P[120]:=0
 __P[121]:=@FUNTYPE()
 __P[122]:=@FUNMATRANGE()
 __P[123]:=@AFINDSTK()
 __P[124]:=@FUNSIZE()
-__P[125]:=0
+__P[125]:=0  
 __P[126]:=@FUNGETENV()
 __P[127]:=@TSTATS_CODE()
 __P[128]:=@FUNXOR()
 __P[129]:=@FUNSETBIT()
 __P[130]:=@FUNGETBIT()
-__P[131]:=@FUNVTAB()
-__P[132]:=@FUNHTAB()
-__P[133]:=@FUNMILLISECONDS()
-__P[134]:=@FUNISNAN() 
+__P[131]:=@FMISCA_CODE()
+__P[132]:=0   
+__P[133]:=0   
+__P[134]:=0
 __P[135]:=@STRCCAR()
-__P[136]:=@FUNNOTBIT()
+__P[136]:=0   
 __P[137]:=@TOKENSTRMAT()
 __P[138]:=@STRLIN()
-__P[139]:=@FUNISINF()
+__P[139]:=0
 __P[140]:=@FUNJOIN()
 __P[141]:=@FUNPM()
 __P[142]:=@FUNGM()
-__P[143]:=@FUNSEED()
-__P[144]:=@FUNKEYPUT()
+__P[143]:=0   
+__P[144]:=0   
 __P[145]:=@FUNMATMULT()   
 __P[146]:=@TSTK_CODE()
 __P[147]:=@TFSTK_CODE()
 __P[148]:=@FUNFSHELL()
 __P[149]:=@FUNSHELL()
-__P[150]:=@FUNFIX()
+__P[150]:=0 
 __P[151]:=@FUNGET()
 __P[152]:=@FUNPUT()
-__P[153]:=@FUNCURSOR()    
+__P[153]:=0 
 __P[154]:=@FUNSTRPAD()
 __P[155]:=@FUNCLEARTRY()
 __P[156]:=@FUNPROCESS()
@@ -396,7 +401,7 @@ __P[162]:=@FUNOK()
 __P[163]:=@FUNFWRITEB()
 __P[164]:=@FUNFREADB()
 __P[165]:=@FUNFWRITEL()
-__P[166]:=@FUNISTIME()
+__P[166]:=0 
 __P[167]:=@XPUTRANGE()
 __P[168]:=@XGETRANGE()
 __P[169]:=@FUNSERVERMSG()
@@ -427,18 +432,18 @@ __P[190]:=@TDATE2_CODE()
   __P[191]:=@FUNPCHAR()
   __P[192]:=0
   __P[193]:=0
-  __P[194]:=0
+  __P[194]:=@SUB1_CODE() // familia de funciones especiales __PSUB1_CODE
 
 __P[195]:=@FUNNOT()
-__P[196]:=@FUNISLEAP()
+__P[196]:=@CTEDATA()  // mete un valor ccte en STACK, no una direccion: indice de subfuncion 
 __P[197]:=@FUNBACK()             // retorno de GOSUB. NO USAR.
 __P[198]:=@FUNGOSUB()             // llamada a subrutina. NO USAR.
 __P[199]:=@FUNDATEADD()
 __P[200]:=@FUNSORT()
 __P[201]:=@FUNFLC()
 __P[202]:=@FUNADDMATSTR()
-__P[203]:=0
-__P[204]:=0
+__P[203]:=@FUNOPTION()
+__P[204]:=@FUNBRKSV()
 __P[205]:=@FUNXTOSTACK()
 __P[206]:=0
 __P[207]:=@FUNDATEDIFF()
@@ -447,16 +452,16 @@ __P[209]:=@FUNGCD()
 __P[210]:=@FUNLCM()
 __P[211]:=@BIT_CODE()
 __P[212]:=@FUNPARSATT()
-__P[213]:=0
+__P[213]:=@FUNWRITMAP()  // imprime un mapa de bits
 __P[214]:=@FUNTRUE()
 __P[215]:=@FUNFALSE()
 __P[216]:=@FUNGARBAGE()
-__P[217]:=0
-__P[218]:=0
+__P[217]:=@FUNSTRONLY()
+__P[218]:=@FUNSTRONE()
 __P[219]:=@FUNRAISE()
 __P[220]:=0
 __P[221]:=@TDATE_CODE()
-__P[222]:=0
+__P[222]:=@FUNCALL()
 __P[223]:=0
 __P[224]:=@FUNDATENOW()
 __P[225]:=0
@@ -490,6 +495,20 @@ __P[252]:=@FUNSUB()
 __P[253]:=@FUNADDSTR()
 __P[254]:=@PUSHDATA()
 
+__PSUB1_CODE[1]:=@FUNISLEAP()
+__PSUB1_CODE[2]:=@FUNISTIME()
+__PSUB1_CODE[3]:=@FUNNOTBIT()
+__PSUB1_CODE[4]:=@FUNTOSTRING()
+__PSUB1_CODE[5]:=@FUNNEGATIVE()
+__PSUB1_CODE[6]:=@FUNPOSITIVE()
+__PSUB1_CODE[7]:=@FUNNEAR()
+__PSUB1_CODE[8]:=@FUNISANY()
+__PSUB1_CODE[9]:=@FUNISALL()
+__PSUB1_CODE[10]:=@FUNISNAN()
+__PSUB1_CODE[11]:=@FUNISINF()
+__PSUB1_CODE[12]:=@FUNISEMPTY()
+__PSUB1_CODE[13]:=@FUNISTYPE()
+
 __PMATCOM[1]:=@FUNINT()
 __PMATCOM[2]:=@FUNSQRT()
 __PMATCOM[3]:=@FUNEXP()
@@ -514,6 +533,21 @@ __PMATOTHER[4]:=@FUNCELSIUS()
 __PMATOTHER[5]:=@FUNFAHRENHEIT()
 __PMATOTHER[6]:=@FUNDELTA()
 
+__PMISCFUN[1]:=@FUNCRTDIM()
+__PMISCFUN[2]:=@FUNKEYPUT()
+__PMISCFUN[3]:=@FUNCURSOR()
+__PMISCFUN[4]:=0 //@FUNMSLEEP()
+__PMISCFUN[5]:=0 //@FUNSLEEP()
+__PMISCFUN[6]:=@FUNVTAB()
+__PMISCFUN[7]:=@FUNHTAB()
+__PMISCFUN[8]:=@FUNMILLISECONDS()
+__PMISCFUN[9]:=@FUNPRECISION()
+__PMISCFUN[10]:=@FUNSCREEN()
+__PMISCFUN[11]:=@FUNVIDEO()
+__PMISCFUN[12]:=@FUNCLS()
+__PMISCFUN[13]:=@FUNSEED()
+__PMISCFUN[14]:=@FUNPAUSE()
+__PMISCFUN[15]:=@FUNGOODBYE()
 
 __PTRGESP[1]:=@FUNASIN()
 __PTRGESP[2]:=@FUNACOS()
@@ -736,7 +770,7 @@ RETURN NIL
                            FUNCIONES DEL LENGUAJE
 ***************************************************************************/
  FUNCTION PUSHDATA()
-LOCAL EAX,AX,EDX,ETX,EHX,EIX,EJX,EKX
+LOCAL EAX,AX,EDX,ETX,EHX,EIX,EJX,EKX,EBX
 LOCAL DIM,TYP,ROW,COL,PAG,BLK
   while OP_CODE == 254
      ++CP          // sig. op-code (una direccion de variable o const)
@@ -769,12 +803,20 @@ LOCAL DIM,TYP,ROW,COL,PAG,BLK
            stackpush(stk_var_local,AX)
         end
         OP_CODE:=stk_prg[++CP]
+  /*   elseif OP_CODE == 17   // es un MOV por si asigna una constante.
+        EAX:=STACK[CS]
+        EBX:=STACK[CS-1]
+        stk_var_02[EBX] := stk_var_02[EAX]
+        //CWM:=CMPCWM(EAX,CWM,TopCWM)
+        //CWM:=CMPCWM(EBX,CWM,TopCWM)
+        CS -= 2
+        OP_CODE:=stk_prg[++CP] */
      end 
   end
   --CP
 RETURN .T.
 
-FUNCTION MOV()    // 17
+FUNCTION MOV()    // 17. por si asigna una expresion
 LOCAL EAX,EBX
   EAX:=STACK[CS]
   EBX:=STACK[CS-1]
@@ -784,12 +826,6 @@ LOCAL EAX,EBX
   CS -= 2              // ajusta puntero de Stack
 RETURN .T.
 
-FUNCTION FUNSTOP()   // 25
-
-  setcolor("")
-  __LOOP:=.F.
-
-RETURN .T.
 
 FUNCTION FUNNOP()   // 40 NADA. No operacion.
 
@@ -819,6 +855,109 @@ LOCAL EAX,EBX  //,AX,BX
    __POSYY:=int(stk_var_02[EAX])  //AX
    SETPOS(__POSXX, __POSYY)
 
+RETURN .T.
+
+FUNCTION FUNWRITMAP()  // 213
+LOCAL EAX,EBX,ECX,EDX,EEX,EFX,ERX,ESX,AX,BX,CX,DX,EX,FX,RX,SX,I,J,K,PX,PY
+LOCAL DIM,TYP,DIMR,DIMC,DIMP,DIMB,C,NCOLOUR,TIPO
+LOCAL DIM1,TYP1,DIMR1,DIMC1,DIMP1,DIMB1
+   ETX:=STACK[CS]   // TIPO DE COLOR
+   ESX:=STACK[CS-1]   // col HASTA
+   EAX:=STACK[CS-2]     // COL DESDE
+   ERX:=STACK[CS-3]   // LINEA HASTA
+   EBX:=STACK[CS-4]   // LINEA DESDE
+   EDX:=STACK[CS-5]   // array de colores char,color,char,color...
+   ECX:=STACK[CS-6]   // ARRAY
+   CWM:=CMPCWM(ETX,CWM,TopCWM)
+   CWM:=CMPCWM(ESX,CWM,TopCWM)
+   CWM:=CMPCWM(EAX,CWM,TopCWM)
+   CWM:=CMPCWM(ERX,CWM,TopCWM)
+   CWM:=CMPCWM(EBX,CWM,TopCWM)
+   CWM:=CMPCWM(EDX,CWM,TopCWM)
+   CWM:=CMPCWM(ECX,CWM,TopCWM)
+   CS -= 7
+   
+   // TIPO = 1, se añade un mapa de colores para cada caracter del mapa. El array tiene la misma dim
+   //           del mapa.
+   // TIPO = 0, solo se añade un vector con los colores de ciertos caracteres.
+   TIPO:=stk_var_02[ETX]
+   if !FUNGETDIMS(EDX,@EFX,@DIM1,@TYP1,@DIMR1,@DIMC1,@DIMP1,@DIMB1,.T.)
+      RETURN _FUNPUTERROR("WRITMAP/MATRIX COLOURS NOT INITIALIZED",OP_CODE,CP)
+   elseif !FUNGETDIMS(ECX,@EFX,@DIM,@TYP,@DIMR,@DIMC,@DIMP,@DIMB,.T.)
+      RETURN _FUNPUTERROR("WRITMAP/MATRIX MAP NOT INITIALIZED",OP_CODE,CP)
+   elseif DIM==2 .AND. ((TIPO==1 .AND. DIM1==2) .OR. (TIPO==0 .AND. DIM1==1))
+///     ? DIM,TYP,DIMR,DIMC ; inkey(0)
+      //IF VALTYPE(stk_var_02[ECX][1][1])=="N"
+
+      AX:=stk_var_02[EAX]
+      BX:=stk_var_02[EBX]
+      CX:=stk_var_02[ECX]
+      FX:=stk_var_02[EDX]
+      RX:=stk_var_02[ERX]
+      SX:=stk_var_02[ESX]
+      // TOPE DE VENTANA
+      DX:=MAXROW()-1
+      EX:=MAXCOL()-1
+      PX:=__POSXX
+      PY:=__POSYY
+      if RX<=0
+         RX:=DIMR
+      end
+      if SX<=0
+         SX:=DIMC
+      elseif SX>DIMC
+         SX:=DIMC
+      end
+   //   ? "BX=",BX," AX=",AX," DX=",DX," EX=",EX ; INKEY(0)
+      
+      IF BX>=1 .AND. BX<=DIMR
+         IF AX>=1 .AND. AX<=DIMC
+            DISPBEGIN()
+            NCOLOUR:=FT_COLOR2N(SETCOLOR())
+            WRITEMAP(CX,PX,PY,__POSYY,FX,BX,RX,AX,SX,NCOLOUR,DX,EX,TIPO)
+            DISPEND()
+          /*  FOR I:=BX TO RX //DIMR //EEX
+               if PX<=DX
+                  
+                  FOR J:=AX TO SX// DIMC //EFX
+                     C:=CX[I][J]
+                     if C!=255
+                     FOR K:=1 TO DIMR1 STEP 2
+                        IF C==FX[K]
+                           SETCOLOR(N2COLOR(FX[K+1]))
+                           EXIT
+                        END
+                     END
+                     
+                     if PY<=EX
+                         SETPOS( PX, PY++)
+                        // if C!=255
+                            DISPOUT(chr(C))
+                        // end
+                         SETCOLOR(NCOLOUR)
+                     else
+                        EXIT
+                     end
+                     else
+                        ++PY
+                     end
+                  END
+                  ++PX
+                  PY:=__POSYY
+               else
+                  exit
+               end
+            END */
+         ELSE
+            RETURN _FUNPUTERROR("WRITMAP/INICIO COL MAPA FUERA DE RANGO",OP_CODE,CP)
+         END
+      ELSE
+         RETURN _FUNPUTERROR("WRITMAP/INICIO FIL MAPA FUERA DE RANGO",OP_CODE,CP)
+      END
+   ELSE
+      RETURN _FUNPUTERROR("WRITMAP/DIMENSION ERROR",OP_CODE,CP)
+   end
+   
 RETURN .T.
 
 FUNCTION FUNCWMTOLET()   // 47  WPOP saca un dato del stack
@@ -1253,22 +1392,6 @@ LOCAL EAX,EBX,ECX,EEX,AX,BX,FX,EX,XPID:=0,CX,OP_CODE:=1560,I,J,SW,TEMPORAL:={},X
 
 RETURN .T.
 
-FUNCTION FUNMSLEEP()   // 182
-LOCAL EAX
-  EAX:=STACK[CS]
-  --CS
-  XUSLEEP(stk_var_02[EAX])
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-RETURN .T.
-
-FUNCTION FUNSLEEP()   // 183
-LOCAL EAX
-  EAX:=STACK[CS]
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-  --CS
-  XSLEEP(stk_var_02[EAX])
-RETURN .T.
-
 
 FUNCTION FUNSETBIT()  // 129
 LOCAL EAX,EBX,ECX
@@ -1348,55 +1471,6 @@ LOCAL EAX,EBX,ECX
   STACK[CS] := CWM
 RETURN .T.
 
-FUNCTION FUNVTAB()    // 131
-LOCAL COL,ROW,EIX,MAXROW,EAX
-  EAX:=STACK[CS]
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-  --CS
-
-  ROW:=row()+stk_var_02[EAX]
-  COL:=col()
-  MAXROW:=maxrow()
-  if ROW<=0
-     ROW:=1
-  elseif ROW>MAXROW
-     for EIX:=MAXROW to ROW
-       ?
-     next
-     ROW:=MAXROW  //-1
-  end
-
-  SETPOS(ROW,COL)  //
-
-RETURN .T.
-
-FUNCTION FUNHTAB()    // 132
-LOCAL COL,ROW,MAXCOL,MAXROW,EAX
-  EAX:=STACK[CS]
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-  --CS
-  COL:=stk_var_02[EAX]*8
-  ROW:=row()
-  MAXROW:=maxrow()
-  MAXCOL:=maxcol()
-  if COL==0
-    COL:=1
-  elseif COL<0 
-    if col()+COL<0
-      COL:=1
-    end 
-  elseif COL>MAXCOL
-    if row()==MAXROW
-      ? 
-    end
-    ++ROW
-    COL:=COL-MAXCOL
-  end   
-  SETPOS(ROW,COL)  ///
-  ///@ ROW,COL SAY ""
-  
-RETURN .T.
-
 PROCEDURE ELIMINAVARS(VAR,DIM,DIMR,DIMC,DIMP,DIMB)
 LOCAL I,J,K,L
   SWITCH DIM
@@ -1468,6 +1542,62 @@ LOCAL DIM,DIMR,DIMC,DIMP,DIMB,TYP,EFX
      FUNPUTDIMS(CWM,DIM,"N",DIMR,DIMC,DIMP,DIMB)
   END
   STACK[CS] := CWM
+RETURN .T.
+
+FUNCTION FUNCALL()    // 222  LLAMADA A BAJO NIVEL
+LOCAL EAX,EBX,TEMPORAL,OP_CODE:=2220
+LOCAL DIM,DIMR,DIMC,DIMP,DIMB,TYP,EFX
+  EAX:=STACK[CS]    // PROGRAM
+  EBX:=STACK[CS-1]  // DATASEG
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+  CWM:=CMPCWM(EBX,CWM,TopCWM)
+  --CS
+  ++CWM
+ /* if !FUNGETDIMS(EBX,@EFX,@DIM,@TYP,@DIMR,@DIMC,@DIMP,@DIMB,.T.)
+     RETURN _FUNPUTERROR("STACK-DATASEGMENT NOT INITIALIZED",OP_CODE,CP)
+  else*/if !FUNGETDIMS(EAX,@EFX,@DIM,@TYP,@DIMR,@DIMC,@DIMP,@DIMB,.T.)
+     RETURN _FUNPUTERROR("STACK-PROGRAM NOT INITIALIZED",OP_CODE,CP)
+  end
+
+/* HAY QUE IDENTIFICAR EL TIPO DE DATO DEVUELTO POR LA FUNCION LOWLEVEL()
+ 
+     //////TEMPORAL:=ARRAY(DIMR,DIMC,DIMP,DIMB)
+     */
+ // TEMPORAL es un array: { var, tipo("C","N","L","AN","AC","AL"), DIM,DIMR,DIMC,DIMP,DIMB }
+ //      ejemplo: TEMPORAL:={ V, "AC", 2, 10, 30, 0 , 0 }
+ //               TEMPORAL:={ V, "N", 0,0,0,0,0}
+
+  TEMPORAL:=XFUNCALL(stk_var_02[EBX],stk_var_02[EAX],XUPRECISION) //,{ DIM,DIMR,DIMC,DIMP,DIMB })
+
+/*  ? TEMPORAL[1]
+  ? TEMPORAL[2]
+  ? TEMPORAL[3]
+  ? TEMPORAL[4]
+  ? TEMPORAL[5]
+  ? TEMPORAL[6]
+  ? TEMPORAL[7] */
+  if TEMPORAL[2]==NIL
+     RETURN _FUNPUTERROR("CALL/LOW-LEVEL PROGRAM RETURN NULL",OP_CODE,CP)
+  end
+  if len(TEMPORAL[2])>2
+     RETURN _FUNPUTERROR(TEMPORAL[2],OP_CODE,CP)
+  end
+  stk_var_02[CWM]:=TEMPORAL[1]   // obtengo puntero de variable de retorno
+  DIM:=TEMPORAL[3]
+  DIMR:=TEMPORAL[4]
+  DIMC:=TEMPORAL[5]
+  DIMP:=TEMPORAL[6]
+  DIMB:=0//TEMPORAL[7]
+  TYP :=TEMPORAL[2]
+
+  if substr(TYP,1,1)=="A"
+     TYP:=substr(TYP,2,1)
+     //RELEASE TEMPORAL
+     FUNPUTDIMS(CWM,DIM,TYP,DIMR,DIMC,DIMP,DIMB)
+  end
+
+  STACK[CS] := CWM
+  
 RETURN .T.
 
 FUNCTION FUNPOSCHAR() // 6
@@ -3146,9 +3276,9 @@ RETURN .T.
     EBX:=STACK[CS-1]
     CWM:=CMPCWM(EAX,CWM,TopCWM)
     CWM:=CMPCWM(EBX,CWM,TopCWM)
-    IF stk_var_02[EBX]>=0 
+    IF stk_var_02[EBX]>=0   // base positiva o cero
        stk_var_02[++CWM]:=stk_var_02[EBX]^stk_var_02[EAX]
-    ELSEIF stk_var_02[EAX]>=1
+    ELSEIF stk_var_02[EAX]>=1 .or. stk_var_02[EAX]==0 // base negativa, exponente debe ser entero
        stk_var_02[++CWM]:=stk_var_02[EBX]^stk_var_02[EAX]
     ELSE
        RETURN _FUNPUTERROR("POW/BASE NEGATIVE & EXP DECIMAL, WEON-ERROR",OP_CODE,CP)
@@ -3180,41 +3310,6 @@ RETURN .T.
     STACK[CS] := CWM
   RETURN .T.
 
-  FUNCTION FUNISNAN()   // 134
-  LOCAL EAX,EVX,EDX,OP_CODE:=1340
-  LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    ++CWM
-    EVX:=VALTYPE(stk_var_02[EAX])
-    if EVX=="N"
-       stk_var_02[CWM]:=XU_TYPENUM(stk_var_02[EAX])==1
-    else
-       IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          RETURN _FUNPUTERROR("ISNAN/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-       stk_var_02[CWM]:=XMATHNANINF(stk_var_02[EAX],1,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
-    end
-    STACK[CS] := CWM
-  RETURN .T.
-
-  FUNCTION FUNISINF()   // 139
-  LOCAL EAX,EVX,EDX,OP_CODE:=1390
-  LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    ++CWM
-    EVX:=VALTYPE(stk_var_02[EAX])
-    if EVX=="N"
-       stk_var_02[CWM]:=XU_TYPENUM(stk_var_02[EAX])==2
-    else
-       IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          RETURN _FUNPUTERROR("ISNAN/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-       stk_var_02[CWM]:=XMATHNANINF(stk_var_02[EAX],2,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
-    end
-    STACK[CS] := CWM
-  RETURN .T.
     
   FUNCTION FUNGCD()   // 209
   LOCAL EAX,EBX,AX,BX,EVX,EWX,EDX,EEX,OP_CODE:=2090
@@ -6708,6 +6803,78 @@ RETURN .T.
     STACK[CS] := CWM
   RETURN .T.
 
+  FUNCTION FUNOPTION()   // 203
+  LOCAL EAX,AX,EBX,BX,ECX,CX,  EDX,DX,EX,pELIGE
+  LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B,OP_CODE:=1203
+    EAX:= STACK[CS]
+    AX:=stk_var_02[EAX]          // ALTO
+    EBX:=STACK[CS-1]
+    BX:=stk_var_02[EBX]        // ANCHO
+    ECX:=STACK[CS-2]
+    CX:=stk_var_02[ECX]        // ARRAY
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    CWM:=CMPCWM(ECX,CWM,TopCWM)
+    ++CWM; CS -= 2 
+    IF FUNGETDIMS(ECX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+       IF DIM1==1 .AND. DIM1R>0
+          DX:=ROW()
+          EX:=COL()
+          @ DX,EX CLEAR TO DX+AX,EX+BX
+          pELIGE:=ACHOICE(DX,EX,DX+AX,EX+BX,CX,.T.,"UDFAchoice")
+          stk_var_02[CWM]:=pELIGE
+       ELSE
+          RETURN _FUNPUTERROR("OPTION/DIMENSION ERROR|EMPTY MATRIX",OP_CODE,CP)
+       END
+    ELSE
+       RETURN _FUNPUTERROR("OPTION/MATRIX NOT INITIALIZED",OP_CODE,CP)
+    END
+    STACK[CS] := CWM
+    
+  RETURN .T.
+
+function UDFAchoice( nMode, nCurElement, nRowPos )
+
+local nRetVal := AC_CONT                // Default, Continue
+local nKey    := lastkey()
+
+local nRow := Row()
+local nCol := Col()
+
+HB_SYMBOL_UNUSED( nRowPos )
+
+do case
+   // After all pending keys are processed, display message
+case nMode == AC_IDLE
+   ///@  0,  0 say padr( ltrim( str( nCurElement ) ), 10 )
+   nRetVal := AC_CONT                   // Continue ACHOICE()
+case nMode == AC_HITTOP                 // Attempt to go past Top
+   ///@  0,  0 say "Hit Top   "
+case nMode == AC_HITBOTTOM              // Attempt to go past Bottom
+   ///@  0,  0 say "Hit Bottom"
+case nMode == AC_EXCEPT                 // Key Exception
+   ///@  0,  0 say "Exception "
+   do case
+   case nKey == K_RETURN                // If RETURN key, select
+      nRetVal := AC_SELECT
+/*   case nKey == 284                     // If ALT-RETURN key, select CHR(key)
+      hb_keyPut(127)
+      nRetVal := AC_SELECT
+   case nKey == 301                     // If RETURN key, select key y mueve al BUFFER
+      hb_keyPut(1)
+      nRetVal := AC_SELECT*/
+   case nKey == K_ESC                   // If ESCAPE key, abort
+      nRetVal := AC_ABORT
+/*   case nKey == K_DEL
+      nRetVal := AC_SELECT
+      SWELIMINATAB:=.T.*/
+
+   otherwise
+      nRetVal := AC_GOTO                // Otherwise, go to item
+   endcase
+endcase
+return nRetVal
+
   FUNCTION FUNMASK()    // 178
   LOCAL EAX,AX,EBX,BX,DX,EDX,TEMPORAL,RTX
   LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B,OP_CODE:=1780
@@ -7622,19 +7789,65 @@ FUNCTION FUNJUDF()   // 42
   --CS
 RETURN .T.
 
+FUNCTION FUNJT()   // 10
+LOCAL EBX,BX,TX
+  EBX:=STACK[CS-1]
+  BX:=stk_var_02[EBX]   // variable
+  CWM:=CMPCWM(EBX,CWM,TopCWM)
+
+  TX:=VALTYPE(BX)
+  if TX=="L"
+     if BX      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
+  elseif TX=="N"
+     if BX!=0      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
+  elseif TX=="C"
+     if LEN(BX)>0      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
+  end
+
+  CS-=2 
+RETURN .T.
+
 FUNCTION FUNJNT()   // 13
-LOCAL EBX,BX
+LOCAL EBX,BX,TX
   EBX:=STACK[CS-1]
   BX:=stk_var_02[EBX]   // variable
   CWM:=CMPCWM(EBX,CWM,TopCWM)
 
  // ? "EBX=",EBX," BX=",BX
-  if !BX      // Si no es verdad?
-     CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+  TX:=VALTYPE(BX)
+  if TX=="L"
+     if !BX      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
+  elseif TX=="N"
+     if BX==0      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
+  elseif TX=="C"
+     if LEN(BX)==0      // Si no es verdad?
+        CP:=STACK[CS]-DIR-1             // Salta xuxetumadre!!!
+     end
   end
   CS-=2 
 RETURN .T.
 
+FUNCTION FUNBRKSV()   // 204
+LOCAL EBX,BX
+  EBX:=STACK[CS-1]
+  BX:=stk_var_02[EBX]   // variable
+  CWM:=CMPCWM(EBX,CWM,TopCWM)
+
+  if len(BX)==0                         // si es CERO/STRING VACIO
+     CP:=STACK[CS]-DIR-1              // Salta peo!!!
+  end
+  CS-=2 
+RETURN .T.
 
 FUNCTION FUNBRKZ()   // 36
 LOCAL EBX,BX
@@ -7704,18 +7917,6 @@ LOCAL EBX,BX
   CWM:=CMPCWM(EBX,CWM,TopCWM)
 
   if BX>0                         // si  es mayor que CERO
-     CP:=STACK[CS]-DIR-1              // Salta peo!!!
-  end
-  CS-=2 
-RETURN .T.
-
-FUNCTION FUNJT()   // 10
-LOCAL EBX,BX
-  EBX:=STACK[CS-1]
-  BX:=stk_var_02[EBX]   // variable
-  CWM:=CMPCWM(EBX,CWM,TopCWM)
-
-  if BX                         // si es verdad?
      CP:=STACK[CS]-DIR-1              // Salta peo!!!
   end
   CS-=2 
@@ -8762,222 +8963,6 @@ RETURN .T.
     
 
 /*************************************************/
-
-  FUNCTION FUNISANY()    // 27
-  LOCAL EAX,AX,BX,EBX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=270
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
-    EBX:=STACK[CS]    // ESCALAR
-    EAX:=STACK[CS-1]  // ARREGLO O MATRIZ
-    CWM:=CMPCWM(EBX,CWM,TopCWM)
-    CWM:=CMPCWM(EAX,CWM,TopCWM)    
-    ++CWM
-    --CS
-    BX:=stk_var_02[EBX]
-    AX:=stk_var_02[EAX]
-    if valtype(AX)!="A"
-       if VALTYPE(BX)!="C"
-          stk_var_02[CWM]:=(AX==BX)
-       else
-          stk_var_02[CWM]:=(AX+" "==BX+" ")
-       end   
-       STACK[CS] := CWM
-       RETURN .T.
-    else   // es array!
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          
-          STACK[CS] := CWM
-          SWITCH DIM1
-          CASE 1
-             if TYP1!="C"
-                for EHX:=1 to DIM1R
-                   if AX[EHX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end
-             else
-                for EHX:=1 to DIM1R
-                   if AX[EHX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end
-             end
-             EXIT
-          CASE 2
-             if TYP1!="C"
-                IF DIM1R<=DIM1C
-                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end
-                ELSE
-                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end
-                END
-             else
-                IF DIM1R<=DIM1C
-                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end
-                ELSE
-                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end
-                END
-             end
-             EXIT
-          CASE 3
-             if TYP1!="C"
-                IF DIM1R<=DIM1C
-                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end
-                ELSE
-                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end
-                END
-             else
-                IF DIM1R<=DIM1C
-                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end
-                ELSE
-                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end
-                END
-             end
-             EXIT
-          CASE 4
-             if TYP1!="C"
-                IF DIM1R<=DIM1C
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX][EKX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end; end
-                ELSE
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX][EKX]==BX
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end; end
-                END
-             else
-                IF DIM1R<=DIM1C
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX][EKX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end; end
-                ELSE
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX][EKX]+" "==BX+" "
-                      stk_var_02[CWM]:=.T.
-                      RETURN .T.
-                   end
-                end; end; end; end
-                END
-             end
-             EXIT
-          END
-       ELSE
-          RETURN _FUNPUTERROR("ISANY/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    end
-    stk_var_02[CWM]:=.F.
-  RETURN .T.
-  
-  FUNCTION FUNNOTBIT()   // 136
-    LOCAL OP_CODE:=1360,AX,EFX,EAX,TEMPORAL
-    LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP
-    EAX:=STACK[CS] 
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    AX:=stk_var_02[EAX]
-    IF VALTYPE(AX)=="N"
-       stk_var_02[CWM]:=XNUMNOT(AX)
-    else
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-          SWITCH DIM1
-          CASE 1
-             for EHX:=1 to DIM1R
-                TEMPORAL[EHX]:=XNUMNOT(AX[EHX])
-             end
-             EXIT
-          CASE 2
-             IF DIM1R<=DIM1C
-             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                TEMPORAL[EHX][EIX]:=XNUMNOT(AX[EHX][EIX])
-             end; end
-             ELSE
-             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                TEMPORAL[EHX][EIX]:=XNUMNOT(AX[EHX][EIX])
-             end; end
-             END
-             EXIT
-          CASE 3
-             IF DIM1R<=DIM1C
-             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                TEMPORAL[EHX][EIX][EJX]:=XNUMNOT(AX[EHX][EIX][EJX])
-             end; end; end
-             ELSE
-             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                TEMPORAL[EHX][EIX][EJX]:=XNUMNOT(AX[EHX][EIX][EJX])
-             end; end; end
-             END
-             EXIT
-          CASE 4
-             IF DIM1R<=DIM1C
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                TEMPORAL[EHX][EIX][EJX][EKX]:=XNUMNOT(AX[EHX][EIX][EJX][EKX])
-             end; end; end; end
-             ELSE
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                TEMPORAL[EHX][EIX][EJX][EKX]:=XNUMNOT(AX[EHX][EIX][EJX][EKX])
-             end; end; end; end
-             END
-             EXIT
-          END
-          /////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-          stk_var_02[CWM]:=TEMPORAL   /////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-          FUNPUTDIMS(CWM,DIM1,"N",DIM1R,DIM1C,DIM1P,DIM1B)
-          RELEASE TEMPORAL
-       ELSE
-          RETURN _FUNPUTERROR("BIT.NOT/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    END   
-    STACK[CS] := CWM 
-  RETURN .T.
 
 
 /******************************************************************
@@ -11040,22 +11025,6 @@ RETURN (__PTRSTK[stk_var_02[EBX]]:EXEC())
   RETURN .T.
   
 
-FUNCTION FUNISEMPTY()   // 120
-LOCAL EX
-LOCAL OP_CODE:=1200
-  if SFLAGDIR>0   // ha sido seleccionado un array
-     if SFLAGROW==0 .and. SFLAGCOL==0 .and. SFLAGPAG==0 .and. SFLAGBLK==0
-        EX:=.T.
-     else
-        EX:=.F.
-     end       
-  else
-     RETURN _FUNPUTERROR("ISEMPTY/STACK EXPECTED (USE)",OP_CODE,CP)
-  end
-  stk_var_02[++CWM]:=EX
-  STACK[++CS]:=CWM
-RETURN .T.
-
 
 /******************************************************************
              FUNCIONES FAM. TSTK_CODE
@@ -12762,7 +12731,140 @@ RETURN (__PXCOD2NC[stk_var_02[EBX]]:EXEC(EAX))
     STACK[CS] := CWM
   RETURN .T.       
 
-
+  FUNCTION FUNSTRONLY()   // 217
+  LOCAL EAX,EBX,OP_CODE:=2170
+  LOCAL AX,EHX,EIX,EJX,EKX,ECX,EDX,TEMPORAL
+  LOCAL DIM,TYP,DIMR,DIMC,DIMP,DIMB
+    EAX:=STACK[CS]    // caracteres
+    EBX:=STACK[CS-1]  // Variable
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    ++CWM
+    --CS
+    IF VALTYPE(stk_var_02[EBX])=="C"
+       stk_var_02[CWM]:=CHARONLY(stk_var_02[EAX],stk_var_02[EBX])
+    ELSE
+       IF FUNGETDIMS(EAX,@EDX,@DIM,@TYP,@DIMR,@DIMC,@DIMP,@DIMB,.T.)
+          TEMPORAL:=ARRAY(DIMR,DIMC,DIMP,DIMB)
+          EXC:=stk_var_02[EAX]
+          SWITCH DIM
+          CASE 1
+             FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX] ))
+             END
+             EXIT
+          CASE 2
+             IF DIMR<=DIMC
+             FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX] ))
+             END; END
+             ELSE
+             FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX] ))
+             END; END
+             END
+             EXIT
+          CASE 3
+             IF DIMR<=DIMC
+             FOR EJX:=1 TO DIMP; FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX][EJX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX] ))
+             END; END; END
+             ELSE
+             FOR EJX:=1 TO DIMP; FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX][EJX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX] ))
+             END; END; END
+             END
+             EXIT
+          CASE 4
+             IF DIMR<=DIMC
+             FOR EKX:=1 TO DIMB; FOR EJX:=1 TO DIMP; FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX][EJX][EKX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX][EKX] ))
+             END; END; END; END
+             ELSE
+             FOR EKX:=1 TO DIMB; FOR EJX:=1 TO DIMP; FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX][EJX][EKX]:=CHARONLY(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX][EKX] ))
+             END; END; END; END
+             END
+             EXIT
+          END
+       ELSE
+          RETURN _FUNPUTERROR("STRONLY/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+       stk_var_02[CWM]:=TEMPORAL   ////XMMLET(TEMPORAL,DIM,DIMR,DIMC,DIMP,DIMB,0)
+       FUNPUTDIMS(CWM,DIM,"C",DIMR,DIMC,DIMP,DIMB)
+       RELEASE TEMPORAL
+    END
+    STACK[CS] := CWM
+    
+  RETURN .T.
+  
+  FUNCTION FUNSTRONE()   // 218
+  LOCAL EAX,EBX,OP_CODE:=2180
+  LOCAL AX,EHX,EIX,EJX,EKX,ECX,EDX,TEMPORAL
+  LOCAL DIM,TYP,DIMR,DIMC,DIMP,DIMB
+    EAX:=STACK[CS]    // caracteres
+    EBX:=STACK[CS-1]  // Variable
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    ++CWM
+    --CS
+    IF VALTYPE(stk_var_02[EBX])=="C"
+       stk_var_02[CWM]:=CHARONE(stk_var_02[EAX],stk_var_02[EBX])
+    ELSE
+       IF FUNGETDIMS(EAX,@EDX,@DIM,@TYP,@DIMR,@DIMC,@DIMP,@DIMB,.T.)
+          TEMPORAL:=ARRAY(DIMR,DIMC,DIMP,DIMB)
+          EXC:=stk_var_02[EAX]
+          SWITCH DIM
+          CASE 1
+             FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX] ))
+             END
+             EXIT
+          CASE 2
+             IF DIMR<=DIMC
+             FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX] ))
+             END; END
+             ELSE
+             FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX] ))
+             END; END
+             END
+             EXIT
+          CASE 3
+             IF DIMR<=DIMC
+             FOR EJX:=1 TO DIMP; FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX][EJX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX] ))
+             END; END; END
+             ELSE
+             FOR EJX:=1 TO DIMP; FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX][EJX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX] ))
+             END; END; END
+             END
+             EXIT
+          CASE 4
+             IF DIMR<=DIMC
+             FOR EKX:=1 TO DIMB; FOR EJX:=1 TO DIMP; FOR EHX:=1 TO DIMR; FOR EIX:=1 TO DIMC
+                TEMPORAL[EHX][EIX][EJX][EKX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX][EKX] ))
+             END; END; END; END
+             ELSE
+             FOR EKX:=1 TO DIMB; FOR EJX:=1 TO DIMP; FOR EIX:=1 TO DIMC; FOR EHX:=1 TO DIMR
+                TEMPORAL[EHX][EIX][EJX][EKX]:=CHARONE(ECX,hb_UTF8tostr( stk_var_02[EBX][EHX][EIX][EJX][EKX] ))
+             END; END; END; END
+             END
+             EXIT
+          END
+       ELSE
+          RETURN _FUNPUTERROR("STRONE/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+       stk_var_02[CWM]:=TEMPORAL   ////XMMLET(TEMPORAL,DIM,DIMR,DIMC,DIMP,DIMB,0)
+       FUNPUTDIMS(CWM,DIM,"C",DIMR,DIMC,DIMP,DIMB)
+       RELEASE TEMPORAL
+    END
+    STACK[CS] := CWM
+    
+  RETURN .T.
+  
 /******************************************************************
                  FAM. OPERACIONES FECHAS TDATE_ALLCODE
 *******************************************************************/
@@ -13185,8 +13287,24 @@ RETURN (__PXCOD2NC[stk_var_02[EBX]]:EXEC(EAX))
       STACK[--CS] := CWM      
     RETURN .T.
 
-  FUNCTION FUNISLEAP()   // 196
-  LOCAL EAX,AX,BX,EVX,EFX,OP_CODE:=1960
+/********************************************************************
+    FAMILIA ESPECIAL DE FUNCIONES
+ *********************************************************************/
+
+FUNCTION CTEDATA()   // 196 pone una constante en el stack de direcciones
+  STACK[++CS]:=stk_prg[++CP]
+return .T.
+
+FUNCTION SUB1_CODE()    // 194
+LOCAL EAX
+  EAX:=STACK[CS]   // saco la constante puesta por CTEDATA.
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+  --CS
+  __PSUB1_CODE[EAX]:EXEC()  // llamo a subfuncion directamente
+RETURN .T.
+
+  FUNCTION FUNISLEAP()   //  subfuncion __PSUB1_CODE 1
+  LOCAL EAX,AX,BX,EVX,EFX,OP_CODE:=1941
   LOCAL DIM1, TYP1,DIM1R,DIM1C,DIM1P,DIM1B,TEMPORAL
     EAX:=STACK[CS]
     CWM:=CMPCWM(EAX,CWM,TopCWM)
@@ -13209,7 +13327,1001 @@ RETURN (__PXCOD2NC[stk_var_02[EBX]]:EXEC(EAX))
     END
     STACK[CS] := CWM
   RETURN .T.
-  
+
+  FUNCTION FUNISTIME()   // subfuncion __PSUB1_CODE 2
+  LOCAL EAX,AX,EVX,OP_CODE:=1942,EFX,TEMPORAL
+  LOCAL DIM1, TYP1,DIM1R,DIM1C,DIM1P,DIM1B
+    EAX:=STACK[CS]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM
+    AX:=stk_var_02[EAX]
+    EVX:=VALTYPE(AX)
+    IF EVX=="C"
+       stk_var_02[CWM]:=XTIMEVALID(AX)
+    ELSE
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          /////TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+          TEMPORAL:=XGETDATE(AX,14,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
+          //////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+          stk_var_02[CWM]:=TEMPORAL   /////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+          FUNPUTDIMS(CWM,DIM1,"L",DIM1R,DIM1C,DIM1P,DIM1B)
+          RELEASE TEMPORAL
+       ELSE
+          RETURN _FUNPUTERROR("ISTIME/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    END
+    STACK[CS] := CWM
+  RETURN .T.
+
+  FUNCTION FUNNOTBIT()   // subfuncion __PSUB1_CODE 3
+    LOCAL OP_CODE:=1943,AX,EFX,EAX,TEMPORAL
+    LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP
+    EAX:=STACK[CS] 
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    AX:=stk_var_02[EAX]
+    IF VALTYPE(AX)=="N"
+       stk_var_02[CWM]:=XNUMNOT(AX)
+    else
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+          SWITCH DIM1
+          CASE 1
+             for EHX:=1 to DIM1R
+                TEMPORAL[EHX]:=XNUMNOT(AX[EHX])
+             end
+             EXIT
+          CASE 2
+             IF DIM1R<=DIM1C
+             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                TEMPORAL[EHX][EIX]:=XNUMNOT(AX[EHX][EIX])
+             end; end
+             ELSE
+             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                TEMPORAL[EHX][EIX]:=XNUMNOT(AX[EHX][EIX])
+             end; end
+             END
+             EXIT
+          CASE 3
+             IF DIM1R<=DIM1C
+             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                TEMPORAL[EHX][EIX][EJX]:=XNUMNOT(AX[EHX][EIX][EJX])
+             end; end; end
+             ELSE
+             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                TEMPORAL[EHX][EIX][EJX]:=XNUMNOT(AX[EHX][EIX][EJX])
+             end; end; end
+             END
+             EXIT
+          CASE 4
+             IF DIM1R<=DIM1C
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                TEMPORAL[EHX][EIX][EJX][EKX]:=XNUMNOT(AX[EHX][EIX][EJX][EKX])
+             end; end; end; end
+             ELSE
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                TEMPORAL[EHX][EIX][EJX][EKX]:=XNUMNOT(AX[EHX][EIX][EJX][EKX])
+             end; end; end; end
+             END
+             EXIT
+          END
+          /////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+          stk_var_02[CWM]:=TEMPORAL   /////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+          FUNPUTDIMS(CWM,DIM1,"N",DIM1R,DIM1C,DIM1P,DIM1B)
+          RELEASE TEMPORAL
+       ELSE
+          RETURN _FUNPUTERROR("BIT.NOT/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    END   
+    STACK[CS] := CWM 
+  RETURN .T.
+
+FUNCTION FUNTOSTRING()   // subfuncion __PSUB1_CODE 4
+  LOCAL AX,EDX,DX,OP_CODE:=1944,EAX
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TEMPORAL
+  EAX:=STACK[CS]     // valor, argumento
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+  ++CWM
+  AX:=stk_var_02[EAX]
+  EVX:=valtype(AX)
+  if EVX!="A"
+      
+       stk_var_02[CWM]:=iif(EVX=="N",XFUNNUM2STRING(AX,XUPRECISION),;
+              iif(EVX=="C",AX,;
+              iif(AX,CONTEXT_TRUE,CONTEXT_FALSE)))   // chequear si se puede convertir
+      
+  else
+     IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+        RETURN _FUNPUTERROR("($..),XTOSTR/MATRIX NOT INITIALIZED",OP_CODE,CP)
+     end
+     IF TYP1=="C"
+        /*TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+        XMMLET(TEMPORAL,stk_var_02[EAX],DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+        stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+        XMMLET(stk_var_02[CWM],TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+        FUNPUTDIMS(CWM,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
+        STACK[CS] := CWM */
+        
+        //////XCOPIAMATRIX(CWM,EAX,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
+      /*  TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+        XMMLET(TEMPORAL,stk_var_02[EAX],DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+        stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+        XMMLET(stk_var_02[CWM],TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0) */
+        FUNPUTDIMS(EAX,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
+        STACK[CS] := EAX
+        RETURN .T.
+     END
+     TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+//     SET DECIMALS TO XUPRECISION
+//     SET FIXED ON
+     SWITCH DIM1
+     CASE 1
+        SWITCH TYP1
+           CASE "N"
+             FOR EHX:=1 TO DIM1R
+               TEMPORAL[EHX]:=XFUNNUM2STRING(AX[EHX],XUPRECISION)//alltrim(str(AX[EHX]))
+             END
+             EXIT
+           CASE "L"
+             FOR EHX:=1 TO DIM1R
+               TEMPORAL[EHX]:=iif(AX[EHX],CONTEXT_TRUE,CONTEXT_FALSE)
+             END
+             EXIT
+        END
+        EXIT
+     CASE 2
+        SWITCH TYP1
+           CASE "N"
+             IF DIM1R<=DIM1C
+                FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+                   TEMPORAL[EHX][EIX]:=XFUNNUM2STRING(AX[EHX][EIX],XUPRECISION)//alltrim(str(AX[EHX][EIX]))
+                END; END
+             ELSE
+                FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+                   TEMPORAL[EHX][EIX]:=XFUNNUM2STRING(AX[EHX][EIX],XUPRECISION)//alltrim(str(AX[EHX][EIX]))
+                END; END
+             END
+             EXIT
+           CASE "L"
+             IF DIM1R<=DIM1C
+                FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+                   TEMPORAL[EHX][EIX]:=iif(AX[EHX][EIX],CONTEXT_TRUE,CONTEXT_FALSE)
+                END; END
+             ELSE
+                FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+                   TEMPORAL[EHX][EIX]:=iif(AX[EHX][EIX],CONTEXT_TRUE,CONTEXT_FALSE)
+                END; END
+             END
+             EXIT
+        END
+        EXIT
+     CASE 3
+        SWITCH TYP1
+        CASE "N"
+           IF DIM1R<=DIM1C
+           FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+              TEMPORAL[EHX][EIX][EJX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX]))
+           END; END; END
+           ELSE
+           FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+              TEMPORAL[EHX][EIX][EJX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX]))
+           END; END; END
+           END
+           EXIT
+        CASE "L"
+           IF DIM1R<=DIM1C
+           FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+              TEMPORAL[EHX][EIX][EJX]:=iif(AX[EHX][EIX][EJX],CONTEXT_TRUE,CONTEXT_FALSE)
+           END; END; END
+           ELSE
+           FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+              TEMPORAL[EHX][EIX][EJX]:=iif(AX[EHX][EIX][EJX],CONTEXT_TRUE,CONTEXT_FALSE)
+           END; END; END
+           END
+           EXIT
+        END
+        EXIT
+     CASE 4
+        SWITCH TYP1
+        CASE "N"
+           IF DIM1R<=DIM1C
+           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+              TEMPORAL[EHX][EIX][EJX][EKX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX][EKX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX][EKX]))
+           END; END; END; END
+           ELSE
+           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+              TEMPORAL[EHX][EIX][EJX][EKX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX][EKX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX][EKX]))
+           END; END; END; END
+           END
+           EXIT
+        CASE "L"
+           IF DIM1R<=DIM1C
+           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
+              TEMPORAL[EHX][EIX][EJX][EKX]:=iif(AX[EHX][EIX][EJX][EKX],CONTEXT_TRUE,CONTEXT_FALSE)
+           END; END; END; END
+           ELSE
+           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
+              TEMPORAL[EHX][EIX][EJX][EKX]:=iif(AX[EHX][EIX][EJX][EKX],CONTEXT_TRUE,CONTEXT_FALSE)
+           END; END; END; END
+           END
+           EXIT
+        END
+        EXIT
+     END
+     //////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
+     stk_var_02[CWM]:=TEMPORAL  ////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
+     FUNPUTDIMS(CWM,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
+     RELEASE TEMPORAL
+//     SET DECIMALS TO 16
+//     SET FIXED OFF
+  end   
+  STACK[CS] := CWM
+RETURN .T.
+
+  FUNCTION FUNNEGATIVE()   // subfuncion __PSUB1_CODE 5
+  LOCAL EAX,AX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=1945
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TEMPORAL
+    EAX:=STACK[CS]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM
+    AX:=stk_var_02[EAX]
+    if valtype(AX)=="N"
+       stk_var_02[CWM]:=(stk_var_02[EAX]<0)
+       STACK[CS] := CWM
+    else   // es array!
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+         IF TYP1=="N" 
+          STACK[CS] := CWM
+          SWITCH DIM1
+          CASE 1
+             for EHX:=1 to DIM1R
+                if AX[EHX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end
+             EXIT
+          CASE 2
+             IF DIM1R<=DIM1C
+             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end
+             ELSE
+             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end
+             END
+             EXIT
+          CASE 3
+             IF DIM1R<=DIM1C
+             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX][EJX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end
+             ELSE
+             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX][EJX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end
+             END
+             EXIT
+          OTHERWISE
+             IF DIM1R<=DIM1C
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX][EJX][EKX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end; end
+             ELSE
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX][EJX][EKX]>=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end; end
+             END
+             EXIT
+          END
+          stk_var_02[CWM]:=.T.
+         ELSE
+          RETURN _FUNPUTERROR("ISNEG/TYPE MISMATCH (I NEED MATRIX NUMBER)",OP_CODE,CP)
+         END
+       ELSE
+          RETURN _FUNPUTERROR("ISNEG/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    end
+  RETURN .T.
+
+  FUNCTION FUNPOSITIVE()  // subfuncion __PSUB1_CODE 6
+  LOCAL EAX,AX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=1946
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
+    EAX:=STACK[CS]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM
+    AX:=stk_var_02[EAX]
+    if valtype(AX)=="N"
+       stk_var_02[CWM]:=(stk_var_02[EAX]>0)
+       STACK[CS] := CWM
+    else   // es array!
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+         IF TYP1=="N" 
+          STACK[CS] := CWM
+          SWITCH DIM1
+          CASE 1
+             for EHX:=1 to DIM1R
+                if AX[EHX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end
+             EXIT
+          CASE 2
+             IF DIM1R<=DIM1C
+             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end
+             ELSE
+             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end
+             END
+             EXIT
+          CASE 3
+             IF DIM1R<=DIM1C
+             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX][EJX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end
+             ELSE
+             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX][EJX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end
+             END
+             EXIT
+          OTHERWISE
+             IF DIM1R<=DIM1C
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                if AX[EHX][EIX][EJX][EKX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end; end
+             ELSE
+             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                if AX[EHX][EIX][EJX][EKX]<=0
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                end
+             end; end; end; end
+             END
+             EXIT
+          END
+          stk_var_02[CWM]:=.T.
+         ELSE
+          RETURN _FUNPUTERROR("ISPOS/TYPE MISMATCH (I NEED MATRIX NUMBER)",OP_CODE,CP)
+         END
+       ELSE
+          RETURN _FUNPUTERROR("ISPOS/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    end
+  RETURN .T.
+
+
+  FUNCTION FUNNEAR()   // subfuncion __PSUB1_CODE 7
+  LOCAL EAX,ECX,AX,CX,EDX
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TYP2
+  LOCAL DIM2,DIM2R,DIM2C,DIM2P,DIM2B,XOP_CODE:=1947
+    EAX:=STACK[CS]
+    ECX:=STACK[CS-1]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(ECX,CWM,TopCWM)
+    ++CWM; --CS
+    AX:=stk_var_02[EAX]
+    CX:=stk_var_02[ECX]
+    EWX:=valtype(AX)
+    EVX:=valtype(CX)
+    EXX:=EVX+EWX
+    if EXX=="NN" 
+       stk_var_02[CWM]:=(ABS(CX-ABS(AX)) <= DFLAG)
+       STACK[CS]:=CWM
+    else
+       // obtiene EAX array DE CLAVE
+       if EWX=="A"
+          IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+             RETURN _FUNPUTERROR("ISNEAR/MATRIX NOT INITIALIZED",XOP_CODE,CP)
+          ELSEIF TYP1!="N"
+             RETURN _FUNPUTERROR("ISNEAR/TYPE MISMATCH (I NEED MATRIX NUMBER)",XOP_CODE,CP)
+          end
+       end
+       if EVX=="A" // correcto  MENSAJE A CIFRAR
+          IF !FUNGETDIMS(ECX,@EDX,@DIM2,@TYP2,@DIM2R,@DIM2C,@DIM2P,@DIM2B,.T.)
+             RETURN _FUNPUTERROR("ISNEAR/MATRIX NOT INITIALIZED",XOP_CODE,CP)
+          ELSEIF TYP2!="N"
+             RETURN _FUNPUTERROR("ISNEAR/TYPE MISMATCH (I NEED MATRIX NUMBER)",XOP_CODE,CP)
+          end
+          if EXX=="AA"
+             if DIM1!=DIM2 .or. DIM1R!=DIM2R .or. DIM1C!=DIM2C .or. DIM1P!=DIM2P .or. DIM1B!=DIM2B
+                RETURN _FUNPUTERROR("ISNEAR/DIMENSION ERROR",XOP_CODE,CP)
+             end
+          end
+       end
+      
+       STACK[CS]:=CWM
+       IF EXX=="AA"   // AMBOS SON MATRICES
+          SWITCH DIM2
+          CASE 1
+             FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX]-ABS(AX[EHX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END
+             EXIT
+          CASE 2
+             IF DIM2R<=DIM2C
+             FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX]-ABS(AX[EHX][EIX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END
+             ELSE
+             FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX]-ABS(AX[EHX][EIX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END
+             END
+             EXIT
+          CASE 3
+             IF DIM2R<=DIM2C
+             FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX[EHX][EIX][EJX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END
+             ELSE
+             FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX[EHX][EIX][EJX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END
+             END
+             EXIT
+          OTHERWISE
+             IF DIM2R<=DIM2C
+             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX[EHX][EIX][EJX][EKX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END; END
+             ELSE
+             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX[EHX][EIX][EJX][EKX])) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END; END
+             END
+             EXIT
+          END
+       ELSEIF EXX=="AN"
+          SWITCH DIM2
+          CASE 1
+             FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END
+             EXIT
+          CASE 2
+             IF DIM2R<=DIM2C
+             FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END
+             ELSE
+             FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END
+             END 
+             EXIT
+          CASE 3
+             IF DIM2R<=DIM2C
+             FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END
+             ELSE
+             FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END
+             END
+             EXIT
+          OTHERWISE
+             IF DIM2R<=DIM2C
+             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
+                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END; END
+             ELSE
+             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
+                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX)) > DFLAG)
+                   stk_var_02[CWM]:=.F.
+                   RETURN .T.
+                END
+             END; END; END; END
+             END
+             EXIT
+          END
+       END
+       stk_var_02[CWM]:=.T.
+    end
+    
+  RETURN .T.
+
+  FUNCTION FUNISANY()    // subfuncion __PSUB1_CODE 8
+  LOCAL EAX,AX,BX,EBX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=1948
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
+    EBX:=STACK[CS]    // ESCALAR
+    EAX:=STACK[CS-1]  // ARREGLO O MATRIZ
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    CWM:=CMPCWM(EAX,CWM,TopCWM)    
+    ++CWM
+    --CS
+    BX:=stk_var_02[EBX]
+    AX:=stk_var_02[EAX]
+    if valtype(AX)!="A"
+       if VALTYPE(BX)!="C"
+          stk_var_02[CWM]:=(AX==BX)
+       else
+          stk_var_02[CWM]:=(AX+" "==BX+" ")
+       end   
+       STACK[CS] := CWM
+       RETURN .T.
+    else   // es array!
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          
+          STACK[CS] := CWM
+          SWITCH DIM1
+          CASE 1
+             if TYP1!="C"
+                for EHX:=1 to DIM1R
+                   if AX[EHX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end
+             else
+                for EHX:=1 to DIM1R
+                   if AX[EHX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end
+             end
+             EXIT
+          CASE 2
+             if TYP1!="C"
+                IF DIM1R<=DIM1C
+                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end
+                ELSE
+                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end
+                END
+             else
+                IF DIM1R<=DIM1C
+                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end
+                ELSE
+                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end
+                END
+             end
+             EXIT
+          CASE 3
+             if TYP1!="C"
+                IF DIM1R<=DIM1C
+                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end
+                ELSE
+                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end
+                END
+             else
+                IF DIM1R<=DIM1C
+                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end
+                ELSE
+                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end
+                END
+             end
+             EXIT
+          CASE 4
+             if TYP1!="C"
+                IF DIM1R<=DIM1C
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX][EKX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end; end
+                ELSE
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX][EKX]==BX
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end; end
+                END
+             else
+                IF DIM1R<=DIM1C
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX][EKX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end; end
+                ELSE
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX][EKX]+" "==BX+" "
+                      stk_var_02[CWM]:=.T.
+                      RETURN .T.
+                   end
+                end; end; end; end
+                END
+             end
+             EXIT
+          END
+       ELSE
+          RETURN _FUNPUTERROR("ISANY/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    end
+    stk_var_02[CWM]:=.F.
+  RETURN .T.
+            
+  FUNCTION FUNISALL()      // subfuncion __PSUB1_CODE 9
+  // 32  SIRVE PARA COMPARAR SI ES CERO, O SI TIENE ELEMENTOS VACIOS SI ES STRING
+  LOCAL EAX,AX,BX,EBX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=1949
+  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
+    EBX:=STACK[CS]    // ESCALAR
+    EAX:=STACK[CS-1]  // ARREGLO O MATRIZ
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    CWM:=CMPCWM(EAX,CWM,TopCWM)    
+    ++CWM
+    --CS
+    BX:=stk_var_02[EBX]
+    AX:=stk_var_02[EAX]
+    if valtype(AX)!="A"
+       if VALTYPE(BX)!="C"
+          stk_var_02[CWM]:=(AX==BX)
+       else
+          stk_var_02[CWM]:=(AX+" "==BX+" ")
+       end
+       STACK[CS] := CWM
+    else   // es array!
+       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          
+          STACK[CS] := CWM
+          SWITCH DIM1
+          CASE 1
+             if TYP1=="C" .and. LEN(BX)==0
+                for EHX:=1 to DIM1R
+                   if LEN(AX[EHX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end
+             else
+                for EHX:=1 to DIM1R
+                   if AX[EHX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end
+             end
+             EXIT
+          CASE 2
+             IF DIM1R<=DIM1C
+             if TYP1=="C" .and. LEN(BX)==0
+                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if LEN(AX[EHX][EIX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end
+             else
+                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end
+             end
+             ELSE
+             if TYP1=="C" .and. LEN(BX)==0
+                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if LEN(AX[EHX][EIX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end
+             else
+                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end
+             end
+             END
+             EXIT
+          CASE 3
+             IF DIM1R<=DIM1C
+             if TYP1=="C" .and. LEN(BX)==0
+                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if LEN(AX[EHX][EIX][EJX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end
+             else
+                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end
+             end
+             ELSE
+             if TYP1=="C" .and. LEN(BX)==0
+                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if LEN(AX[EHX][EIX][EJX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end
+             else
+                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end
+             end
+             END
+             EXIT
+          OTHERWISE
+             IF DIM1R<=DIM1C
+             if TYP1=="C" .and. LEN(BX)==0
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if LEN(AX[EHX][EIX][EJX][EKX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end; end
+             else
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
+                   if AX[EHX][EIX][EJX][EKX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end; end
+             end
+             ELSE
+             if TYP1=="C" .and. LEN(BX)==0
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if LEN(AX[EHX][EIX][EJX][EKX])!=0
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end; end
+             else
+                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
+                   if AX[EHX][EIX][EJX][EKX]!=BX
+                      stk_var_02[CWM]:=.F.
+                      RETURN .T.
+                   end
+                end; end; end; end
+             end
+             END
+             EXIT
+          END
+          stk_var_02[CWM]:=.T.
+       ELSE
+          RETURN _FUNPUTERROR("ISALL/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+    end
+  RETURN .T.
+
+  FUNCTION FUNISNAN()   // subfuncion __PSUB1_CODE 10
+  LOCAL EAX,EVX,EDX,OP_CODE:=19410
+  LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B
+    EAX:=STACK[CS]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM
+    EVX:=VALTYPE(stk_var_02[EAX])
+    if EVX=="N"
+       stk_var_02[CWM]:=XU_TYPENUM(stk_var_02[EAX])==1
+    else
+       IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          RETURN _FUNPUTERROR("ISNAN/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+       stk_var_02[CWM]:=XMATHNANINF(stk_var_02[EAX],1,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
+    end
+    STACK[CS] := CWM
+  RETURN .T.
+
+  FUNCTION FUNISINF()   // subfuncion __PSUB1_CODE 11
+  LOCAL EAX,EVX,EDX,OP_CODE:=19411
+  LOCAL DIM1,TYP1,DIM1R,DIM1C,DIM1P,DIM1B
+    EAX:=STACK[CS]
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    ++CWM
+    EVX:=VALTYPE(stk_var_02[EAX])
+    if EVX=="N"
+       stk_var_02[CWM]:=XU_TYPENUM(stk_var_02[EAX])==2
+    else
+       IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
+          RETURN _FUNPUTERROR("ISNAN/MATRIX NOT INITIALIZED",OP_CODE,CP)
+       END
+       stk_var_02[CWM]:=XMATHNANINF(stk_var_02[EAX],2,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
+    end
+    STACK[CS] := CWM
+  RETURN .T.
+
+FUNCTION FUNISEMPTY()   // subfuncion __PSUB1_CODE 12
+LOCAL EX
+LOCAL OP_CODE:=19412
+  if SFLAGDIR>0   // ha sido seleccionado un array
+     if SFLAGROW==0 .and. SFLAGCOL==0 .and. SFLAGPAG==0 .and. SFLAGBLK==0
+        EX:=.T.
+     else
+        EX:=.F.
+     end       
+  else
+     RETURN _FUNPUTERROR("ISEMPTY/STACK EXPECTED (USE)",OP_CODE,CP)
+  end
+  stk_var_02[++CWM]:=EX
+  STACK[++CS]:=CWM
+RETURN .T.
+
+  FUNCTION FUNISTYPE()   // subfuncion __PSUB1_CODE 13
+  LOCAL EAX,EBX,AX,BX,EDX,TYP
+  LOCAL OP_CODE:=19413
+    EAX:=STACK[CS]    // TIPO A COMPARAR
+    EBX:=STACK[CS-1]  // VARIABLE
+    CWM:=CMPCWM(EAX,CWM,TopCWM)
+    CWM:=CMPCWM(EBX,CWM,TopCWM)
+    --CS
+    ++CWM
+    AX:=valtype(stk_var_02[EBX]) 
+
+    if AX=="A"  // buscar en stk_array...
+       if STK_CWMTOP>0
+          EDX := STK_TEMP_DIR[STK_CWMTOP]
+          if EDX!=EAX
+             EDX := ASCAN(STK_ARRAY_DIR,EBX)
+             TYP :=STK_ARRAY_TYP[EDX]
+          else   
+             TYP :=STK_TEMP_TYP[STK_CWMTOP]
+             STK_TEMP_DIR[STK_CWMTOP]:=0
+             STK_CWMTOP--
+          end
+       else
+          EDX := ASCAN(STK_ARRAY_DIR,EBX)
+          TYP := STK_ARRAY_TYP[EDX]
+       end
+       if TYP=="N"
+          TYP:="<number>"
+       elseif TYP=="L"
+          TYP:="<boolean>"
+       elseif TYP=="C"
+          TYP:="<string>"
+       end
+       
+       if TYP==stk_var_02[EAX]
+          AX:=.T.
+       else
+          AX:=.F.
+       end
+    else
+       if AX=="N"
+          BX:="number"
+       elseif AX=="C"
+          BX:="string"
+          if stk_var_02[EAX]=="<null>"
+             BX:="(null)"
+          end
+       elseif AX=="L"
+          BX:="boolean"
+       end 
+
+       if BX==stk_var_02[EAX]
+          AX:=.T.
+       else
+          AX:=.F.
+       end   
+    end
+    stk_var_02[CWM]:=AX
+    STACK[CS] := CWM
+    
+  RETURN .T.
+
+
+//*****************************************************************************************  
   FUNCTION FUNTIMENOW()   // 226
     stk_var_02[++CWM]:=TIME()
     STACK[++CS] := CWM
@@ -13390,31 +14502,6 @@ RETURN (__PXCOD2NC[stk_var_02[EBX]]:EXEC(EAX))
        RELEASE TEMPORAL
     end
     STACK[--CS]:=CWM
-  RETURN .T.
-
-  FUNCTION FUNISTIME()   // 166
-  LOCAL EAX,AX,EVX,OP_CODE:=1660,EFX,TEMPORAL
-  LOCAL DIM1, TYP1,DIM1R,DIM1C,DIM1P,DIM1B
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    ++CWM
-    AX:=stk_var_02[EAX]
-    EVX:=VALTYPE(AX)
-    IF EVX=="C"
-       stk_var_02[CWM]:=XTIMEVALID(AX)
-    ELSE
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          /////TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-          TEMPORAL:=XGETDATE(AX,14,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
-          //////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-          stk_var_02[CWM]:=TEMPORAL   /////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-          FUNPUTDIMS(CWM,DIM1,"L",DIM1R,DIM1C,DIM1P,DIM1B)
-          RELEASE TEMPORAL
-       ELSE
-          RETURN _FUNPUTERROR("ISTIME/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    END
-    STACK[CS] := CWM
   RETURN .T.
 
   FUNCTION FUNMNELAP()   // 100
@@ -14486,14 +15573,16 @@ RETURN (__PXCOD2NC[stk_var_02[EBX]]:EXEC(EAX))
     ECX:=STACK[CS-3]  // filas
     EBX:=STACK[CS-4]  // tipo de la matriz
     EAX:=STACK[CS-5]  // String a macrear
-    CWM:=CMPCWM(EEX,CWM,TopCWM)
+
     CWM:=CMPCWM(EFX,CWM,TopCWM)
+    CWM:=CMPCWM(EEX,CWM,TopCWM)
     CWM:=CMPCWM(EDX,CWM,TopCWM)
     CWM:=CMPCWM(ECX,CWM,TopCWM)
     CWM:=CMPCWM(EBX,CWM,TopCWM)
     CWM:=CMPCWM(EAX,CWM,TopCWM)
     CS-=5
     ++CWM
+
     //EZX:=strtran(alltrim(stk_var_02[EAX]),"''","' '")
     EZX:=strtran(alltrim(stk_var_02[EAX]),"''","<COD-01201$%-VOID>")
     EZX:=strtran(EZX,"'","")
@@ -16693,148 +17782,6 @@ LOCAL OP_CODE:=1270,FUENTE,TEMPORAL,DIV
   STACK[CS] := CWM
 RETURN .T.
 
-FUNCTION FUNTOSTRING()   // 41
-  LOCAL AX,EDX,DX,OP_CODE:=410,EAX
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TEMPORAL
-  EAX:=STACK[CS]     // valor, argumento
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-  ++CWM
-  AX:=stk_var_02[EAX]
-  EVX:=valtype(AX)
-  if EVX!="A"
-      
-       stk_var_02[CWM]:=iif(EVX=="N",XFUNNUM2STRING(AX,XUPRECISION),;
-              iif(EVX=="C",AX,;
-              iif(AX,CONTEXT_TRUE,CONTEXT_FALSE)))   // chequear si se puede convertir
-      
-  else
-     IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-        RETURN _FUNPUTERROR("($..),XTOSTR/MATRIX NOT INITIALIZED",OP_CODE,CP)
-     end
-     IF TYP1=="C"
-        /*TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-        XMMLET(TEMPORAL,stk_var_02[EAX],DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-        stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-        XMMLET(stk_var_02[CWM],TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-        FUNPUTDIMS(CWM,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
-        STACK[CS] := CWM */
-        
-        //////XCOPIAMATRIX(CWM,EAX,DIM1,DIM1R,DIM1C,DIM1P,DIM1B)
-      /*  TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-        XMMLET(TEMPORAL,stk_var_02[EAX],DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-        stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-        XMMLET(stk_var_02[CWM],TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0) */
-        FUNPUTDIMS(EAX,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
-        STACK[CS] := EAX
-        RETURN .T.
-     END
-     TEMPORAL:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-//     SET DECIMALS TO XUPRECISION
-//     SET FIXED ON
-     SWITCH DIM1
-     CASE 1
-        SWITCH TYP1
-           CASE "N"
-             FOR EHX:=1 TO DIM1R
-               TEMPORAL[EHX]:=XFUNNUM2STRING(AX[EHX],XUPRECISION)//alltrim(str(AX[EHX]))
-             END
-             EXIT
-           CASE "L"
-             FOR EHX:=1 TO DIM1R
-               TEMPORAL[EHX]:=iif(AX[EHX],CONTEXT_TRUE,CONTEXT_FALSE)
-             END
-             EXIT
-        END
-        EXIT
-     CASE 2
-        SWITCH TYP1
-           CASE "N"
-             IF DIM1R<=DIM1C
-                FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-                   TEMPORAL[EHX][EIX]:=XFUNNUM2STRING(AX[EHX][EIX],XUPRECISION)//alltrim(str(AX[EHX][EIX]))
-                END; END
-             ELSE
-                FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-                   TEMPORAL[EHX][EIX]:=XFUNNUM2STRING(AX[EHX][EIX],XUPRECISION)//alltrim(str(AX[EHX][EIX]))
-                END; END
-             END
-             EXIT
-           CASE "L"
-             IF DIM1R<=DIM1C
-                FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-                   TEMPORAL[EHX][EIX]:=iif(AX[EHX][EIX],CONTEXT_TRUE,CONTEXT_FALSE)
-                END; END
-             ELSE
-                FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-                   TEMPORAL[EHX][EIX]:=iif(AX[EHX][EIX],CONTEXT_TRUE,CONTEXT_FALSE)
-                END; END
-             END
-             EXIT
-        END
-        EXIT
-     CASE 3
-        SWITCH TYP1
-        CASE "N"
-           IF DIM1R<=DIM1C
-           FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-              TEMPORAL[EHX][EIX][EJX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX]))
-           END; END; END
-           ELSE
-           FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-              TEMPORAL[EHX][EIX][EJX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX]))
-           END; END; END
-           END
-           EXIT
-        CASE "L"
-           IF DIM1R<=DIM1C
-           FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-              TEMPORAL[EHX][EIX][EJX]:=iif(AX[EHX][EIX][EJX],CONTEXT_TRUE,CONTEXT_FALSE)
-           END; END; END
-           ELSE
-           FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-              TEMPORAL[EHX][EIX][EJX]:=iif(AX[EHX][EIX][EJX],CONTEXT_TRUE,CONTEXT_FALSE)
-           END; END; END
-           END
-           EXIT
-        END
-        EXIT
-     CASE 4
-        SWITCH TYP1
-        CASE "N"
-           IF DIM1R<=DIM1C
-           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-              TEMPORAL[EHX][EIX][EJX][EKX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX][EKX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX][EKX]))
-           END; END; END; END
-           ELSE
-           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-              TEMPORAL[EHX][EIX][EJX][EKX]:=XFUNNUM2STRING(AX[EHX][EIX][EJX][EKX],XUPRECISION)//alltrim(str(AX[EHX][EIX][EJX][EKX]))
-           END; END; END; END
-           END
-           EXIT
-        CASE "L"
-           IF DIM1R<=DIM1C
-           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EHX:=1 TO DIM1R; FOR EIX:=1 TO DIM1C
-              TEMPORAL[EHX][EIX][EJX][EKX]:=iif(AX[EHX][EIX][EJX][EKX],CONTEXT_TRUE,CONTEXT_FALSE)
-           END; END; END; END
-           ELSE
-           FOR EKX:=1 TO DIM1B; FOR EJX:=1 TO DIM1P; FOR EIX:=1 TO DIM1C; FOR EHX:=1 TO DIM1R
-              TEMPORAL[EHX][EIX][EJX][EKX]:=iif(AX[EHX][EIX][EJX][EKX],CONTEXT_TRUE,CONTEXT_FALSE)
-           END; END; END; END
-           END
-           EXIT
-        END
-        EXIT
-     END
-     //////stk_var_02[CWM]:=ARRAY(DIM1R,DIM1C,DIM1P,DIM1B)
-     stk_var_02[CWM]:=TEMPORAL  ////XMMLET(TEMPORAL,DIM1,DIM1R,DIM1C,DIM1P,DIM1B,0)
-     FUNPUTDIMS(CWM,DIM1,"C",DIM1R,DIM1C,DIM1P,DIM1B)
-     RELEASE TEMPORAL
-//     SET DECIMALS TO 16
-//     SET FIXED OFF
-  end   
-  STACK[CS] := CWM
-RETURN .T.
-
 
 /******************************************************************
                        FAM. XCODE_CN 44 "CN"
@@ -17612,7 +18559,157 @@ RETURN (__PXCODCCC[stk_var_02[EBX]]:EXEC(EAX,ECX))
 /******************************************************************
                FUNCIONES MISCELANEAS FAM FMISCA_CODE
 *******************************************************************/
-   FUNCTION FUNFLAG()  // 31
+
+FUNCTION FMISCA_CODE()   // 125
+LOCAL EAX,EBX,ECX
+LOCAL OP_CODE:=1250
+  EAX:=STACK[CS]    // 
+  EBX:=STACK[CS-1]  //
+  ECX:=STACK[CS-2]  // CODIGO DE FUNCION 
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+  CWM:=CMPCWM(EBX,CWM,TopCWM)
+  CWM:=CMPCWM(ECX,CWM,TopCWM)
+  CS-=3
+//  if stk_var_02[EAX]<0
+//     RETURN _FUNPUTERROR("BAD ARGUMENT",OP_CODE,CP)
+//  end 
+RETURN (__PMISCFUN[stk_var_02[ECX]]:EXEC(EBX,EAX))
+
+  FUNCTION FUNCRTDIM(EBX,EAX)   // 1
+   stk_var_02[EBX]:=MAXROW()
+   stk_var_02[EAX]:=MAXCOL()
+  RETURN .T.
+
+  FUNCTION FUNKEYPUT(EBX,EAX)  // 2
+  LOCAL AX,BX
+    AX:=stk_var_02[EAX]
+    BX:=stk_var_02[EBX]
+    if BX==256
+       SETTYPEAHEAD(AX)
+    else
+       PUTKEY(BX,AX)
+    end
+  RETURN .T.
+
+  FUNCTION FUNCURSOR(EBX,EAX)  // 3
+    SETCURSOR (stk_var_02[EAX])
+  RETURN .T.
+
+  FUNCTION FUNVTAB(EBX,EAX)    // 6
+  LOCAL COL,ROW,EIX,MAXROW
+    ROW:=row()+stk_var_02[EAX]
+    COL:=col()
+    MAXROW:=maxrow()
+    if ROW<=0
+       ROW:=1
+    elseif ROW>MAXROW
+       for EIX:=MAXROW to ROW
+         ?""
+       next
+       ROW:=MAXROW  //-1
+    end
+
+    SETPOS(ROW,COL)  //
+
+  RETURN .T.
+
+  FUNCTION FUNHTAB(EBX,EAX)    // 7
+  LOCAL COL,ROW,MAXCOL,MAXROW
+    COL:=stk_var_02[EAX]*8
+    ROW:=row()
+    MAXROW:=maxrow()
+    MAXCOL:=maxcol()
+    if COL==0
+      COL:=1
+    elseif COL<0 
+      if col()+COL<0
+        COL:=1
+      end 
+    elseif COL>MAXCOL
+      if row()==MAXROW
+        ?"" 
+      end
+      ++ROW
+      COL:=COL-MAXCOL
+    end   
+    SETPOS(ROW,COL)  ///
+    RETURN .T.
+
+    FUNCTION FUNMILLISECONDS(EBX,EAX)  // 8
+      MILLISEC(stk_var_02[EAX])
+ 
+    RETURN .T.
+
+    FUNCTION FUNPRECISION(EBX,EAX)   //9
+      XUPRECISION:=stk_var_02[EAX]
+      if XUPRECISION>16
+         XUPRECISION:=16
+      end
+    RETURN .T.
+    
+  FUNCTION FUNSCREEN(EBX,EAX)   // 10
+    if stk_var_02[EAX]==0
+       SW_CONSOLE:=1
+    else
+       SW_CONSOLE:=0
+    end
+  RETURN .T.
+  
+  FUNCTION FUNVIDEO(EBX,EAX)    // 11
+    SETMODE(stk_var_02[EBX],stk_var_02[EAX])
+  RETURN .T.
+
+   FUNCTION FUNCLS(EBX,EAX)  //12
+     CLEAR
+   RETURN .T.
+
+  FUNCTION FUNSEED(EBX,EAX)   // 13
+    HB_RANDOMSEED(stk_var_02[EAX])
+  RETURN .T.
+  
+  FUNCTION FUNPAUSE(EBX,EAX)   // 14
+  LOCAL SX
+    if SW_FHNDLOUT!=1
+       while inkey()!=0   // flush!!
+       end
+       inkey(0)       // pausa
+    else
+       SX:="******* PAUSE inhabilitado en OUT activo"
+       fwrite (FHNDLOUT,SX,len(SX))
+    end
+  RETURN .T.
+
+  FUNCTION FUNGOODBYE()  // 15
+    __LOOP:=.F.   // PARA QUE SALGA DEL MAIN SIN ERROR
+  RETURN .T.
+  
+/******************************************************************
+
+*******************************************************************/
+FUNCTION FUNMSLEEP()   // 182
+LOCAL EAX
+  EAX:=STACK[CS]
+  --CS
+  XUSLEEP(stk_var_02[EAX])
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+RETURN .T.
+
+FUNCTION FUNSLEEP()   // 183
+LOCAL EAX
+  EAX:=STACK[CS]
+  CWM:=CMPCWM(EAX,CWM,TopCWM)
+  --CS
+  XSLEEP(stk_var_02[EAX])
+RETURN .T.
+
+  FUNCTION FUNSTOP()   // 25
+
+    setcolor("")
+    __LOOP:=.F.
+
+  RETURN .T.
+  
+  FUNCTION FUNFLAG()  // 31
   LOCAL EAX
     EAX:=STACK[CS]
     FLAG[1]:=stk_var_02[EAX]
@@ -17693,498 +18790,6 @@ RETURN (__PXCODCCC[stk_var_02[EBX]]:EXEC(EAX,ECX))
     END
   RETURN .T.
 
-  FUNCTION FUNNEAR()   // 71
-  LOCAL EAX,ECX,AX,CX,EDX
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TYP2
-  LOCAL DIM2,DIM2R,DIM2C,DIM2P,DIM2B,XOP_CODE:=710
-    EAX:=STACK[CS]
-    ECX:=STACK[CS-1]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    CWM:=CMPCWM(ECX,CWM,TopCWM)
-    ++CWM; --CS
-    AX:=stk_var_02[EAX]
-    CX:=stk_var_02[ECX]
-    EWX:=valtype(AX)
-    EVX:=valtype(CX)
-    EXX:=EVX+EWX
-    if EXX=="NN" 
-       stk_var_02[CWM]:=(ABS(CX-ABS(AX)) <= DFLAG)
-       STACK[CS]:=CWM
-    else
-       // obtiene EAX array DE CLAVE
-       if EWX=="A"
-          IF !FUNGETDIMS(EAX,@EDX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-             RETURN _FUNPUTERROR("ISNEAR/MATRIX NOT INITIALIZED",XOP_CODE,CP)
-          ELSEIF TYP1!="N"
-             RETURN _FUNPUTERROR("ISNEAR/TYPE MISMATCH (I NEED MATRIX NUMBER)",XOP_CODE,CP)
-          end
-       end
-       if EVX=="A" // correcto  MENSAJE A CIFRAR
-          IF !FUNGETDIMS(ECX,@EDX,@DIM2,@TYP2,@DIM2R,@DIM2C,@DIM2P,@DIM2B,.T.)
-             RETURN _FUNPUTERROR("ISNEAR/MATRIX NOT INITIALIZED",XOP_CODE,CP)
-          ELSEIF TYP2!="N"
-             RETURN _FUNPUTERROR("ISNEAR/TYPE MISMATCH (I NEED MATRIX NUMBER)",XOP_CODE,CP)
-          end
-          if EXX=="AA"
-             if DIM1!=DIM2 .or. DIM1R!=DIM2R .or. DIM1C!=DIM2C .or. DIM1P!=DIM2P .or. DIM1B!=DIM2B
-                RETURN _FUNPUTERROR("ISNEAR/DIMENSION ERROR",XOP_CODE,CP)
-             end
-          end
-       end
-      
-       STACK[CS]:=CWM
-       IF EXX=="AA"   // AMBOS SON MATRICES
-          SWITCH DIM2
-          CASE 1
-             FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX]-ABS(AX[EHX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END
-             EXIT
-          CASE 2
-             IF DIM2R<=DIM2C
-             FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX]-ABS(AX[EHX][EIX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END
-             ELSE
-             FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX]-ABS(AX[EHX][EIX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END
-             END
-             EXIT
-          CASE 3
-             IF DIM2R<=DIM2C
-             FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX[EHX][EIX][EJX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END
-             ELSE
-             FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX[EHX][EIX][EJX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END
-             END
-             EXIT
-          OTHERWISE
-             IF DIM2R<=DIM2C
-             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX[EHX][EIX][EJX][EKX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END; END
-             ELSE
-             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX[EHX][EIX][EJX][EKX])) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END; END
-             END
-             EXIT
-          END
-       ELSEIF EXX=="AN"
-          SWITCH DIM2
-          CASE 1
-             FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END
-             EXIT
-          CASE 2
-             IF DIM2R<=DIM2C
-             FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END
-             ELSE
-             FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END
-             END 
-             EXIT
-          CASE 3
-             IF DIM2R<=DIM2C
-             FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END
-             ELSE
-             FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX][EJX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END
-             END
-             EXIT
-          OTHERWISE
-             IF DIM2R<=DIM2C
-             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EHX:=1 TO DIM2R; FOR EIX:=1 TO DIM2C
-                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END; END
-             ELSE
-             FOR EKX:=1 TO DIM2B; FOR EJX:=1 TO DIM2P; FOR EIX:=1 TO DIM2C; FOR EHX:=1 TO DIM2R
-                IF (ABS(CX[EHX][EIX][EJX][EKX]-ABS(AX)) > DFLAG)
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                END
-             END; END; END; END
-             END
-             EXIT
-          END
-       END
-       stk_var_02[CWM]:=.T.
-    end
-    
-  RETURN .T.
-
-  FUNCTION FUNNEGATIVE()   // 28
-  LOCAL EAX,AX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=280
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1,TEMPORAL
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    ++CWM
-    AX:=stk_var_02[EAX]
-    if valtype(AX)=="N"
-       stk_var_02[CWM]:=(stk_var_02[EAX]<0)
-       STACK[CS] := CWM
-    else   // es array!
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-         IF TYP1=="N" 
-          STACK[CS] := CWM
-          SWITCH DIM1
-          CASE 1
-             for EHX:=1 to DIM1R
-                if AX[EHX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end
-             EXIT
-          CASE 2
-             IF DIM1R<=DIM1C
-             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end
-             ELSE
-             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end
-             END
-             EXIT
-          CASE 3
-             IF DIM1R<=DIM1C
-             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX][EJX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end
-             ELSE
-             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX][EJX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end
-             END
-             EXIT
-          OTHERWISE
-             IF DIM1R<=DIM1C
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX][EJX][EKX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end; end
-             ELSE
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX][EJX][EKX]>=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end; end
-             END
-             EXIT
-          END
-          stk_var_02[CWM]:=.T.
-         ELSE
-          RETURN _FUNPUTERROR("ISPOS/TYPE MISMATCH (I NEED MATRIX NUMBER)",OP_CODE,CP)
-         END
-       ELSE
-          RETURN _FUNPUTERROR("ISNEG/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    end
-  RETURN .T.
-  
-  FUNCTION FUNPOSITIVE()  // 22
-  LOCAL EAX,AX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=220
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    ++CWM
-    AX:=stk_var_02[EAX]
-    if valtype(AX)=="N"
-       stk_var_02[CWM]:=(stk_var_02[EAX]>0)
-       STACK[CS] := CWM
-    else   // es array!
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-         IF TYP1=="N" 
-          STACK[CS] := CWM
-          SWITCH DIM1
-          CASE 1
-             for EHX:=1 to DIM1R
-                if AX[EHX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end
-             EXIT
-          CASE 2
-             IF DIM1R<=DIM1C
-             for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end
-             ELSE
-             for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end
-             END
-             EXIT
-          CASE 3
-             IF DIM1R<=DIM1C
-             for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX][EJX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end
-             ELSE
-             for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX][EJX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end
-             END
-             EXIT
-          OTHERWISE
-             IF DIM1R<=DIM1C
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                if AX[EHX][EIX][EJX][EKX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end; end
-             ELSE
-             for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                if AX[EHX][EIX][EJX][EKX]<=0
-                   stk_var_02[CWM]:=.F.
-                   RETURN .T.
-                end
-             end; end; end; end
-             END
-             EXIT
-          END
-          stk_var_02[CWM]:=.T.
-         ELSE
-          RETURN _FUNPUTERROR("ISPOS/TYPE MISMATCH (I NEED MATRIX NUMBER)",OP_CODE,CP)
-         END
-       ELSE
-          RETURN _FUNPUTERROR("ISPOS/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    end
-  RETURN .T.
-          
-  FUNCTION FUNISALL()   // 32  SIRVE PARA COMPARAR SI ES CERO, O SI TIENE ELEMENTOS VACIOS SI ES STRING
-  LOCAL EAX,AX,BX,EBX,EFX,EHX,EIX,EJX,EKX,OP_CODE:=320
-  LOCAL DIM1,DIM1R,DIM1C,DIM1P,DIM1B,TYP1
-    EBX:=STACK[CS]    // ESCALAR
-    EAX:=STACK[CS-1]  // ARREGLO O MATRIZ
-    CWM:=CMPCWM(EBX,CWM,TopCWM)
-    CWM:=CMPCWM(EAX,CWM,TopCWM)    
-    ++CWM
-    --CS
-    BX:=stk_var_02[EBX]
-    AX:=stk_var_02[EAX]
-    if valtype(AX)!="A"
-       if VALTYPE(BX)!="C"
-          stk_var_02[CWM]:=(AX==BX)
-       else
-          stk_var_02[CWM]:=(AX+" "==BX+" ")
-       end
-       STACK[CS] := CWM
-    else   // es array!
-       IF FUNGETDIMS(EAX,@EFX,@DIM1,@TYP1,@DIM1R,@DIM1C,@DIM1P,@DIM1B,.T.)
-          
-          STACK[CS] := CWM
-          SWITCH DIM1
-          CASE 1
-             if TYP1=="C" .and. LEN(BX)==0
-                for EHX:=1 to DIM1R
-                   if LEN(AX[EHX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end
-             else
-                for EHX:=1 to DIM1R
-                   if AX[EHX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end
-             end
-             EXIT
-          CASE 2
-             IF DIM1R<=DIM1C
-             if TYP1=="C" .and. LEN(BX)==0
-                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if LEN(AX[EHX][EIX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end
-             else
-                for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end
-             end
-             ELSE
-             if TYP1=="C" .and. LEN(BX)==0
-                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if LEN(AX[EHX][EIX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end
-             else
-                for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end
-             end
-             END
-             EXIT
-          CASE 3
-             IF DIM1R<=DIM1C
-             if TYP1=="C" .and. LEN(BX)==0
-                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if LEN(AX[EHX][EIX][EJX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end
-             else
-                for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end
-             end
-             ELSE
-             if TYP1=="C" .and. LEN(BX)==0
-                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if LEN(AX[EHX][EIX][EJX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end
-             else
-                for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end
-             end
-             END
-             EXIT
-          OTHERWISE
-             IF DIM1R<=DIM1C
-             if TYP1=="C" .and. LEN(BX)==0
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if LEN(AX[EHX][EIX][EJX][EKX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end; end
-             else
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EHX:=1 to DIM1R; for EIX:=1 to DIM1C
-                   if AX[EHX][EIX][EJX][EKX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end; end
-             end
-             ELSE
-             if TYP1=="C" .and. LEN(BX)==0
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if LEN(AX[EHX][EIX][EJX][EKX])!=0
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end; end
-             else
-                for EKX:=1 to DIM1B; for EJX:=1 to DIM1P; for EIX:=1 to DIM1C; for EHX:=1 to DIM1R
-                   if AX[EHX][EIX][EJX][EKX]!=BX
-                      stk_var_02[CWM]:=.F.
-                      RETURN .T.
-                   end
-                end; end; end; end
-             end
-             END
-             EXIT
-          END
-          stk_var_02[CWM]:=.T.
-       ELSE
-          RETURN _FUNPUTERROR("ISALL/MATRIX NOT INITIALIZED",OP_CODE,CP)
-       END
-    end
-  RETURN .T.
 
   FUNCTION FUNIIF()  // 35
   LOCAL EAX,EBX,ECX,AX
@@ -18341,67 +18946,6 @@ RETURN (__PXCODCCC[stk_var_02[EBX]]:EXEC(EAX,ECX))
     
   RETURN .T.
 
-  FUNCTION FUNISTYPE()   // 118
-  LOCAL EAX,EBX,AX,BX,EDX,TYP
-  LOCAL OP_CODE:=1180
-    EAX:=STACK[CS]    // TIPO A COMPARAR
-    EBX:=STACK[CS-1]  // VARIABLE
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    CWM:=CMPCWM(EBX,CWM,TopCWM)
-    --CS
-    ++CWM
-    AX:=valtype(stk_var_02[EBX]) 
-
-    if AX=="A"  // buscar en stk_array...
-       if STK_CWMTOP>0
-          EDX := STK_TEMP_DIR[STK_CWMTOP]
-          if EDX!=EAX
-             EDX := ASCAN(STK_ARRAY_DIR,EBX)
-             TYP :=STK_ARRAY_TYP[EDX]
-          else   
-             TYP :=STK_TEMP_TYP[STK_CWMTOP]
-             STK_TEMP_DIR[STK_CWMTOP]:=0
-             STK_CWMTOP--
-          end
-       else
-          EDX := ASCAN(STK_ARRAY_DIR,EBX)
-          TYP := STK_ARRAY_TYP[EDX]
-       end
-       if TYP=="N"
-          TYP:="<number>"
-       elseif TYP=="L"
-          TYP:="<boolean>"
-       elseif TYP=="C"
-          TYP:="<string>"
-       end
-       
-       if TYP==stk_var_02[EAX]
-          AX:=.T.
-       else
-          AX:=.F.
-       end
-    else
-       if AX=="N"
-          BX:="number"
-       elseif AX=="C"
-          BX:="string"
-          if stk_var_02[EAX]=="<null>"
-             BX:="(null)"
-          end
-       elseif AX=="L"
-          BX:="boolean"
-       end 
-
-       if BX==stk_var_02[EAX]
-          AX:=.T.
-       else
-          AX:=.F.
-       end   
-    end
-    stk_var_02[CWM]:=AX
-    STACK[CS] := CWM
-    
-  RETURN .T.
 
   FUNCTION FUNTYPE()   // 121
   LOCAL EAX,AX,EDX,TYP
@@ -18503,17 +19047,6 @@ LOCAL EAX
   SETCOLOR (N2COLOR(stk_var_02[EAX]))  //(NTOCOLOR(stk_var_02[EAX]))
 RETURN .T.      
 
-FUNCTION FUNCURSOR()  // 153
-LOCAL EAX
-  EAX:=STACK[CS]
-  CWM:=CMPCWM(EAX,CWM,TopCWM)
-  --CS
-  SETCURSOR (stk_var_02[EAX])
-RETURN .T.
-
-FUNCTION FUNCLS()  //9
-  CLEAR
-RETURN .T.
 
 FUNCTION FUNAPI()   // 48
 LOCAL EAX,AX,BX,CX,EBX,DX,EX,ECX,EDX,EEX
@@ -18708,37 +19241,11 @@ RETURN .T.
     end
   RETURN .T.
 
-  FUNCTION FUNCONSOLE()   // 67
-  LOCAL EAX
-    EAX:=STACK[CS]
-    if stk_var_02[EAX]==0
-       SW_CONSOLE:=1
-    else
-       SW_CONSOLE:=0
-    end
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    --CS
-  RETURN .T.
-  
-  FUNCTION FUNVIDEO()    // 68
-  LOCAL EAX,EBX,AX,BX
-    EAX:=STACK[CS]
-    EBX:=STACK[CS-1]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    CWM:=CMPCWM(EBX,CWM,TopCWM)
-    CS-=2
-    AX:=stk_var_02[EAX]
-    BX:=stk_var_02[EBX]
-    SETMODE(BX,AX)
-  RETURN .T.
 
 /******************************************************************
                  FAM. MISCELANEAS FMISCD_CODE
 *******************************************************************/
 
-  FUNCTION FUNGOODBYE()  // 11
-    __LOOP:=.F.   // PARA QUE SALGA DEL MAIN SIN ERROR
-  RETURN .T.
 
   FUNCTION FUNSTATUS()  // 93
   LOCAL EAX
@@ -18763,50 +19270,7 @@ RETURN .T.
        AX:=inkey()
     end
   RETURN .T.
-  
-  FUNCTION FUNSEED()   // 143
-    LOCAL EAX
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    --CS
-    HB_RANDOMSEED(stk_var_02[EAX])
-  RETURN .T.
-  
-  FUNCTION FUNKEYPUT()  // 144
-    LOCAL EAX,EBX,AX,BX
-    EAX:=STACK[CS]
-    EBX:=STACK[CS-1]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    CWM:=CMPCWM(EBX,CWM,TopCWM)
-    CS-=2
-    AX:=stk_var_02[EAX]
-    BX:=stk_var_02[EBX]
-    if BX==256
-       SETTYPEAHEAD(AX)
-    else
-       PUTKEY(BX,AX)
-    end
-  RETURN .T.
-  
-  FUNCTION FUNFIX()   //150
-  LOCAL EAX
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    --CS
-    //FIX(stk_var_02[EAX])  // precision será solo para mantisa de notacion cientifica
-    XUPRECISION:=stk_var_02[EAX]
-    if XUPRECISION>16
-       XUPRECISION:=16
-    end
-  RETURN .T.
-  
-  FUNCTION FUNMILLISECONDS()  // 133
-  LOCAL EAX
-    EAX:=STACK[CS]
-    CWM:=CMPCWM(EAX,CWM,TopCWM)
-    --CS
-    MILLISEC(stk_var_02[EAX])
-  RETURN .T.
+
   
   FUNCTION FUNLASTKEY()  // 14
     stk_var_02[++CWM]:=LASTKEY()
@@ -18817,18 +19281,6 @@ RETURN .T.
   FUNCTION FUNSYSTEM()   // 34
     stk_var_02[++CWM]:=OS()
     STACK[++CS] := CWM
-  RETURN .T.
-  
-  FUNCTION FUNPAUSE()   // 26
-  LOCAL SX
-    if SW_FHNDLOUT!=1
-       while inkey()!=0   // flush!!
-       end
-       inkey(0)       // pausa
-    else
-       SX:="******* PAUSE inhabilitado en OUT activo"
-       fwrite (FHNDLOUT,SX,len(SX))
-    end
   RETURN .T.
   
 
@@ -19349,12 +19801,16 @@ set console on
 return */
 
 Procedure _ErrorSys (bajada,CodError, linea)
-  _LIN:=hb_UTF8tostr("LAPSUS:"+strzero(CodError,5)+" => "+bajada)
-  outstd(_CR)
-  outstd( replicate("*",len(_LIN)+2),_CR)
-  outstd( _LIN,_CR)
-  outstd( replicate("*",len(_LIN)+2),_CR)
-  outstd( "Programa  = "+upper(_file),_CR)
+local ini,fin
+
+  _LIN:=hb_UTF8tostr("EXCEPTION:"+strzero(CodError,5)+" => "+bajada)
+
+    setcolor("15/4")
+  outstd( _CR+"/*" )//replicate("*",len(_LIN)+2),_CR)
+  outstd( _CR+_LIN,_CR)
+  outstd( _CR+"*/") //replicate("*",len(_LIN)+2),_CR)
+    setcolor("")
+  outstd( _CR+"Programa  = "+upper(_file),_CR)
   outstd( hb_UTF8tostr("Fecha de la Excepción = "+dtoc(date())+", "+time()),_CR)
 
 // busca la línea donde está el error
@@ -19367,28 +19823,46 @@ Procedure _ErrorSys (bajada,CodError, linea)
   else
      _fuente:=_file+".xu"
   end
-  outstd( _CR,"Lugar del error en [",_fuente,"]:",_CR)
+  outstd( _CR,"Lugar del lapsus en"+_CR+"-->["+_fuente,"]:",_CR)
 
   _numbusca:=strzero(linea,5)
   if file(_busca)
     _v:=Memoread(_busca)
-    _nl:=mlcount(_v)
-    for _i:=1 to _nl
-      _linea:=alltrim(Memoline(_v,1600,_i))
-      _num:=substr(_linea,11,5)
-   
-      if _num==_numbusca
-         _numbusca:=substr(_linea,2,5)
-         _vnum:=val(_numbusca)
+    //_nl:=mlcount(_v)
+    //for _i:=1 to _nl
+      //_linea:=alltrim(Memoline(_v,1600,_i))
+      //_num:=substr(_linea,11,5)
+      _num:=substr( _v, at(": "+_numbusca+" :",_v)-7, 5)
+      //? "numero=",_num; inkey(0)
+      //if _num==_numbusca
+         //_numbusca:=substr(_linea,2,5)
+         //_vnum:=val(_numbusca)
+         _vnum:=val(_num)
          // cargo programa fuente, si existe
          if file(_fuente) 
             _v:=Memoread(_fuente)
             outstd( " ",_CR)
             outstd("          :",_CR)
+            if _vnum>3
+               ini:=_vnum-3
+            else
+               ini:=1
+            end
+            _nl:=mlcount(_v)
+            if _vnum<_nl-3
+               fin:=_vnum+3
+            else
+               fin:=_nl
+            end
             for _j:=_vnum-3 to _vnum+3
                _linea:=alltrim(Memoline(_v,1600,_j))
                if _j==_vnum
-                  outstd(hb_UTF8tostr(_numbusca+" >>>"+_linea),_CR) 
+                  if len(_linea)>MAXCOL()-15
+                     _linea:=substr(_linea,1,MAXCOL()-15)+"..."
+                  end
+                  setcolor("15/2")
+                  outstd(hb_UTF8tostr(strzero(_vnum,5)+" >> "+_linea),_CR) 
+                  setcolor("W/N")
                else
                   outstd(hb_UTF8tostr("         "+_linea),_CR) 
                end
@@ -19396,8 +19870,8 @@ Procedure _ErrorSys (bajada,CodError, linea)
             outstd("          :",_CR)
             break
          end
-      end
-    end
+      //end
+    //end
   else
     outstd("Archivo MAP no disponible: cagaste!",_CR,"Para la otra, compila con el switch '-m'")
   end
@@ -20143,9 +20617,9 @@ end
 return nil
 
 procedure _header()
-    outstd("XU v1.0.2010-2018 --- XU VM ",_CR)
-    outstd(hb_UTF8tostr("Diseño y programación (vintash) Daniel Stuardo (Dr.DaLiEn). Full Spanglish!!"),_CR)
-    outstd(hb_UTF8tostr("Verano de 2010 - 27F - Laura no está :( - ¡Copitos! :O - Invierno de 2018."),_CR)
+    outstd("XU v1.0+.2010-2020 --- XU VM ",_CR)
+    outstd(hb_UTF8tostr("Mi Usuario es: Daniel Stuardo (Mr.DaLiEn)."),_CR)
+    outstd(hb_UTF8tostr("2010 - 2020."),_CR)
 return
 
 procedure _modo_de_uso()
@@ -20317,6 +20791,8 @@ STATIC FUNCTION ErrorMessage( oError )
   #include "../contrib/hbct/ctmath.h" */
 #endif
 
+#define _GNU_SOURCE
+
 #include "hbmather.h"
 #include "hbdate.h"
 #include "hbset.h"
@@ -20327,8 +20803,12 @@ STATIC FUNCTION ErrorMessage( oError )
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#include <stdlib.h>
+
+#include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <signal.h>
+
 
 /*
 #ifdef _MAC64_
@@ -20384,7 +20864,7 @@ int xu_funIsnotation(const char * AX){
     }else if (!isdigit(DX)) {retorne=0;break;}
     ++AX;
   }
-  if (!SW_E || !SW_P) retorne=0;
+  if (!SW_E /*|| !SW_P*/) retorne=0;
   return retorne;
 }
 
@@ -20406,7 +20886,7 @@ double xu_funE2D( const char * linea ){
    double nMant;
    int nExp,mant=0,signo;
    buf=linea;
-   while(*buf!='E') {
+   while(*buf!='E' && *buf!='e') {
       mant++;
       ++buf;
    }
@@ -21102,7 +21582,211 @@ HB_FUNC( INDEX )
 
     hb_itemReturnRelease( pCWM );
 }
+/*
+static char * hb_itemStringCon( PHB_ITEM pItem, HB_SIZE * pnLen, HB_BOOL * pfFreeReq )
+{
+   // logical values in device output (not console, stdout or stderr) are
+   //   shown as single letter 
+   if( HB_IS_LOGICAL( pItem ) )
+   {
+      *pnLen = 1;
+      *pfFreeReq = HB_FALSE;
+      return ( char * ) ( hb_itemGetL( pItem ) ? "T" : "F" );
+   }
+   return hb_itemString( pItem, pnLen, pfFreeReq );
+}
+*/
+/***********************************************************/
+/*
+ * $Id: color2n.c 15103 2010-07-14 12:57:05Z vszakats $
+ */
 
+/*
+ * File......: color2n.c
+ * Author....: David Richardson
+ * CIS ID....: 72271,53
+ *
+ * This function is an original work by David Richardson and is placed in the
+ * public domain.
+ *
+ * Modification history:
+ * ---------------------
+ *
+ *    Rev 1.1   22 Apr 2004 15:44:00   DGH
+ * Fixed compiler warnings about pointer vs. integer by changing NULL to 0.
+ * Commented out #ifdef and #endif lines, because there is nothing that is
+ * even remotely DOS- or Windows-specific in the code.
+ *    Rev 1.0   01 Jan 1995 03:01:00   TED
+ * Initial release
+ *
+ */
+
+HB_FUNC( FT_COLOR2N )
+{
+   int iRet = 0;
+
+   if( HB_ISCHAR( 1 ) )
+   {
+      iRet = hb_gtColorToN( hb_parc( 1 ) );
+      if( iRet == -1 )
+         iRet = 0;
+   }
+
+   hb_retni( iRet );
+}
+//            WRITEMAP(CX,PX,PY,__POSYY,FX,BX,RX,AX,SX,NCOLOUR,DX,EX)
+HB_FUNC( WRITEMAP )
+{
+   PHB_ITEM pCX = hb_param( 1, HB_IT_ARRAY );
+   int PX = hb_parni( 2 );
+   int PY = hb_parni( 3 );
+   int POSYY = hb_parni( 4 );
+   PHB_ITEM pFX = hb_param( 5, HB_IT_ARRAY );
+   int BX = hb_parni( 6 );
+   int RX = hb_parni( 7 );
+   int AX = hb_parni( 8 );
+   int SX = hb_parni( 9 );
+   int NCOLOUR = hb_parni( 10 );
+   int DX = hb_parni( 11 );
+   int EX = hb_parni( 12 );
+   int TIPO = hb_parni( 13 );
+   
+   HB_SIZE lenFX = hb_arrayLen( pFX );
+   
+   int i,j,k;
+   char pszString[2];
+   pszString[1]='\0';
+   //hb_gtInit();
+
+   if (TIPO){     // 1=MAPA DE COLORES; 0=colores especificos.
+   for(i=BX; i<=RX; i++){
+      if (PX<=DX){
+         PHB_ITEM pA = hb_itemArrayGet( pCX, i );
+         PHB_ITEM pF = hb_itemArrayGet( pFX, i );
+         for (j=AX; j<=SX;j++){
+            PHB_ITEM pAA = hb_itemArrayGet( pA, j );
+            PHB_ITEM pFF = hb_itemArrayGet( pF, j );
+            int C = hb_itemGetNI( pAA );
+            hb_itemRelease(pAA);
+            int color = hb_itemGetNI( pFF );
+            hb_itemRelease(pFF);
+            if (C != 255 ){ 
+               if (PY<=EX){
+                  // setpos(PX,PY++);
+                  hb_gtSetPos( PX, PY++ );
+                  
+                  //SETCOLOR(NCOLOUR)
+                  char szColorString[ 10 ];
+                  hb_gtColorsToString( &color, 1, szColorString, 10 );
+                  hb_gtSetColorStr( szColorString );
+                  
+                  // DISPOUT(chr(C))
+                  pszString[0]=(HB_UCHAR) (C % 256); //hb_szAscii[ C & 0xFF ];
+
+                  hb_gtWrite( pszString, 1 );
+
+               }else{
+                  break;
+               }
+            }else{
+               PY++;
+            }
+         }
+         ++PX;
+         PY = POSYY;
+
+         hb_itemRelease(pA);
+         hb_itemRelease(pF);
+      }else{
+         break;
+      }
+   }
+   }else{
+   for(i=BX; i<=RX; i++){
+      if (PX<=DX){
+         PHB_ITEM pA = hb_itemArrayGet( pCX, i );
+         for (j=AX; j<=SX;j++){
+            PHB_ITEM pAA = hb_itemArrayGet( pA, j );
+            int C = hb_itemGetNI( pAA );
+            hb_itemRelease(pAA);
+            if (C != 255 ){
+               for (k=1;k<=lenFX; k+=2){
+                  PHB_ITEM pF = hb_itemArrayGet( pFX, k );
+                  int FX = hb_itemGetNI( pF );
+                  hb_itemRelease(pF);
+                  if (C==FX){
+                     // SETCOLOR(N2COLOR(FX[K+1]))
+                     PHB_ITEM pFF = hb_itemArrayGet( pFX, k+1 );
+                     int FXX = hb_itemGetNI( pFF );
+                     hb_itemRelease(pFF);
+                     char szColorString[ 10 ];
+                     hb_gtColorsToString( &FXX, 1, szColorString, 10 );
+                     hb_gtSetColorStr( szColorString );
+                     break;
+                  }
+               } 
+               if (PY<=EX){
+                  // setpos(PX,PY++);
+                  hb_gtSetPos( PX, PY++ );
+                  // DISPOUT(chr(C))
+                  
+                  pszString[0]=(HB_UCHAR) (C % 256); //hb_szAscii[ C & 0xFF ];
+                  
+
+                  hb_gtWrite( pszString, 1 );
+                  //SETCOLOR(NCOLOUR)
+                  char szColorString[ 10 ];
+                  hb_gtColorsToString( &NCOLOUR, 1, szColorString, 10 );
+                  hb_gtSetColorStr( szColorString );
+               }else{
+                  break;
+               }
+            }else{
+               PY++;
+            }
+         }
+         ++PX;
+         PY = POSYY;
+
+         hb_itemRelease(pA);
+      }else{
+         break;
+      }
+   }
+   }
+   
+ /*        
+            FOR I:=BX TO RX //DIMR //EEX
+               if PX<=DX
+                  
+                  FOR J:=AX TO SX// DIMC //EFX
+                     C:=CX[I][J]
+
+                     FOR K:=1 TO DIMR1 STEP 2
+                        IF C==FX[K]
+                           SETCOLOR(N2COLOR(FX[K+1]))
+                           EXIT
+                        END
+                     END
+                     
+                     if PY<=EX
+                         SETPOS( PX, PY++)
+                         if C!=255
+                            DISPOUT(chr(C))
+                         end
+                         SETCOLOR(NCOLOUR)
+                     else
+                        EXIT
+                     end
+                  END
+                  ++PX
+                  PY:=__POSYY
+               else
+                  exit
+               end
+            END
+  */
+}
 /***********************************************************/
 
 HB_FUNC( SEQSP )
@@ -21373,6 +22057,7 @@ HB_FUNC ( D2E )
 {
   double nDec = hb_parnd(1);
   double nPrecision = hb_parnd(2);
+
   char *buf;
   double nExp;
   int signo;
@@ -21402,7 +22087,7 @@ HB_FUNC ( D2E )
      default: sprintf(buf,"%1.10fE%d",nDec*signo,(int)nExp); 
   }
   hb_retc( buf );
-  free(buf);
+  free( buf );
 }
 
 HB_FUNC( FROUND )
@@ -22752,8 +23437,11 @@ char *FUNSTRTRAN(const char *linea,
 
 short int fun_istnumber(const char * AX){
   int DX;
-  short int SW_M=0,SW_N=0,SW_P=0,retorne=1;
-
+  short int SW_M=0,SW_N=0,SW_P=0;
+  short int retorne;
+  
+  retorne = AX[0]!='\0' ? 1 : 0;
+  
   while( (DX=*AX)!='\0'){
     if(DX=='-'){
        if (SW_N || SW_P || SW_M) {retorne=0;break;}
@@ -33212,7 +33900,11 @@ char * FUNSTRCUT(const char * linea, int DESDE,
 }
 
 char * FUNREPLICATE(const char * szText, int nLen, int nTimes){
+//char * FUNREPLICATE(PHB_ITEM pTEXT, int nTimes){
 
+//  const char *szText = hb_itemGetCPtr( pTEXT );
+//  long nLen = hb_itemGetCLen( pTEXT );
+  
    char * szResult = (char *) calloc((( nLen * nTimes ) + 1),1);//sizeof(char *));
   // char * szResult = (char *) malloc((( nLen * nTimes ) + 1));
   if ( szResult == NULL )
@@ -33335,6 +34027,7 @@ HB_FUNC( XMEADDSTR )
                    PHB_ITEM pAA = hb_itemArrayGet( pA, n);
                    char * Str = FUNREPLICATE( hb_itemGetCPtr( pAA ), 
                                            hb_itemGetCLen( pAA ), nPos);
+                   //char * Str = FUNREPLICATE( (PBH_ITEM) pAA, nPos);
                    hb_itemRelease( pAA );
                    const char * Buff = Str;
                    if (Buff!=NULL)
@@ -33422,6 +34115,7 @@ HB_FUNC( XMEADDSTR )
                       PHB_ITEM pAAA = hb_itemArrayGet( pAA, m);
                       char * Str = FUNREPLICATE( hb_itemGetCPtr( pAAA ), 
                                 hb_itemGetCLen( pAAA ), nPos);
+                      //char * Str = FUNREPLICATE( (PBH_ITEM) pAAA, nPos);
                       hb_itemRelease( pAAA );
                       const char * Buff = Str;
                       if (Buff!=NULL)
@@ -37030,7 +37724,7 @@ HB_FUNC( XLETMTOV )  // matriz a vector: usado por unique
              for( i=1; i<=ndx; i++){
                 PHB_ITEM pAA = hb_itemArrayGet( pA, n);  // fila
                 PHB_ITEM pAAA = hb_itemArrayGet( pAA, m); // columna
-                PHB_ITEM pAAAA = hb_itemArrayGet( pAAA, o); // columna
+                PHB_ITEM pAAAA = hb_itemArrayGet( pAAA, o); // pagina
                 hb_arraySetC( pCWM, i, (const char *) hb_itemGetCPtr( pAAAA ) );
                 if ( ++m > pCol ){ 
                    m=1; 
@@ -43323,6 +44017,10678 @@ HB_FUNC ( STRCUT )
   const char * Ret = buf;
   hb_retc(Ret);
   free(buf);
+}
+
+
+// XFUNCALL(DATASEG,PROGRAM)
+// TEMPORAL es un array: { var, tipo("C","N","L","AN","AC","AL"), DIM,DIMR,DIMC,DIMP,DIMB }
+//      ejemplo: TEMPORAL:={ V, "AC", 2, 10, 30, 0 , 0 }
+//               TEMPORAL:={ V, "N", 0,0,0,0,0}
+
+/* Declaraciones básicas de variables globales */
+int swErr=0;   // Error!  
+int CP=0;      // contador de programa pSTK_PRG. Inicia en 1
+int CADDR=0;   // contador de pSTK_ADDR
+unsigned int MARK_ROW=0, MARK_COL=0, MARK_POS=0, OFFSET_POS=0;
+//unsigned int MARK_INTERfVALO_ROW=0, MARK_INTERVALO_COL=0;
+unsigned int MARK_PAGE=0;
+unsigned int MULTIPASS=1;
+unsigned int SW_PUNTERO=0;
+int nSizeStack=0;   // tamaño del stack de trabajo.
+int FILE_ERROR=0;
+int SIZE_BINARY=0;   // tamaño del binario a convertir con BIN
+//unsigned int MARK_OFFSETROW=0, MARK_OFFSETCOL=0;   // coordenadas fila, columna de arrays
+unsigned int OFFSET_ROW=0, OFFSET_COL=0;  // desplazamiento en elementos detro de un array.
+short int SW_PRECISION=0;  // no se hace ajuste de decimales por defecto.
+//double SWITCH_VAR=0;    // dato de switch.
+
+
+//unsigned long INFINITO=93786976294838206460L;
+static const char ansicolors[16] = {30, 34, 32, 36, 31, 35, 33, 37, 0, 34, 32, 36, 31, 35, 33, 37};
+
+
+void get_size( PHB_ITEM pSource, HB_MAXINT *nDim, HB_MAXINT *d1, HB_MAXINT *d2, HB_MAXINT *d3, HB_MAXINT *type){
+   PHB_ITEM pType=NULL;
+   long uiArrayLen1d = ( long ) hb_arrayLen( pSource );
+   if( uiArrayLen1d > 0 ){
+       ++*nDim;
+       *d1 = uiArrayLen1d;
+       pType = hb_itemArrayGet( pSource, 1);
+       PHB_ITEM pSource2D = hb_itemArrayGet( pSource, 1);
+       if( HB_IS_ARRAY( pSource2D ) ){   // es un ARRAY 2D
+           long uiArrayLen2d = ( long ) hb_arrayLen( pSource2D );
+           if( uiArrayLen2d > 0 ){
+               ++*nDim;
+               *d2 = uiArrayLen2d;
+               hb_itemRelease(pType);
+               pType = hb_itemArrayGet( pSource2D, 1);
+                                    //pTemp = pSource2D;
+               PHB_ITEM pSource3D = hb_itemArrayGet( pSource2D, 1);
+               if( HB_IS_ARRAY( pSource3D ) ){   // es un ARRAY 3D
+                  long uiArrayLen3d = ( long ) hb_arrayLen( pSource3D );
+                  if( uiArrayLen3d > 0 ){
+                     ++*nDim;
+                     *d3 = uiArrayLen3d;
+                     hb_itemRelease(pType);
+                     pType = hb_itemArrayGet( pSource3D, 1);
+                     /*                          //pTemp = pSource3D;
+                                               PHB_ITEM pSource4D = hb_itemArrayGet( pSource3D, 1);
+                                               if( HB_IS_ARRAY( pSource4D ) ){   // es un ARRAY 4D
+                                                    long uiArrayLen4d = ( long ) hb_arrayLen( pSource4D );
+                                                    if( uiArrayLen4d > 0 ){
+                                                         ++nDim;
+                                                         d4 = uiArrayLen4d;
+                                                         hb_itemRelease(pType);
+                                                         pType = hb_itemArrayGet( pSource4D, 1);
+                                                    }
+                                               }
+                                               hb_itemRelease(pSource4D);
+                                          }*/
+                  }
+               }
+               hb_itemRelease(pSource3D);
+           }
+       }
+       hb_itemRelease(pSource2D);
+   }
+   if( pType ){
+      if( HB_IS_STRING( pType ) ){
+       //hb_arraySetC( pRET, 2, (const char *)  "AC"  );
+       *type = 10;
+      }else if ( HB_IS_INTEGER ( pType ) ){
+       //hb_arraySetC( pRET, 2, (const char *)  "AN"  );
+       *type = 11;
+      }else if( HB_IS_NUMERIC( pType ) ) {
+       //hb_arraySetC( pRET, 2, (const char *)  "AN"  );
+       *type = 11;
+      }else if( HB_IS_LONG( pType )  ){
+       //hb_arraySetC( pRET, 2, (const char *)  "AN"  );
+       *type = 11;
+      }else if( HB_IS_LOGICAL( pType ) ){
+       //hb_arraySetC( pRET, 2, (const char *)  "AL"  );
+       *type = 12;
+      }
+      hb_itemRelease(pType);
+   }else *nDim=0;
+}
+
+void get_item_type(PHB_ITEM pSource, HB_MAXINT *type){
+   if( HB_IS_STRING( pSource ) ){
+      *type = 10;
+   }else if ( HB_IS_INTEGER ( pSource ) ){
+      *type = 11;
+   }else if( HB_IS_NUMERIC( pSource ) ) {
+      *type = 12;
+   }else if( HB_IS_LONG( pSource )  ){
+      *type = 13;
+   }else if( HB_IS_LOGICAL( pSource ) ){
+      *type = 14;
+   }
+}
+
+void put_inc_value(PHB_ITEM pWSTACK, long ndx, PHB_ITEM pSource){
+
+    if ( HB_IS_INTEGER ( pSource ) ){
+        int pNum = hb_itemGetNI( pSource );
+        hb_arraySetNI( pWSTACK, ndx, (int)  (pNum + 1)  );
+    }else if( HB_IS_NUMERIC( pSource ) ) {
+        double pDbl = hb_itemGetND( pSource );
+        hb_arraySetND( pWSTACK, ndx, (double) (pDbl + 1) );
+        
+    }else if( HB_IS_LONG( pSource )  ){
+        long pLong = hb_itemGetNL( pSource );
+        hb_arraySetNL( pWSTACK, ndx, (long) ( pLong+1 ) );
+    }
+   
+}
+
+void put_dec_value(PHB_ITEM pWSTACK, long ndx, PHB_ITEM pSource){
+//                 double pDbl = hb_itemGetND( pSource );
+//                 hb_arraySetND( pSTK_REG, nARG1, (double) pDbl - 1 );
+    if ( HB_IS_INTEGER ( pSource ) ){
+        int pNum = hb_itemGetNI( pSource );
+        hb_arraySetNI( pWSTACK, ndx, (int)  (pNum - 1)  );
+    }else if( HB_IS_NUMERIC( pSource ) ) {
+        double pDbl = hb_itemGetND( pSource );
+        hb_arraySetND( pWSTACK, ndx, (double) (pDbl - 1) );
+    }else if( HB_IS_LONG( pSource )  ){
+        long pLong = hb_itemGetNL( pSource );
+        hb_arraySetNL( pWSTACK, ndx, (long) ( pLong-1 ) );
+    }
+   
+}
+
+void put_value(PHB_ITEM pWSTACK, PHB_ITEM pSource, int ndx, int PRECISION){
+
+// chequea tipo de valor obtenido y guarda en STK_ADDR:
+    if( HB_IS_STRING( pSource ) ){
+        const char * pString = hb_itemGetCPtr( pSource );
+        hb_arraySetC( pWSTACK, ndx, (const char *)  pString  );
+    }else if ( HB_IS_INTEGER ( pSource ) ){
+        int pNum = hb_itemGetNInt( pSource );
+        hb_arraySetNI( pWSTACK, ndx, (int)  pNum  );
+    }else if( HB_IS_NUMERIC( pSource ) ) {
+        double pDbl = hb_itemGetND( pSource );
+        hb_arraySetND( pWSTACK, ndx, (double) SW_PRECISION ? hb_numRound(pDbl,PRECISION) : pDbl );
+    }else if( HB_IS_LONG( pSource )  ){
+        long pLong = hb_itemGetNL( pSource );
+        hb_arraySetNL( pWSTACK, ndx, (long) pLong ); 
+    }else if( HB_IS_LOGICAL( pSource ) ){
+        HB_BOOL pBool = hb_itemGetL( pSource );
+        hb_arraySetL( pWSTACK, ndx, (HB_BOOL) pBool ) ;
+    }
+}
+
+int put_error(PHB_ITEM pRET, const char *ErrString){//, int *swErr){
+   swErr=1;
+   hb_arraySetC( pRET, 2, (const char *) ErrString );
+   return 0;
+}
+
+struct label_to_jump{
+    int id;
+//    char *dataText;   // por si lo necesite después
+    struct label_to_jump *siguiente;
+};
+
+typedef struct label_to_jump jumpLabel;
+
+jumpLabel *cabeza = NULL;
+jumpLabel *actual = NULL;
+
+int push_label( PHB_ITEM pRET, int etiqueta ){
+int sw=1;
+    
+    jumpLabel *nodo = (struct label_to_jump*)malloc(sizeof(struct label_to_jump));
+
+    if(nodo == NULL){
+       sw=put_error((PHB_ITEM) pRET, "CALL:JSUB|GOSUB STACK POINTER NOT ENOUGHT MEMORY");
+    }else{
+       nodo->id = etiqueta;
+       nodo->siguiente = cabeza;
+       cabeza = nodo;
+    }
+
+return sw;
+}
+
+int pop_label( PHB_ITEM pRET ){
+int sw=1;
+    if(cabeza == NULL){
+        sw=put_error((PHB_ITEM) pRET, "CALL:BACK STACK POINTER OVERFLOW");
+    }else{
+        jumpLabel *nodo = cabeza;
+        //*dirJump = nodo->id;
+        CP = nodo->id - 1;   // -1 por ++CP del final del ciclo.
+
+        cabeza=nodo->siguiente;
+        free(nodo);
+    }
+return sw;
+}
+
+void put_vector(PHB_ITEM pARRAY, PHB_ITEM pSource, long uiArrayLen){
+long i;
+   // VER las marcas de MARK_ROW, etc.
+   long nIni=1, nFin=uiArrayLen;
+   
+   if( HB_IS_STRING( pSource ) ){
+       const char * pString = hb_itemGetCPtr( pSource );
+       for( i=nIni; i<=nFin; i++ ){
+           hb_arraySetC( pARRAY, i, (const char *)  pString  );
+       }
+   }else if ( HB_IS_INTEGER ( pSource ) ){
+       int pNum = hb_itemGetNInt( pSource );
+       for( i=nIni; i<=nFin; i++ ){
+           hb_arraySetNI( pARRAY, i, (int)  pNum  );
+       }
+   }else if( HB_IS_NUMERIC( pSource ) ) {
+       double pDbl = hb_itemGetND( pSource );
+       for( i=nIni; i<=nFin; i++ ){
+           hb_arraySetND( pARRAY, i, (double) pDbl );
+       }
+   }else if( HB_IS_LONG( pSource )  ){
+       long pLong = hb_itemGetNL( pSource );
+       for( i=nIni; i<=nFin; i++ ){
+           hb_arraySetNL( pARRAY, i, (long) pLong );
+       }
+   }else if( HB_IS_LOGICAL( pSource ) ){
+       HB_BOOL pBool = hb_itemGetL( pSource );
+       for( i=nIni; i<=nFin; i++ ){
+           hb_arraySetL( pARRAY, i, (HB_BOOL) pBool ) ;
+       }
+   }
+}
+
+void echo_single( PHB_ITEM pSource, unsigned PRECISION, FILE * fhnd ){
+   if( HB_IS_STRING( pSource ) ){
+       const char * pString = hb_itemGetCPtr( pSource );
+       long nText = hb_itemGetCLen( pSource );
+       fwrite( pString, nText, 1, fhnd );
+   }else if ( HB_IS_INTEGER ( pSource ) ){
+       int pNum = hb_itemGetNI( pSource );
+       char * buf = (char *)calloc(32,1);
+       int size = sprintf(buf,"%d", pNum);
+       const char * pString = buf;
+       fwrite( pString, size, 1, fhnd );
+       free(buf);
+   }else if( HB_IS_NUMERIC( pSource ) ) {
+       double pDbl = hb_itemGetND( pSource );
+       char * buf = (char *)calloc(64,1);
+       int size = sprintf(buf,"%'.*lf", PRECISION, pDbl);
+       //int size = sprintf(buf,"%f", pDbl);
+       const char * pString = buf;
+       fwrite( pString, size, 1, fhnd );
+       free(buf);
+   }else if( HB_IS_LONG( pSource ) ) {
+       long pLong = hb_itemGetNL( pSource );
+       char * buf = (char *)calloc(64,1);
+       int size = sprintf(buf,"%ld", pLong);
+       const char * pString = buf;
+       fwrite( pString, size, 1, fhnd );
+       free(buf);
+   }else if( HB_IS_LOGICAL( pSource ) ){
+       HB_BOOL pBool = hb_itemGetL( pSource );
+       if (pBool) fwrite( "1", 1,1,fhnd );
+       else fwrite( "0", 1,1, fhnd );
+   }
+}
+
+void print_single( PHB_ITEM pSource, unsigned PRECISION ){
+   if( HB_IS_STRING( pSource ) ){
+       const char * pString = hb_itemGetCPtr( pSource );
+       long nText = hb_itemGetCLen( pSource );
+       hb_conOutStd( pString, nText );
+   //}else if ( HB_IS_NUMINT ( pSource ) ){
+   }else if ( HB_IS_INTEGER ( pSource ) ){
+       int pNum = hb_itemGetNI( pSource );
+       char * buf = (char *)calloc(32,1);
+       int size = sprintf(buf,"%d", pNum);
+       const char * pString = buf;
+       hb_conOutStd( pString, size );
+       free(buf);
+   }else if( HB_IS_NUMERIC( pSource ) ) {
+       double pDbl = hb_itemGetND( pSource );
+       char * buf = (char *)calloc(64,1);
+       int size = sprintf(buf,"%.*lf", PRECISION, pDbl);
+       const char * pString = buf;
+       hb_conOutStd( pString, size );
+       free(buf);
+   }else if( HB_IS_LONG( pSource ) ) {
+       long pLong = hb_itemGetNL( pSource );
+       char * buf = (char *)calloc(64,1);
+       int size = sprintf(buf,"%ld", pLong);
+       const char * pString = buf;
+       hb_conOutStd( pString, size );
+       free(buf);
+   }else if( HB_IS_LOGICAL( pSource ) ){
+       HB_BOOL pBool = hb_itemGetL( pSource );
+       if (pBool) hb_conOutStd( "1", 1 );
+       else hb_conOutStd( "0", 1 );
+   }
+}
+
+void echo_matrix( PHB_ITEM pSource, unsigned PRECISION, HB_MAXINT nDim, HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, FILE *fhnd ){
+   switch( nDim ){
+      case 1:{
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pDato = hb_itemArrayGet( pSource, i);
+            echo_single( (PHB_ITEM) pDato, PRECISION, fhnd );
+            if( d1-i ) fwrite( ",", 1,1, fhnd );
+            hb_itemRelease(pDato);
+         }
+         break;
+      }case 2:{
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+               echo_single( (PHB_ITEM) pPrint, PRECISION, fhnd );
+               hb_itemRelease(pPrint);
+               if( d2-j ) fwrite( ",", 1,1,fhnd );
+            }
+            fwrite( "\n", 1,1,fhnd );
+            hb_itemRelease(pDato2D);
+         }
+         break;
+      }case 3:{
+         int i;
+         int k;
+         for( k=1; k<=d3; k++){
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+                  PHB_ITEM pPrint2 = hb_itemArrayGet( pPrint, k);
+                  echo_single( (PHB_ITEM) pPrint2, PRECISION, fhnd );
+                  hb_itemRelease(pPrint2);
+                  if( d2-j ) fwrite( ",", 1,1, fhnd );
+                  hb_itemRelease(pPrint);
+               }
+               hb_itemRelease(pDato2D);
+               fwrite( "\n", 1,1, fhnd );
+            }
+            fwrite( "\n", 1,1,fhnd );
+         }
+         break;     
+      }
+   }
+}
+
+void print_matrix( PHB_ITEM pSource, unsigned PRECISION, HB_MAXINT nDim, HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3 ){
+   switch( nDim ){
+      case 1:{
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pDato = hb_itemArrayGet( pSource, i);
+            print_single( (PHB_ITEM) pDato, PRECISION );
+            if( d1-i ) hb_conOutStd( ",", 1 );
+            hb_itemRelease(pDato);
+         }
+         break;
+      }case 2:{
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+               print_single( (PHB_ITEM) pPrint, PRECISION );
+               hb_itemRelease(pPrint);
+               if( d2-j ) hb_conOutStd( ",", 1 );
+            }
+            hb_conOutStd( "\n", 1 );
+            hb_itemRelease(pDato2D);
+         }
+         break;
+      }case 3:{
+         int i;
+         int k;
+         for( k=1; k<=d3; k++){
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+                  PHB_ITEM pPrint2 = hb_itemArrayGet( pPrint, k);
+                  print_single( (PHB_ITEM) pPrint2, SW_PRECISION ? PRECISION : 16 );
+                  hb_itemRelease(pPrint2);
+                  if( d2-j ) hb_conOutStd( ",", 1 );
+                  hb_itemRelease(pPrint);
+               }
+               hb_itemRelease(pDato2D);
+               hb_conOutStd( "\n", 1 );
+            }
+            hb_conOutStd( "\n", 1 );
+         }
+         break;
+      }
+   }
+}
+
+void print( PHB_ITEM pSTK_ADDR, int PRECISION){
+int cntDIR=CADDR;
+int nPrecision = SW_PRECISION ? PRECISION : 16;
+   if ( CADDR ){
+      int ndxCADDR = 1;
+      while (cntDIR){
+         PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, ndxCADDR); // lee dato
+         // IDENTIFICAR SI ES UN ARRAY.
+         if( HB_IS_ARRAY(pSource) ){
+            HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+            print_matrix( pSource, nPrecision, nDim, d1, d2, d3 );
+         }else{
+            print_single( pSource, nPrecision );
+         }
+         hb_itemRelease(pSource);
+         --cntDIR;
+  //       --CADDR;
+         ++ndxCADDR;
+      }
+   }
+}
+
+void dump( PHB_ITEM pSTK_ADDR, int PRECISION){
+int nPrecision = SW_PRECISION ? PRECISION : 16;
+   if ( CADDR ){
+      int ndxCADDR = 1;
+      while (CADDR){
+         PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, ndxCADDR); // lee dato
+         // IDENTIFICAR SI ES UN ARRAY.
+         if( HB_IS_ARRAY(pSource) ){
+            HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+            print_matrix( pSource, nPrecision, nDim, d1, d2, d3 );
+         }else{
+            print_single( pSource, nPrecision );
+         }
+         hb_itemRelease(pSource);
+         --CADDR;
+         ++ndxCADDR;
+      }
+   }
+}
+
+void echo( PHB_ITEM pSTK_ADDR, int PRECISION, FILE *fhnd){
+int nPrecision = SW_PRECISION ? PRECISION : 16;
+   if ( CADDR ){
+      int ndxCADDR = 1;
+      while (CADDR){
+         PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, ndxCADDR); // lee dato
+         // IDENTIFICAR SI ES UN ARRAY.
+         if( HB_IS_ARRAY(pSource) ){
+            HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+            echo_matrix( pSource, nPrecision, nDim, d1, d2, d3, fhnd );
+         }else{
+            echo_single( pSource, nPrecision, fhnd );
+         }
+         hb_itemRelease(pSource);
+         --CADDR;
+         ++ndxCADDR;
+      }
+   }
+}
+
+int concatenate_item( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR ){
+   int sw=1;
+   const char * pString1 = hb_itemGetCPtr( pARG1 );
+   long nLen1 = hb_itemGetCLen( pARG1 );
+   const char * pString2 = hb_itemGetCPtr( pARG2 );
+   long nLen2 = hb_itemGetCLen( pARG2 );
+
+   char * pTarget = ( char * ) calloc(( nLen1 + nLen2 + 1 ),sizeof(char *));
+   if ( pTarget == NULL ){
+       sw=0;
+       free(pTarget);
+   }else{
+     //  char * Temp = pTarget;
+       hb_xmemcpy( pTarget, pString1, nLen1 );
+       hb_xmemcpy( pTarget + nLen1, pString2, nLen2 );
+       pTarget[nLen1 + nLen2 + 1] = '\0';
+       hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pTarget );
+       free(pTarget);
+   }
+   return sw;
+}
+
+#define XUINC1D   1
+#define XUINC2D   1
+#define XUDEC1D   2
+#define XUDEC2D   2
+void xu_incdec1d( PHB_ITEM pSource, PHB_ITEM pSTK_REG, long nARG, HB_MAXINT d1, int CODE ){
+    long i;
+    PHB_ITEM pARRAY = hb_itemArrayNew( d1 );  // crea un array vacío.
+    for( i=1; i<=d1; i++ ){
+        PHB_ITEM pNum = hb_itemArrayGet( pSource, i );
+        //double pDbl = hb_itemGetND( pNum );
+        switch( CODE ){
+            case XUINC1D: {put_inc_value(pARRAY, i, pNum); break;}
+            //{hb_arraySetND( pARRAY, i, (double) pDbl + 1 ); break;}
+            case XUDEC1D: {put_dec_value(pARRAY, i, pNum); break;}
+            //{hb_arraySetND( pARRAY, i, (double) pDbl - 1 ); break;}
+        }
+        hb_itemRelease(pNum);
+    }
+    hb_arraySet( pSTK_REG, nARG, (PHB_ITEM) pARRAY );
+    hb_itemRelease(pARRAY); 
+}
+                          
+void xu_incdec2d( PHB_ITEM pSource, PHB_ITEM pSTK_REG, long nARG, HB_MAXINT d1, HB_MAXINT d2, int CODE ){
+   long i;
+   PHB_ITEM pARRAY = hb_itemArrayNew( d1 );  // crea un array vacío.
+   for( i=1; i<=d1; i++ ){
+        long j;
+        PHB_ITEM pSource2 = hb_itemArrayGet( pSource, i );
+        PHB_ITEM pARRAY1 = hb_itemArrayNew( d2 );
+        for( j=1; j<=d2; j++ ){ 
+            PHB_ITEM pNum = hb_itemArrayGet( pSource2, j );
+           // double pDbl = hb_itemGetND( pNum );
+            switch( CODE ){
+                case XUINC2D: {put_inc_value(pARRAY1, j, pNum); break;}
+                //{ hb_arraySetND( pARRAY1, j, (double) pDbl + 1 ); break; }
+                case XUDEC2D: {put_dec_value(pARRAY1, j, pNum); break;}
+                //{ hb_arraySetND( pARRAY1, j, (double) pDbl - 1 ); break; }
+            }
+            hb_itemRelease(pNum);
+        }
+        hb_arraySet( pARRAY, i, (PHB_ITEM) pARRAY1 );
+        hb_itemRelease(pARRAY1);
+        hb_itemRelease(pSource2);
+   }
+   hb_arraySet( pSTK_REG, nARG, (PHB_ITEM) pARRAY );
+   hb_itemRelease(pARRAY);
+}
+
+void xu_incdec3d( PHB_ITEM pSource, PHB_ITEM pSTK_REG, long nARG, HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, int CODE ){
+   long i;
+   PHB_ITEM pARRAY = hb_itemArrayNew( d1 );  // crea un array vacío.
+   for( i=1; i<=d1; i++ ){
+        long j;
+        PHB_ITEM pSource2 = hb_itemArrayGet( pSource, i );
+        PHB_ITEM pARRAY1 = hb_itemArrayNew( d2 );
+        for( j=1; j<=d2; j++ ){ 
+            PHB_ITEM pNum = hb_itemArrayGet( pSource2, j );
+            PHB_ITEM pARRAY2 = hb_itemArrayNew( d3 );
+            long k;
+            for( k=1; k<=d3; k++ ){ 
+               PHB_ITEM pNum2 = hb_itemArrayGet( pNum, k );
+               switch( CODE ){
+                   case XUINC2D: {put_inc_value(pARRAY2, k, pNum2); break;}
+                   //{ hb_arraySetND( pARRAY1, j, (double) pDbl + 1 ); break; }
+                   case XUDEC2D: {put_dec_value(pARRAY2, k, pNum2); break;}
+                   //{ hb_arraySetND( pARRAY1, j, (double) pDbl - 1 ); break; }
+               }
+               hb_itemRelease(pNum2);
+            }
+            hb_arraySet( pARRAY1, j, (PHB_ITEM) pARRAY2 );
+            hb_itemRelease(pNum);
+            hb_itemRelease(pARRAY2);
+        }
+        hb_arraySet( pARRAY, i, (PHB_ITEM) pARRAY1 );
+        hb_itemRelease(pARRAY1);
+        hb_itemRelease(pSource2);
+   }
+   hb_arraySet( pSTK_REG, nARG, (PHB_ITEM) pARRAY );
+   hb_itemRelease(pARRAY);
+}
+
+int replicate_item(PHB_ITEM pTEXT, PHB_ITEM pSTK_ADDR, int CADDR, PHB_ITEM pTIMES){
+
+   long nTimes = hb_itemGetNL( pTIMES );
+   const char *szText = hb_itemGetCPtr( pTEXT );
+   long nLen = hb_itemGetCLen( pTEXT );
+   long nTotalLen = ( nLen * nTimes );
+   char * szResult = (char *) calloc(( nTotalLen + 1),1);
+
+   if ( szResult == NULL ) return 0;
+     
+   char * szPtr = szResult;
+
+   while(nTimes)
+   {
+      int j=nLen;
+      while(j--) szPtr[j] = szText[j];
+      szPtr += nLen;
+      --nTimes;
+   }
+   szResult[ nTotalLen ] = '\0';
+   const char * pszResult = szResult;
+   hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pszResult );
+   free(szResult);
+   return 1;
+}
+
+int stuff_item( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR, PHB_ITEM pPos, PHB_ITEM pDel ){
+   int sw=1;
+   const char * pString2 = hb_itemGetCPtr( pARG2 );  // lo que se corta.
+   long nText = hb_itemGetCLen( pARG2 );
+   
+   long nPos = hb_itemGetNL( pPos );
+   
+   long nDel = ( pDel ) ? hb_itemGetNL( pDel ) : nText;
+   
+   const char * pString1;
+   long nInsert;
+   if( pARG1 != NULL ){
+      pString1 = hb_itemGetCPtr( pARG1 );  // fuente
+      nInsert = hb_itemGetCLen( pARG1 );
+   }else{
+      pString1 = "";
+      nInsert=0;
+   }
+   long nTotalLen;
+      if( nPos ){
+         if( nPos < 1 || nPos > nText ){
+            nPos = nText;
+         }else{
+            nPos--;
+         }
+      }
+
+      if( nDel ){
+         if( nDel < 1 || nDel > nText - nPos )  nDel = nText - nPos;
+      }
+
+      if( ( nTotalLen = nText + nInsert - nDel ) > 0 ){
+         char * szResult = ( char * ) calloc( nTotalLen + 1, 1 );
+         if( szResult != NULL ) {
+             hb_xmemcpy( szResult, pString2, nPos );
+             hb_xmemcpy( szResult + nPos, pString1, nInsert );
+             hb_xmemcpy( szResult + nPos + nInsert, pString2 + nPos + nDel, nText - ( nPos + nDel ) );
+
+             szResult[ nTotalLen ] = '\0';
+             const char * pszResult = szResult;
+             hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pszResult );
+             free(szResult);
+         }else{
+             sw=0;
+         }
+      }
+      else{
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+      }
+   return sw;
+}
+
+int strtran_item( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, int CADDR, long nInicio, long nCuenta ){
+         
+   int sw=1;
+   HB_SIZE nText = hb_itemGetCLen( pARG3 );
+   HB_SIZE nSeek = hb_itemGetCLen( pARG2 );
+         
+   HB_SIZE nStart = nInicio<=0 ? 1 : nInicio;
+   HB_SIZE nCount = nCuenta<=0 ? -1 : nCuenta;
+
+   if( nSeek && nSeek <= nText && nStart > 0 ) {
+      HB_SIZE nReplace; 
+      const char * szReplace;
+      if ( pARG1!=NULL ){
+         szReplace = hb_itemGetCPtr( pARG1 );
+         nReplace = hb_itemGetCLen( pARG1 ); 
+      }else{
+         szReplace = "";
+         nReplace = 0;
+      }
+      
+      const char * szText = hb_itemGetCPtr( pARG3 );
+      const char * szSeek = hb_itemGetCPtr( pARG2 );
+      HB_SIZE nFound = 0;
+      HB_SIZE nReplaced = 0;
+      HB_SIZE nT = 0;
+      HB_SIZE nS = 0;
+
+      while( nT < nText && nText - nT >= nSeek - nS ) {
+         if( szText[ nT ] == szSeek[ nS ] ){
+            ++nT;
+            if( ++nS == nSeek ){
+               if( ++nFound >= nStart ){
+                  nReplaced++;
+                  if( --nCount == 0 )
+                     nT = nText;
+               }
+                  nS = 0;
+            }
+         }else if( nS ){
+            nT -= nS - 1;
+            nS = 0;
+         }else
+            ++nT;
+      }
+
+      if( nReplaced ){
+         HB_SIZE nLength = nText;
+
+         if( nSeek > nReplace )
+            nLength -= ( nSeek - nReplace ) * nReplaced;
+         else
+            nLength += ( nReplace - nSeek ) * nReplaced;
+
+         if( nLength ){
+            char * szResult = ( char * ) calloc( nLength + 1, 1 );
+            if ( szResult != NULL ){
+               char * szPtr = szResult;
+
+               nFound -= nReplaced;
+               nT = nS = 0;
+               do{
+                  if( nReplaced && szText[ nT ] == szSeek[ nS ] ){
+                     ++nT;
+                     if( ++nS == nSeek ){
+                        const char * szCopy;
+   
+                        if( nFound ){
+                           nFound--;
+                           szCopy = szSeek;
+                        }else{
+                           nReplaced--;
+                           szCopy = szReplace;
+                           nS = nReplace;
+                        }
+                        while( nS ){
+                           *szPtr++ = *szCopy++;
+                           --nS;
+                        }
+                     }
+                  }else{
+                     if( nS ){
+                        nT -= nS;
+                        nS = 0;
+                     }
+                     *szPtr++ = szText[ nT++ ];
+                  }
+               }while( nT < nText );
+   
+               const char * pszResult = szResult;
+               hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pszResult );
+               
+               free(szResult);
+            }else{
+               sw=0;
+            }
+         }else{
+            hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+         }
+      }else{
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) szText );
+      }
+   }else{
+      const char * szText = hb_itemGetCPtr( pARG3 );
+      hb_arraySetC( pSTK_ADDR, CADDR, (const char *) szText );
+   }
+   return sw;
+}
+
+int substr_item( PHB_ITEM pText, PHB_ITEM pPos, PHB_ITEM pLen, PHB_ITEM pSTK_ADDR, int CADDR){
+   int sw=1;
+      long nPos = hb_itemGetNL( pPos );
+//      HB_ISIZ nPos = hb_parns( 2 );
+      HB_ISIZ nSize = hb_itemGetCLen( pText );
+
+      if( nPos < 0 ){
+         nPos += nSize;
+         if( nPos < 0 )
+            nPos = 0;
+      }
+      else if( nPos ){
+         nPos--;
+      }
+
+      if( nPos < nSize ){
+         HB_ISIZ nLen;
+
+         if ( pLen ) { 
+               nLen = hb_itemGetNL( pLen );
+
+               if( nLen > nSize - nPos )
+                  nLen = nSize - nPos;
+         }else{
+            nLen = nSize - nPos;
+         }
+         
+         if( nLen > 0 ){
+            if( nLen == nSize ){
+               const char * Text = hb_itemGetCPtr( pText );
+               hb_arraySetC( pSTK_ADDR, CADDR, (const char *) Text  );
+            }else{
+               const char * Text = hb_itemGetCPtr( pText );
+
+               char * szResult = ( char * ) calloc( nLen + 1, 1 );
+               if ( szResult != NULL ){
+                   Text = Text + nPos;
+                   hb_xmemcpy( szResult, Text, nLen );
+                   szResult[ nLen ] = '\0';
+                   const char * pszResult = szResult;
+                   hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pszResult );
+                   free(szResult);
+               }else{
+                   sw=0;
+               }
+            }
+         }else{
+            hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+         }
+      }else{
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+      }
+         
+   return sw;
+}
+
+void str_index_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pMATCH, PHB_ITEM pSTK_ADDR, int CADDR ){
+   const char *pcStringToMatch = hb_itemGetCPtr( pSTRING );
+   HB_SIZE sStrToMatchLen = hb_itemGetCLen( pSTRING );
+      
+   const char *pcString = hb_itemGetCPtr( pTEXT );
+   HB_SIZE sStrLen = hb_itemGetCLen( pTEXT );
+
+   HB_SIZE sIgnore=0, sMatchStrLen = 0;
+   HB_SIZE nCounter;
+   const char *pc = NULL;
+
+   /* nth match or last match ? */
+   if( pMATCH != NULL ){
+      /* find the <nCounter>th match */
+      const char *pcSubStr;
+      HB_SIZE sSubStrLen;
+      HB_SIZE nMatchCounter = 0;
+
+      pcSubStr = pcString;
+      sSubStrLen = sStrLen;
+      nCounter = hb_itemGetNL( pMATCH );
+
+      while( nMatchCounter < nCounter ){
+         pc = ct_at_exact_forward( pcSubStr, sSubStrLen, pcStringToMatch,
+                                            sStrToMatchLen, &sMatchStrLen );
+         if( pc == NULL ){
+            /* no match found; if this happens at this point,
+               there are no <nCounter> matches, so return an empty string */
+            hb_arraySetNInt( pSTK_ADDR, CADDR, 0 );
+            return;
+         }
+         nMatchCounter++;
+
+         if( MULTIPASS )
+            pcSubStr = pc + 1;
+         else
+            pcSubStr = pc + sMatchStrLen;
+         sSubStrLen = sStrLen - ( pcSubStr - pcString );
+      }
+   }else{
+      pc = ct_at_exact_backward( pcString, sStrLen, pcStringToMatch,
+                                          sStrToMatchLen, &sMatchStrLen );
+      if( pc == NULL ){
+         /* ATNUM */
+         hb_arraySetNInt( pSTK_ADDR, CADDR, 0 );
+         return;
+      }
+   }
+   hb_arraySetNInt( pSTK_ADDR, CADDR, ( pc - ( pcString - sIgnore ) + 1 ) );
+}
+
+void str_count_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pIGNORE, PHB_ITEM pSTK_ADDR, int CADDR ){
+
+      const char *pcStringToMatch = hb_itemGetCPtr( pSTRING );
+      HB_SIZE sStrToMatchLen = hb_itemGetCLen( pSTRING );
+      
+      const char *pcString = hb_itemGetCPtr( pTEXT );
+      HB_SIZE sStrLen = hb_itemGetCLen( pTEXT );
+      
+      HB_SIZE sIgnore, sMatchStrLen = 0, sSubStrLen;
+      HB_SIZE nCounter;
+      const char *pc, *pcSubStr;
+
+      /* eventually ignore some characters */
+      if( pIGNORE!=NULL )
+         sIgnore = hb_itemGetNL( pIGNORE );
+      else
+         sIgnore = 0;
+
+      if( sIgnore >= sStrLen ){
+         hb_arraySetNInt( pSTK_ADDR, CADDR, 0 );
+         return;
+      }else{
+         pcString += sIgnore;
+         sStrLen -= sIgnore;
+      }
+
+      nCounter = 0;
+      pcSubStr = pcString;
+      sSubStrLen = sStrLen;
+
+      do{
+         pc = ct_at_exact_forward( pcSubStr, sSubStrLen, pcStringToMatch,
+                                   sStrToMatchLen, &sMatchStrLen );
+         nCounter++;
+         if( MULTIPASS ){
+            pcSubStr = pc + 1;
+         }else{
+            pcSubStr = pc + sMatchStrLen;
+         }
+         sSubStrLen = sStrLen - ( pcSubStr - pcString );
+      }while( pc != NULL );
+
+      hb_arraySetNInt( pSTK_ADDR, CADDR, ( nCounter - 1 ) );
+}
+
+int matrix_count_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pIGNORE, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pTEXT, &nDim, &d1, &d2, &d3, &type);
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            str_count_at( (PHB_ITEM) pTEXT1, (PHB_ITEM) pSTRING, (PHB_ITEM) pIGNORE, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pTEXT1);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pTEXT2 = hb_itemArrayGet( pTEXT1, j);
+               str_count_at( (PHB_ITEM) pTEXT2, (PHB_ITEM) pSTRING, (PHB_ITEM) pIGNORE, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pTEXT2);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pTEXT1);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int matrix_index_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pMATCH, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pTEXT, &nDim, &d1, &d2, &d3, &type);
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            str_index_at( (PHB_ITEM) pTEXT1, (PHB_ITEM) pSTRING, (PHB_ITEM) pMATCH, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pTEXT1);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pTEXT2 = hb_itemArrayGet( pTEXT1, j);
+               str_index_at( (PHB_ITEM) pTEXT2, (PHB_ITEM) pSTRING, (PHB_ITEM) pMATCH, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pTEXT2);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pTEXT1);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int funIndexAt( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // String base
+      PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // string to search
+      PHB_ITEM pMATCH = NULL;
+      if( CADDR>0 ){
+         pMATCH = hb_itemArrayGet( pSTK_ADDR, CADDR--);   // carcateres a ignorar
+      }
+      if( HB_IS_STRING( pTEXT ) ){
+         if( HB_IS_STRING( pSTRING ) ){
+            ++CADDR;
+            str_index_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pMATCH, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:INDEX AT SECOND ARGUMENT ERROR"); 
+         }
+      }else if( HB_IS_ARRAY( pTEXT ) ){
+         ++CADDR;
+         sw=matrix_index_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pMATCH, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INDEX AT FIRST ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pMATCH);
+      hb_itemRelease(pSTRING);
+      hb_itemRelease(pTEXT);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:INDEX AT STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int funCountAt( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // String base
+      PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // string to search
+      PHB_ITEM pIGNORE = NULL;
+      if( CADDR>0 ){
+         pIGNORE = hb_itemArrayGet( pSTK_ADDR, CADDR--);   // carcateres a ignorar
+      }
+      if( HB_IS_STRING( pTEXT ) ){
+         if( HB_IS_STRING( pSTRING ) ){
+            ++CADDR;
+            str_count_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pIGNORE, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:COUNTER AT SECOND ARGUMENT ERROR"); 
+         }
+      }else if( HB_IS_ARRAY( pTEXT ) ){
+         ++CADDR;
+         sw=matrix_count_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pIGNORE, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:COUNTER AT FIRST ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pIGNORE);
+      hb_itemRelease(pSTRING);
+      hb_itemRelease(pTEXT);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:COUNTER AT STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int str_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   const char * pText = hb_itemGetCPtr( pTEXT );  // String base
+   long nLenText = hb_itemGetCLen( pTEXT );
+   const char * pSub = hb_itemGetCPtr( pSTRING );  // string to search
+   long nLenSub = hb_itemGetCLen( pSTRING );
+
+   hb_arraySetNInt( pSTK_ADDR, CADDR, hb_strAt( pSub, nLenSub, pText, nLenText ) );
+
+return sw;
+}
+
+int matrix_at( PHB_ITEM pTEXT, PHB_ITEM pSTRING, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pTEXT, &nDim, &d1, &d2, &d3, &type);
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            sw=str_at( (PHB_ITEM) pTEXT1, (PHB_ITEM) pSTRING, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pTEXT1);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pTEXT1 = hb_itemArrayGet( pTEXT, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pTEXT2 = hb_itemArrayGet( pTEXT1, j);
+               sw=str_at( (PHB_ITEM) pTEXT2, (PHB_ITEM) pSTRING, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pTEXT2);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pTEXT1);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int funAt( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // String base
+      PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // string to search
+
+      if( HB_IS_STRING( pTEXT ) ){
+         if( HB_IS_STRING( pSTRING ) ){
+            ++CADDR;
+            sw=str_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:AT SECOND ARGUMENT ERROR"); 
+         }
+      }else if( HB_IS_ARRAY( pTEXT ) ){
+         ++CADDR;
+         sw=matrix_at( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTRING, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:AT FIRST ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pSTRING);
+      hb_itemRelease(pTEXT);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:AT STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int fun_str_item( PHB_ITEM pARG, PHB_ITEM pSTK_ADDR, int CADDR, int tCompare ){
+int sw=1;
+
+   switch( tCompare ){
+      case 0:{
+         long cLen = hb_itemGetCLen( pARG );
+         hb_arraySetNL( pSTK_ADDR, CADDR, cLen ) ;
+         break;  // LEN
+      }case 1:{
+         char * Buffer = hb_itemGetCPtr( pARG );
+         long cLen = hb_itemGetCLen( pARG );
+         hb_arraySetC( pSTK_ADDR, CADDR, hb_strUpper( Buffer, cLen ) ); // UPPER
+         break;
+      }case 2:{
+         char * Buffer = hb_itemGetCPtr( pARG );
+         long cLen = hb_itemGetCLen( pARG );
+         hb_arraySetC( pSTK_ADDR, CADDR, hb_strLower( Buffer, cLen ) ); //LOWER
+         break; 
+      }case 3:{
+         char * Buffer = hb_itemGetCPtr( pARG );
+         long cLen = hb_itemGetCLen( pARG );
+         Buffer = fun_alltrim( Buffer, cLen);
+         if( Buffer!=NULL){
+            hb_arraySetC( pSTK_ADDR, CADDR, Buffer ); // TRIM 
+         }else{
+            hb_arraySetC( pSTK_ADDR, CADDR, "" );
+         }
+         free(Buffer);
+         break;
+      }case 4:{
+         const char * Buffer = hb_itemGetCPtr( pARG );    // ASC
+         hb_arraySetNInt( pSTK_ADDR, CADDR, ( HB_UCHAR ) Buffer[0] );
+         break;
+      }case 5:{
+         char * Buffer = hb_itemGetCPtr( pARG );
+         long cLen = hb_itemGetCLen( pARG );
+         Buffer = fun_rtrim( Buffer, cLen);
+         if( Buffer!=NULL){
+            hb_arraySetC( pSTK_ADDR, CADDR, Buffer ); // TRIM 
+         }else{
+            hb_arraySetC( pSTK_ADDR, CADDR, "" );
+         }
+         free(Buffer);
+         break;
+      }case 6:{
+         char * Buffer = hb_itemGetCPtr( pARG );
+         long cLen = hb_itemGetCLen( pARG );
+         Buffer = fun_ltrim( Buffer, cLen);
+         if( Buffer!=NULL){
+            hb_arraySetC( pSTK_ADDR, CADDR, Buffer ); // TRIM 
+         }else{
+            hb_arraySetC( pSTK_ADDR, CADDR, "" );
+         }
+         free(Buffer);
+         break;
+         
+      }case 7:{
+         if( HB_IS_LOGICAL( pARG ) ){
+            HB_BOOL lDato = hb_itemGetL( pARG );
+            hb_arraySetNI( pSTK_ADDR, CADDR, (int) lDato ? 1 : 0 );
+            
+         }else if( HB_IS_STRING( pARG ) ){
+            const char * szText = hb_itemGetCPtr( pARG );  // VAL
+            int iWidth, iDec, iLen = ( int ) hb_itemGetCLen( pARG );
+            HB_BOOL fDbl;
+            HB_MAXINT lValue;
+            double dValue;
+
+            fDbl = hb_valStrnToNum( szText, iLen, &lValue, &dValue , &iDec, &iWidth );
+
+            if( !fDbl ){
+               hb_arraySetNL( pSTK_ADDR, CADDR, (HB_MAXINT) lValue );
+            }else{
+               hb_arraySetND( pSTK_ADDR, CADDR, (double) dValue );
+            }
+         }else{
+            sw=0;
+         }
+         break;
+         
+      }default: sw=0;
+   }
+
+return sw;
+}
+
+int fun_str_matrix_item( PHB_ITEM pARG, PHB_ITEM pSTK_ADDR, int CADDR, int tCompare ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG, &nDim, &d1, &d2, &d3, &type);
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            sw=fun_str_item( (PHB_ITEM) pARG22, (PHB_ITEM) pRows, (int) i, (int) tCompare );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=fun_str_item( (PHB_ITEM) pARG222, (PHB_ITEM) pCols, (int) j, (int) tCompare );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  //sw=fun_num_item( (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, (int) k, (int) tCompare, (int) PRECISION );
+                  sw=fun_str_item( (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, (int) k, (int) tCompare );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+//"len"=>60, "upper"=>61, "lower"=>62, "trim"=>63, "asc"=>64, "rtrim"=>65, "ltrim"=>66, "val"=>67,;
+int funStrOneArg( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare ){
+int sw=1;
+   if ( CADDR>=1 ){
+      PHB_ITEM pARG = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // Argumento
+
+      if( HB_IS_STRING( pARG ) || ( HB_IS_LOGICAL( pARG ) && tCompare==7 ) ){
+         ++CADDR;
+         sw=fun_str_item( (PHB_ITEM) pARG, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (int) tCompare );
+      }else if( HB_IS_ARRAY( pARG ) ){
+         ++CADDR;
+         sw=fun_str_matrix_item( (PHB_ITEM) pARG, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (int) tCompare );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INNER-FUNCTION(STR) FIRST ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:INNER-FUNCTION(STR) STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+char * fun_notation( double nDec, double nPrecision ){
+  
+  char *buf;
+  double nExp;
+  int signo;
+  signo=nDec<0?-1:1;
+  if (signo<0) nDec *= -1;
+  if( nDec == 0) nExp = 0;
+  else if (fabs( nDec ) < 1)  nExp = (double)(int)( log10( nDec ) ) - 1;
+  else
+      nExp = (double)(int)( log10( fabs( nDec ) + 0.00001 ) );   /* 0.00001 == kludge */
+             /* for imprecise logs */
+  nDec /= pow(10, nExp );  //pow(10, nExp);
+  if (hb_numRound( fabs( nDec ), nPrecision ) >= 10){
+      nDec /= 10;
+      nExp++;
+  }
+  //buf = (char *) calloc(sizeof(char)*19+1,1);
+  buf = (char *) calloc(32,1);
+  switch((int)nPrecision){
+     case 1:case 2:case 3: 
+         sprintf(buf,"%1.3fE%d",nDec*signo,(int)nExp); break;
+     case 4: sprintf(buf,"%1.4fE%d",nDec*signo,(int)nExp); break;
+     case 5: sprintf(buf,"%1.5fE%d",nDec*signo,(int)nExp); break;
+     case 6: sprintf(buf,"%1.6fE%d",nDec*signo,(int)nExp); break;
+     case 7: sprintf(buf,"%1.7fE%d",nDec*signo,(int)nExp); break; 
+     case 8: sprintf(buf,"%1.8fE%d",nDec*signo,(int)nExp); break;
+     case 9: sprintf(buf,"%1.9fE%d",nDec*signo,(int)nExp); break; 
+     default: sprintf(buf,"%1.10fE%d",nDec*signo,(int)nExp); 
+  }  
+  return buf;
+}
+
+
+int fun_num_item( PHB_ITEM pARG, PHB_ITEM pSTK, int NDX, int tCompare, int PRECISION ){
+int sw=1;
+
+   switch( tCompare ){
+      case 0:{   // EXP
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( exp( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           exp( hb_itemGetND( pARG ) ) );
+         break;
+      }case 1:{  // INT
+         hb_arraySetNL( pSTK, NDX, (long) ( hb_itemGetND( pARG ) ) );
+         break;
+      }case 2:{  // SIGN
+         double nItem = hb_itemGetND( pARG );
+         hb_arraySetNI( pSTK, NDX, (int) ( nItem > 0 ? 1 : nItem < 0 ? -1 : 0 ) );
+         break;
+      }case 3:{  // LOG
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( log( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           log( hb_itemGetND( pARG ) ) );
+         break;
+      }case 4:{  // LOG10
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( log10( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           log10( hb_itemGetND( pARG ) ) );
+         break;
+      }case 5:{  // SQRT
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( sqrt( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           sqrt( hb_itemGetND( pARG ) ) );
+         break;
+      }case 6:{  // SIN
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( sin( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           sin( hb_itemGetND( pARG ) ) );
+         break;
+      }case 7:{  // COS
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( cos( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           cos( hb_itemGetND( pARG ) ) );
+         break;
+      }case 8:{  // TAN
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( tan( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           tan( hb_itemGetND( pARG ) ) );
+         break;
+      }case 9:{  // SINH
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( sinh( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           sinh( hb_itemGetND( pARG ) ) );
+         break;
+      }case 10:{  // COSH
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( cosh( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           cosh( hb_itemGetND( pARG ) ) );
+         break;
+      }case 11:{  // TANH
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( tanh( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           tanh( hb_itemGetND( pARG ) ) );
+         break;
+      }case 12:{  // STR
+         //itoa( hb_itemGetND( pARG ), cText);
+         if ( HB_IS_INTEGER ( pARG ) ){
+            int pNum = hb_itemGetNInt( pARG );
+            char * buf = (char *)calloc(32,1);
+            int size = sprintf(buf,"%d", pNum);
+            const char * pString = buf;
+            hb_arraySetC( pSTK, NDX, pString );
+            free(buf);
+         }else if( HB_IS_NUMERIC( pARG ) ) {
+            double pDbl = hb_itemGetND( pARG );
+            char * buf = (char *)calloc(64,1);
+            int size = sprintf(buf,"%.*lf",SW_PRECISION ? PRECISION : 16, pDbl);
+            const char * pString = buf;
+            hb_arraySetC( pSTK, NDX, pString );
+            free(buf);
+         }else if( HB_IS_LONG( pARG ) ) {
+            long pLong = hb_itemGetNL( pARG );
+            char * buf = (char *)calloc(64,1);
+            int size = sprintf(buf,"%ld", pLong);
+            const char * pString = buf;
+            hb_arraySetC( pSTK, NDX, pString );
+            free(buf);
+         }else if( HB_IS_LOGICAL( pARG ) ) {
+            HB_BOOL pBool = hb_itemGetL( pARG );
+            char * buf = (char *)calloc(2,1);
+            int size = sprintf(buf,"%d", pBool ? 1 : 0);
+            const char * pString = buf;
+            hb_arraySetC( pSTK, NDX, pString );
+            free(buf);
+         }
+         break;
+      }case 13:{  // FLOOR
+         hb_arraySetNL( pSTK, NDX, (long)  floor( hb_itemGetND( pARG ) ) );
+         break;
+      }case 14:{  // ABS
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( abs( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           abs( hb_itemGetND( pARG ) ) );
+         break;
+      }case 15:{  // CHR
+         hb_arraySetC( pSTK, NDX, hb_szAscii[ (int)hb_itemGetNInt( pARG ) & 0xFF ] );
+         break;
+      }case 16:{  // CEIL
+         hb_arraySetNL( pSTK, NDX, (long) ceil( hb_itemGetND( pARG ) ) );
+         break;
+      }case 17:{  // EXP2
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( exp2( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           exp2( hb_itemGetND( pARG ) ) );
+         break;
+      }case 18:{  // LOG2
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( log2( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           log2( hb_itemGetND( pARG ) ) );
+         break;
+      }case 19:{  // EXP10
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( exp10( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           exp10( hb_itemGetND( pARG ) ) );
+         break;
+      }case 20:{  // HEX
+         int pLong = hb_itemGetNInt( pARG );
+         char * buf = (char *)calloc(64,1);
+         int size = sprintf(buf,"%x", pLong);
+         const char * pString = buf;
+         hb_arraySetC( pSTK, NDX, pString );
+         free(buf);
+
+         break;
+      }case 21:{  // BIN
+         long k, c, nNum = hb_itemGetNL( pARG );
+         int size=64;
+         if(SIZE_BINARY>0) size = SIZE_BINARY;
+         char * buffer = (char *)calloc(size+2,1);
+         for (c = size; c >= 0; c--){
+            k = nNum >> c;
+            if (k & 1)
+               buffer[size-c] = '1';
+            else
+               buffer[size-c] = '0';
+         }
+         buffer[size+1] = '\0';
+         const char * pString = buffer;
+         hb_arraySetC( pSTK, NDX, pString );
+         free(buffer);
+
+         break;
+      }case 22:{  // OCT
+         int pLong = hb_itemGetNInt( pARG );
+         char * buf = (char *)calloc(64,1);
+         int size = sprintf(buf,"%o", pLong);
+         const char * pString = buf;
+         hb_arraySetC( pSTK, NDX, pString );
+         free(buf);
+
+         break;
+      }case 23:{  // lennum
+         hb_arraySetNI( pSTK, NDX, (int)ceil(log10( hb_itemGetND( pARG ) )) );
+         break;
+      }case 24:{  // FACTORIAL
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( FFACTORIAL( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           FFACTORIAL( hb_itemGetND( pARG ) ) );
+         break;
+      }case 25:{  // SCI, NOTATION
+         char * buf = fun_notation( (double) hb_itemGetND( pARG ), (double) PRECISION );
+         const char * buffer = buf;
+         hb_arraySetC( pSTK, NDX, buffer );
+         free(buf);
+         break;
+      }case 26:{   // D2R
+         double dInput = hb_itemGetND( pARG );
+         double dResult = ( 3.14159265358979323846 / 180.0 ) * dInput;
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound(dResult, PRECISION) : dResult );
+
+         break;
+      }case 27:{   // R2D
+         double dInput = hb_itemGetND( pARG );
+         double dResult = ( 180.0 / 3.14159265358979323846 ) * dInput;
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound(dResult, PRECISION) : dResult );
+         
+         break;
+      }case 28:{   // CBRT raíz cubica
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( cbrt( hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           cbrt( hb_itemGetND( pARG ) ) );
+         break;
+      }case 29:{   // RAND
+         hb_arraySetND( pSTK, NDX, (double) SW_PRECISION ? hb_numRound( ( hb_random_num() * hb_itemGetND( pARG ) ), PRECISION ) :
+                                                           ( hb_random_num() * hb_itemGetND( pARG ) ) );
+         break;
+      }case 30:{   // TRUNC
+         hb_arraySetNL( pSTK, NDX, (long) trunc( hb_itemGetND( pARG ) ));
+         break;
+      }case 31:{   // ODD
+         hb_arraySetL( pSTK, NDX, (HB_BOOL) ( fmod(hb_itemGetND( pARG ),2 )==0 ? HB_TRUE : HB_FALSE ) );
+         break;
+      }case 32:{   // NEG
+         if( HB_IS_NUMERIC( pARG ) )         hb_arraySetND( pSTK, NDX, (double) -hb_itemGetND(pARG) );
+         else if( HB_IS_LONG( pARG ) )       hb_arraySetNL( pSTK, NDX, (long)   -hb_itemGetNL(pARG) );
+         else if( HB_IS_INTEGER( pARG ) )    hb_arraySetNI( pSTK, NDX, (int)    -hb_itemGetNI(pARG) );
+         else sw=0;
+         break;
+
+      }default: sw=0;
+   }
+return sw;
+}
+
+int fun_num_matrix_item( PHB_ITEM pARG, PHB_ITEM pSTK_ADDR, int CADDR, int tCompare, int PRECISION ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG, &nDim, &d1, &d2, &d3, &type);
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            sw=fun_num_item( (PHB_ITEM) pARG22, (PHB_ITEM) pRows, (int) i, (int) tCompare, (int) PRECISION );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=fun_num_item( (PHB_ITEM) pARG222, (PHB_ITEM) pCols, (int) j, (int) tCompare, (int) PRECISION );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=fun_num_item( (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, (int) k, (int) tCompare, (int) PRECISION );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+// "exp"=>80, "int"=>81, "sign"=>82, "log"=>83, "log10"=>84, "sqrt"=>85, "sin"=>86, "cos"=>87, "tan"=>88,;
+// "sinh"=>89, "cosh"=>90, "tanh"=>91, "str"=>92, "floor"=>93, "abs"=>94, "chr"=>95, "ceil"=>96, "exp10"=>97;
+int funNumOneArg( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare, int PRECISION ){
+int sw=1;
+   if ( CADDR>=1 ){
+      PHB_ITEM pARG = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // Argumento
+
+      if( HB_IS_NUMERIC( pARG ) ){
+         ++CADDR;
+         sw=fun_num_item( (PHB_ITEM) pARG, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (int) tCompare, (int) PRECISION );
+      }else if( HB_IS_ARRAY( pARG ) ){
+         ++CADDR;
+         sw=fun_num_matrix_item( (PHB_ITEM) pARG, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (int) tCompare, (int) PRECISION );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INNER-FUNCTION(NUM) FIRST ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:INNER-FUNCTION(NUM) STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int fun_money_item(PHB_ITEM pARG,PHB_ITEM pDEC,PHB_ITEM pSTK_ADDR,int CADDR){
+int sw=1;
+   double numero = hb_itemGetND( pARG );
+   
+   int decimales = hb_itemGetNI( pDEC );
+   char *buffer = (char *)calloc (64,1); 
+   if (buffer==NULL) return 0;
+   char *num = (char *)calloc (64,1); 
+   if (num==NULL) return 0;
+   
+   char *buf = buffer;
+
+   int i=0,j=0,swNeg=0;
+   if( numero < 0 ) {
+      swNeg=1;
+      numero *= -1;
+   }
+   
+   uint16_t size = sprintf(buf,"%.*lf",decimales, numero);
+   int intSize=size;
+   if( decimales>0 ){
+      intSize=size-decimales-1;  // longitud entero
+   }
+
+   if( swNeg ){  
+      num[0] = '-';
+      ++i;
+   }
+   num[i] = buf[0];
+   ++j;++i;
+   --intSize;
+   
+   while( intSize ){
+      if( buf[j]=='.' ) {
+         num[i++] = buf[j];
+         break;
+      }else{
+         if( fmod(intSize,3) )
+            num[i++] = buf[j];
+         else{
+            num[i++] = ',';
+            num[i++] = buf[j];
+         }
+      }
+      ++j;
+      --intSize;
+      --size;
+   }
+   while( size ){
+      num[i++] = buf[j];
+      --size;
+      ++j;
+   }
+   free(buffer);
+ // completar signo, moneda y pad.  
+   num[i]='\0';
+   const char * pBuffer = num; 
+   hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pBuffer );
+   free(num);
+
+return sw;
+}
+
+int fun_money_matrix_item( PHB_ITEM pARG, PHB_ITEM pDEC, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG, &nDim, &d1, &d2, &d3, &type);
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            sw=fun_money_item((PHB_ITEM)pARG22,(PHB_ITEM)pDEC,(PHB_ITEM)pRows,(int)i);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=fun_money_item((PHB_ITEM)pARG222,(PHB_ITEM)pDEC,(PHB_ITEM)pCols,(int)j);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=fun_money_item((PHB_ITEM)pARG2222,(PHB_ITEM)pDEC,(PHB_ITEM)pPag,(int)k);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int fun_money( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pARG  = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // Argumento: numero
+      PHB_ITEM pDEC = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // decimales
+
+      if( HB_IS_NUMERIC( pARG ) ){
+         ++CADDR;
+         sw=fun_money_item((PHB_ITEM)pARG,(PHB_ITEM)pDEC,(PHB_ITEM)pSTK_ADDR,(int)CADDR);
+      }else if( HB_IS_ARRAY( pARG ) ){
+         ++CADDR;
+         sw=fun_money_matrix_item((PHB_ITEM)pARG,(PHB_ITEM)pDEC,(PHB_ITEM)pSTK_ADDR,(int) CADDR);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:MONEY ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG);
+      hb_itemRelease(pDEC);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:MONEY STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int fun_pad_item( PHB_ITEM pARG, PHB_ITEM pPAD, PHB_ITEM pRELL, PHB_ITEM pSTK_ADDR, int CADDR, int tCompare ){
+int sw=1;
+   const char * cText = hb_itemGetCPtr( pARG );
+   const char * cRelleno = hb_itemGetCPtr( pRELL );
+   HB_MAXINT nSize = hb_itemGetCLen( pARG );
+   HB_MAXINT nLen = hb_itemGetNL( pPAD );
+
+   if( nLen <= nSize ){
+      hb_arraySetC( pSTK_ADDR, CADDR, (const char *) cText );
+   }else{
+      switch( tCompare){
+         case 0: {   // PADC 
+            char * szResult = ( char * ) calloc( nLen + 1, 1 );
+            char cPad = cRelleno[0];
+            HB_ISIZ nPad = ( ( HB_SIZE ) nLen - nSize ) >> 1;
+            //cPad = ' '; //( HB_ISCHAR( 3 ) ? *( hb_parc( 3 ) ) : ' ' );
+            memset( szResult, cPad, nPad );
+            memcpy( szResult + nPad, cText, nSize );
+            memset( szResult + nPad + nSize, cPad, ( HB_SIZE ) nLen - nSize - nPad );
+            const char * milenka = szResult;
+            hb_arraySetC( pSTK_ADDR, CADDR, (const char *) milenka );
+            free( szResult );
+            break;
+         }case 1: {  // PADR
+            char * szResult = ( char * ) calloc( nLen + 1, 1 );
+            char cPad = cRelleno[0];
+//            cPad = ' ';
+            memcpy( szResult, cText, nSize );
+            memset( szResult + nSize, cPad, ( HB_SIZE ) nLen - nSize );
+            const char * milenka = szResult;
+            hb_arraySetC( pSTK_ADDR, CADDR, (const char *) milenka );
+            free( szResult );
+            break;
+         }case 2: {  // PADL
+            char * szResult = ( char * ) calloc( nLen + 1, 1 );
+            char cPad = cRelleno[0];
+//            cPad = ' ';
+            memset( szResult, cPad, ( HB_SIZE ) nLen - nSize );
+            memcpy( szResult + ( HB_SIZE ) nLen - nSize, cText, nSize );
+            const char * milenka = szResult;
+            hb_arraySetC( pSTK_ADDR, CADDR, (const char *) milenka );
+            free( szResult );
+            break;
+         }
+      }
+   }
+return sw;
+}
+
+int fun_pad_matrix_item( PHB_ITEM pARG, PHB_ITEM pPAD, PHB_ITEM pRELL, PHB_ITEM pSTK_ADDR, int CADDR, int tCompare ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG, &nDim, &d1, &d2, &d3, &type);
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            sw=fun_pad_item( (PHB_ITEM)pARG22,(PHB_ITEM)pPAD,(PHB_ITEM)pRELL,(PHB_ITEM)pRows,(int)i, (int) tCompare );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=fun_pad_item( (PHB_ITEM)pARG222,(PHB_ITEM)pPAD,(PHB_ITEM)pRELL,(PHB_ITEM)pCols,(int)j, (int) tCompare );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=fun_pad_item( (PHB_ITEM)pARG2222,(PHB_ITEM)pPAD,(PHB_ITEM)pRELL,(PHB_ITEM)pPag,(int)k, (int) tCompare );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int fun_pad( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare ){
+int sw=1;
+   if ( CADDR>=3 ){
+      PHB_ITEM pARG = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // Argumento: numero
+      PHB_ITEM pPAD = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // pad
+      PHB_ITEM pRELL = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // "relleno"
+
+      if( HB_IS_STRING( pARG ) ){
+         ++CADDR;
+         sw=fun_pad_item( (PHB_ITEM)pARG,(PHB_ITEM)pPAD,(PHB_ITEM)pRELL,(PHB_ITEM)pSTK_ADDR,(int)CADDR, (int) tCompare );
+      }else if( HB_IS_ARRAY( pARG ) ){
+         ++CADDR;
+         sw=fun_pad_matrix_item( (PHB_ITEM)pARG,(PHB_ITEM)pPAD,(PHB_ITEM)pRELL,(PHB_ITEM)pSTK_ADDR,(int) CADDR, (int) tCompare );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:PADC ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG);
+      hb_itemRelease(pPAD);
+      hb_itemRelease(pRELL);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:PADC STACK UNDERFLOW"); 
+   }   
+return sw;
+}
+
+int fun_mask_item( PHB_ITEM pARG, PHB_ITEM pMASK, PHB_ITEM pRELL, PHB_ITEM pSTK_ADDR, int CADDR ) {
+int sw=1;
+   
+   const char * numero = hb_itemGetCPtr( pARG );
+   const char * car = hb_itemGetCPtr( pRELL );
+   const char * formato = hb_itemGetCPtr( pMASK );
+   
+   long ln = hb_itemGetCLen( pARG );
+   long lf = hb_itemGetCLen( pMASK );
+   
+   char *buffer, *pBuf;
+
+   pBuf = (char *)calloc(lf+1,1);
+   if (pBuf==NULL) return 0;
+
+   buffer = pBuf;
+   int16_t i=lf, k=lf; 
+
+   char c; 
+   --lf; --ln; --k;
+   while (lf>=0 && ln>=0) {
+      c = formato[lf];
+      if (c=='#') buffer[k] = numero[ln--]; 
+      else buffer[k] = c;
+      --k;
+      --lf;
+   }
+   while (lf>=0) {
+      c = formato[lf];
+      if (*car) {
+         if (c=='#') buffer[k] = *car;
+         else buffer[k] = c;
+      } else {
+         buffer[k] = ' ';
+      }
+      --lf;
+      --k;
+   }
+   buffer[i]='\0';
+   const char * pBuffer = buffer; 
+   hb_arraySetC( pSTK_ADDR, CADDR, (const char *) pBuffer );
+   free(pBuf);
+   
+return sw;
+}
+
+int fun_mask_matrix_item( PHB_ITEM pARG, PHB_ITEM pMASK, PHB_ITEM pRELL, PHB_ITEM pSTK_ADDR, int CADDR ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG, &nDim, &d1, &d2, &d3, &type);
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            sw=fun_mask_item( (PHB_ITEM) pARG22, (PHB_ITEM) pMASK, (PHB_ITEM) pRELL, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=fun_mask_item( (PHB_ITEM) pARG222, (PHB_ITEM) pMASK, (PHB_ITEM) pRELL, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, j);
+                  sw=fun_mask_item( (PHB_ITEM) pARG2222, (PHB_ITEM) pMASK, (PHB_ITEM) pRELL, (PHB_ITEM) pPag, (int) k );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int fun_mask( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=3 ){
+      PHB_ITEM pARG  = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // Argumento
+      PHB_ITEM pMASK = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // mascara
+      PHB_ITEM pRELL = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // caracter de relleno
+
+      if( HB_IS_STRING( pARG ) ){
+         ++CADDR;
+         sw=fun_mask_item( (PHB_ITEM) pARG, (PHB_ITEM) pMASK, (PHB_ITEM) pRELL, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+      }else if( HB_IS_ARRAY( pARG ) ){
+         ++CADDR;
+         sw=fun_mask_matrix_item( (PHB_ITEM) pARG, (PHB_ITEM) pMASK, (PHB_ITEM) pRELL, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:MASK ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG);
+      hb_itemRelease(pMASK);
+      hb_itemRelease(pRELL);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:MASK STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int settokenizer( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, char *TOKENIZER ){
+int sw=1;
+   if( CADDR>0 ){
+      PHB_ITEM pToken = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      const char * cToken = hb_itemGetCPtr( pToken );
+      hb_itemRelease(pToken);
+      TOKENIZER[0]=cToken[0];
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:DEFINE TOKEN STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int modtoken( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, char *TOKENIZER ){
+int sw=1;
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_REG, nItem );
+   long cLen = hb_itemGetCLen( pTEXT );
+   const char * cTXT = hb_itemGetCPtr( pTEXT );
+   
+   if( CADDR>=2 ){
+      PHB_ITEM pToken = hb_itemArrayGet( pSTK_ADDR, CADDR--);   // nuevo token
+      int nToken = hb_itemGetNInt( pToken );
+      hb_itemRelease(pToken);
+      PHB_ITEM pcToken = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // lo que reemplazará
+      long cTokenLen = hb_itemGetCLen( pcToken );
+      const char * cToken = hb_itemGetCPtr( pcToken );
+      hb_itemRelease(pcToken);
+
+      const char* tokenizer = TOKENIZER;
+      cLen = cLen + cTokenLen;
+      char *cTexto = (char *)calloc( cLen + 1, 1 );
+
+      int i=0;
+      if( nToken==1 ){   // reemplaza el primer token
+         do{   // añade primer token
+            cTexto[i++] = *cToken++;
+         }while( *cToken );
+         cTexto[i++] = *tokenizer;
+         // desecha el primer token del string base
+         while( *cTXT++ != *tokenizer );
+         // copia resto de string:
+         do{
+            cTexto[i++] = *cTXT++;
+         }while( *cTXT );
+         cTexto[i] = '\0';
+         
+      }else{    // es otro token
+         int nTok=0;
+         int sw=1;
+         do{
+            cTexto[i++] = *cTXT++;
+            if( *cTXT!=NULL ){
+               if( *cTXT == *tokenizer ){
+                  nTok++;
+                  if( nTok == nToken-1 ){
+                     break;
+                  }
+               }
+            }else{
+               cTexto[i] = '\0';
+               sw=0;
+               break;
+            }
+         }while( *cTXT );
+         if( sw ){
+            // desecha el token:
+            *cTXT++;
+            do{
+               if( *cTXT == *tokenizer ) break;
+            }while( *(++cTXT) );
+            
+            if( *cTXT!=NULL ){
+               // añade el nuevo token:
+               cTexto[i++] = *tokenizer;
+               do{   // añade primer token
+                  cTexto[i++] = *cToken++;
+               }while( *cToken );
+
+               // copia el resto del string:
+               do{
+                  cTexto[i++] = *cTXT;
+               }while( *(++cTXT) );
+            }else{
+               cTexto[i++] = *tokenizer;
+               do{   // añade primer token
+                  cTexto[i++] = *cToken++;
+               }while( *cToken );
+            }
+            cTexto[i] = '\0';
+         }
+      }
+      
+      ++CADDR;
+      if( *cTexto ){
+         const char * token = cTexto; 
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) token );
+      }else{
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+      }
+      free(cTexto);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:$|GET TOKEN STACK UNDERFLOW");
+   }
+   hb_itemRelease(pTEXT);
+return sw;
+}
+
+int gettoken( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, char *TOKENIZER ){
+int sw=1;
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_REG, nItem );
+   long cLen = hb_itemGetCLen( pTEXT );
+   const char * cTXT = hb_itemGetCPtr( pTEXT );
+   
+   if( CADDR>0 ){
+      PHB_ITEM pToken = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      int nToken = hb_itemGetNInt( pToken );
+      hb_itemRelease(pToken);
+
+      const char* tokenizer = TOKENIZER;
+      char *cTexto = (char *)calloc( cLen + 1, 1 );
+      memcpy( cTexto, cTXT, cLen );
+      char* token; 
+      //char* rest = cTexto; 
+      int nTok=1;
+      token = strtok(cTexto, tokenizer);
+      if( nToken > 1 ){
+         while( token ){
+            token = strtok(0, tokenizer);
+            ++nTok;
+            if( nTok==nToken) break;
+         }  
+      }
+      ++CADDR;
+      if( token ){
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) token );
+      }else{
+         hb_arraySetC( pSTK_ADDR, CADDR, (const char *) "" );
+      }
+      free(cTexto);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:$|GET TOKEN STACK UNDERFLOW");
+   }
+   hb_itemRelease(pTEXT);
+return sw;
+}
+
+int substr_matrix_item(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pARG3, PHB_ITEM pSTK_ADDR, int CADDR,
+                       HB_MAXINT nDim, HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            sw=substr_item(pARG22, pARG1, pARG3, (PHB_ITEM) pRows, i);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=substr_item(pARG222, pARG1, pARG3, (PHB_ITEM) pCols, j);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=substr_item(pARG2222, pARG1, pARG3, (PHB_ITEM) pPag, k);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int substr_matrix_matrix(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pARG3, PHB_ITEM pSTK_ADDR, int CADDR,
+                       HB_MAXINT nDim, HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=substr_item(pARG22, pARG11, pARG3, (PHB_ITEM) pRows, i);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=substr_item(pARG222, pARG111, pARG3, (PHB_ITEM) pCols, j);
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=substr_item(pARG2222, pARG1111, pARG3, (PHB_ITEM) pPag, k);
+                  hb_itemRelease(pARG1111);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int funSubstr( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+   if (CADDR>=2){
+      PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+      PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // string
+      if (HB_IS_NUMERIC( pARG1 )){
+         if( HB_IS_STRING(pARG2) ){   // tiene un solo argumento: nPos
+            if( CADDR > 0 ){    // asume la existencia del tercer parámetro
+               PHB_ITEM pARG3 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // porcion a copiar
+               if( HB_IS_NUMERIC( pARG3 )){
+                  ++CADDR;
+                  if( !substr_item(pARG2, pARG1, pARG3, (PHB_ITEM) pSTK_ADDR, CADDR) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+                  }
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR"); 
+               }
+               hb_itemRelease(pARG3);
+            }else{  // solo actúa con la posición.
+               ++CADDR;
+               if( !substr_item(pARG2, pARG1, NULL, (PHB_ITEM) pSTK_ADDR, CADDR) ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+               }
+            }
+         }else if( HB_IS_ARRAY( pARG2 ) ){   // es un array. POS puede ser un array, pero 3er arg no. 
+            HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+            if( type==10 ){
+               if( CADDR > 0 ){    // asume la existencia del tercer parámetro
+                  PHB_ITEM pARG3 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // porcion a copiar
+                  if( HB_IS_NUMERIC( pARG3 )){   // solo debe ser numero.
+                     ++CADDR;
+                     if( !substr_matrix_item(pARG2, pARG1, pARG3, (PHB_ITEM) pSTK_ADDR, CADDR, nDim, d1, d2, d3) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pARG3);
+               }else{
+                  ++CADDR;
+                  if( !substr_matrix_item(pARG2, pARG1, NULL, (PHB_ITEM) pSTK_ADDR, CADDR, nDim, d1, d2, d3) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+                  }
+               }
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR - TYPE MISMATCH"); 
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR - TYPE MISMATCH"); 
+         }
+      }else if( HB_IS_ARRAY( pARG1 ) ){   // POS es array.
+         if( HB_IS_ARRAY( pARG2 ) ){    // argumento principal debe ser un array, porque POS es array. 3er arg debe ser escalar.
+            HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+            HB_MAXINT nDim1=0,d11=0,d22=0,d33=0,type1=0;
+            get_size( (PHB_ITEM) pARG1, &nDim1, &d11, &d22, &d33, &type1);
+            if( type==10 && type1==11 && nDim==nDim1 && d1==d11 && d2==d22 ){
+               if( CADDR > 0 ){    // asume la existencia del tercer parámetro
+                  PHB_ITEM pARG3 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // porcion a copiar
+                  if( HB_IS_NUMERIC( pARG3 )){   // solo debe ser numero.
+                     ++CADDR;
+                     if( !substr_matrix_matrix(pARG2, pARG1, pARG3, (PHB_ITEM) pSTK_ADDR, CADDR, nDim, d1, d2, d3) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pARG3);
+               }else{
+                  ++CADDR;
+                  if( !substr_matrix_matrix(pARG2, pARG1, NULL, (PHB_ITEM) pSTK_ADDR, CADDR, nDim, d1, d2, d3) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:COPY NOT ENOUGHT MEMORY"); 
+                  }
+               }
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:COPY DIMENSION|RANGE|TYPE ERROR"); 
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:COPY ARGUMENT ERROR - TYPE MISMATCH");
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:COPY (INITIAL POS) ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG2);
+      hb_itemRelease(pARG1);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:COPY STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+int strtran_matrix_item_item( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, 
+                              PHB_ITEM pSTK_ADDR, int CADDR, int nStart, int nCount ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+   get_size( (PHB_ITEM) pARG3, &nDim, &d1, &d2, &d3, &type);
+   if(type!=10) return 0;
+
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            sw=strtran_item( (PHB_ITEM) pARG33, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pRows,
+                                                       i, nStart, nCount ) ;
+            hb_itemRelease(pARG33);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               sw=strtran_item( (PHB_ITEM) pARG333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pCols,
+                                                       j, nStart, nCount ) ;
+               hb_itemRelease(pARG333);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG3333 = hb_itemArrayGet( pARG333, k);
+                  sw=strtran_item( (PHB_ITEM) pARG3333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pPag,
+                                                         k, nStart, nCount ) ;
+                  hb_itemRelease(pARG3333);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG333);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int strtran_item_matrix_item( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, 
+                              PHB_ITEM pSTK_ADDR, int CADDR, int nStart, int nCount ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+   if(type!=10 || nDim!=1) return 0;
+
+   PHB_ITEM pRows  = hb_itemArrayNew( 1 );
+   
+   PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, 1);
+   sw=strtran_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG22, (PHB_ITEM) pARG1, (PHB_ITEM) pRows,
+                                                       1, nStart, nCount ) ;
+
+   hb_itemRelease(pARG22);
+   int i;
+   for (i=2; i<=d1; i++ ){
+      PHB_ITEM pString = hb_itemArrayGet( pRows, 1);
+      PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+      sw=strtran_item( (PHB_ITEM) pString, (PHB_ITEM) pARG22, (PHB_ITEM) pARG1, (PHB_ITEM) pRows,
+                                                       1, nStart, nCount ) ;
+
+      hb_itemRelease(pARG22);
+      hb_itemRelease(pString);
+   }
+   PHB_ITEM pString = hb_itemArrayGet( pRows, 1);
+   hb_arraySet(pSTK_ADDR, CADDR, pString);
+   hb_itemRelease(pRows);
+   hb_itemRelease(pString);
+return sw;
+}
+
+int strtran_item_matrix_matrix( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, 
+                                PHB_ITEM pSTK_ADDR, int CADDR, int nStart, int nCount ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+   get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+   if(type!=10) return 0;
+
+   HB_MAXINT nDim1=0,d11=0,d12=0, d13=0,type1=0;
+   get_size( (PHB_ITEM) pARG1, &nDim1, &d11, &d12, &d13, &type1);
+   if(type1!=10) return 0;
+   
+   if( type==type1 && d1==d11 && d2==d12 && d3==d13 && nDim==nDim1 ){
+      PHB_ITEM pRows  = hb_itemArrayNew( 1 );
+   
+      PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, 1);
+      PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, 1);
+      sw=strtran_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG22, (PHB_ITEM) pARG11, (PHB_ITEM) pRows,
+                                                       1, nStart, nCount ) ;
+
+      hb_itemRelease(pARG11);
+      hb_itemRelease(pARG22);
+      int i;
+      for (i=2; i<=d1; i++ ){
+         PHB_ITEM pString = hb_itemArrayGet( pRows, 1);
+         PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+         PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+         sw=strtran_item( (PHB_ITEM) pString, (PHB_ITEM) pARG22, (PHB_ITEM) pARG11, (PHB_ITEM) pRows,
+                                                       1, nStart, nCount ) ;
+
+         hb_itemRelease(pARG11);
+         hb_itemRelease(pARG22);
+         hb_itemRelease(pString);
+      }
+      PHB_ITEM pString = hb_itemArrayGet( pRows, 1);
+      hb_arraySet(pSTK_ADDR, CADDR, pString);
+      hb_itemRelease(pRows);
+      hb_itemRelease(pString);
+   }else{
+      sw=0;
+   }
+   
+return sw;
+}
+
+int strtran_matrix_matrix_matrix( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, 
+                                  PHB_ITEM pSTK_ADDR, int CADDR, int nStart, int nCount ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+   get_size( (PHB_ITEM) pARG3, &nDim, &d1, &d2, &d3, &type);
+   if(type!=10) return 0;
+
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            sw=strtran_item_matrix_matrix( (PHB_ITEM) pARG33, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pRows,
+                                                       i, nStart, nCount ) ;
+            hb_itemRelease(pARG33);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               sw=strtran_item_matrix_matrix( (PHB_ITEM) pARG333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pCols,
+                                                       j, nStart, nCount ) ;
+               hb_itemRelease(pARG333);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG3333 = hb_itemArrayGet( pARG333, k);
+                  sw=strtran_item_matrix_matrix( (PHB_ITEM) pARG3333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pPag,
+                                                       k, nStart, nCount ) ;
+                  hb_itemRelease(pARG3333);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG333);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int strtran_matrix_matrix_item( PHB_ITEM pARG3, PHB_ITEM pARG2, PHB_ITEM pARG1, 
+                                PHB_ITEM pSTK_ADDR, int CADDR, int nStart, int nCount ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+   get_size( (PHB_ITEM) pARG3, &nDim, &d1, &d2, &d3, &type);
+   if(type!=10) return 0;
+
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            sw=strtran_item_matrix_item( (PHB_ITEM) pARG33, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pRows,
+                                                       i, nStart, nCount ) ;
+            hb_itemRelease(pARG33);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               sw=strtran_item_matrix_item( (PHB_ITEM) pARG333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pCols,
+                                                       j, nStart, nCount ) ;
+               hb_itemRelease(pARG333);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG33 = hb_itemArrayGet( pARG3, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG333 = hb_itemArrayGet( pARG33, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG3333 = hb_itemArrayGet( pARG333, k);
+                  sw=strtran_item_matrix_item( (PHB_ITEM) pARG3333, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pPag,
+                                                       k, nStart, nCount ) ;
+                  hb_itemRelease(pARG3333);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG333);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG33);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+
+//int PushReg(PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int PushReg(int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+
+   // extrae argumentos:
+   int sw=1;
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+//   long nARG = hb_itemGetNInt( pARG1 );
+//   hb_itemRelease(pARG1);
+   long nARG = STK_PRG[ ++CP ];
+              
+   ++CADDR;  // aumenta CADDR
+   // CHEQUEAR SI ES ARRAY LO QUE METE EN PILA
+   if ( CADDR > nSizeStack ){ //ERROR
+      sw=put_error((PHB_ITEM) pRET, "CALL:PUSH STACK OVERFLOW");
+   }else{
+      // obtengo valor de registro:
+      PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, nARG);
+      hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pSource  );
+      hb_itemRelease(pSource);
+   }
+   
+//   hb_itemRelease(pARG1);
+//      if ( HB_IS_ARRAY( pSource ) ){   // es un array
+//          hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pSource  );
+/*         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+         switch( nDim ){
+            case 1:{
+               PHB_ITEM pRows  = hb_itemArrayNew( d1 ); // creo array ajustado a los rangos.
+               int i;
+               for (i=1; i<=d1; i++ ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, i);
+                  put_value(pRows, pARGS, i, PRECISION);
+                  hb_itemRelease(pARGS);
+               }
+               hb_arraySet(pSTK_ADDR, CADDR, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 2:{
+               PHB_ITEM pRows = hb_itemArrayNew( d1 );
+               int i;
+               for( i=1; i<=d1; i++){
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                  PHB_ITEM pCols = hb_itemArrayNew( d2 );
+                  int j;
+                  for( j=1; j<=d2; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pCols, pARGC, j, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet( pRows, i, pCols );
+                  hb_itemRelease(pARGF);
+                  hb_itemRelease(pCols);
+               }
+               hb_arraySet(pSTK_ADDR, CADDR, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 3:{
+               PHB_ITEM pARRAY = hb_itemArrayNew( d1 );
+               int i;
+               for(i=1; i<=d1; i++){
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                  int j;
+                  for(j=1; j<=d2; j++){
+                     PHB_ITEM pARRAYP = hb_itemArrayNew( d3 );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     int k;
+                     for(k=d1; k<=d3; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAYP, pARGP, k, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet(pARRAYC, j, pARRAYP);
+                     hb_itemRelease(pARRAYP);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet(pARRAY, i, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+                  hb_itemRelease(pARGF);
+               }
+               hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pARRAY );
+               hb_itemRelease(pARRAY);
+            }
+         } */
+/*      }else{
+         // chequea tipo de valor obtenido y guarda en STK_ADDR:
+         put_value(pSTK_ADDR, pSource, CADDR, PRECISION);
+      }
+      hb_itemRelease(pSource);
+   }
+   */
+   return sw;
+}
+//int PushCte(PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_DS, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){//,
+
+//   int sw=1;
+   // extrae argumentos directo:
+/*   PHB_ITEM pSource = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CADDR;  // aumenta CADDR
+   if ( CADDR > nSizeStack ){
+      //ERROR
+      sw=put_error((PHB_ITEM) pRET, "CALL:PUSH STACK OVERFLOW");
+   }else{
+      // chequea tipo de valor obtenido y guarda en STK_ADDR:
+      //put_value(pSTK_ADDR, pSource, CADDR, PRECISION);
+      hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pSource  );
+   }
+   hb_itemRelease(pSource);*/
+//   return sw;
+//}
+
+//int PushDS( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_DS, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){//,
+int PushDS( int STK_PRG[], PHB_ITEM pSTK_DS, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){//,
+   int sw=1;
+   // extrae argumentos:
+   
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);  // 
+//   PHB_ITEM pRegSource = hb_itemArrayGet( pSTK_REG, hb_itemGetNInt( pARG1 ));
+   PHB_ITEM pRegSource = hb_itemArrayGet( pSTK_REG, STK_PRG[ ++CP ] );
+   
+   // obtengo valor de registro:
+              
+   ++CADDR;  // aumenta CADDR
+   if ( CADDR > nSizeStack ){
+      //ERROR
+      sw=put_error((PHB_ITEM) pRET, "CALL:PUSH STACK OVERFLOW");
+   }else{
+      PHB_ITEM pSource = hb_itemArrayGet( pSTK_DS, hb_itemGetNInt( pRegSource ) );
+      
+      if ( HB_IS_ARRAY( pSource ) ){   // es un array
+         PHB_ITEM pSourceA = hb_itemArrayGet( pSource, 1);
+         // obtengo valor de registro:
+         hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pSourceA  );
+         hb_itemRelease(pSourceA);
+      }else{
+         hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pSource );
+      }
+      hb_itemRelease(pSource);
+   }   
+ //  hb_itemRelease(pARG1);
+   hb_itemRelease(pRegSource);
+
+   
+/*      if ( HB_IS_ARRAY( pSource ) ){   // es un array
+         PHB_ITEM pSourceA = hb_itemArrayGet( pSource, 1);  // obtengo array. no me sirve la metadata.
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pSourceA, &nDim, &d1, &d2, &d3, &type);
+         switch( nDim ){
+            case 1:{
+               PHB_ITEM pRows  = hb_itemArrayNew( d1 ); // creo array ajustado a los rangos.
+               int i;
+               for (i=1; i<=d1; i++ ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSourceA, i);
+                  put_value(pRows, pARGS, i, PRECISION);
+                  hb_itemRelease(pARGS);
+               }
+               hb_arraySet(pSTK_ADDR, CADDR, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 2:{
+               PHB_ITEM pRows = hb_itemArrayNew( d1 );
+               int i;
+               for( i=1; i<=d1; i++){
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                  PHB_ITEM pCols = hb_itemArrayNew( d2 );
+                  int j;
+                  for( j=1; j<=d2; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pCols, pARGC, j, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet( pRows, i, pCols );
+                  hb_itemRelease(pARGF);
+                  hb_itemRelease(pCols);
+               }
+               hb_arraySet(pSTK_ADDR, CADDR, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 3:{
+               PHB_ITEM pARRAY = hb_itemArrayNew( d1 );
+               int i;
+               for(i=1; i<=d1; i++){
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                  int j;
+                  for(j=1; j<=d2; j++){
+                     PHB_ITEM pARRAYP = hb_itemArrayNew( d3 );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     int k;
+                     for(k=1; k<=d3; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAYP, pARGP, k, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet(pARRAYC, j, pARRAYP);
+                     hb_itemRelease(pARRAYP);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet(pARRAY, i, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+                  hb_itemRelease(pARGF);
+               }
+               hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pARRAY );
+               hb_itemRelease(pARRAY);
+            }
+         }
+         hb_itemRelease(pSourceA);
+      }else{
+         // chequea tipo de valor obtenido y guarda en STK_ADDR:
+         put_value(pSTK_ADDR, pSource, CADDR, PRECISION);
+      }
+      hb_itemRelease(pSource);
+   }
+   hb_itemRelease(pARG1);*/
+   return sw;
+}
+
+int clear_stack(){
+int sw=1;
+   CADDR=0;
+return sw;
+}
+
+int kpop(){
+int sw=1;
+if( CADDR>0 ){
+   CADDR--;
+}// aquí no hay "else", dado que si no hay datos, no pasa ná.
+return sw;
+}
+
+/* MOV: mueve el resultado a un registro. Si hay marcas, mueve el rango asociado */
+int move_stack_reg( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+   if (CADDR >0){
+      // extrae argumentos:
+//      PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+//      long nARGd = hb_itemGetNInt( pARG1 );
+
+      unsigned int nARGd=(unsigned int)STK_PRG[++CP];
+      // obtengo valor de registro:
+      PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, CADDR--); // lee dato
+      if ( HB_IS_ARRAY( pSource ) ){  // es un array!!
+         //hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pSource  );  // esto es por si es un puntero. AQUI NO PROGRAMAR!!!
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+         switch( nDim ){
+            case 1:{
+               int nIni=1, nFin=d1;
+            //   if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+            //   if( OFFSET_POS ) {nFin=OFFSET_POS;}
+               PHB_ITEM pRows  = hb_itemArrayNew( nFin - nIni + 1 ); // creo array ajustado a los rangos.
+               int i, nPos=1;
+               for (i=nIni; i<=nFin; i++ ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, i);
+                  put_value(pRows, pARGS, nPos++, PRECISION);
+                  hb_itemRelease(pARGS);
+               }
+               hb_arraySet(pSTK_REG, nARGd, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 2:{
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+            //   if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+            //   if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+            //   if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+            //   if( OFFSET_COL ) nFinC=OFFSET_COL;
+            
+               PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+               int i,rPos=1;
+               for( i=nIniR; i<=nFinR; i++){
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                  PHB_ITEM pCols = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  int j,cPos=1;
+                  for( j=nIniC; j<=nFinC; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pCols, pARGC, cPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet( pRows, rPos++, pCols );
+                  hb_itemRelease(pARGF);
+                  hb_itemRelease(pCols);
+               }
+               hb_arraySet(pSTK_REG, nARGd, pRows);
+               hb_itemRelease(pRows);
+               break;
+            }case 3:{
+               int nPagIni=1, nPagFin=d3;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+             /*  if( MARK_PAGE ){
+                  nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+                  if( OFFSET_POS ){
+                     if( OFFSET_POS<=d3 ){
+                        nPagFin=OFFSET_POS;
+                     }
+                  } 
+               }
+               if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+               if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+               if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+               if( OFFSET_COL ) nFinC=OFFSET_COL; */
+   
+               PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+               int i, rPos=1;
+               for(i=nIniR; i<=nFinR; i++){
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                  int j, cPos=1;
+                  for(j=nIniC; j<=nFinC; j++){
+                     PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet(pARRAYC, cPos++, pARRAYP);
+                     hb_itemRelease(pARRAYP);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_arraySet(pARRAY, rPos++, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+                  hb_itemRelease(pARGF);
+               }
+               hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+               hb_itemRelease(pARRAY);
+            }
+         }
+      }else{
+         put_value(pSTK_REG, pSource, nARGd, PRECISION);
+      }
+      hb_itemRelease(pSource);
+//    hb_itemRelease(pARG1);
+   }else{
+      // error
+      sw=put_error((PHB_ITEM) pRET, "CALL:MOV STACK UNDERFLOW");                 
+   }
+return sw;
+}
+
+//int LetReg(PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pRET, int PRECISION){//,
+int LetReg(int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET, int PRECISION){//,
+   int sw=1;
+   int swOffset=0;
+   // extrae argumentos:
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nARGd = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG1 );     // destino
+//   int nARGd = hb_itemGetNInt( pARG1 );     // destino
+//   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nARGs = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG2 );     // source
+//   int nARGs = hb_itemGetNInt( pARG2 );     // source
+   // obtengo valor de registro:
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, nARGs);
+   // si quiero copiar un array en un registro, el destino debe ser un array?
+   // ver hb_itemCopy y hb_itemMove. o dejo ARRAYSET, dado que funciona con PUSH.
+//   hb_itemRelease(pARG2);
+//   hb_itemRelease(pARG1);
+   
+   if ( HB_IS_ARRAY( pSource ) ){   // es un array. OK!
+      if( SW_PUNTERO ){
+         hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pSource  );  // esto copia el puntero. 
+      }else{
+     /* DECISION:
+       X ¿copiare solo una porcion del arreglo segun rangos, creando una nueva matriz con rango ajustado?
+        ¿crearé nueva matriz con dimensiones identicas al Source, pero solo copiaré lo definido por los rangos? */
+     /* PROBLEMA: Si marco [2],[1:5,1] (una columna y una página), me genera un array 3D de size=5,1,1. Eso está mal.
+        Debería generar un array simple de 5 elementos.
+        Mismo caso para array simples desde donde saco solo un elemento ==> debería ser SINGLE.
+        1D = OK
+        2D = 
+        3D = 
+        TODO! */
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+      get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+      switch( nDim ){
+         case 1:{
+           // printf("\nENTRE A 1D INI=%d, FIN=%d",1,d1);
+            int nIni=1, nFin=d1;
+            if( MARK_POS == 999999999 ) MARK_POS=d1;
+            if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+            if( OFFSET_POS ) {
+               if( OFFSET_POS == 999999999 ) OFFSET_POS=d1;
+               nFin=OFFSET_POS;
+            }
+            if( nIni != nFin ){   
+               if( nIni>=1 && nIni<=d1 && nFin>=nIni && nFin<=d1 ){
+             //  if(MARK_POS>0 && MARK_POS<=d1 && OFFSET_POS<=d1 && OFFSET_POS>=MARK_POS){
+                  PHB_ITEM pRows  = hb_itemArrayNew( nFin - nIni + 1 ); // creo array ajustado a los rangos.
+                  int i, nPos=1;
+                 // printf("\nPROCESO 1D INI=%d, FIN=%d",nIni,nFin);
+                  for (i=nIni; i<=nFin; i++ ){
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSource, i);
+                     put_value(pRows, pARGS, nPos++, PRECISION);
+                     hb_itemRelease(pARGS);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET MARK|OFFSET OVERFLOW");
+               }
+            }else{   // solo devuelve un elemento  SINGLE.
+               if( MARK_POS<=d1 ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_POS );
+                  put_value(pSTK_REG, pARGS, nARGd, PRECISION);
+                  hb_itemRelease(pARGS);               
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET MARK OVERFLOW");
+               }
+            }
+            break;
+         }case 2:{
+            //printf("\nENTRE A 2D\n");
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+           // printf("\nPASA 1\nROW=%d, COL=%d, OFFSET_ROW=%d, OFFSET_COL=%d\n",MARK_ROW,MARK_COL,OFFSET_ROW,OFFSET_COL);
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+          //  printf("\nPASA 2\nROW=%d, COL=%d, OFFSET_ROW=%d, OFFSET_COL=%d\n",MARK_ROW,MARK_COL,OFFSET_ROW,OFFSET_COL);
+          /* 4 CASOS:  
+                1.- OFFSET ROW=OFFSET_COL=0     => devuelve SINGLE
+                2.- OFFSET_ROW>0, OFFSET_COL=0  => devuelve array 1D
+                3.- OFFSET_ROW=0, OFFSET_ROW>0  => devuelve array 1D
+                4.- OFFSET_ROW>0, OFFSET_COL>0  => devuelve array 2D. Ya hecho. */
+               
+            if( !OFFSET_COL ){   // SINGLE
+               if( !OFFSET_ROW ){
+                  
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_ROW );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                  put_value(pSTK_REG, pARGC, nARGd, PRECISION);
+                  hb_itemRelease(pARGC);
+                  hb_itemRelease(pARGS);
+               
+               }else{  // ARRAY 1D (recorre las filas)
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     put_value(pRows, pARGC, rPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }   
+            }else{ 
+               if( !OFFSET_ROW ){  // ARRAY 1D (recorre las columnas)
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  int j,cPos=1;
+                  for( j=nIniC; j<=nFinC; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pRows, pARGC, cPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_itemRelease(pARGF);
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }else{   // 2D
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                     PHB_ITEM pCols = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     int j,cPos=1;
+                     for( j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        put_value(pCols, pARGC, cPos++, PRECISION);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pRows, rPos++, pCols );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pCols);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }
+            }
+            if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; }
+            break;
+         }case 3:{
+            int nPagIni=1, nPagFin=d3;
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+            if( MARK_PAGE ){
+               if( MARK_PAGE == 999999999 ) MARK_PAGE=d3;
+               if( MARK_PAGE>d3 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET PAGE'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+               if( OFFSET_POS ){
+                  if( OFFSET_POS == 999999999 ) OFFSET_POS=d3;
+                  if( OFFSET_POS<=d3 ){
+                     nPagFin=OFFSET_POS;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET PAGE'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               } 
+            }else{  // si no existe marca de página, se asume todo; luego:
+               swOffset=1;
+               OFFSET_POS=nPagFin; 
+            }
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+
+           /* CASOS:
+               1.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS=0     => SINGLE
+               2.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS=0     => 1D
+               3.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS=0     => 1D
+               4.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS=0     => 2D
+               5.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS>0     => 1D
+               6.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS>0     => 2D
+               7.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS>0     => 2D
+               8.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS>0     => 3D
+           */
+            if( !OFFSET_POS ){
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // SINGLE
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_ROW );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                     PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE );
+                     put_value(pSTK_REG, pARGP, nARGd, PRECISION);
+                     hb_itemRelease(pARGP);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGS);
+                  }else{   // lee solo columnas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int i, rPos=1;
+                     for(i=nIniC; i<=nFinC; i++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, i);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY);                   
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // lee solo filas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                           put_value(pARRAYC, pARGP, cPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);  
+                  }
+               }
+            }else{    // existe desplazamiento de páginas
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // solo desplaza un elemento por página: array 1D
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAY, pARGP, kPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                     
+                     hb_itemRelease(pARRAY);
+
+                  }else{   // lee solo columnas por página: array 2D
+                     // esto está mal: deben haber OFFSET_POS filas, y OFFSET_COL columnas, o sea, a verre.
+                     // ahora sí:
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        int j, pPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, pPos++, PRECISION);
+                        
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, kPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                     }
+                     
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY); 
+                     
+                    /* PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int j, cPos=1;
+                     for(j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, cPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_itemRelease(pARGF);
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);  */
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // recorre solo filas, una columna, por página: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );  // n-filas
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);  // leo fila
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);  // leo única columna
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nPagFin - nPagIni + 1 );  // m-columnas
+
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYC, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas y páginas: array 3D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           int k,kPos=1;
+                           for(k=nPagIni; k<=nPagFin; k++){
+                              PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                              put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                              hb_itemRelease(pARGP);
+                           }
+                           hb_arraySet(pARRAYC, cPos++, pARRAYP);
+                           hb_itemRelease(pARRAYP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);                  
+                  }
+               }
+            }
+            if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; OFFSET_POS=0; }
+            break;
+         }default:{
+            sw=put_error((PHB_ITEM) pRET, "CALL:LET SOURCE DIMENSION ERROR");
+         }
+      }
+      }
+   }else {     // fuente no es un array
+      PHB_ITEM pARRAYTMP = hb_itemArrayGet( pSTK_REG, nARGd);
+      if ( HB_IS_ARRAY( pARRAYTMP ) ) {      // destino es un array? 
+         // determinar get_size 
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pARRAYTMP, &nDim, &d1, &d2, &d3, &type);
+         switch( nDim ){
+            case 1: {
+              int i;
+              int nIni=1, nFin=d1;
+              if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+              if( OFFSET_POS ) {nFin=OFFSET_POS;}
+              
+/*              hb_arrayFill( pArray,    // OJO: con esto lo podría hacer más rápido
+                       pValue,
+                       HB_ISNUM( 3 ) ? &nStart : NULL,
+                       HB_ISNUM( 4 ) ? &nCount : NULL );  */
+              
+              for(i=nIni; i<=nFin; i++){
+                 put_value(pARRAYTMP, pSource, i, PRECISION);
+              }
+              hb_arraySet( pSTK_REG, nARGd, pARRAYTMP );
+               break;
+            }case 2: {
+               int i;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+               if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+               if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+               if( OFFSET_COL ) nFinC=OFFSET_COL;
+               for(i=nIniR; i<=nFinR; i++){
+                  PHB_ITEM pREGF = hb_itemArrayGet( pARRAYTMP, i); 
+                  int j;
+                  for(j=nIniC; j<=nFinC; j++){
+                     put_value(pREGF, pSource, j, PRECISION);
+                  }
+                  hb_arraySet( pARRAYTMP, i, pREGF );
+                  hb_itemRelease(pREGF);
+               }
+               hb_arraySet( pSTK_REG, nARGd, pARRAYTMP );
+               break;
+            }case 3: {
+               int nPagIni=1, nPagFin=d3;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( MARK_PAGE ){
+                  nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+                  if( OFFSET_POS ){
+                     if( OFFSET_POS<=d3 ){
+                        nPagFin=OFFSET_POS;
+                     }
+                  } 
+               }
+               if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+               if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+               if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+               if( OFFSET_COL ) nFinC=OFFSET_COL;
+            
+               int k=0;
+               for(k=nPagIni; k<=nPagFin; k++){
+                  int i;
+                  for( i=nIniR; i<=nFinR; i++ ){
+                     PHB_ITEM pREGF = hb_itemArrayGet( pARRAYTMP, i);      // saco fila de REG
+                     int j;
+                     for( j=nIniC; j<=nFinC; j++ ){
+                        PHB_ITEM pREGC = hb_itemArrayGet( pREGF, j);     // columna del registro
+                        hb_arraySet( pREGC, k, pSource );
+                        hb_arraySet( pREGF, j, pREGC );
+                        hb_itemRelease( pREGC );
+                     }
+                     hb_arraySet( pARRAYTMP, i, pREGF );
+                     hb_itemRelease( pREGF );
+                  }
+               }
+               hb_arraySet(pSTK_REG, nARGd, pARRAYTMP);
+               break;
+            }default:{
+               sw=put_error((PHB_ITEM) pRET, "CALL:LET TARGET DIMENSION ERROR");
+            }
+         }
+      }else{    // destino no es un array    
+         // chequea tipo de valor obtenido y guarda en STK_ADDR:
+         if( SW_PUNTERO ) hb_arraySet(pSTK_REG, nARGd, pSource); 
+         else             put_value(pSTK_REG, pSource, nARGd, PRECISION);
+      }
+      hb_itemRelease(pARRAYTMP);
+   }
+   SW_PUNTERO=0;
+   hb_itemRelease(pSource);
+   return sw;
+}
+
+int fun_exec( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+if(CADDR>=1){
+   SW_PUNTERO=0;   // RESETEO PUNTERO, POR SI EL PROGRAMADOR SACOHUEA SE EQUIVOCO
+   
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   if( HB_IS_STRING( pSource ) ){
+      HB_MAXINT nLen = hb_itemGetCLen( pSource );
+      char * s = (char*) calloc( nLen + 25, 1 );
+      const char * execstr = hb_itemGetCPtr( pSource );
+      memcpy( s, execstr, nLen );
+      memcpy( s + nLen, " > tmpmacrofile.tmp", 19 ); 
+      const char * t=s;
+   
+      system(t);
+   
+      free(s);
+   
+      FILE *fp;
+      char ch;
+   
+      if( (fp=fopen("tmpmacrofile.tmp","r"))!=NULL ){
+         fseek(fp, 0L, SEEK_END);
+         long int nFinalPos  = ftell( fp ) ;
+      
+         rewind( fp );
+         fseek( fp, 0L, SEEK_CUR) ;
+
+         char * output = (char *)calloc(nFinalPos + 2, 1);
+         if( output ){
+            long int i=0;
+            while ((ch = fgetc(fp)) != EOF){
+               output[i++] = ch;
+            }
+            output[i] = '\0';
+            const char * cbuffer = output;
+            hb_arraySetC( pSTK_ADDR, ++CADDR, cbuffer );
+            free(output);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC NOT ENOUGH MEMORY");
+         }
+         fclose(fp);
+         system("rm tmpmacrofile.tmp");
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC TEMPFILE CREATION ERROR");
+      }
+      
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC ARGUMENT ERROR");
+   }
+   hb_itemRelease( pSource );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC INNER-STACK UNDERFLOW");
+}
+return sw;
+}
+
+int LetMacro(int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET){//,
+int sw=1;
+   
+   SW_PUNTERO=0;   // RESETEO PUNTERO, POR SI EL PROGRAMADOR SACOHUEA SE EQUIVOCO
+   long nARGr = STK_PRG[ ++CP ];
+   long nARGs = STK_PRG[ ++CP ];
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, nARGs);
+   
+   HB_MAXINT nLen = hb_itemGetCLen( pSource );
+   char * s = (char*) calloc( nLen + 25, 1 );
+   const char * execstr = hb_itemGetCPtr( pSource );
+   memcpy( s, execstr, nLen );
+   memcpy( s + nLen, " > tmpmacrofile.tmp", 19 ); 
+   const char * t=s;
+   
+   system(t);
+   
+   free(s);
+   
+   FILE *fp;
+   char ch;
+   
+   if( (fp=fopen("tmpmacrofile.tmp","r"))!=NULL ){
+      fseek(fp, 0L, SEEK_END);
+      long int nFinalPos  = ftell( fp ) ;
+      
+      rewind( fp );
+      fseek( fp, 0L, SEEK_CUR) ;
+
+      char * output = (char *)calloc(nFinalPos + 2, 1);
+      if( output ){
+         long int i=0;
+         while ((ch = fgetc(fp)) != EOF){
+            output[i++] = ch;
+         }
+         output[i] = '\0';
+         const char * cbuffer = output;
+         hb_arraySetC( pSTK_REG, nARGr, cbuffer );
+         free(output);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC NOT ENOUGH MEMORY");
+      }
+      fclose(fp);
+      system("rm tmpmacrofile.tmp");
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:MACRO-EXEC TEMPFILE CREATION ERROR");
+   }
+   hb_itemRelease( pSource );
+   return sw;
+}
+
+//int LetDS(PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_DS, PHB_ITEM pSTK_REG, PHB_ITEM pRET, int PRECISION){
+int LetDS(int STK_PRG[], PHB_ITEM pSTK_DS, PHB_ITEM pSTK_REG, PHB_ITEM pRET, int PRECISION){
+
+/* OJO: AQUI NO HAY PUNTEROS A ASIGNAR, PORQUE VIENE DEL STACK INTERNO DE HARBOUR */
+
+   SW_PUNTERO=0;   // RESETEO PUNTERO, POR SI EL PROGRAMADOR SACOHUEA SE EQUIVOCO
+   
+   int sw=1;
+   int swOffset=0;
+   // extrae argumentos:
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nARGd = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG1 );     // destino
+//   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_PRG, ++CP);   // DS
+
+//   PHB_ITEM pRegSource = hb_itemArrayGet( pSTK_REG, hb_itemGetNInt( pARG2 ) );
+   PHB_ITEM pRegSource = hb_itemArrayGet( pSTK_REG, (int)STK_PRG[ ++CP ] );
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_DS, hb_itemGetNInt( pRegSource ));
+   
+//   printf("\n****** ENTERO EN PRG-->REG  [%d] *******\n",hb_itemGetNInt( pARG1 ));
+//   printf("\n****** ENTERO EN REG  [%d] *******\n",hb_itemGetNInt( pARG2 ));
+//   printf("\n****** ENTERO PARA DS [%d] *******\n",hb_itemGetNInt( pRegSource ));
+//   echo_single( pSource, PRECISION );
+   
+   hb_itemRelease(pRegSource);
+//   hb_itemRelease(pARG2);
+//   hb_itemRelease(pARG1);
+   // CHEQUEA ARRAY en DESTINO.
+              
+   if( HB_IS_ARRAY( pSource ) ){    // fuente es un array?
+      PHB_ITEM pSourceA = hb_itemArrayGet( pSource, 1);  // obtengo array. no me sirve la metadata.
+      //hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY  ); // Push de array es un metadata
+      //hb_itemRelease(pSourceA);  // sirve esto aquí?
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+      get_size( (PHB_ITEM) pSourceA, &nDim, &d1, &d2, &d3, &type);
+      switch( nDim ){
+         case 1:{
+            int nIni=1, nFin=d1;
+            if( MARK_POS == 999999999 ) MARK_POS=d1;
+            if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+            if( OFFSET_POS ) {
+               if( OFFSET_POS == 999999999 ) OFFSET_POS=d1;
+               nFin=OFFSET_POS;
+            }
+            if( nIni != nFin ){
+               if( nIni>=1 && nIni<=d1 && nFin>=nIni && nFin<=d1 ){
+                  PHB_ITEM pRows  = hb_itemArrayNew( nFin - nIni + 1 ); // creo array ajustado a los rangos.
+                  int i, nPos=1;
+                  for (i=nIni; i<=nFin; i++ ){
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSourceA, i);
+                     put_value(pRows, pARGS, nPos++, PRECISION);
+                     hb_itemRelease(pARGS);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET MARK|OFFSET OVERFLOW");
+               }
+            }else{   // solo devuelve un elemento  SINGLE.
+               if( MARK_POS<=d1 ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSourceA, MARK_POS );
+                  put_value(pSTK_REG, pARGS, nARGd, PRECISION);
+                  hb_itemRelease(pARGS);               
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET MARK OVERFLOW");
+               }
+            }
+            break;
+         }case 2:{
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'MARK OVERFLOW");
+                 // hb_itemRelease(pSource);
+                  break;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'OFFSET OVERFLOW");
+                    // hb_itemRelease(pSource);
+                     break;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'MARK OVERFLOW");
+                  //hb_itemRelease(pSource);
+                  break;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'OFFSET OVERFLOW");
+                     //hb_itemRelease(pSource);
+                     break;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+          /* 4 CASOS:  
+                1.- OFFSET ROW=OFFSET_COL=0     => devuelve SINGLE
+                2.- OFFSET_ROW>0, OFFSET_COL=0  => devuelve array 1D
+                3.- OFFSET_ROW=0, OFFSET_ROW>0  => devuelve array 1D
+                4.- OFFSET_ROW>0, OFFSET_COL>0  => devuelve array 2D. Ya hecho. */
+            if( !OFFSET_COL ){   // SINGLE
+               if( !OFFSET_ROW ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSourceA, MARK_ROW );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                  put_value(pSTK_REG, pARGC, nARGd, PRECISION);
+                  hb_itemRelease(pARGC);
+                  hb_itemRelease(pARGS);
+               
+               }else{  // ARRAY 1D (recorre las filas)
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     put_value(pRows, pARGC, rPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }   
+            }else{ 
+               if( !OFFSET_ROW ){  // ARRAY 1D (recorre las columnas)
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, MARK_ROW);
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  int j,cPos=1;
+                  for( j=nIniC; j<=nFinC; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pRows, pARGC, cPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_itemRelease(pARGF);
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }else{   // 2D
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                     PHB_ITEM pCols = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     int j,cPos=1;
+                     for( j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        put_value(pCols, pARGC, cPos++, PRECISION);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pRows, rPos++, pCols );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pCols);
+                  }
+                  hb_arraySet(pSTK_REG, nARGd, pRows);
+                  hb_itemRelease(pRows);
+               }
+            }
+            break;
+         }case 3:{
+            int nPagIni=1, nPagFin=d3;
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+            if( MARK_PAGE ){
+               if( MARK_PAGE == 999999999 ) MARK_PAGE=d3;
+               if( MARK_PAGE>d3 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET PAGE'MARK OVERFLOW");
+                  //hb_itemRelease(pSource);
+                  break;               
+               }
+               nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+               if( OFFSET_POS ){
+                  if( OFFSET_POS == 999999999 ) OFFSET_POS=d3;
+                  if( OFFSET_POS<=d3 ){
+                     nPagFin=OFFSET_POS;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET PAGE'OFFSET OVERFLOW");
+                     //hb_itemRelease(pSource);
+                     break;
+                  }
+               } 
+            }else{  // si no existe marca de página, se asume todo; luego:
+               swOffset=1;
+               OFFSET_POS=nPagFin; 
+            }
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'MARK OVERFLOW");
+                  //hb_itemRelease(pSource);
+                  break;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET ROW'OFFSET OVERFLOW");
+                     //hb_itemRelease(pSource);
+                     break;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'MARK OVERFLOW");
+                  //hb_itemRelease(pSource);
+                  break;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LET COL'OFFSET OVERFLOW");
+                     //hb_itemRelease(pSource);
+                     break;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+
+           /* CASOS:
+               1.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS=0     => SINGLE
+               2.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS=0     => 1D
+               3.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS=0     => 1D
+               4.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS=0     => 2D
+               5.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS>0     => 1D
+               6.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS>0     => 2D
+               7.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS>0     => 2D
+               8.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS>0     => 3D
+           */
+            if( !OFFSET_POS ){
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // SINGLE
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSourceA, MARK_ROW );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                     PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE );
+                     put_value(pSTK_REG, pARGP, nARGd, PRECISION);
+                     hb_itemRelease(pARGP);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGS);
+                  }else{   // lee solo columnas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, MARK_ROW);
+                     int i, rPos=1;
+                     for(i=nIniC; i<=nFinC; i++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, i);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY);                   
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // lee solo filas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                           put_value(pARRAYC, pARGP, cPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);  
+                  }
+               }
+            }else{    // existe desplazamiento de páginas
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // solo desplaza un elemento por página: array 1D
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, MARK_ROW);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAY, pARGP, kPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                     
+                     hb_itemRelease(pARRAY);
+
+                  }else{   // lee solo columnas por página: array 2D
+                     // esto está mal: deben haber OFFSET_POS filas, y OFFSET_COL columnas, o sea, a verre.
+                     // ahora sí:
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, MARK_ROW);
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        int j, pPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, pPos++, PRECISION);
+                        
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, kPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                     }
+                     
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY); 
+                     
+                    /* PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int j, cPos=1;
+                     for(j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, cPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_itemRelease(pARGF);
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);  */
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // recorre solo filas, una columna, por página: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );  // n-filas
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);  // leo fila
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);  // leo única columna
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nPagFin - nPagIni + 1 );  // m-columnas
+
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYC, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas y páginas: array 3D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSourceA, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           int k,kPos=1;
+                           for(k=nPagIni; k<=nPagFin; k++){
+                              PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                              put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                              hb_itemRelease(pARGP);
+                           }
+                           hb_arraySet(pARRAYC, cPos++, pARRAYP);
+                           hb_itemRelease(pARRAYP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);                  
+                  }
+               }
+            }
+         }
+      }
+      hb_itemRelease(pSourceA);
+      if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; OFFSET_POS=0; }
+
+   }else {     // fuente no es un array
+      PHB_ITEM pARRAYTMP = hb_itemArrayGet( pSTK_REG, nARGd);
+      if ( HB_IS_ARRAY( pARRAYTMP ) ) {      // destino es un array?  
+         // determinar get_size 
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pARRAYTMP, &nDim, &d1, &d2, &d3, &type);
+         switch( nDim ){
+            case 1: {
+               int i;
+               int nIni=1, nFin=d1;
+               if( OFFSET_POS == 999999999 ) OFFSET_POS=d1;
+               if( MARK_POS == 999999999 ) MARK_POS=d1;
+               if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+               if( OFFSET_POS ) {nFin=OFFSET_POS;}
+               for(i=nIni; i<=nFin; i++){
+                  put_value(pARRAYTMP, pSource, i, PRECISION);
+               }
+               hb_arraySet( pSTK_REG, nARGd, pARRAYTMP );
+               break;
+            }case 2: {
+               int i;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+               if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+               if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+               if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+               if( OFFSET_COL ) nFinC=OFFSET_COL;
+               for(i=nIniR; i<=nFinR; i++){
+                  PHB_ITEM pREGF = hb_itemArrayGet( pARRAYTMP, i); 
+                  int j;
+                  for(j=nIniC; j<=nFinC; j++){
+                     put_value(pREGF, pSource, j, PRECISION);
+                  }
+                  hb_arraySet( pARRAYTMP, i, pREGF );
+                  hb_itemRelease(pREGF);
+               }
+               hb_arraySet( pSTK_REG, nARGd, pARRAYTMP );
+               break;
+            }case 3: {
+               int nPagIni=1, nPagFin=d3;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( MARK_PAGE ){
+                  nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+                  if( OFFSET_POS ){
+                     if( OFFSET_POS == 999999999 ) OFFSET_POS=d3;
+                     if( OFFSET_POS<=d3 ){
+                        nPagFin=OFFSET_POS;
+                     }
+                  } 
+               }
+               if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+               if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_ROW ) {nIniR=MARK_ROW;nFinR=MARK_ROW;}
+               if( MARK_COL ) {nIniC=MARK_COL;nFinC=MARK_COL;}
+               if( OFFSET_ROW ) nFinR=OFFSET_ROW;
+               if( OFFSET_COL ) nFinC=OFFSET_COL;
+            
+               int k=0;
+               for(k=nPagIni; k<=nPagFin; k++){
+                  int i;
+                  for( i=nIniR; i<=nFinR; i++ ){
+                     PHB_ITEM pREGF = hb_itemArrayGet( pARRAYTMP, i);      // saco fila de REG
+                     int j;
+                     for( j=nIniC; j<=nFinC; j++ ){
+                        PHB_ITEM pREGC = hb_itemArrayGet( pREGF, j);     // columna del registro
+                        hb_arraySet( pREGC, k, pSource );
+                        hb_arraySet( pREGF, j, pREGC );
+                        hb_itemRelease( pREGC );
+                     }
+                     hb_arraySet( pARRAYTMP, i, pREGF );
+                     hb_itemRelease( pREGF );
+                  }
+               }
+               hb_arraySet(pSTK_REG, nARGd, pARRAYTMP);
+            }
+         }
+         
+      }else{    // destino no es un array    
+         // chequea tipo de valor obtenido y guarda en STK_ADDR:
+         put_value(pSTK_REG, pSource, nARGd, PRECISION);
+         
+      }
+      hb_itemRelease(pARRAYTMP);
+   }
+   hb_itemRelease(pSource);
+
+   return sw;
+}
+
+int jumpEQ( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       double pDbl1 = hb_itemGetND( pARG1 );
+       double pDbl2 = hb_itemGetND( pARG2 );
+       // guardar dirección de retorno.
+       if ( pDbl2 == pDbl1 ) CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+
+   }else if( HB_IS_STRING(pARG2) && HB_IS_STRING(pARG1) ){
+       const char * pString1 = hb_itemGetCPtr( pARG1 );
+       const char * pString2 = hb_itemGetCPtr( pARG2 );
+                      // guardar dirección de retorno.
+       if ( strcmp(pString2,pString1) == 0 ) CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JEQ ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JEQ STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int jumpNEQ( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       double pDbl1 = hb_itemGetND( pARG1 );
+       double pDbl2 = hb_itemGetND( pARG2 );
+       // guardar dirección de retorno.
+       if ( pDbl2 != pDbl1 ) CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+
+   }else if( HB_IS_STRING(pARG2) && HB_IS_STRING(pARG1) ){
+       const char * pString1 = hb_itemGetCPtr( pARG1 );
+       const char * pString2 = hb_itemGetCPtr( pARG2 );
+       // guardar dirección de retorno.
+       if ( strcmp(pString2,pString1) != 0)  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JNEQ ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JNEQ STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int jumpLT( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       double pDbl1 = hb_itemGetND( pARG1 );
+       double pDbl2 = hb_itemGetND( pARG2 );
+       // guardar dirección de retorno.
+       if ( pDbl2 < pDbl1 )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1; 
+
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JLT ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JLT STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int jumpLTE( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       double pDbl1 = hb_itemGetND( pARG1 );
+       double pDbl2 = hb_itemGetND( pARG2 );
+       // guardar dirección de retorno.
+       if ( pDbl2 <= pDbl1 ) CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JLTE ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JLTE STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int jumpGT( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       double pDbl1 = hb_itemGetND( pARG1 );
+       double pDbl2 = hb_itemGetND( pARG2 );
+       // guardar dirección de retorno.
+       if ( pDbl2 > pDbl1 )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JGT ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JGT STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpGTE( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpGTE( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // penultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) && HB_IS_NUMERIC( pARG2 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetND( pARG2 ) >= hb_itemGetND( pARG1 ) ) CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JGTE ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JGTE STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpT( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpT( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_LOGICAL( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetL( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+   }else if( HB_IS_NUMERIC( pARG1 )) {
+       if ( hb_itemGetND( pARG1 ) )  CP = STK_PRG[ CP ] - 1;
+   }else if( HB_IS_STRING( pARG1 )) {
+       if ( hb_itemGetCLen( pARG1 ) )  CP = STK_PRG[ CP ] - 1;
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JT ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JT STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpNT( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpNT( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_LOGICAL( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( !hb_itemGetL( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+   }else if( HB_IS_NUMERIC( pARG1 )) {
+       if ( !hb_itemGetND( pARG1 ) )  CP = STK_PRG[ CP ] - 1;
+   }else if( HB_IS_STRING( pARG1 )) {
+       if ( !hb_itemGetCLen( pARG1 ) )  CP = STK_PRG[ CP ] - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JNT ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JNT STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpV( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpV( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_STRING( pARG1 ) ) {
+       // guardar dirección de retorno.hb_itemGetCLen( pSource )
+       if ( !hb_itemGetCLen( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JV ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JV STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpNV( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpNV( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_STRING( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetCLen( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JNV ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JNV STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpZ( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpZ( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( !hb_itemGetND( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JZ ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JZ STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpNZ( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpNZ( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetND( pARG1 ) )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JNZ ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JNZ STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpNEG( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpNEG( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetND( pARG1 ) < 0 )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JNEG ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JNEG STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpPOS( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpPOS( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo
+
+   if( HB_IS_NUMERIC( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetND( pARG1 ) > 0 )  CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:JPOS ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:JPOS STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+//int jumpJSUB( PHB_ITEM pSTK_PRG, PHB_ITEM pRET ){
+int jumpJSUB( int STK_PRG[], PHB_ITEM pRET ){
+int sw=1;
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   unsigned int nJump = STK_PRG[ ++CP ];
+   sw= (int) push_label( (PHB_ITEM) pRET, (int) (CP+1) ) ;
+   CP = nJump - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+//   hb_itemRelease(pJMPDIR);
+return sw;
+}
+
+//int jumpGOSUB( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int jumpGOSUB( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+//   PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   unsigned int nJump = STK_PRG[ ++CP ];
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // saco valor
+   
+   if( HB_IS_LOGICAL ( pARG1 )) {
+       
+       if ( hb_itemGetL( pARG1 ) ) {
+          sw= (int) push_label( (PHB_ITEM) pRET, (int) (CP+1) ) ;
+          CP = nJump - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       }
+       
+   }else if( HB_IS_NUMERIC( pARG1 ) ) {
+       // guardar dirección de retorno.
+       if ( hb_itemGetND( pARG1 ) ) {
+          sw= (int) push_label( (PHB_ITEM) pRET, (int) (CP+1) );
+          CP = nJump - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       }
+   
+   }else if( HB_IS_STRING ( pARG1 )) {
+       if ( hb_itemGetCLen( pARG1 ) ) {
+          sw= (int) push_label( (PHB_ITEM) pRET, (int) (CP+1) ) ;
+          CP = nJump - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+       }
+       
+   }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:GOSUB ARGUMENT ERROR -- TYPE MISMATCH"); 
+   }
+   hb_itemRelease(pARG1);
+//   hb_itemRelease(pJMPDIR);
+}else{
+   // error
+   sw=put_error((PHB_ITEM) pRET, "CALL:GOSUB STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int jumpSingle( int STK_PRG[] ){
+int sw=1;
+   //PHB_ITEM pJMPDIR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   ++CP;
+   CP = STK_PRG[ CP ] - 1; //hb_itemGetNInt( pJMPDIR ) - 1;
+   //hb_itemRelease(pJMPDIR);
+return sw;
+}
+
+int compare_str_item(PHB_ITEM pSTK_ADDR, PHB_ITEM pARG2, PHB_ITEM pARG1, int CADDR, int tCompare){
+int sw=1;
+   switch( tCompare ){
+      case 0:{hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL) ( strcmp(hb_itemGetCPtr( pARG2 ),hb_itemGetCPtr( pARG1 )) == 0 ) );break;}
+      case 1:{hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL) ( strcmp(hb_itemGetCPtr( pARG2 ),hb_itemGetCPtr( pARG1 )) != 0 ) );break;}
+      case 8:{hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL)  hb_strAt( hb_itemGetCPtr( pARG1 ), hb_itemGetCLen( pARG1 ),
+                                                                    hb_itemGetCPtr( pARG2 ), hb_itemGetCLen( pARG2 ) ) > 0 );
+              break;}
+      case 9:{hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL)  hb_striAt( hb_itemGetCPtr( pARG1 ), hb_itemGetCLen( pARG1 ),
+                                                                    hb_itemGetCPtr( pARG2 ), hb_itemGetCLen( pARG2 ) ) > 0 );
+              break;}
+      default: sw=0;
+   }
+return sw;
+}
+
+int compare_item(PHB_ITEM pSTK, PHB_ITEM pARG2, PHB_ITEM pARG1, int ndx, int tCompare){
+int sw=1;
+   switch( tCompare ){
+      case 0:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) == hb_itemGetND( pARG1 )) ); break;}
+      case 1:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) != hb_itemGetND( pARG1 )) ); break;}
+      case 2:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) <  hb_itemGetND( pARG1 )) ); break;}
+      case 3:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) <= hb_itemGetND( pARG1 )) ); break;}
+      case 4:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) >  hb_itemGetND( pARG1 )) ); break;}
+      case 5:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) >= hb_itemGetND( pARG1 )) ); break;}
+      case 6:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) < 0 )); break;}
+      case 7:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) > 0 )); break;}
+      case 10:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetND( pARG2 ) == 0 )); break;}
+      default: sw=0;
+   }
+return sw;
+}
+
+int logic_num_matrix_matrix(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, HB_MAXINT nDim, 
+                           HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, int tCompare){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=compare_item((PHB_ITEM) pRows, (PHB_ITEM) pARG22, (PHB_ITEM) pARG11, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=compare_item((PHB_ITEM) pCols, (PHB_ITEM) pARG222, (PHB_ITEM) pARG111, j, (int) tCompare);
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=compare_item((PHB_ITEM) pPag, (PHB_ITEM) pARG2222, (PHB_ITEM) pARG1111, k, (int) tCompare);
+                  hb_itemRelease(pARG1111);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int logic_num_matrix_item(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, HB_MAXINT nDim, 
+                           HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, int tCompare){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            sw=compare_item((PHB_ITEM) pRows, (PHB_ITEM) pARG22, (PHB_ITEM) pARG1, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=compare_item((PHB_ITEM) pCols, (PHB_ITEM) pARG222, (PHB_ITEM) pARG1, j, (int) tCompare);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=compare_item((PHB_ITEM) pPag, (PHB_ITEM) pARG2222, (PHB_ITEM) pARG1, k, (int) tCompare);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int logic_str_matrix_matrix(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, HB_MAXINT nDim, 
+                           HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, int tCompare){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=compare_str_item((PHB_ITEM) pRows, (PHB_ITEM) pARG22, (PHB_ITEM) pARG11, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=compare_str_item((PHB_ITEM) pCols, (PHB_ITEM) pARG222, (PHB_ITEM) pARG111, j, (int) tCompare);
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=compare_str_item((PHB_ITEM) pPag, (PHB_ITEM) pARG2222, (PHB_ITEM) pARG1111, k, (int) tCompare);
+                  hb_itemRelease(pARG1111);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int logic_str_matrix_item(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, HB_MAXINT nDim, 
+                           HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, int tCompare){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            sw=compare_str_item((PHB_ITEM) pRows, (PHB_ITEM) pARG22, (PHB_ITEM) pARG1, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=compare_str_item((PHB_ITEM) pCols, (PHB_ITEM) pARG222, (PHB_ITEM) pARG1, j, (int) tCompare);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=compare_str_item((PHB_ITEM) pPag, (PHB_ITEM) pARG2222, (PHB_ITEM) pARG1, k, (int) tCompare);
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+
+int logicalCompare( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare ){
+int sw=1;
+if ( CADDR >= 1 ){
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ultimo. 
+   PHB_ITEM pARG2 = NULL; 
+   
+   if( tCompare==6||tCompare==7||tCompare==10 ){
+      pARG2 = pARG1;
+      //pARG1 = pARG2;
+   }else{
+      if( CADDR == 0){
+         sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE STACK UNDERFLOW"); 
+         hb_itemRelease(pARG2);
+         hb_itemRelease(pARG1);
+         return sw;
+      }
+      pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   }
+   
+   if ( HB_IS_NUMERIC( pARG2 ) && HB_IS_NUMERIC( pARG1 ) ){
+      ++CADDR;
+      if(!compare_item((PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, CADDR, (int) tCompare)){
+         sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+      }
+   }else if( HB_IS_STRING(pARG2) && HB_IS_STRING(pARG1) ){
+      ++CADDR;
+      if(!compare_str_item((PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, CADDR, (int) tCompare)){
+         sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+      }
+   }else if( HB_IS_ARRAY( pARG1 )){
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0/*,d4=0*/,type=0;
+      get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+      if( HB_IS_NUMERIC( pARG2 )){
+         if( type == 11 ){
+            ++CADDR;
+            if(!logic_num_matrix_item(pARG1, pARG2, pSTK_ADDR, nDim, d1, d2, d3, tCompare)){
+               sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE TYPE MISMATCH"); 
+         }
+      }else if(HB_IS_STRING( pARG2 )){
+         if( type == 10 ){
+            ++CADDR;
+            if(!logic_str_matrix_item(pARG1, pARG2, pSTK_ADDR, nDim, d1, d2, d3, tCompare)){
+               sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE TYPE MISMATCH"); 
+         }
+      }else if(HB_IS_ARRAY( pARG2 )){                
+         HB_MAXINT nDim2=0,d21=0,d22=0,d23=0/*,d4=0*/,type2=0;
+         get_size( (PHB_ITEM) pARG1, &nDim2, &d21, &d22, &d23, &type2);
+         if( type == type2 && nDim == nDim2 && d1 == d21 && d2 == d22 ){
+            if(type == 11 ){
+               ++CADDR;
+               //printf("\nPASA*******************************\n");
+               if(!logic_num_matrix_matrix(pARG1, pARG2, pSTK_ADDR, nDim, d1, d2, d3, tCompare)){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+               }
+            }else if(type == 10){
+               ++CADDR;
+               if(!logic_str_matrix_matrix(pARG1, pARG2, pSTK_ADDR, nDim, d1, d2, d3, tCompare)){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE FUNCTION OUT OF CONTEXT");
+               }
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE ARGUMENT ERROR"); 
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE DIMENSION ERROR"); 
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE ARGUMENT ERROR"); 
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE ARGUMENT ERROR"); 
+   }
+   if( tCompare!=6&&tCompare!=7&&tCompare!=10 ){
+      hb_itemRelease(pARG2);
+   }
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:LOGICAL COMPARE STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int between( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=3 ){
+   PHB_ITEM pARGv = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // variable
+   PHB_ITEM pARGi = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // ini
+   PHB_ITEM pARGf = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // fin
+   
+   long nARGv = hb_itemGetND( pARGv );
+   ++CADDR;
+   hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL) ( nARGv >= hb_itemGetND( pARGi ) && nARGv <= hb_itemGetND( pARGf )) );
+      
+   hb_itemRelease(pARGf);
+   hb_itemRelease(pARGi);
+   hb_itemRelease(pARGv);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:BETWEEN STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int compare_bool_item(PHB_ITEM pSTK, PHB_ITEM pARG2, PHB_ITEM pARG1, int ndx, int tCompare){
+int sw=1;
+   switch( tCompare ){
+      case 0:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetL( pARG2 ) || hb_itemGetL( pARG1 )) ); break;}
+      case 1:{hb_arraySetL( pSTK, ndx, (HB_BOOL) (hb_itemGetL( pARG2 ) && hb_itemGetL( pARG1 )) ); break;}
+      case 2:{
+              HB_BOOL lArg1 = hb_itemGetL( pARG1 );
+              HB_BOOL lArg2 = hb_itemGetL( pARG2 );
+              hb_arraySetL( pSTK, ndx, (HB_BOOL) ( (lArg1 && !lArg2) || (!lArg1 && lArg2)  ) ); 
+              break;}
+      case 3:{hb_arraySetL( pSTK, ndx, (HB_BOOL) !(hb_itemGetL( pARG2 ) || hb_itemGetL( pARG1 )) ); break;}
+      case 4:{hb_arraySetL( pSTK, ndx, (HB_BOOL) !(hb_itemGetL( pARG2 ) && hb_itemGetL( pARG1 )) ); break;}
+      default: sw=0;
+   }
+return sw;
+}
+
+int boolean_not( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 1 ){
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   if ( HB_IS_LOGICAL( pARG1 ) ){
+      ++CADDR;
+      hb_arraySetL( pSTK_ADDR, CADDR, (HB_BOOL) !( hb_itemGetL( pARG1 ) ) );
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:BOOLEAN NOT ARGUMENT ERROR"); 
+   }
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:BOOLEAN NOT STACK UNDERFLOW"); 
+}   
+return sw;
+}
+
+int boolean_compare( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare ){
+int sw=1;
+if ( CADDR >= 2 ){
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   if ( HB_IS_LOGICAL( pARG2 ) && HB_IS_LOGICAL( pARG1 ) ){
+      ++CADDR;
+      if(!compare_bool_item((PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, CADDR, (int) tCompare)){
+         sw=put_error((PHB_ITEM) pRET, "CALL:BOOLEAN COMPARE FUNCTION OUT OF CONTEXT");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:BOOLEAN COMPARE ARGUMENT ERROR"); 
+   }
+   hb_itemRelease(pARG1);
+   hb_itemRelease(pARG2);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:BOOLEAN COMPARE STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+
+/*int compute_ns_item(PHB_ITEM pSTK, PHB_ITEM pARG2, PHB_ITEM pARG1, int ndx, int tCompare){
+int sw=1;
+  switch( tCompare ){
+     case 0:{  // ADD, m+string
+        sw=stuff_item(  NULL, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK, ndx, 1, hb_itemGetNInt( pARG1 ) );
+        break;
+     }case 1:{  // SUB n-string
+        sw=stuff_item(  NULL, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK, ndx, 
+                                 hb_itemGetCLen( pARG2 ) - hb_itemGetNInt( pARG1 ) + 1, hb_itemGetCLen( pARG2 ) );
+        break;
+     }case 2:{  // replicate n*string
+        sw=replicate_item((PHB_ITEM) pARG2, (PHB_ITEM) pSTK, (int)ndx, (PHB_ITEM) pARG1);
+        break;
+     }
+     default:{
+        sw=0;
+     }
+  }
+return sw;
+}
+*/
+double min(double x, double y){
+   return x<y?x:y;
+}
+
+double max(double x, double y){
+   return x>y?x:y;
+}
+
+void compute_item(PHB_ITEM pSTK, PHB_ITEM pARG1, PHB_ITEM pARG2, int ndx, int tCompare){
+  switch( tCompare ){
+     case 0:{ hb_arraySetND( pSTK, ndx, (double) (hb_itemGetND( pARG1 ) + hb_itemGetND( pARG2 )) ); break; }
+     case 1:{ hb_arraySetND( pSTK, ndx, (double) (hb_itemGetND( pARG1 ) - hb_itemGetND( pARG2 )) ); break; }
+     case 2:{ hb_arraySetND( pSTK, ndx, (double) (hb_itemGetND( pARG1 ) * hb_itemGetND( pARG2 )) ); break; }
+     case 3:{ hb_arraySetND( pSTK, ndx, (double) (hb_itemGetND( pARG1 ) / hb_itemGetND( pARG2 )) ); break; }
+     case 4:{ hb_arraySetNL( pSTK, ndx, (long)   (hb_itemGetND( pARG1 ) / hb_itemGetND( pARG2 )) ); break; }
+     case 5:{ hb_arraySetND( pSTK, ndx, (double) pow(hb_itemGetND( pARG1 ), hb_itemGetND( pARG2 )) ); break; }
+     case 6:{ hb_arraySetND( pSTK, ndx, (double) fmod(hb_itemGetND( pARG1 ), hb_itemGetND( pARG2 )) ); break; }
+     case 7:{ hb_arraySetND( pSTK, ndx, (double) hb_numRound(hb_itemGetND( pARG1 ), hb_itemGetND( pARG2 )) ); break; }
+     case 8:{ hb_arraySetND( pSTK, ndx, (double) max(hb_itemGetND( pARG1 ), hb_itemGetND( pARG2 )) ); break; }
+     case 9:{ hb_arraySetND( pSTK, ndx, (double) min(hb_itemGetND( pARG1 ), hb_itemGetND( pARG2 )) ); break; }
+  }
+}
+
+int compute_matrix_item(PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int tCompare){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+   if (type==11){
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            compute_item((PHB_ITEM) pRows, (PHB_ITEM) pARG11, (PHB_ITEM) pARG2, i, (int) tCompare);
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               compute_item((PHB_ITEM) pCols, (PHB_ITEM) pARG111, (PHB_ITEM) pARG2, j, (int) tCompare);
+               hb_itemRelease(pARG111);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+            PHB_ITEM pARRAY = hb_itemArrayNew( d1 );
+            int i;
+            for(i=1; i<=d1; i++){
+               PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+               PHB_ITEM pARGF = hb_itemArrayGet( pARG1, i);
+               int j;
+               for(j=1; j<=d2; j++){
+                  PHB_ITEM pARRAYP = hb_itemArrayNew( d3 );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                  int k;
+                  for(k=1; k<=d3; k++){
+                     PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                     compute_item((PHB_ITEM) pARRAYP, (PHB_ITEM) pARGP, (PHB_ITEM) pARG2, k, (int) tCompare);
+                     hb_itemRelease(pARGP);
+                  }
+                  hb_arraySet(pARRAYC, j, pARRAYP);
+                  hb_itemRelease(pARRAYP);
+                  hb_itemRelease(pARGC);
+               }
+               hb_arraySet(pARRAY, i, pARRAYC);
+               hb_itemRelease(pARRAYC);
+               hb_itemRelease(pARGF);
+            }
+            hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pARRAY );
+            hb_itemRelease(pARRAY);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int compute_item_matrix(PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int tCompare){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+   if( type == 11 ){
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            compute_item((PHB_ITEM) pRows, (PHB_ITEM) pARG1, (PHB_ITEM) pARG22, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               compute_item((PHB_ITEM) pCols, (PHB_ITEM) pARG1, (PHB_ITEM) pARG222, j, (int) tCompare);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+            PHB_ITEM pARRAY = hb_itemArrayNew( d1 );
+            int i;
+            for(i=1; i<=d1; i++){
+               PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+               PHB_ITEM pARGF = hb_itemArrayGet( pARG2, i);
+               int j;
+               for(j=1; j<=d2; j++){
+                  PHB_ITEM pARRAYP = hb_itemArrayNew( d3 );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                  int k;
+                  for(k=1; k<=d3; k++){
+                     PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                     compute_item((PHB_ITEM) pARRAYP, (PHB_ITEM) pARG1, (PHB_ITEM) pARGP, k, (int) tCompare);
+                     hb_itemRelease(pARGP);
+                  }
+                  hb_arraySet(pARRAYC, j, pARRAYP);
+                  hb_itemRelease(pARRAYP);
+                  hb_itemRelease(pARGC);
+               }
+               hb_arraySet(pARRAY, i, pARRAYC);
+               hb_itemRelease(pARRAYC);
+               hb_itemRelease(pARGF);
+            }
+            hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pARRAY );
+            hb_itemRelease(pARRAY);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int compute_matrix_matrix(PHB_ITEM pARG2, PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, int tCompare){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+   HB_MAXINT nDim1=0,d11=0,d21=0,d31=0,type1=0;
+   get_size( (PHB_ITEM) pARG2, &nDim1, &d11, &d21, &d31, &type1);
+   
+   if ( type==type1 && nDim == nDim1 && d1==d11 && d2==d21 ){
+   
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            compute_item((PHB_ITEM) pRows, (PHB_ITEM) pARG22, (PHB_ITEM) pARG11, i, (int) tCompare);
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               compute_item((PHB_ITEM) pCols, (PHB_ITEM) pARG222, (PHB_ITEM) pARG111, j, (int) tCompare);
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+            PHB_ITEM pARRAY = hb_itemArrayNew( d1 );
+            int i;
+            for(i=1; i<=d1; i++){
+               PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+               PHB_ITEM pREGF2 = hb_itemArrayGet( pARG2, i);      // saco fila de primer item
+               PHB_ITEM pREGF1 = hb_itemArrayGet( pARG1, i);      // saco fila de segundo item
+               int j;
+               for(j=1; j<=d2; j++){
+                  PHB_ITEM pARRAYP = hb_itemArrayNew( d3 );
+                  PHB_ITEM pREGC1 = hb_itemArrayGet( pREGF1, j);     // columna del registro
+                  PHB_ITEM pREGC2 = hb_itemArrayGet( pREGF2, j);     // columna del registro
+                  int k;
+                  for(k=1; k<=d3; k++){
+                     PHB_ITEM pREGP1 = hb_itemArrayGet( pREGC1, k);
+                     PHB_ITEM pREGP2 = hb_itemArrayGet( pREGC2, k);
+                     compute_item((PHB_ITEM) pARRAYP, (PHB_ITEM) pREGP2, (PHB_ITEM) pREGP1, k, (int) tCompare);
+                     hb_itemRelease(pREGP1);
+                     hb_itemRelease(pREGP2);
+                  }
+                  hb_arraySet(pARRAYC, j, pARRAYP);
+                  hb_itemRelease(pARRAYP);
+                  hb_itemRelease(pREGC1);
+                  hb_itemRelease(pREGC2);
+               }
+               hb_arraySet(pARRAY, i, pARRAYC);
+               hb_itemRelease(pARRAYC);
+               hb_itemRelease(pREGF2);
+               hb_itemRelease(pREGF1);
+            }
+            hb_arraySet( pSTK_ADDR, CADDR, (PHB_ITEM) pARRAY );
+            hb_itemRelease(pARRAY);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int computo( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare){
+int sw=1;
+if ( CADDR >= 2 ) {
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 1
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 2
+      
+   // chequear el tipo, y evaluar. Por ahora: numeros
+   if( HB_IS_NUMERIC( pARG1 ) ){
+      if( HB_IS_NUMERIC( pARG2 ) ) {   // operacion normal
+         ++CADDR;
+         compute_item((PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, CADDR, tCompare);  //OK
+      }else if( HB_IS_ARRAY( pARG2 ) ){   // operacion escalar numerico - ARRAY
+         ++CADDR;
+         if (!compute_item_matrix((PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, (int) tCompare)){
+            sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE INVALID ARGUMENT ERROR|NOT ENOUGHT MEMORY"); 
+         }
+      }else{
+         // error: combinacion no coincide.
+         sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE INVALID ARGUMENT ERROR"); 
+      }
+/*   }else if( HB_IS_STRING( pARG1 ) ) {   // operaciones aceptadas: ADD,SUB y MUL
+      if( HB_IS_STRING( pARG2 ) ){  // concatena?
+         switch( tCompare ){
+            case 0:{    // ADD: concatena?
+               ++CADDR;
+               if( !concatenate_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR ) ){  //OK
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(STR + STR) NOT ENOUGHT MEMORY");
+               }
+               break;
+            }case 1:{   // SUB - quitar s2 de s1
+               ++CADDR;
+               if( !strtran_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, NULL, (PHB_ITEM) pSTK_ADDR, CADDR, 0, 0 ) ){ //OK
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(STR - STR) NOT ENOUGHT MEMORY"); 
+               }
+               break;
+            }default:{
+               sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(STR ? STR) INVALID OPERATION"); 
+            }
+         }           
+      }else if( HB_IS_NUMERIC( pARG2 ) ) {   // operacion especial
+         switch( tCompare ){
+            case 0:{ // add substring+n
+               ++CADDR;
+               if( !stuff_item(  NULL, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, CADDR, 1, hb_itemGetNInt( pARG2 ) )){  //OK
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE NOT ENOUGHT MEMORY"); 
+               }
+               break;
+            }case 1:{  // sub substring-n
+               ++CADDR;
+               if( !stuff_item(  NULL, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, CADDR, 
+                                 hb_itemGetCLen( pARG1 ) - hb_itemGetNInt( pARG2 ), hb_itemGetCLen( pARG1 ) )){  //OK
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE NOT ENOUGHT MEMORY"); 
+               }
+               break;
+            }case 2:{  // replicate string*n
+               ++CADDR;
+               if ( !replicate_item((PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (PHB_ITEM) pARG2) ){  //OK
+                  sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE NOT ENOUGHT MEMORY"); 
+               }
+               break;
+            }default:{
+               sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE INVALID ARGUMENT ERROR"); 
+            }
+         }
+      }else if( HB_IS_ARRAY( pARG2 ) ){  // op escalar-string array. Solo se admite ADD(concatena) y SUB, y array STRING
+         //
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+         if(type==10){  // array de string
+            ++CADDR;    // ADD/SUB string +- ARRAY-STR
+            if( !compute_sM_matrix_item((PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, (HB_MAXINT) nDim, 
+                                        (HB_MAXINT) d1, (HB_MAXINT) d2, (int) tCompare) ){
+               sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(STR ? STR) NOT ENOUGHT MEMORY");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE (STR ? ARRAYS-STR) INVALID ARGUMENT ERROR"); 
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE INVALID ARGUMENT ERROR"); 
+      } */
+   }else if( HB_IS_ARRAY( pARG1 ) ){   // operando 1 es array; op 2 escalar. izq->der, ARG2 op ARG1
+      if( HB_IS_ARRAY( pARG2 ) ){    // operando 2 es array
+         ++CADDR;   
+         if( !compute_matrix_matrix((PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, (int) tCompare) ){
+            sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(ARRAY-NUM ? ARRAY-NUM) NOT ENOUGHT MEMORY");
+         }
+      }else{                           // operando 1 es escalar
+         // array  escalar
+         if( HB_IS_NUMERIC( pARG2 ) ){   // MATRIZ num op escalar num. div, idiv, pow y mod son diferentes. Resto, igual
+            ++CADDR;
+            if (!compute_matrix_item((PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, (int) tCompare)){
+               sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE(2) INVALID ARGUMENT ERROR|NOT ENOUGHT MEMORY"); 
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE INVALID ARGUMENT ERROR"); 
+         }
+      }
+      
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE ARGUMENT ERROR"); 
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:COMPUTE STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int logicalEmpty_matrix(PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, HB_MAXINT nDim, 
+                        HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3){
+int sw=1;
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            hb_arraySetL( (PHB_ITEM) pRows, i, (HB_BOOL) (! hb_itemGetCLen( pARG22 )) );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               hb_arraySetL( (PHB_ITEM) pCols, j, (HB_BOOL) (! hb_itemGetCLen( pARG222 )) );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  hb_arraySetL( (PHB_ITEM) pPag, k, (HB_BOOL) (! hb_itemGetCLen( pARG2222 )) );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+return sw;
+}
+
+int logicalEmpty( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+
+   if( CADDR ){
+      PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      if( HB_IS_STRING( pARG1 )){
+         hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) (! hb_itemGetCLen( pARG1 )) );
+      }else if( HB_IS_ARRAY( pARG1 ) ){
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0/*,d4=0*/,type=0;
+         get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+         if(type==10){
+            ++CADDR;
+            sw=(int)logicalEmpty_matrix((PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, (HB_MAXINT) nDim, 
+                                        (HB_MAXINT) d1, (HB_MAXINT) d2, (HB_MAXINT) d3);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:EMPTY ARGUMENT ERROR");
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:EMPTY ARGUMENT ERROR");
+      }
+      hb_itemRelease(pARG1);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:EMPTY STACK UNDERFLOW"); 
+   }
+return sw;
+}
+
+
+int fun_cat_item_matrix( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR ){
+// pARG1 = item, pARG2 = array
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+   if( type==10 ){
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            sw=(int)concatenate_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG22, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pARG22);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               sw=(int)concatenate_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG222, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  sw=(int)concatenate_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, (int) k );
+                  hb_itemRelease(pARG2222);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int fun_cat_matrix_item( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR ){
+// pARG1 = matrix, pARG2 = item
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+   if (type==10){
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=(int)concatenate_item( (PHB_ITEM) pARG11, (PHB_ITEM) pARG2, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=(int)concatenate_item( (PHB_ITEM) pARG111, (PHB_ITEM) pARG2, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pARG111);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=(int)concatenate_item( (PHB_ITEM) pARG1111, (PHB_ITEM) pARG2, (PHB_ITEM) pPag, (int) k );
+                  hb_itemRelease(pARG1111);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int fun_cat_matrix_matrix( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR ){
+// ambas matrices.
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+   HB_MAXINT nDim1=0,d11=0,d12=0,d13=0,type1=0;
+   get_size( (PHB_ITEM) pARG1, &nDim1, &d11, &d12, &d13, &type1);
+
+   if( nDim==nDim1 && d1==d11 && d2==d12 && d3==d13 && type==type1 && type==10 ){
+      switch( nDim ){
+       case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=(int)concatenate_item( (PHB_ITEM) pARG11, (PHB_ITEM) pARG22, (PHB_ITEM) pRows, (int) i );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+       }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=(int)concatenate_item( (PHB_ITEM) pARG111, (PHB_ITEM) pARG222, (PHB_ITEM) pCols, (int) j );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+       }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=(int)concatenate_item( (PHB_ITEM) pARG1111, (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, (int) k );
+                  hb_itemRelease(pARG1111);
+                  hb_itemRelease(pARG2222);               
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pARG222);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG22);
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+       }
+       default:{
+         sw=0; 
+       }
+      }
+   }else{
+      sw=-1;
+   }
+return sw;
+}
+
+int fun_cat( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // primer argumento ARG1 + ARG2
+      PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // segundo argumento
+
+      if( HB_IS_STRING( pARG1 ) ){
+         if( HB_IS_STRING( pARG2 ) ){
+            ++CADDR;
+            sw=(int)concatenate_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, (int) CADDR );
+
+         }else if( HB_IS_ARRAY( pARG2 ) ){
+            ++CADDR;
+            sw=fun_cat_item_matrix( (PHB_ITEM)pARG1,(PHB_ITEM)pARG2,(PHB_ITEM)pSTK_ADDR,(int)CADDR );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:CAT ARGUMENT ERROR"); 
+         }
+         
+      }else if( HB_IS_ARRAY( pARG1 ) ){
+         if( HB_IS_STRING( pARG2 ) ){
+            ++CADDR;
+            sw=fun_cat_matrix_item( (PHB_ITEM)pARG1,(PHB_ITEM)pARG2,(PHB_ITEM)pSTK_ADDR,(int)CADDR );
+         }else if( HB_IS_ARRAY( pARG2 ) ){
+            ++CADDR;
+            sw=fun_cat_matrix_matrix( (PHB_ITEM)pARG1,(PHB_ITEM)pARG2,(PHB_ITEM)pSTK_ADDR,(int)CADDR );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:CAT ARGUMENT ERROR"); 
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:CAT ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pARG2);
+      hb_itemRelease(pARG1);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:CAT STACK UNDERFLOW"); 
+   }
+   if( sw==-1) sw=put_error((PHB_ITEM) pRET, "CALL:CAT DIMENSION ERROR"); 
+return sw;
+}
+
+int stuff_matrix( PHB_ITEM pARG1, PHB_ITEM pARG2, PHB_ITEM pSTK_ADDR, int CADDR, PHB_ITEM pPos, PHB_ITEM pDelete ){
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG2, &nDim, &d1, &d2, &d3, &type);
+/*   HB_MAXINT nDim1=0,d11=0,d12=0,d13=0,type1=0;
+   get_size( (PHB_ITEM) pPos, &nDim1, &d11, &d12, &d13, &type1);
+   HB_MAXINT nDim2=0,d21=0,d22=0,d23=0,type2=0;
+   get_size( (PHB_ITEM) pDelete, &nDim2, &d21, &d22, &d23, &type2);
+   
+   if (type==10 && type1==11 && type2==11){
+  */ 
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         //if( pDelete ){
+            for (i=1; i<=d1; i++ ){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+               //PHB_ITEM pDELETE = ( HB_IS_ARRAY ( pDelete ) ) ? hb_itemArrayGet( pDelete, i) : pDelete;//NULL;
+               sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG22, (PHB_ITEM) pRows, i, (PHB_ITEM) pPOS, (PHB_ITEM) pDelete );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+               //hb_itemRelease(pDELETE);
+            }
+         /*}else{
+            for (i=1; i<=d1; i++ ){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+               sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG22, (PHB_ITEM) pRows, i, (PHB_ITEM) pPOS, (PHB_ITEM) pDelete );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+            }         
+         }*/
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         //if( pDelete ){
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+              // PHB_ITEM pDELETE = hb_itemArrayGet( pDelete, i);
+               PHB_ITEM pCols = hb_itemArrayNew( d2 );
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+                  PHB_ITEM pPOS1 = hb_itemArrayGet( pPOS, j);
+                 // PHB_ITEM pDELETE1 = hb_itemArrayGet( pDELETE, j);
+                  sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG222, (PHB_ITEM) pCols, j, (PHB_ITEM) pPOS1, 
+                                      (PHB_ITEM) pDelete );
+                  hb_itemRelease(pARG222);
+                  hb_itemRelease(pPOS1);
+                 // hb_itemRelease(pDELETE1);
+               }
+               hb_arraySet( pRows, i, pCols );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+               //hb_itemRelease(pDELETE);
+               hb_itemRelease(pCols);
+            }
+         /*}else{         
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+               PHB_ITEM pCols = hb_itemArrayNew( d2 );
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+                  PHB_ITEM pPOS1 = hb_itemArrayGet( pPOS, j);
+                  sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG222, (PHB_ITEM) pCols, j, (PHB_ITEM) pPOS1, 
+                                      (PHB_ITEM) pDelete );
+                  hb_itemRelease(pARG222);
+                  hb_itemRelease(pPOS1);
+               }
+               hb_arraySet( pRows, i, pCols );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+               hb_itemRelease(pCols);
+            }
+         }*/
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         //if( pDelete ){
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+               //PHB_ITEM pDELETE = hb_itemArrayGet( pDelete, i);
+               PHB_ITEM pCols = hb_itemArrayNew( d2 );
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+                  PHB_ITEM pPOS1 = hb_itemArrayGet( pPOS, j);
+                  //PHB_ITEM pDELETE1 = hb_itemArrayGet( pDELETE, j);
+                  PHB_ITEM pPag = hb_itemArrayNew( d3 );
+                  int k;
+                  for( k=1; k<=d3; k++){
+                     PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                     PHB_ITEM pPOS11 = hb_itemArrayGet( pPOS1, k);
+                     //PHB_ITEM pDELETE11 = hb_itemArrayGet( pDELETE1, k);
+                     sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, k, (PHB_ITEM) pPOS11, 
+                                         (PHB_ITEM) pDelete );
+                     hb_itemRelease(pARG2222);
+                     hb_itemRelease(pPOS11);
+                 //    hb_itemRelease(pDELETE11);
+                  }
+                  hb_arraySet( pCols, j, pPag );
+                  hb_itemRelease(pARG222);
+                  hb_itemRelease(pPOS1);
+                 // hb_itemRelease(pDELETE1);
+                  hb_itemRelease(pPag);
+               }
+               hb_arraySet( pRows, i, pCols );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+              // hb_itemRelease(pDELETE);
+               hb_itemRelease(pCols);
+            }
+       /*  }else{         
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pARG22 = hb_itemArrayGet( pARG2, i);
+               PHB_ITEM pPOS = hb_itemArrayGet( pPos, i);
+               PHB_ITEM pCols = hb_itemArrayNew( d2 );
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pARG222 = hb_itemArrayGet( pARG22, j);
+                  PHB_ITEM pPOS1 = hb_itemArrayGet( pPOS, j);
+                  PHB_ITEM pPag = hb_itemArrayNew( d3 );
+                  int k;
+                  for( k=1; k<=d3; k++){
+                     PHB_ITEM pARG2222 = hb_itemArrayGet( pARG222, k);
+                     PHB_ITEM pPOS11 = hb_itemArrayGet( pPOS1, k);
+                     sw=(int)stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2222, (PHB_ITEM) pPag, k, (PHB_ITEM) pPOS11, 
+                                         (PHB_ITEM) pDelete );
+                     hb_itemRelease(pARG2222);
+                     hb_itemRelease(pPOS11);
+                  }
+                  hb_arraySet( pCols, j, pPag );
+                  hb_itemRelease(pARG222);
+                  hb_itemRelease(pPOS1);
+                  hb_itemRelease(pPag);
+               }
+               hb_arraySet( pRows, i, pCols );
+               hb_itemRelease(pARG22);
+               hb_itemRelease(pPOS);
+               hb_itemRelease(pCols);
+            }
+         }*/
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+//   }else{
+//      sw=0;
+//   }
+return sw;
+}
+
+int fun_delete( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 2 ) {
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 2
+   PHB_ITEM pARG1 = NULL; //hb_itemPutCLPtr( NULL, "", 0 ); //hb_itemPutStrLen( NULL, HB_CDP_ENDIAN_NATIVE, "", 1 );  // operando 1
+   if ( HB_IS_STRING( pARG2 ) ){   
+     // if ( HB_IS_STRING( pARG1 ) ){   // borra ARG1 en ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         PHB_ITEM pDelete = NULL;
+                          
+         if ( HB_IS_NUMERIC( pPos ) ){   // borra desde posicion!
+            if(CADDR>=1) {
+               pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+               if( HB_IS_NUMERIC( pDelete )){          
+                  ++CADDR;
+                  if( !stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, pPos, pDelete )){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:DELETE NOT ENOUGHT MEMORY"); 
+                  }
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT (TO DELETE) ERROR");
+               }
+            }else{  // borra todo nomás.
+               //pDelete = hb_itemPutNInt( NULL, (HB_MAXINT) hb_itemGetCLen( pARG2 ) );
+               ++CADDR;  
+               if( !stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, pPos, pDelete )){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:DELETE NOT ENOUGHT MEMORY"); 
+               }
+               //sw=put_error((PHB_ITEM) pRET, "CALL:DELETE STACK UNDERFLOW");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT (TO INSERT) ERROR");
+         }
+         hb_itemRelease(pPos);
+         if ( pDelete )
+            hb_itemRelease(pDelete);
+    //  }else{
+    //     sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT STR-NULL ERROR");
+    //  }
+   }else if( HB_IS_ARRAY( pARG2 ) ){
+      if ( HB_IS_STRING( pARG1 ) ){   // inserta ARG1 en array ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         if ( HB_IS_ARRAY( pPos ) ){   // inserta en posicion! POSICION DEBE SER UN ARRAY
+            PHB_ITEM pDelete = NULL;
+            if(CADDR>=1) {
+               pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+               if( !HB_IS_ARRAY( pDelete ) ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT ERROR (I NEED AN ARRAY)");
+               }else{
+                  ++CADDR;
+                  if( !stuff_matrix( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, 
+                                     (PHB_ITEM) pPos, (PHB_ITEM) pDelete ) ){
+                      sw=put_error((PHB_ITEM) pRET, "CALL:DELETE NOT ENOUGHT MEMORY"); 
+                  }
+               }
+            }else{
+               ++CADDR;
+               if( !stuff_matrix( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, 
+                                  (PHB_ITEM) pPos, (PHB_ITEM) pDelete ) ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:DELETE NOT ENOUGHT MEMORY"); 
+               }
+               //sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT (TO DELETE) ERROR");
+            }
+            if ( pDelete )
+               hb_itemRelease(pDelete);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT ERROR");
+         }
+         hb_itemRelease(pPos);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT ERROR");
+      }                      
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:DELETE ARGUMENT ERROR");
+   }
+   hb_itemRelease(pARG2);
+   //hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:DELETE STACK UNDERFLOW"); 
+}
+
+return sw;          
+}
+
+int fun_insert( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 3 ) {
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 2
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 1
+   if ( HB_IS_STRING( pARG2 ) ){   
+      if ( HB_IS_STRING( pARG1 ) ){   // inserta ARG1 en ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         PHB_ITEM pDelete = hb_itemPutNInt( NULL, (HB_MAXINT) 0 ); //hb_itemGetCLen( pARG2 ) );  //NULL;
+
+         if ( HB_IS_NUMERIC( pPos ) ){   // inserta en posicion!
+            //if(CADDR>=1) pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+            ++CADDR;
+            if( !stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, pPos, pDelete )){
+               sw=put_error((PHB_ITEM) pRET, "CALL:INSERT NOT ENOUGHT MEMORY"); 
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+         }
+         hb_itemRelease(pPos);
+         if ( pDelete )
+            hb_itemRelease(pDelete);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+      }
+   }else if( HB_IS_ARRAY( pARG2 ) ){
+      if ( HB_IS_STRING( pARG1 ) ){   // inserta ARG1 en array ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         if ( HB_IS_ARRAY( pPos ) ){   // inserta en posicion! POSICION DEBE SER UN ARRAY
+            PHB_ITEM pDelete = hb_itemPutNInt( NULL, (HB_MAXINT) 0 ); //NULL;
+            //if(CADDR>=1) {
+              /// pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+            //   if( !HB_IS_ARRAY( pDelete ) ){
+            //      sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+            //   }
+           // }
+            ++CADDR;
+            if( !stuff_matrix( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, 
+                               (PHB_ITEM) pPos, (PHB_ITEM) pDelete ) ){
+               sw=put_error((PHB_ITEM) pRET, "CALL:INSERT NOT ENOUGHT MEMORY"); 
+            }
+            if ( pDelete )
+               hb_itemRelease(pDelete);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+         }
+         hb_itemRelease(pPos);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+      }                      
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:INSERT ARGUMENT ERROR");
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:INSERT STACK UNDERFLOW"); 
+}
+
+return sw;          
+}
+
+int fun_replace( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 3 ) {
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 2
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // operando 1
+   if ( HB_IS_STRING( pARG2 ) ){   
+      if ( HB_IS_STRING( pARG1 ) ){   // inserta ARG1 en ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         PHB_ITEM pDelete = NULL;
+                          
+         if ( HB_IS_NUMERIC( pPos ) ){   // inserta en posicion!
+            if(CADDR>=1) {
+               pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+               if( !HB_IS_NUMERIC( pDelete ) ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+               }else{
+                  ++CADDR;
+                  if( !stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, pPos, pDelete )){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE NOT ENOUGHT MEMORY"); 
+                  }
+               }
+            }else{
+               ++CADDR;
+               if( !stuff_item( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, pPos, pDelete )){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE NOT ENOUGHT MEMORY"); 
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+         }
+         hb_itemRelease(pPos);
+         if ( pDelete )
+            hb_itemRelease(pDelete);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+      }
+   }else if( HB_IS_ARRAY( pARG2 ) ){
+      if ( HB_IS_STRING( pARG1 ) ){   // inserta ARG1 en array ARG2
+         PHB_ITEM pPos = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // posicion
+         if ( HB_IS_ARRAY( pPos ) ){   // inserta en posicion! POSICION DEBE SER UN ARRAY
+            PHB_ITEM pDelete = NULL;
+            if(CADDR>=1) {
+               pDelete = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // asume caracteres a borrar
+               //if( !HB_IS_ARRAY( pDelete ) ){
+               if( !HB_IS_NUMERIC( pDelete ) ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+               }
+            }
+            ++CADDR;
+            if( !stuff_matrix( (PHB_ITEM) pARG1, (PHB_ITEM) pARG2, (PHB_ITEM) pSTK_ADDR, CADDR, 
+                               (PHB_ITEM) pPos, (PHB_ITEM) pDelete ) ){
+               sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE NOT ENOUGHT MEMORY"); 
+            }
+            if ( pDelete )
+               hb_itemRelease(pDelete);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+         }
+         hb_itemRelease(pPos);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+      }                      
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE ARGUMENT ERROR");
+   }
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:REPLACE STACK UNDERFLOW"); 
+}
+
+return sw;          
+}
+
+int fun_replicate_matrix_item( PHB_ITEM pARG1, PHB_ITEM pSTK_ADDR, int CADDR, PHB_ITEM pARG2 ){
+// pARG1 = matrix, pARG2 = item
+int sw=1;
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARG1, &nDim, &d1, &d2, &d3, &type);
+   if (type==10){
+   switch( nDim ){
+      case 1:{
+         PHB_ITEM pRows  = hb_itemArrayNew( d1 );
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            sw=(int)replicate_item( (PHB_ITEM) pARG11, (PHB_ITEM) pRows, (int) i, (PHB_ITEM) pARG2 );
+            hb_itemRelease(pARG11);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 2:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               sw=(int)replicate_item( (PHB_ITEM) pARG111, (PHB_ITEM) pCols, (int) j, (PHB_ITEM) pARG2 );
+               hb_itemRelease(pARG111);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }case 3:{
+         PHB_ITEM pRows = hb_itemArrayNew( d1 );
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pARG11 = hb_itemArrayGet( pARG1, i);
+            PHB_ITEM pCols = hb_itemArrayNew( d2 );
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pARG111 = hb_itemArrayGet( pARG11, j);
+               PHB_ITEM pPag = hb_itemArrayNew( d3 );
+               int k;
+               for( k=1; k<=d3; k++){
+                  PHB_ITEM pARG1111 = hb_itemArrayGet( pARG111, k);
+                  sw=(int)replicate_item( (PHB_ITEM) pARG1111, (PHB_ITEM) pPag, (int) k, (PHB_ITEM) pARG2 );
+                  hb_itemRelease(pARG1111);
+               }
+               hb_arraySet( pCols, j, pPag );
+               hb_itemRelease(pARG111);
+               hb_itemRelease(pPag);
+            }
+            hb_arraySet( pRows, i, pCols );
+            hb_itemRelease(pARG11);
+            hb_itemRelease(pCols);
+         }
+         hb_arraySet(pSTK_ADDR, CADDR, pRows);
+         hb_itemRelease(pRows);
+         break;
+      }default:{
+         sw=0;
+      }
+   }
+   }else{
+      sw=0;
+   }
+return sw;
+}
+
+int fun_replicate( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if ( CADDR>=2 ){
+      PHB_ITEM pTEXT = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // primer argumento string, replicate(ARG1, ARG2)
+      PHB_ITEM pTIMES = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // segundo argumento: num
+      
+      if(HB_IS_NUMERIC( pTIMES )){
+         if( HB_IS_STRING( pTEXT ) ){
+            ++CADDR;
+            sw=(int)replicate_item( (PHB_ITEM) pTEXT, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (PHB_ITEM) pTIMES );
+         }else if( HB_IS_ARRAY( pTEXT ) ){
+            ++CADDR;
+            sw=fun_replicate_matrix_item( (PHB_ITEM)pTEXT, (PHB_ITEM) pSTK_ADDR, (int) CADDR, (PHB_ITEM) pTIMES );
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:REPLICATE ARGUMENT ERROR"); 
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:REPLICATE ARGUMENT ERROR"); 
+      }
+      hb_itemRelease(pTIMES);
+      hb_itemRelease(pTEXT);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:REPLICATE STACK UNDERFLOW"); 
+   }
+   
+return sw;
+}
+
+int fun_transform( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if ( CADDR >= 3 ) {
+   PHB_ITEM pARG3 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // el string base
+   PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // lo que busca
+   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // el reemplazo
+
+   if( HB_IS_STRING( pARG1 ) ){   // el nuevo string es un escalar.
+      if( HB_IS_STRING( pARG2 ) ){   // el string a reemplazar es un escalar.
+         if( HB_IS_STRING( pARG3 ) ){  // string base es un escalar
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR, 
+                                     CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY"); 
+                  }
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR,
+                                        CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, (PHB_ITEM) pSTK_ADDR,
+                                        CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else if( HB_IS_ARRAY( pARG3 ) ){  // string base es un array
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_matrix_item_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, 
+                                                 (PHB_ITEM) pSTK_ADDR, CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                  }
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_matrix_item_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                    (PHB_ITEM) pSTK_ADDR, CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_matrix_item_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                    (PHB_ITEM) pSTK_ADDR, CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM SOURCE STRING ARGUMENT ERROR");
+         }
+      }else if( HB_IS_ARRAY( pARG2 ) ){   // el nuevo string es un array de posibles string a reemplazar.
+         if( HB_IS_STRING( pARG3 ) ){  // string base es un escalar
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_item_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, 
+                                                 (PHB_ITEM) pSTK_ADDR, CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                  }
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_item_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                    (PHB_ITEM) pSTK_ADDR, CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_item_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                    (PHB_ITEM) pSTK_ADDR, CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else if( HB_IS_ARRAY( pARG3 ) ){  // string base es un array
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_matrix_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, 
+                                                   (PHB_ITEM) pSTK_ADDR, CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                  } 
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_matrix_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                      (PHB_ITEM) pSTK_ADDR, CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_matrix_matrix_item( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                      (PHB_ITEM) pSTK_ADDR, CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM SOURCE STRING ARGUMENT ERROR");
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM STRING TO REPLACE ARGUMENT ERROR");
+      }
+   }else if( HB_IS_ARRAY( pARG1 ) ){   // nuevo string es un array
+      if( HB_IS_ARRAY( pARG2 ) ){   // strnig a remplazar DEBE sER un array
+         if( HB_IS_STRING( pARG3 ) ){  // string base es un escalar
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_item_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, 
+                                                   (PHB_ITEM) pSTK_ADDR, CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                  }
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_item_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                      (PHB_ITEM) pSTK_ADDR, CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_item_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                      (PHB_ITEM) pSTK_ADDR, CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else if( HB_IS_ARRAY( pARG3 ) ){  // string base es un array
+            switch( CADDR ){
+               case 0: {  // reemplaza todo
+                  ++CADDR;
+                  if( !strtran_matrix_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1, 
+                                                     (PHB_ITEM) pSTK_ADDR, CADDR, 1, -1 ) ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                  }
+                  break;
+               }case 1: {   // asume iniciar reemplazo en la "N" ocurrencia
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     if( !strtran_matrix_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                        (PHB_ITEM) pSTK_ADDR, CADDR, nStart, -1 ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH"); 
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  break;
+               }default: {  // asume iniciar en "N", y reemplazar "M" ocurrencias
+                  PHB_ITEM pStart = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  PHB_ITEM pCount = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                  if ( HB_IS_NUMERIC( pStart ) && HB_IS_NUMERIC( pCount ) ){
+                     ++CADDR;
+                     long nStart = hb_itemGetNInt( pStart );
+                     long nCount = hb_itemGetNInt( pCount );
+                     if( !strtran_matrix_matrix_matrix( (PHB_ITEM) pARG3, (PHB_ITEM) pARG2, (PHB_ITEM) pARG1,
+                                                        (PHB_ITEM) pSTK_ADDR, CADDR, nStart, nCount ) ){
+                        sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NOT ENOUGHT MEMORY|TYPE MISMATCH");
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM START OR COUNT TO REPLACE ARGUMENT ERROR"); 
+                  }
+                  hb_itemRelease(pStart);
+                  hb_itemRelease(pCount);
+                  break;
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM SOURCE STRING ARGUMENT ERROR");
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM STRING TO REPLACE ARGUMENT ERROR");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM NEW STRING ARGUMENT ERROR");
+   }
+   hb_itemRelease(pARG3);
+   hb_itemRelease(pARG2);
+   hb_itemRelease(pARG1);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:TRANSFORM STACK UNDERFLOW"); 
+}
+return sw;
+}
+
+int funInc( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET){
+int sw=1;
+   // extrae argumentos:
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+//   long nARG1 = hb_itemGetNInt( pARG1 );
+   unsigned int nARG1=(unsigned int)STK_PRG[++CP];
+              // obtengo valor de registro:
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, nARG1);
+   if( HB_IS_NUMERIC( pSource ) ) {
+      put_inc_value(pSTK_REG, nARG1, pSource);  
+   }else if( HB_IS_ARRAY(pSource) ){
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0/*,d4=0*/,type=0;
+      get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type); 
+      if ( type == 11 ){
+         switch( nDim ){
+            case 1:{xu_incdec1d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, XUINC1D);break;}
+            case 2:{xu_incdec2d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, d2, XUINC2D);break;}
+            case 3:{xu_incdec3d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, d2, d3, XUINC2D);break;}
+            default:{
+                 sw=0;
+            }
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:INC ARGUMENT ERROR -- ARRAY NUMBER REQUERED");
+      }
+   }else{
+      // error
+      sw=put_error((PHB_ITEM) pRET, "CALL:INC ARGUMENT ERROR - NUMBER REQUERED");
+   }
+   hb_itemRelease(pSource);
+//   hb_itemRelease(pARG1);
+return sw;
+}
+
+int funDec( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET){
+int sw=1;
+   // extrae argumentos:
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+//   long nARG1 = hb_itemGetNInt( pARG1 );
+   unsigned int nARG1=(unsigned int)STK_PRG[++CP];
+              // obtengo valor de registro:
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, nARG1);
+   if( HB_IS_NUMERIC( pSource ) ) {
+      put_dec_value(pSTK_REG, nARG1, pSource);
+   }else if( HB_IS_ARRAY(pSource) ){
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0/*,d4=0*/,type=0;
+      get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type); 
+      if ( type == 11 ){
+         switch( nDim ){
+            case 1:{xu_incdec1d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, XUDEC1D);break;}
+            case 2:{xu_incdec2d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, d2, XUDEC2D);break;}
+            case 3:{xu_incdec3d( (PHB_ITEM) pSource, (PHB_ITEM) pSTK_REG, nARG1, d1, d2, d3, XUDEC2D);break;}
+            default:{
+               sw=0;
+            }
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:DEC ARGUMENT ERROR -- ARRAY NUMBER REQUERED");
+      }
+   }else{
+      // error
+      sw=put_error((PHB_ITEM) pRET, "CALL:DEC ARGUMENT ERROR -- NUMBER REQUERED");
+   }
+   hb_itemRelease(pSource);
+//   hb_itemRelease(pARG1);
+return sw;
+}
+
+int put_precision( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_DS, unsigned *PRECISION, int tCompare){
+int sw=1;
+   //PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   unsigned int nARG=(unsigned int)STK_PRG[++CP];
+   PHB_ITEM pPREC = NULL;
+   switch( tCompare ){
+      case 204: {
+         pPREC = hb_itemArrayGet( pSTK_REG, nARG );//hb_itemGetNInt( pARG1 ));
+         *PRECISION = (unsigned) hb_itemGetNInt( pPREC );
+         SW_PRECISION=1;
+         if( *PRECISION>=10 || *PRECISION<0 ) SW_PRECISION=0;
+         break;
+      }case 215: {
+         pPREC = hb_itemArrayGet( pSTK_DS, nARG );//hb_itemGetNInt( pARG1 ));
+         *PRECISION = (unsigned) hb_itemGetNInt( pPREC );
+         SW_PRECISION=1;
+         if( *PRECISION>=10 || *PRECISION<0 ) SW_PRECISION=0;
+         break;
+/*      }default: {
+         *PRECISION = nARG;  //(unsigned) hb_itemGetNInt( pARG1 );
+         SW_PRECISION=1;
+         if( *PRECISION>=10 || *PRECISION<0 ) SW_PRECISION=0; */
+      }
+   }
+   hb_itemRelease(pPREC);
+//   hb_itemRelease(pARG1);
+return sw;
+}
+
+/* Con estas coordenadas, se accederá a los datos de los arrays con GET y PUT.
+   Con cada seteo, se realzan los cálculos */
+//int put_coordinates_2D( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, int tCompare){
+int put_coordinates_2D( int STK_PRG[], PHB_ITEM pSTK_REG, int tCompare){
+int sw=1;
+   //PHB_ITEM pARGR = hb_itemArrayGet( pSTK_PRG, ++CP);
+   //PHB_ITEM pARGC = hb_itemArrayGet( pSTK_PRG, ++CP);
+   PHB_ITEM pPREC = NULL;
+   PHB_ITEM pPRER = NULL;
+   int ARGR = STK_PRG[++CP];
+   int ARGC = STK_PRG[++CP];
+ //  MARK_POS=0; OFFSET_POS=0; //MARK_PAGE=0;
+   switch( tCompare ){
+      case 208: {   // REG,REG
+         pPREC = hb_itemArrayGet( pSTK_REG, ARGC );// hb_itemGetNInt( pARGC ));
+         pPRER = hb_itemArrayGet( pSTK_REG, ARGR );//hb_itemGetNInt( pARGR ));
+         MARK_ROW = (unsigned) hb_itemGetNInt( pPRER );
+         MARK_COL = (unsigned) hb_itemGetNInt( pPREC );
+         break;
+/*      }case 209: {  // CTE,REG
+         MARK_ROW = (unsigned) ARGR;//hb_itemGetNInt( pARGR );
+         pPREC = hb_itemArrayGet( pSTK_REG, ARGC );//hb_itemGetNInt( pARGC ));
+         MARK_COL = (unsigned) hb_itemGetNInt( pPREC );
+         break;
+      }case 210: {  // REG,CTE
+         pPRER = hb_itemArrayGet( pSTK_REG, ARGR );//hb_itemGetNInt( pARGR ));
+         MARK_ROW = (unsigned) hb_itemGetNInt( pPRER );
+         MARK_COL = (unsigned) ARGC;//hb_itemGetNInt( pARGC );
+         break;
+      }case 211: {  // CTE,CTE
+         MARK_ROW = (unsigned) ARGR;//hb_itemGetNInt( pARGR );
+         MARK_COL = (unsigned) ARGC;//hb_itemGetNInt( pARGC );
+         break; */
+      }
+   }
+   hb_itemRelease(pPREC);
+   hb_itemRelease(pPRER);
+ //  if(MARK_ROW<0 || MARK_COL<0) sw=put_error((PHB_ITEM) pRET, "CALL:MARK COULD NOT BE NEGATIVE");
+   
+//   hb_itemRelease(pARGC);
+//   hb_itemRelease(pARGR);
+return sw;
+}
+
+//int put_coordinates_1D( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, int tCompare){
+int put_coordinates_1D( int STK_PRG[], PHB_ITEM pSTK_REG, int tCompare ){
+int sw=1;
+   //PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int ARG = STK_PRG[++CP];
+   PHB_ITEM pPRE = NULL;
+  // MARK_ROW=0; MARK_COL=0;
+  // OFFSET_ROW=0; OFFSET_COL=0;
+   switch( tCompare ){
+      case 212: {   // REG
+         pPRE = hb_itemArrayGet( pSTK_REG, ARG );//hb_itemGetNInt( pARG ));
+         MARK_POS = (unsigned) hb_itemGetNInt( pPRE );
+         MARK_PAGE=MARK_POS;
+         break;
+/*      }case 213: {  // CTE
+         MARK_POS = ARG;//(unsigned) hb_itemGetNInt( pARG );
+         MARK_PAGE=MARK_POS;
+         break; */
+      }
+   }
+   hb_itemRelease(pPRE);
+//   if(MARK_POS<0) sw=put_error((PHB_ITEM) pRET, "CALL:MARK COULD NOT BE NEGATIVE");
+//   hb_itemRelease(pARG);
+return sw;
+}
+
+int put_offset( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if( CADDR>=1 ){      
+      PHB_ITEM pARGC = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // saca solo 1
+      OFFSET_POS = (unsigned int)hb_itemGetNInt( pARGC );
+      hb_itemRelease(pARGC);
+      if(OFFSET_POS>0){
+         if(OFFSET_POS<MARK_POS){
+            sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET OFFSET POINT MINOR THAN INITIAL LOCATE");
+         }
+      }//else if(OFFSET_POS<0) sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET COULD NOT BE NEGATIVE");
+      if(MARK_POS==0) MARK_POS=1;  // por default.
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET STACK UNDERFLOW");
+   }
+return sw;
+}
+
+int put_offset2D( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   if( CADDR>=2 ){
+      PHB_ITEM pARGC = hb_itemArrayGet( pSTK_ADDR, CADDR--);  // saca 2
+      PHB_ITEM pARGR = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      OFFSET_ROW=(unsigned int)hb_itemGetNInt( pARGR ); 
+      OFFSET_COL=(unsigned int)hb_itemGetNInt( pARGC );
+      hb_itemRelease(pARGC);
+      hb_itemRelease(pARGR);
+      if( OFFSET_ROW>0 ) {
+         if( OFFSET_ROW<MARK_ROW ) {
+            sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET OFFSET POINT MINOR THAN INITIAL LOCATE");
+         }
+      }//else if(OFFSET_ROW<0) sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET COULD NOT BE NEGATIVE");
+      if( OFFSET_COL>0 ){
+         if( OFFSET_COL<MARK_COL ) {
+            sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET OFFSET POINT MINOR THAN INITIAL LOCATE");
+         }
+      }//else if(OFFSET_COL<0) sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET COULD NOT BE NEGATIVE");
+      if(MARK_ROW==0) MARK_ROW=1;
+      if(MARK_COL==0) MARK_COL=1;
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:OFFSET STACK UNDERFLOW");
+   }
+return sw;
+}
+
+/* MODIFICAR PORQUE ESTÁ COMO EL PICO DEBE BASARSE EN nDim */
+/*
+   MODIFICADO: ES NECESARIO, PORQUE PONE EN EL STACK DIRECTAMENTE LO COPIADO, NO COMO LET, QUE LO
+   ASIGNA A UNA VARIABLE.
+   */
+int get_array(PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+int swOffset=0;
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   PHB_ITEM pSource = hb_itemArrayGet( pSTK_REG, hb_itemGetNInt( pARG ));
+   hb_itemRelease(pARG);
+   
+   if(HB_IS_ARRAY( pSource )){
+      HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+      get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type);
+      switch( nDim ){
+         case 1:{
+            int nIni=1, nFin=d1;
+            if( MARK_POS == 999999999 ) MARK_POS=d1;
+            if( MARK_POS )   {nIni=MARK_POS; nFin=MARK_POS;}
+            if( OFFSET_POS ) {
+               if( OFFSET_POS == 999999999 ) OFFSET_POS=d1;
+               if(MARK_POS>0 && MARK_POS<=d1 && OFFSET_POS<=d1 && OFFSET_POS>=MARK_POS){
+                  nFin=OFFSET_POS;
+                  PHB_ITEM pRows  = hb_itemArrayNew( nFin - nIni + 1 ); // creo array ajustado a los rangos.
+                  int i, nPos=1;
+                  for (i=nIni; i<=nFin; i++ ){
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSource, i);
+                     put_value(pRows, pARGS, nPos++, PRECISION);
+                     hb_itemRelease(pARGS);
+                  }
+                  hb_arraySet( pSTK_ADDR, ++CADDR, pRows );
+                  hb_itemRelease(pRows);
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET MARK|OFFSET OVERFLOW");
+               }
+            }else{   // solo devuelve un elemento  SINGLE.
+               if( MARK_POS<=d1 ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_POS );
+                  put_value(pSTK_ADDR, pARGS, ++CADDR, PRECISION);
+                  hb_itemRelease(pARGS);
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET MARK OVERFLOW");
+               }
+            }
+            break;
+         }case 2:{
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+//            printf("\nPASA 1\nROW=%d, COL=%d, OFFSET_ROW=%d, OFFSET_COL=%d\n",MARK_ROW,MARK_COL,OFFSET_ROW,OFFSET_COL); 
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET ROW'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:GET ROW'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET COL'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:GET COL'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+
+//            printf("\nPASA 2\nROW=%d, COL=%d, OFFSET_ROW=%d, OFFSET_COL=%d\n",MARK_ROW,MARK_COL,OFFSET_ROW,OFFSET_COL); 
+          /* 4 CASOS:  
+                1.- OFFSET ROW=OFFSET_COL=0     => devuelve SINGLE
+                2.- OFFSET_ROW>0, OFFSET_COL=0  => devuelve array 1D
+                3.- OFFSET_ROW=0, OFFSET_ROW>0  => devuelve array 1D
+                4.- OFFSET_ROW>0, OFFSET_COL>0  => devuelve array 2D. Ya hecho. */
+            if( !OFFSET_COL ){   // SINGLE
+               if( !OFFSET_ROW ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_ROW );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                  put_value(pSTK_ADDR, pARGC, ++CADDR, PRECISION);
+                  hb_itemRelease(pARGC);
+                  hb_itemRelease(pARGS);
+               
+               }else{  // ARRAY 1D (recorre las filas)
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     put_value(pRows, pARGC, rPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                  }
+                  hb_arraySet( pSTK_ADDR, ++CADDR, pRows );
+                  hb_itemRelease(pRows);
+               }   
+            }else{ 
+               if( !OFFSET_ROW ){  // ARRAY 1D (recorre las columnas)
+                  PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  int j,cPos=1;
+                  for( j=nIniC; j<=nFinC; j++){
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                     put_value(pRows, pARGC, cPos++, PRECISION);
+                     hb_itemRelease(pARGC);
+                  }
+                  hb_itemRelease(pARGF);
+                  hb_arraySet( pSTK_ADDR, ++CADDR, pRows );
+                  hb_itemRelease(pRows);
+               }else{   // 2D
+                  PHB_ITEM pRows = hb_itemArrayNew( nFinR - nIniR + 1 );
+                  int i,rPos=1;
+                  for( i=nIniR; i<=nFinR; i++){
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                     PHB_ITEM pCols = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     int j,cPos=1;
+                     for( j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        put_value(pCols, pARGC, cPos++, PRECISION);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pRows, rPos++, pCols );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pCols);
+                  }
+                  hb_arraySet( pSTK_ADDR, ++CADDR, pRows );
+                  hb_itemRelease(pRows);
+               }
+            }
+            if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; }
+            break;
+         }case 3:{
+            int nPagIni=1, nPagFin=d3;
+            int nIniR=1, nFinR=d1;
+            int nIniC=1, nFinC=d2;
+            if( MARK_PAGE ){
+               if( MARK_PAGE == 999999999 ) MARK_PAGE=d3;
+               if( MARK_PAGE>d3 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET PAGE'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+               if( OFFSET_POS ){
+                  if( OFFSET_POS == 999999999 ) OFFSET_POS=d3;
+                  if( OFFSET_POS<=d3 ){
+                     nPagFin=OFFSET_POS;
+                  }else{   // es mayor! ERROR
+                    // printf("\n\nOFFSET_PAGE = %ld\n\n",OFFSET_POS);
+                     sw=put_error((PHB_ITEM) pRET, "CALL:GET PAGE'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               } 
+            }else{  // si no existe marca de página, se asume todo; luego:
+               swOffset=1;
+               OFFSET_POS=nPagFin; 
+            }
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+               if( MARK_ROW>d1 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET ROW'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                  if( OFFSET_ROW<=d1 ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:GET ROW'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las filas
+               swOffset=1;
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=d2;
+               if( MARK_COL>d2 ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:GET COL'MARK OVERFLOW");
+                  hb_itemRelease(pSource);
+                  return sw;               
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                  if( OFFSET_COL<=d2 ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:GET COL'OFFSET OVERFLOW");
+                     hb_itemRelease(pSource);
+                     return sw;
+                  }
+               }
+            }else{  // asume todas las columnas
+               swOffset=1;
+               OFFSET_COL=nFinC;
+            }
+
+           /* CASOS:
+               1.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS=0     => SINGLE
+               2.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS=0     => 1D
+               3.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS=0     => 1D
+               4.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS=0     => 2D
+               5.- OFFSET_ROW=0, OFFSET_COL=0, OFFSET_POS>0     => 1D
+               6.- OFFSET_ROW>0, OFFSET_COL=0, OFFSET_POS>0     => 2D
+               7.- OFFSET_ROW=0, OFFSET_COL>0, OFFSET_POS>0     => 2D
+               8.- OFFSET_ROW>0, OFFSET_COL>0, OFFSET_POS>0     => 3D
+           */
+            if( !OFFSET_POS ){
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // SINGLE
+                     PHB_ITEM pARGS = hb_itemArrayGet( pSource, MARK_ROW );
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                     PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE );
+                     put_value(pSTK_ADDR, pARGP, ++CADDR, PRECISION);
+                     hb_itemRelease(pARGP);
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGS);
+                  }else{   // lee solo columnas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int i, rPos=1;
+                     for(i=nIniC; i<=nFinC; i++){
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, i);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY);                   
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // lee solo filas: array 1D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                        put_value(pARRAY, pARGP, rPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, MARK_PAGE);
+                           put_value(pARRAYC, pARGP, cPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARRAY);  
+                  }
+               }
+            }else{    // existe desplazamiento de páginas
+               if( !OFFSET_ROW ){
+                  if( !OFFSET_COL ){   // solo desplaza un elemento por página: array 1D
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                        put_value(pARRAY, pARGP, kPos++, PRECISION);
+                        hb_itemRelease(pARGP);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARGC);
+                     hb_itemRelease(pARGF);
+                     
+                     hb_itemRelease(pARRAY);
+
+                  }else{   // lee solo columnas por página: array 2D
+                     // esto está mal: deben haber OFFSET_POS filas, y OFFSET_COL columnas, o sea, a verre.
+                     // ahora sí:
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int k,kPos=1;
+                     for(k=nPagIni; k<=nPagFin; k++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        int j, pPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, pPos++, PRECISION);
+                        
+                           hb_itemRelease(pARGP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, kPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARGF);
+                     hb_itemRelease(pARRAY); 
+                     
+                    /* PHB_ITEM pARRAY = hb_itemArrayNew( nFinC - nIniC + 1 );
+                     PHB_ITEM pARGF = hb_itemArrayGet( pSource, MARK_ROW);
+                     int j, cPos=1;
+                     for(j=nIniC; j<=nFinC; j++){
+                        PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, cPos++, pARRAYP);
+                        hb_itemRelease(pARRAYP);
+                        hb_itemRelease(pARGC);
+                     }
+                     hb_itemRelease(pARGF);
+                     hb_arraySet( pSTK_REG, nARGd, (PHB_ITEM) pARRAY );
+                     hb_itemRelease(pARRAY);  */
+                  }
+               }else{  // existe desplazamiento de filas y/o columnas, en una página
+                  if( !OFFSET_COL ){  // recorre solo filas, una columna, por página: array 2D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );  // n-filas
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);  // leo fila
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGF, MARK_COL);  // leo única columna
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nPagFin - nPagIni + 1 );  // m-columnas
+
+                        int k,kPos=1;
+                        for(k=nPagIni; k<=nPagFin; k++){
+                           PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                           put_value(pARRAYC, pARGP, kPos++, PRECISION);
+                           hb_itemRelease(pARGP);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARRAY);
+                  }else{  // lee filas y columnas y páginas: array 3D
+                     PHB_ITEM pARRAY = hb_itemArrayNew( nFinR - nIniR + 1 );
+                     int i, rPos=1;
+                     for(i=nIniR; i<=nFinR; i++){
+                        PHB_ITEM pARRAYC = hb_itemArrayNew( nFinC - nIniC + 1 );
+                        PHB_ITEM pARGF = hb_itemArrayGet( pSource, i);
+                        int j, cPos=1;
+                        for(j=nIniC; j<=nFinC; j++){
+                           PHB_ITEM pARRAYP = hb_itemArrayNew( nPagFin - nPagIni + 1 );
+                           PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                           int k,kPos=1;
+                           for(k=nPagIni; k<=nPagFin; k++){
+                              PHB_ITEM pARGP = hb_itemArrayGet( pARGC, k);
+                              put_value(pARRAYP, pARGP, kPos++, PRECISION);
+                              hb_itemRelease(pARGP);
+                           }
+                           hb_arraySet(pARRAYC, cPos++, pARRAYP);
+                           hb_itemRelease(pARRAYP);
+                           hb_itemRelease(pARGC);
+                        }
+                        hb_arraySet(pARRAY, rPos++, pARRAYC);
+                        hb_itemRelease(pARRAYC);
+                        hb_itemRelease(pARGF);
+                     }
+                     hb_arraySet( pSTK_ADDR, ++CADDR, pARRAY );
+                     hb_itemRelease(pARRAY);                  
+                  }
+               }
+            }
+            if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; OFFSET_POS=0; }
+            break;
+         }default:{
+            sw=put_error((PHB_ITEM) pRET, "CALL:GET DIMENSION ERROR");
+         }
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:GET REGISTER TYPE IS NOT AN ARRAY");
+   }
+   hb_itemRelease(pSource);
+
+return sw;
+}
+
+/* MODIFICAR PORQUE ESTÁ COMO EL PICO */
+int put_array( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+int swOffset=0;
+if( CADDR>=1 ){
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = hb_itemGetNInt( pARG );
+   hb_itemRelease(pARG);
+   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );  // Target.
+ 
+ // pPRE puede debe ser un array, porque recibe. Si no lo es, debe dar error, lo mismo lo que está en STACK.
+   int swARR = 0;
+   PHB_ITEM pARRAYRES = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // Source
+   if( HB_IS_ARRAY( pARRAYRES )){
+      swARR=1;
+   }   
+   if(!HB_IS_ARRAY( pPRE )){
+      sw=put_error((PHB_ITEM) pRET, "CALL:PUT REGISTER TYPE IS NOT AN ARRAY");
+      hb_itemRelease(pPRE);
+      //hb_itemRelease(pARG);
+      hb_itemRelease(pARRAYRES);
+      return sw;
+   }
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pPRE, &nDim, &d1, &d2, &d3, &type);
+
+   switch( nDim ){
+      case 1:{
+         if(MARK_POS>0) {
+            if( !swARR ){
+               if( MARK_POS == 999999999 ) MARK_POS=d1;
+               if(MARK_POS<=d1){
+                  put_value(pPRE, pARRAYRES, MARK_POS, PRECISION);
+                  hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:PUT INITIAL LOCATE OVERFLOW");
+               }
+            }else{   // hay desplazamiento, Ya se sabe que OFFSET_POS>=MARK_POS
+               if( OFFSET_POS == 999999999 ) OFFSET_POS=d1;
+               if(OFFSET_POS<=d1 && MARK_POS<=d1){ 
+                  unsigned int i;
+                  int ndx=1;
+                  for (i=MARK_POS; i<=OFFSET_POS; i++){
+                     PHB_ITEM pPRE1 = hb_itemArrayGet( pARRAYRES, ndx++ );
+                     put_value((PHB_ITEM) pPRE, pPRE1, i, PRECISION);
+                     hb_itemRelease(pPRE1);
+                  }
+                  hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+               }else{   // debe ser un solo elemento: escalar
+                  sw=put_error((PHB_ITEM) pRET, "CALL:PUT MARK POINTER ARRAY ERROR");
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:PUT MARK 1D ERROR");
+         }
+         break;
+      }case 2:{
+         if(MARK_ROW>0 && MARK_COL>0){
+            if ( swARR ){
+               HB_MAXINT nDimS=0,d1S=0,d2S=0,d3S=0,typeS=0;
+               get_size( (PHB_ITEM) pARRAYRES, &nDimS, &d1S, &d2S, &d3S, &typeS);
+               
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( MARK_ROW ) {
+                  if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+                  if( MARK_ROW>d1 ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUT ROW'MARK OVERFLOW");
+                     hb_itemRelease(pARRAYRES);
+                     hb_itemRelease(pPRE);
+                  //   hb_itemRelease(pARG);
+                     return sw;               
+                  }
+                  nIniR=MARK_ROW;nFinR=MARK_ROW;
+                  if( OFFSET_ROW ){
+                     if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                     if( OFFSET_ROW<=d1 ){
+                        nFinR=OFFSET_ROW;
+                     }else{   // es mayor! ERROR
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT ROW'OFFSET OVERFLOW");
+                        hb_itemRelease(pARRAYRES);
+                        hb_itemRelease(pPRE);
+                      //  hb_itemRelease(pARG);
+                        return sw;
+                     }
+                  }
+               }else{  // asume todas las filas
+                  swOffset=1;
+                  OFFSET_ROW=nFinR;
+               }
+               if( MARK_COL ) {
+                  if( MARK_COL == 999999999 ) MARK_COL=d2;
+                  if( MARK_COL>d2 ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUT COL'MARK OVERFLOW");
+                     hb_itemRelease(pARRAYRES);
+                     hb_itemRelease(pPRE);
+                   //  hb_itemRelease(pARG);
+                     return sw;               
+                  }
+                  nIniC=MARK_COL;nFinC=MARK_COL;
+                  if( OFFSET_COL ){
+                     if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                     if( OFFSET_COL<=d2 ){
+                        nFinC=OFFSET_COL;
+                     }else{   // es mayor! ERROR
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT COL'OFFSET OVERFLOW");
+                        hb_itemRelease(pARRAYRES);
+                        hb_itemRelease(pPRE);
+                     //   hb_itemRelease(pARG);
+                        return sw;
+                     }
+                  }
+               }else{  // asume todas las columnas
+                  swOffset=1;
+                  OFFSET_COL=nFinC;
+               }
+            
+               if(OFFSET_ROW==0){
+                  if(OFFSET_COL==0){
+                     PHB_ITEM pPRE1 = hb_itemArrayGet( pPRE, MARK_ROW );
+                     put_value((PHB_ITEM) pPRE1, pARRAYRES, MARK_COL, PRECISION );
+                     hb_arraySet( pPRE, MARK_ROW, pPRE1 );
+                     hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+                     hb_itemRelease(pPRE1);
+                  }else{
+                     if( nDimS == 1 ){
+                        PHB_ITEM pPRE1 = hb_itemArrayGet( pPRE, MARK_ROW );
+                        unsigned int j;
+                        int ndx=1;
+                        for( j=MARK_COL; j<=OFFSET_COL; j++){
+                           PHB_ITEM pPRE2 = hb_itemArrayGet( pARRAYRES, ndx++ );
+                           put_value((PHB_ITEM) pPRE1, pPRE2, j, PRECISION);
+                           hb_itemRelease(pPRE2);
+                        }
+                        hb_arraySet( pPRE, MARK_ROW, pPRE1 );
+                        hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+                        hb_itemRelease(pPRE1);
+                     }else{
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION 1D ERROR");
+                     }
+                  }
+               }else{
+                  if(OFFSET_COL==0){   // desplazamiento por una columna marcada por MARK_COL
+                     if( nDimS == 1 ){
+                        unsigned int i;
+                        int ndx=1;
+                        for( i=MARK_ROW; i<=OFFSET_ROW; i++){
+                           PHB_ITEM pPRE1 = hb_itemArrayGet( pARRAYRES, ndx++ );
+                           PHB_ITEM pPROW  = hb_itemArrayGet( pPRE, i);
+                           put_value((PHB_ITEM) pPROW, pPRE1, MARK_COL, PRECISION);
+                           hb_arraySet( pPRE, i, pPROW );
+                           hb_itemRelease(pPROW);   
+                           hb_itemRelease(pPRE1);
+                        }
+                        hb_arraySet(pSTK_REG, nIndexReg, pPRE);
+                     }else{
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION 1D ERROR");
+                     }
+                  }else{   // desplaza por filas y columnas, un rectángulo
+                     if( nDimS == 2 ){
+                        unsigned int i;
+                        int ndx=1;
+                        for( i=MARK_ROW; i<=OFFSET_ROW; i++){
+                           PHB_ITEM pPRE1 = hb_itemArrayGet( pARRAYRES, ndx++ );
+                           PHB_ITEM pPROW  = hb_itemArrayGet( pPRE, i);
+                           unsigned int j;
+                           int ndx2=1;
+                           for( j=MARK_COL; j<=OFFSET_COL; j++){
+                              PHB_ITEM pPRE2 = hb_itemArrayGet( pPRE1, ndx2++ );
+                              put_value((PHB_ITEM) pPROW, pPRE2, j, PRECISION);
+                              hb_itemRelease(pPRE2);
+                           }
+                           hb_arraySet(pPRE, i, pPROW);
+                           hb_itemRelease(pPROW);
+                           hb_itemRelease(pPRE1);
+                        }
+                        hb_arraySet(pSTK_REG, nIndexReg, pPRE);
+                     }else{
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION 1D ERROR");
+                     }
+                  }
+               }
+            }else{
+               PHB_ITEM pPRE1 = hb_itemArrayGet( pPRE, MARK_ROW );
+               put_value((PHB_ITEM) pPRE1, pARRAYRES, MARK_COL, PRECISION );
+               hb_arraySet( pPRE, MARK_ROW, pPRE1 );
+               hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+               hb_itemRelease(pPRE1);
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:PUT INITIAL 2D LOCATE ERROR");
+         }
+         if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; }
+         break;
+      }case 3: {   // TODO
+         if(MARK_ROW && MARK_COL && MARK_POS){
+            if( swARR ){
+               HB_MAXINT nDimS=0,d1S=0,d2S=0,d3S=0,typeS=0;
+               get_size( (PHB_ITEM) pARRAYRES, &nDimS, &d1S, &d2S, &d3S, &typeS);
+
+               int nPagIni=1, nPagFin=d3;
+               int nIniR=1, nFinR=d1;
+               int nIniC=1, nFinC=d2;
+               if( MARK_PAGE ){
+                  if( MARK_PAGE == 999999999 ) MARK_PAGE=d3;
+                  if( MARK_PAGE>d3 ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUT PAGE'MARK OVERFLOW");
+                     hb_itemRelease(pARRAYRES);
+                     hb_itemRelease(pPRE);
+                   //  hb_itemRelease(pARG);
+                     return sw;               
+                  }
+                  nPagIni=MARK_PAGE; nPagFin=MARK_PAGE;
+                  if( OFFSET_POS ){
+                     if( OFFSET_POS == 999999999 ) OFFSET_POS=d3;
+                     if( OFFSET_POS<=d3 ){
+                        nPagFin=OFFSET_POS;
+                     }else{   // es mayor! ERROR
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT PAGE'OFFSET OVERFLOW");
+                        hb_itemRelease(pARRAYRES);
+                        hb_itemRelease(pPRE);
+                     //   hb_itemRelease(pARG);
+                        return sw;
+                     }
+                  } 
+               }else{  // si no existe marca de página, se asume todo; luego:
+                  swOffset=1;
+                  OFFSET_POS=nPagFin; 
+                  //printf("\nPASE POR AQUI\nMARK_PAGE=%d\n",MARK_PAGE);
+               }
+               if( MARK_ROW ) {
+                  if( MARK_ROW == 999999999 ) MARK_ROW=d1;
+                  if( MARK_ROW>d1 ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUT ROW'MARK OVERFLOW");
+                     hb_itemRelease(pARRAYRES);
+                     hb_itemRelease(pPRE);
+                    // hb_itemRelease(pARG);
+                     return sw;               
+                  }
+                  nIniR=MARK_ROW;nFinR=MARK_ROW;
+                  if( OFFSET_ROW ){
+                     if( OFFSET_ROW == 999999999 ) OFFSET_ROW=d1;
+                     if( OFFSET_ROW<=d1 ){
+                        nFinR=OFFSET_ROW;
+                     }else{   // es mayor! ERROR
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT ROW'OFFSET OVERFLOW");
+                        hb_itemRelease(pARRAYRES);
+                        hb_itemRelease(pPRE);
+                      //  hb_itemRelease(pARG);
+                        return sw;
+                     }
+                  }
+               }else{  // asume todas las filas
+                  swOffset=1;
+                  OFFSET_ROW=nFinR;
+               }
+               if( MARK_COL ) {
+                  if( MARK_COL == 999999999 ) MARK_COL=d2;
+                  if( MARK_COL>d2 ){
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUT COL'MARK OVERFLOW");
+                     hb_itemRelease(pARRAYRES);
+                     hb_itemRelease(pPRE);
+                   //  hb_itemRelease(pARG);
+                     return sw;               
+                  }
+                  nIniC=MARK_COL;nFinC=MARK_COL;
+                  if( OFFSET_COL ){
+                     if( OFFSET_COL == 999999999 ) OFFSET_COL=d2;
+                     if( OFFSET_COL<=d2 ){
+                        nFinC=OFFSET_COL;
+                     }else{   // es mayor! ERROR
+                        sw=put_error((PHB_ITEM) pRET, "CALL:PUT COL'OFFSET OVERFLOW");
+                        hb_itemRelease(pARRAYRES);
+                        hb_itemRelease(pPRE);
+                      //  hb_itemRelease(pARG);
+                        return sw;
+                     }
+                  }
+               }else{  // asume todas las columnas
+                  swOffset=1;
+                  OFFSET_COL=nFinC;
+               } 
+               
+               if( !OFFSET_POS ){
+                  if( !OFFSET_ROW ){
+                     if( !OFFSET_COL ){   // SINGLE
+                        PHB_ITEM pARGS = hb_itemArrayGet( pPRE, MARK_ROW );
+                        PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                        put_value(pARGC, pARRAYRES, MARK_PAGE, PRECISION);
+                        hb_arraySet( pARGS, MARK_COL, pARGC );
+                        hb_arraySet( pPRE, MARK_ROW, pARGS );
+                        hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+                        hb_itemRelease(pARGC);
+                        hb_itemRelease(pARGS);
+                     }else{   // lee solo columnas: array 1D
+                        if( nDimS == 1 ){
+                           int i,cPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              int j;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, cPos++);
+                                    put_value(pARGC, pARRAY1, k, PRECISION);
+                                    hb_itemRelease(pARRAY1);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        }
+                     }
+                  }else{  // existe desplazamiento de filas y/o columnas, en una página
+                     if( !OFFSET_COL ){  // lee solo filas: array 1D
+                        if( nDimS == 1 ){
+                           int i,cPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              int j;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, cPos++);
+                                    put_value(pARGC, pARRAY1, k, PRECISION);
+                                    hb_itemRelease(pARRAY1);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        }
+                     }else{  // lee filas y columnas: array 2D
+                        if( nDimS == 2 ){
+                           int i,rPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, rPos++);
+                              int j,cPos=1;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY2 = hb_itemArrayGet( pARRAY1, cPos++);
+                                    put_value(pARGC, pARRAY2, k, PRECISION);
+                                    hb_itemRelease(pARRAY2);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                              hb_itemRelease(pARRAY1);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        } 
+                     }
+                  }
+               }else{    // existe desplazamiento de páginas
+                  if( !OFFSET_ROW ){
+                     if( !OFFSET_COL ){   // solo desplaza un elemento por página: array 1D
+                        if( nDimS == 1 ){
+                           int i,cPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              int j;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, cPos++);
+                                    put_value(pARGC, pARRAY1, k, PRECISION);
+                                    hb_itemRelease(pARRAY1);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        }
+                     }else{   // lee solo columnas por página: array 2D
+                        // esto está mal: deben haber OFFSET_POS filas, y OFFSET_COL columnas, o sea, a verre.
+                        // ahora sí:
+                        if( nDimS == 2 ){
+                           int i,rPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, rPos++);
+                              int j,cPos=1;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY2 = hb_itemArrayGet( pARRAY1, cPos++);
+                                    put_value(pARGC, pARRAY2, k, PRECISION);
+                                    hb_itemRelease(pARRAY2);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                              hb_itemRelease(pARRAY1);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        }  
+                     }
+                  }else{  // existe desplazamiento de filas y/o columnas, en una página
+                     if( !OFFSET_COL ){  // recorre solo filas, una columna, por página: array 2D
+                        if( nDimS == 2 ){
+                           int i,rPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, rPos++);
+                              int j,cPos=1;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 int k;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY2 = hb_itemArrayGet( pARRAY1, cPos++);
+                                    put_value(pARGC, pARRAY2, k, PRECISION);
+                                    hb_itemRelease(pARRAY2);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                              hb_itemRelease(pARRAY1);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        } 
+                     }else{  // lee filas y columnas y páginas: array 3D
+                        if( nDimS == 2 ){
+                           int i,rPos=1;
+                           for(i=nIniR; i<=nFinR; i++){
+                              PHB_ITEM pARGF = hb_itemArrayGet( pPRE, i);
+                              PHB_ITEM pARRAY1 = hb_itemArrayGet( pARRAYRES, rPos++);
+                              int j,cPos=1;
+                              for(j=nIniC; j<=nFinC; j++){
+                                 PHB_ITEM pARGC = hb_itemArrayGet( pARGF, j);
+                                 PHB_ITEM pARRAY2 = hb_itemArrayGet( pARRAY1, cPos++);
+                                 int k, pPos=1;
+                                 for(k=nPagIni; k<=nPagFin; k++){
+                                    PHB_ITEM pARRAY3 = hb_itemArrayGet( pARRAY2, pPos++);
+                                    put_value(pARGC, pARRAY3, k, PRECISION);
+                                    hb_itemRelease(pARRAY3);
+                                 }
+                                 hb_arraySet(pARGF, j, pARGC);
+                                 hb_itemRelease(pARGC);
+                                 hb_itemRelease(pARRAY2);
+                              }
+                              hb_arraySet(pPRE, i, pARGF);
+                              hb_itemRelease(pARGF);
+                              hb_itemRelease(pARRAY1);
+                           }
+                           hb_arraySet( pSTK_REG, nIndexReg, (PHB_ITEM) pPRE );
+                        }else{
+                           sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+                        }                
+                     }
+                  }
+               }
+            }else{
+               if( MARK_PAGE<=d3 ){
+                  PHB_ITEM pARGS = hb_itemArrayGet( pPRE, MARK_ROW );
+                  PHB_ITEM pARGC = hb_itemArrayGet( pARGS, MARK_COL );
+                  put_value(pARGC, pARRAYRES, MARK_PAGE, PRECISION);
+                  hb_arraySet( pARGS, MARK_COL, pARGC );
+                  hb_arraySet( pPRE, MARK_ROW, pARGS );
+                  hb_arraySet( pSTK_REG, nIndexReg, pPRE );
+                  hb_itemRelease(pARGC);
+                  hb_itemRelease(pARGS);
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION LOCATE ERROR");
+               }
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:PUT INITIAL 3D LOCATE ERROR");
+         }
+         if( swOffset ) { OFFSET_ROW=0; OFFSET_COL=0; OFFSET_POS=0; }
+         break;
+      }default: {
+         sw=put_error((PHB_ITEM) pRET, "CALL:PUT DIMENSION ERROR");
+      }
+   }
+   hb_itemRelease(pARRAYRES);
+   hb_itemRelease(pPRE);
+//   hb_itemRelease(pARG);
+   
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:PUT STACK UNDERFLOW");
+}
+return sw;
+}
+
+/* DECISION: añadir opción para seleccionar columnas en 3D, con MARK_PAGE, o solo dejarlo para 2D y VERIFICAR ESO */
+int getcol( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = hb_itemGetNInt( pARG );
+   hb_itemRelease(pARG);
+   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );  // obtengo registro desde donde sacaré las columnas
+   // saco numeros de Stack, correspondientes a columnas seleccionadas:
+   // Datos del registro-array
+   if(!HB_IS_ARRAY( pPRE )){
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETCOL REGISTER TYPE IS NOT AN ARRAY");
+      hb_itemRelease(pPRE);
+   //   hb_itemRelease(pARG);
+      return sw;
+   }
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pPRE, &nDim, &d1, &d2, &d3, &type);
+   if( nDim != 2 ){
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETCOL DIMENSION ERROR: COULD BE 2D ARRAY");
+      hb_itemRelease(pPRE);
+    //  hb_itemRelease(pARG);
+      return sw;
+   }
+   int nNumCols = 0;
+   long aCols[CADDR];  // arrays de enteros para columnas
+   while( CADDR ){
+      PHB_ITEM pNUMCOL = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      aCols[ nNumCols ] = (HB_MAXINT)hb_itemGetNInt( pNUMCOL );
+      hb_itemRelease(pNUMCOL);
+      if(aCols[ nNumCols ]<0 || aCols[ nNumCols ]>d2){
+         sw=put_error((PHB_ITEM) pRET, "CALL:GETCOL COLUMN INDEX OVERFLOW");
+         hb_itemRelease(pPRE);
+       //  hb_itemRelease(pARG);
+         return sw;      
+      }
+      nNumCols++;
+   }
+   PHB_ITEM pARRAY = hb_itemArrayNew( d1 ); // filas existentes.
+   int nArray = 1;
+   HB_MAXINT i;
+   for(i=1; i<=d1; i++){
+      PHB_ITEM pARRAYC = hb_itemArrayNew( nNumCols );
+      PHB_ITEM pROW = hb_itemArrayGet( pPRE, i);  // tomo fila "i"
+      HB_MAXINT j;
+      for(j=0; j<nNumCols; j++){
+         PHB_ITEM pCOL = hb_itemArrayGet( pROW, aCols[ j ] );
+         put_value((PHB_ITEM) pARRAYC, pCOL, j + 1, PRECISION);
+         hb_itemRelease(pCOL);
+      }
+      hb_arraySet( pARRAY, nArray++, pARRAYC);
+      hb_itemRelease(pARRAYC);
+      hb_itemRelease(pROW);
+   }
+   hb_arraySet(pSTK_ADDR, ++CADDR, pARRAY);
+   hb_itemRelease(pARRAY);
+   hb_itemRelease(pPRE);
+ //  hb_itemRelease(pARG);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:GETCOL STACK UNDERFLOW");
+}
+return sw;
+}
+
+/* DECISION: añadir opción para seleccionar columnas en 3D, con MARK_PAGE, o solo dejarlo para 2D y VERIFICAR ESO */
+int getrow( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = hb_itemGetNInt( pARG );
+   hb_itemRelease(pARG);
+   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );  // obtengo registro desde donde sacaré las filas
+   // saco numeros de Stack, correspondientes a filas seleccionadas:
+   if(!HB_IS_ARRAY( pPRE )){
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETROW REGISTER TYPE IS NOT AN ARRAY");
+      hb_itemRelease(pPRE);
+     // hb_itemRelease(pARG);
+      return sw;
+   }
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pPRE, &nDim, &d1, &d2, &d3, &type);
+   if( nDim != 2 ){
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETROW DIMENSION ERROR: COULD BE 2D ARRAY");
+      hb_itemRelease(pPRE);
+     // hb_itemRelease(pARG);
+      return sw;
+   }
+   PHB_ITEM pARRAY = hb_itemArrayNew( 0 ); //CADDR );
+//   int nArray = 0;
+   while( CADDR ){
+      PHB_ITEM pNUMROW = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      HB_MAXINT nRow=(HB_MAXINT)hb_itemGetNInt( pNUMROW );
+      if( nRow <= d1 && nRow>0 ){
+         PHB_ITEM pROW = hb_itemArrayGet( pPRE, nRow);
+         hb_arrayAdd( pARRAY, pROW);
+         hb_itemRelease(pROW);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:GETROW ARRAY ROW OVERFLOW");
+         CADDR=0;
+      }
+      hb_itemRelease(pNUMROW);
+   }
+   hb_arraySet(pSTK_ADDR, ++CADDR, pARRAY);
+   hb_itemRelease(pARRAY);
+   hb_itemRelease(pPRE);
+ //  hb_itemRelease(pARG);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:GETROW STACK UNDERFLOW");
+}
+return sw;
+}
+
+int catrow( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = hb_itemGetNInt( pARG );
+   hb_itemRelease(pARG);
+//   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );
+
+   PHB_ITEM pARRAY = hb_itemArrayNew( 0 );  // array retorno
+      
+   // obtener el oprimero: ese manda!
+   PHB_ITEM pARRFIRST = (PHB_ITEM) hb_itemArrayGet( pSTK_ADDR, CADDR); // si resto CADDR, me salto el primer array
+   if(!HB_IS_ARRAY( pARRFIRST)){
+      sw=put_error((PHB_ITEM) pRET, "CALL:CATROW REGISTER TYPE IS NOT AN ARRAY");
+      hb_itemRelease( pARRFIRST );
+      hb_itemRelease( pARRAY );
+//      hb_itemRelease(pPRE);
+      //hb_itemRelease(pARG);
+      return sw;
+   }
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pARRFIRST, &nDim, &d1, &d2, &d3, &type);
+   hb_itemRelease(pARRFIRST);
+   int nLenCol = d2==0?d1:d2;  // un array simple se copiará con "transpuesta".
+   
+   
+   while( CADDR ){
+      PHB_ITEM pARRSTACK = (PHB_ITEM) hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      if( HB_IS_ARRAY(pARRSTACK) ){
+            nDim=0,d1=0,d2=0,d3=0,type=0;
+            get_size( (PHB_ITEM) pARRSTACK, &nDim, &d1, &d2, &d3, &type);
+            switch(nDim){
+               case 1:{
+                  if(d1 == nLenCol){
+                     hb_arrayAdd( pARRAY, pARRSTACK);
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:CATROW SIZE(1D) COLUMN ERROR");
+                  }
+                  break;
+               }case 2:{
+                  if(d2 == nLenCol){
+                     HB_MAXINT i;
+                     for(i=1; i<=d1; i++){
+                        PHB_ITEM pRow = hb_itemArrayGet( (PHB_ITEM) pARRSTACK, i );
+                        hb_arrayAdd( pARRAY, pRow);
+                        hb_itemRelease( pRow );
+                     }
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:CATROW SIZE(2D) COLUMN ERROR");
+                  }
+                  break;
+               }
+            }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:CATROW TYPE MISMATCH");
+      }
+      hb_itemRelease(pARRSTACK);
+   }
+   
+   hb_arraySet(pSTK_REG, nIndexReg, pARRAY);
+   hb_itemRelease( pARRAY );
+//   hb_itemRelease(pPRE);
+ //  hb_itemRelease(pARG);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:CATROW STACK UNDERFLOW");
+}
+return sw;}
+
+/* DECISION: añadir opción para seleccionar columnas en 3D, con MARK_PAGE, o solo dejarlo para 2D y VERIFICAR ESO */
+int catcol( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = hb_itemGetNInt( pARG );
+   hb_itemRelease(pARG);
+//   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );
+
+   int nNumCols = 0;
+   PHB_ITEM pCols[CADDR];  // arrays de punteros PHB_ITEM 
+   int numCols[CADDR];
+   
+   pCols[ nNumCols ] = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+   if (!HB_IS_ARRAY(pCols[ nNumCols ])){
+      sw=put_error((PHB_ITEM) pRET, "CALL:CATCOL REGISTER TYPE IS NOT AN ARRAY");
+//      hb_itemRelease(pPRE);
+     // hb_itemRelease(pARG);
+      return sw;
+   }
+   HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+   get_size( (PHB_ITEM) pCols[ nNumCols ], &nDim, &d1, &d2, &d3, &type);
+   int nLenRow = d1, nLenCol=d2==0?1:d2;
+   numCols[nNumCols] = d2;
+
+   while( CADDR ){
+      nNumCols++;
+      pCols[ nNumCols ] = (PHB_ITEM) hb_itemArrayGet( pSTK_ADDR, CADDR--);
+      if( !HB_IS_ARRAY( (PHB_ITEM)pCols[ nNumCols ] ) ){
+         sw=put_error((PHB_ITEM) pRET, "CALL:CATCOL TYPE MISMATCH");
+//         hb_itemRelease(pPRE);
+       //  hb_itemRelease(pARG);
+         int i;
+         for(i=0; i<=nNumCols; i++){
+            hb_itemRelease( pCols[ i ] );
+         }
+         return sw;      
+      }
+      nDim=0;d1=0;d2=0;d3=0;type=0;
+      get_size( (PHB_ITEM) pCols[ nNumCols ], &nDim, &d1, &d2, &d3, &type);
+      if(d1 != nLenRow){
+         sw=put_error((PHB_ITEM) pRET, "CALL:CATCOL SIZE ROW ERROR");
+//         hb_itemRelease(pPRE);
+       //  hb_itemRelease(pARG);
+         int i;
+         for(i=0; i<=nNumCols; i++){
+            hb_itemRelease( pCols[ i ] );
+         }
+         return sw;
+      }
+      numCols[nNumCols] = d2;
+
+      nLenCol += d2==0?1:d2;
+   }
+   
+   PHB_ITEM pARRAY = hb_itemArrayNew( 0 );
+
+   HB_MAXINT j;
+
+   for(j=1; j<=nLenRow; j++){
+      int nArray=0;
+      PHB_ITEM pARRAYADD = hb_itemArrayNew( nLenCol );
+      int i;
+      for(i=0; i<=nNumCols; i++){  // recorro cada array
+         if(numCols[i]>0){   // matriz: añado la fila j.
+            PHB_ITEM pRow = hb_itemArrayGet( (PHB_ITEM) pCols[ i ], j );  // fila i, de array i
+            HB_MAXINT k;
+            for(k=1; k<=numCols[i]; k++){
+               PHB_ITEM pCol = hb_itemArrayGet( pRow, k );
+               put_value((PHB_ITEM) pARRAYADD, pCol, ++nArray, PRECISION);
+               hb_itemRelease( pCol );
+            }
+            hb_itemRelease( pRow );
+         }else{   // array simple: añado el elemento de esa fila j en particular
+            PHB_ITEM pCol = hb_itemArrayGet( (PHB_ITEM) pCols[ i ], j );
+            put_value((PHB_ITEM) pARRAYADD, pCol, ++nArray, PRECISION);
+            hb_itemRelease( pCol );
+         }
+      }
+      hb_arrayAdd( pARRAY, pARRAYADD);
+      hb_itemRelease( pARRAYADD );
+   } 
+   hb_arraySet(pSTK_REG, nIndexReg, pARRAY);
+   hb_itemRelease( pARRAY );
+   HB_MAXINT h;
+   for(h=0; h<=nNumCols; h++){
+      hb_itemRelease( (PHB_ITEM)pCols[ h ] );
+   }
+//   hb_itemRelease(pPRE);
+ //  hb_itemRelease(pARG);
+
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:CATCOL STACK UNDERFLOW");
+}
+return sw;
+}
+
+
+//int putpage( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int putpage( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>0 ){
+//   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG );
+//   hb_itemRelease(pARG);
+   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );
+   
+   if( HB_IS_ARRAY(pPRE)){
+
+      HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+      get_size( (PHB_ITEM) pPRE, &nDim, &d1, &d2, &d3, &type);  // verificar si registro destino puede recibir los datos
+      if( nDim==3 && d3>0 ){
+         if( MARK_PAGE<=d3 && MARK_PAGE>0 ){
+            int i;
+            if( CADDR>0 ){
+               PHB_ITEM pARRAY = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+               if(HB_IS_ARRAY(pARRAY)){
+                  HB_MAXINT nDim1=0,d11=0,d21=0, d31=0,type1=0;
+                  get_size( (PHB_ITEM) pARRAY, &nDim1, &d11, &d21, &d31, &type1);
+                  type=0; type1=0;
+                  if( nDim1==2 && d1==d11 && d2==d21 ){
+                     for( i=1; i<=d1; i++ ){
+                        PHB_ITEM pARRAYF = hb_itemArrayGet( pARRAY, i);  // saco fila de STACK
+                        PHB_ITEM pREGF = hb_itemArrayGet( pPRE, i);      // saco fila de REG
+               
+                        int j;
+                        for( j=1; j<=d2; j++ ){
+                           PHB_ITEM pARRAYC = hb_itemArrayGet( pARRAYF, j);   // columna del stack
+                           PHB_ITEM pREGC = hb_itemArrayGet( pREGF, j);     // columna del registro
+                           hb_arraySet( pREGC, MARK_PAGE, pARRAYC );
+                           hb_arraySet( pREGF, j, pREGC );
+                           hb_itemRelease( pREGC );
+                           hb_itemRelease( pARRAYC );
+                        }
+                        hb_arraySet( pPRE, i, pREGF );
+                        hb_itemRelease( pREGF );
+                        hb_itemRelease( pARRAYF );
+                     }
+                     hb_arraySet(pSTK_REG, nIndexReg, pPRE);
+                  }else{
+                     sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE DIMENSION SOURCE ERROR");
+                  }
+               }else{
+                  sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE ARRAY TYPE IS NOT AN ARRAY");
+               }
+               hb_itemRelease(pARRAY);
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE STACK OVERFLOW");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE MARK PAGE OVERFLOW");
+         }   
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE DIMENSION TARGET ERROR");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE REGISTER TYPE IS NOT AN ARRAY");
+   }
+//   hb_itemRelease(pARG);
+   hb_itemRelease(pPRE);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:PUTPAGE STACK UNDERFLOW");
+}
+return sw;
+}
+
+//int getpage( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int getpage( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION ){
+int sw=1;
+if( CADDR<nSizeStack ){
+//   PHB_ITEM pARG = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nIndexReg = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG );
+//   hb_itemRelease(pARG);
+   PHB_ITEM pPRE = hb_itemArrayGet( pSTK_REG, nIndexReg );
+
+   if( HB_IS_ARRAY(pPRE)){
+      HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+      get_size( (PHB_ITEM) pPRE, &nDim, &d1, &d2, &d3, &type);
+      type=0;
+      if( nDim==3 && d3>0 ){
+         //MARK_PAGE=1;   // si no se ha seteado MARK_POS, por default, es 1.
+         if( MARK_PAGE>0 ){   // esta seteado, referencia a una pagina
+            //if( MARK_POS>0 ) {MARK_PAGE=MARK_POS; MARK_POS=0;}
+            if( MARK_PAGE<=d3 ){
+               //MARK_PAGE=MARK_POS;
+            
+               int i;
+               PHB_ITEM pARRAY = hb_itemArrayNew( 0 );
+               for( i=1; i<=d1; i++){
+                  PHB_ITEM pPRE2 = hb_itemArrayGet( pPRE, i);
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( d2 );
+                  int j;
+                  for( j=1; j<=d2; j++){
+                     PHB_ITEM pPRE3 = hb_itemArrayGet( pPRE2, j);
+                     PHB_ITEM pREG = hb_itemArrayGet( pPRE3, MARK_PAGE);
+                     put_value( pARRAYC, pREG, j, PRECISION);
+                     hb_itemRelease(pREG);
+                     hb_itemRelease(pPRE3);
+                  }
+                  hb_arrayAdd( pARRAY, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+                  hb_itemRelease(pPRE2);
+               }
+               hb_arraySet(pSTK_ADDR, ++CADDR, pARRAY);
+               hb_itemRelease(pARRAY);
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:GETPAGE MARK PAGE OVERFLOW");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:GETPAGE MARK PAGE NEGATIVE OR ZERO");
+         }   
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:GETPAGE DIMENSION ERROR");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETPAGE REGISTER TYPE IS NOT AN ARRAY");
+   }
+
+//   hb_itemRelease(pARG);
+   hb_itemRelease(pPRE);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:GETPAGE STACK OVERFLOW");
+}
+return sw;
+}
+
+//int add_item_row( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int add_item_row( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION){
+int sw=1;
+if ( CADDR>0 ){
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nItem = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG1 );
+//   hb_itemRelease(pARG1);
+   PHB_ITEM pPREG = hb_itemArrayGet( pSTK_REG, nItem ); //
+   PHB_ITEM pARRAY = hb_itemArrayNew( CADDR );
+   int ndx = 1;
+   
+   long uarray = hb_arrayLen( pPREG );
+   PHB_ITEM pARR = hb_itemArrayGet( pPREG, 1 );
+   long uiArrayLenReg = ( long ) hb_arrayLen( pARR );
+   hb_itemRelease(pARR);
+   
+   //long uiArrayLenReg = 0;
+   
+   while(CADDR){
+      PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, ndx );
+      put_value( pARRAY, pSource, ndx, PRECISION);
+      hb_itemRelease(pSource);
+      ++ndx;
+      --CADDR;
+   }
+   //long uiArrayLenPRG = ( long ) hb_arrayLen( pSTK_PRG );
+   if( uarray > 0 ){  // ya hay datos en REG
+      long uiArrayLenARRAY = ( long ) hb_arrayLen( pARRAY );
+     //  printf("\nLEN ARRAY = %ld, LEN REG = %ld\n",uiArrayLenARRAY,uiArrayLenReg);
+      if( uiArrayLenARRAY == uiArrayLenReg ){
+         hb_arraySize( pPREG, uarray + 1 );
+         hb_arraySet( pPREG, uarray + 1, (PHB_ITEM) pARRAY );
+         hb_arraySet( pSTK_REG, nItem, pPREG );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:ADDROW DIMENSION ERROR");
+      }
+   }else{
+      hb_arrayAdd( pPREG, (PHB_ITEM) pARRAY );
+      hb_arraySet( pSTK_REG, nItem, pPREG );
+   }
+   
+//   hb_itemRelease(pARG1);
+   hb_itemRelease(pPREG);
+   hb_itemRelease(pARRAY);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:ADDROW STACK OVERFLOW");
+}
+return sw;
+}
+
+//int type_item( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int type_item( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nItem = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG1 );
+//   hb_itemRelease(pARG1);
+   PHB_ITEM pARRAY = hb_itemArrayGet( pSTK_REG, nItem );
+   if( !HB_IS_ARRAY( pARRAY ) ){
+      HB_MAXINT type=0;
+      get_item_type( (PHB_ITEM) pARRAY, &type);
+      switch( type ){
+         case 10: {   // string
+            hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "string" );
+            break;
+         }case 11: case 12: case 13: {  // numint, double, long
+            hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "number" );
+            break;
+         }case 14: {   // logical
+            hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "boolean" );
+            break;
+         }
+      }
+   }else{
+      HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+      get_size( (PHB_ITEM) pARRAY, &nDim, &d1, &d2, &d3, &type);
+      switch(type){
+         case 10: hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "<string>"  ); break;
+         case 11: hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "<number>"  ); break;
+         case 12: hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *)  "<boolean>"  ); break;
+      }
+   }
+   hb_itemRelease(pARRAY);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:TYPE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+//int size_array( PHB_ITEM pSTK_PRG, PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int size_array( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+//   PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   int nItem = STK_PRG[ ++CP ]; //hb_itemGetNInt( pARG1 );
+//   hb_itemRelease(pARG1);
+   PHB_ITEM pARRAY = hb_itemArrayGet( pSTK_REG, nItem );
+   if( HB_IS_ARRAY( pARRAY ) ){
+      HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+      get_size( (PHB_ITEM) pARRAY, &nDim, &d1, &d2, &d3, &type);
+      PHB_ITEM pSIZE = hb_itemArrayNew( nDim + 1 );
+      hb_arraySetNInt( pSIZE, 1, (HB_MAXINT)  nDim  );
+      hb_arraySetNInt( pSIZE, 2, (HB_MAXINT)  d1  );
+      if(nDim==2) hb_arraySetNInt( pSIZE, 3, (HB_MAXINT)  d2  );
+      if(nDim==3) {hb_arraySetNInt( pSIZE, 3, (HB_MAXINT)  d2  );
+                   hb_arraySetNInt( pSIZE, 4, (HB_MAXINT)  d3  );}
+      hb_arraySet( pSTK_ADDR, ++CADDR, pSIZE );
+      hb_itemRelease(pSIZE);
+   }else{
+      //sw=put_error((PHB_ITEM) pRET, "CALL:SIZE ARGUMENT ERROR");
+      PHB_ITEM pSIZE = hb_itemArrayNew( 2 );
+      hb_arraySetNInt( pSIZE, 1, (HB_MAXINT)  0  );
+      HB_MAXINT size = 0;
+      if( HB_IS_STRING( pARRAY ) )          size = sizeof(char) * hb_itemGetCLen(pARRAY) ;
+      else if( HB_IS_NUMERIC( pARRAY ) )    size = sizeof( hb_itemGetND(pARRAY) );
+      else if( HB_IS_LONG( pARRAY ) )       size = sizeof( hb_itemGetNL(pARRAY) );
+      else if( HB_IS_INTEGER( pARRAY ) )    size = sizeof( hb_itemGetNInt(pARRAY) );
+
+      hb_arraySetNInt( pSIZE, 2, (HB_MAXINT) size  );
+
+      hb_arraySet( pSTK_ADDR, ++CADDR, pSIZE );
+      hb_itemRelease(pSIZE);
+   }
+   hb_itemRelease(pARRAY);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:SIZE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_create_fun_array( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int tCompare ){
+int sw=1;
+   // extrae argumentos:
+   long nARG1 = STK_PRG[++CP];  // indice de REG
+              
+   // saco dato desde ADDR para size de ARRAY: 1,2 y 3.
+   if( CADDR==0 ){
+      sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE ERROR");
+   }else if( CADDR==1 ){  // 1D
+      PHB_ITEM pSize = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSize ) ) {
+         HB_MAXINT nSize = hb_itemGetNL( pSize );
+         PHB_ITEM pARRAY = hb_itemArrayNew( nSize );
+         HB_MAXINT i;
+         for(i=1; i<=nSize; i++){
+            switch( tCompare ){
+               case 1:{ hb_arraySetND(pARRAY, i, hb_random_num()); break; }
+               case 2:{ hb_arraySetNInt(pARRAY, i, 0); break; }
+               case 3: case 4: { hb_arraySetNInt(pARRAY, i, 1); break; }
+            }
+         }
+         hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+         hb_itemRelease(pARRAY);
+      }else{
+         //eRROR
+         sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(1D) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSize);
+   }else if( CADDR==2 ){   // 2D
+      PHB_ITEM pSizeRow = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSizeRow ) ) {
+         PHB_ITEM pSizeCol = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+         if( HB_IS_NUMERIC( pSizeCol ) ) {
+            HB_MAXINT i;
+            HB_MAXINT nSizeRow = hb_itemGetNInt( pSizeRow );
+                       
+            HB_MAXINT nSizeCol = hb_itemGetNInt( pSizeCol );
+                       
+            PHB_ITEM pARRAY = hb_itemArrayNew( nSizeRow );
+            for(i=1; i<=nSizeRow; i++){
+               PHB_ITEM pARRAYC = hb_itemArrayNew( nSizeCol );
+               HB_MAXINT j;
+               for(j=1; j<=nSizeCol; j++){
+                  switch( tCompare ){
+                     case 1:{ hb_arraySetND(pARRAYC, j, hb_random_num()); break; }
+                     case 2:{ hb_arraySetNInt(pARRAYC, j, 0); break; }
+                     case 3:{ hb_arraySetNInt(pARRAYC, j, 1); break; }
+                     case 4:{
+                        if(i == j) hb_arraySetNInt(pARRAYC, j, 1);
+                        else       hb_arraySetNInt(pARRAYC, j, 0);
+                        break;
+                     }
+                  }
+//                  hb_arraySetND(pARRAYC, j, hb_random_num());
+               }
+               hb_arraySet(pARRAY, i, pARRAYC);
+               hb_itemRelease(pARRAYC);
+            }
+            hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+            hb_itemRelease(pARRAY);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(COL) ARGUMENT ERROR");
+         }
+         hb_itemRelease(pSizeCol);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(ROW) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSizeRow);
+   }else if( CADDR>=3 ){   // 3D
+      PHB_ITEM pSizeRow = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSizeRow ) ) {
+         PHB_ITEM pSizeCol = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+         if( HB_IS_NUMERIC( pSizeCol ) ) {
+            PHB_ITEM pSizePag = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+            if( HB_IS_NUMERIC( pSizePag ) ) {
+               HB_MAXINT nSizeRow = hb_itemGetNInt( pSizeRow );
+               HB_MAXINT nSizeCol = hb_itemGetNInt( pSizeCol );
+               HB_MAXINT nSizePag = hb_itemGetNInt( pSizePag );
+
+               HB_MAXINT i;
+                          
+               PHB_ITEM pARRAY = hb_itemArrayNew( nSizeRow );
+               for(i=1; i<=nSizeRow; i++){
+                  HB_MAXINT j;
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( nSizeCol );
+                  for(j=1; j<=nSizeCol; j++){
+                     PHB_ITEM pARRAYP = hb_itemArrayNew( nSizePag );
+                     HB_MAXINT k;
+                     for(k=1; k<=nSizePag; k++){
+                        switch( tCompare ){
+                           case 1:{ hb_arraySetND(pARRAYP, k, hb_random_num()); break; }
+                           case 2:{ hb_arraySetNInt(pARRAYP, k, 0); break; }
+                           case 3:{ hb_arraySetNInt(pARRAYP, k, 1); break; }
+                           case 4:{
+                              if(i == j) hb_arraySetNInt(pARRAYP, k, 1);
+                              else       hb_arraySetNInt(pARRAYP, k, 0);
+                           break;
+                           }
+                        }
+                        //hb_arraySetND(pARRAYP, k, hb_random_num());
+                     }   
+                     hb_arraySet(pARRAYC, j, pARRAYP);
+                     hb_itemRelease(pARRAYP);
+                  }
+                  hb_arraySet(pARRAY, i, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+               }
+               hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+               hb_itemRelease(pARRAY);
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(PAGE) ARGUMENT ERROR");
+            }
+            hb_itemRelease(pSizePag);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(COL) ARGUMENT ERROR");
+         }
+         hb_itemRelease(pSizeCol);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:RAND ARRAY SIZE(ROW) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSizeRow);
+   }
+return sw;
+}
+
+int fun_size_binary( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET){
+int sw=1;
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pSIZE = hb_itemArrayGet( pSTK_REG, nItem );
+   if( HB_IS_NUMERIC( pSIZE) ){
+      SIZE_BINARY = hb_itemGetNInt( pSIZE );
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:SIZEBIN ARGUMENT ERROR");
+   }
+   hb_itemRelease(pSIZE);
+return sw;
+}
+
+int fun_emptyarray( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pARRAY = hb_itemArrayGet( pSTK_REG, nItem );
+   if( HB_IS_ARRAY( pARRAY ) ){
+      hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) !hb_arrayLen( pARRAY ) );
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:EMPTY ARGUMENT ERROR");
+   }
+   hb_itemRelease(pARRAY);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:EMPTY INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_create_array( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+   // extrae argumentos:
+   //PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+   long nARG1 = STK_PRG[++CP]; //hb_itemGetNInt( pARG1 );   // indice de REG
+   //           hb_itemRelease(pARG1);
+              
+   // saco dato desde ADDR para size de ARRAY: 1,2 y 3.
+   if( CADDR==0 ){
+      PHB_ITEM pARRAY = hb_itemArrayNew( 0 );  // crea un array vacío.
+      hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+      hb_itemRelease(pARRAY);
+   }else if( CADDR==1 ){  // 1D
+      PHB_ITEM pSize = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSize ) ) {
+         PHB_ITEM pARRAY = hb_itemArrayNew( hb_itemGetNInt( pSize ) );
+         hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+         hb_itemRelease(pARRAY);
+      }else{
+         //eRROR
+         sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(1D) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSize);
+   }else if( CADDR==2 ){   // 2D
+      PHB_ITEM pSizeRow = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSizeRow ) ) {
+         PHB_ITEM pSizeCol = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+         if( HB_IS_NUMERIC( pSizeCol ) ) {
+            HB_MAXINT i;
+            HB_MAXINT nSizeRow = hb_itemGetNInt( pSizeRow );
+                       
+            HB_MAXINT nSizeCol = hb_itemGetNInt( pSizeCol );
+                       
+            PHB_ITEM pARRAY = hb_itemArrayNew( nSizeRow );
+            for(i=1; i<=nSizeRow; i++){
+               PHB_ITEM pARRAYC = hb_itemArrayNew( nSizeCol );
+               hb_arraySet(pARRAY, i, pARRAYC);
+               hb_itemRelease(pARRAYC);
+            }
+            hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+            hb_itemRelease(pARRAY);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(COL) ARGUMENT ERROR");
+         }
+         hb_itemRelease(pSizeCol);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(ROW) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSizeRow);
+   }else if( CADDR>=3 ){   // 3D
+      PHB_ITEM pSizeRow = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+      if( HB_IS_NUMERIC( pSizeRow ) ) {
+         PHB_ITEM pSizeCol = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+         if( HB_IS_NUMERIC( pSizeCol ) ) {
+            PHB_ITEM pSizePag = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+            if( HB_IS_NUMERIC( pSizePag ) ) {
+               HB_MAXINT nSizeRow = hb_itemGetNInt( pSizeRow );
+               HB_MAXINT nSizeCol = hb_itemGetNInt( pSizeCol );
+               HB_MAXINT nSizePag = hb_itemGetNInt( pSizePag );
+
+               HB_MAXINT i;
+                          
+               PHB_ITEM pARRAY = hb_itemArrayNew( nSizeRow );
+               for(i=1; i<=nSizeRow; i++){
+                  HB_MAXINT j;
+                  PHB_ITEM pARRAYC = hb_itemArrayNew( nSizeCol );
+                  for(j=1; j<=nSizeCol; j++){
+                     PHB_ITEM pARRAYP = hb_itemArrayNew( nSizePag );
+                     HB_MAXINT k;
+                     for(k=1; k<=nSizePag; k++){
+                        hb_arraySetC(pARRAYP, k, "");
+                     }   
+                     hb_arraySet(pARRAYC, j, pARRAYP);
+                     hb_itemRelease(pARRAYP);
+                  }
+                  hb_arraySet(pARRAY, i, pARRAYC);
+                  hb_itemRelease(pARRAYC);
+               }
+               hb_arraySet( pSTK_REG, nARG1, (PHB_ITEM) pARRAY );
+               hb_itemRelease(pARRAY);
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(PAGE) ARGUMENT ERROR");
+            }
+            hb_itemRelease(pSizePag);
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(COL) ARGUMENT ERROR");
+         }
+         hb_itemRelease(pSizeCol);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:ARRAY SIZE(ROW) ARGUMENT ERROR");
+      }
+      hb_itemRelease(pSizeRow);
+   }
+return sw;
+}
+
+int put_PI( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION ){
+int sw=1;
+if( CADDR<nSizeStack ){
+//   PHB_ITEM pSEC = hb_itemPutND( NULL, (double) 3.14159265358979323846 );
+   hb_arraySetND( pSTK_ADDR, ++CADDR, (double) SW_PRECISION ? hb_numRound(3.14159265358979323846,PRECISION) : 3.14159265358979323846 );
+//   hb_itemRelease(pSEC);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:PI INNER-STACK OVERFLOW");
+}   
+return sw;
+}
+
+int get_seconds( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR<nSizeStack ){
+//   PHB_ITEM pSEC = hb_itemPutND( NULL, (double) hb_dateSeconds() );
+   hb_arraySetND( pSTK_ADDR, ++CADDR, (double) hb_dateSeconds() );
+//   hb_itemRelease(pSEC);
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:SECONDS INNER-STACK OVERFLOW");
+}   
+return sw;
+}
+
+
+int fun_matrix_mul( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=2 ){
+    PHB_ITEM pA = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+    PHB_ITEM pB = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+    
+    if( HB_IS_ARRAY( pA ) && HB_IS_ARRAY( pB ) ){
+       HB_MAXINT nDimA=0,dA1=0,dA2=0, dA3=0,typeA=0;
+       get_size( (PHB_ITEM) pA, &nDimA, &dA1, &dA2, &dA3, &typeA);
+       HB_MAXINT nDimB=0,dB1=0,dB2=0, dB3=0,typeB=0;
+       get_size( (PHB_ITEM) pB, &nDimB, &dB1, &dB2, &dB3, &typeB);
+       
+       unsigned int pRow = (unsigned int) dA1;
+       unsigned int pCol1 = (unsigned int) dA2;   // cols1
+       unsigned int pCol2 = (unsigned int) dB2;   // cols2
+       
+       if( nDimA == nDimB && dA2 == dB1 ){
+          unsigned int ehx,eix,ejx;
+          double ESX;
+          PHB_ITEM pCWM = hb_itemArrayNew( pRow ); // CWM
+          for( ehx=1; ehx<=pRow; ehx++){
+             PHB_ITEM pAA = hb_itemArrayGet( pA, ehx);
+             PHB_ITEM pCC = hb_itemArrayNew( pCol2 ); // CWM
+             for( ejx=1; ejx<=pCol2; ejx++){
+                ESX = 0;
+                for( eix=1; eix<=pCol1; eix++){
+                   PHB_ITEM pA2 = hb_itemArrayGet( pAA, eix);
+                   PHB_ITEM pBB = hb_itemArrayGet( pB, eix);
+                   PHB_ITEM pB2 = hb_itemArrayGet( pBB, ejx );
+                   ESX = ESX + hb_itemGetND( pA2 ) *
+                               hb_itemGetND( pB2 );
+                   hb_itemRelease( pA2 );
+                   hb_itemRelease( pB2 );
+                   hb_itemRelease( pBB );
+                } 
+                hb_arraySetND( pCC, ejx, ESX );  
+             }
+             hb_arraySet( pCWM, ehx, pCC );
+             hb_itemRelease(pCC);
+             hb_itemRelease(pAA);
+          }
+          hb_arraySet( pSTK_ADDR, ++CADDR, pCWM );
+          hb_itemRelease(pCWM);
+       }else{
+          sw=put_error((PHB_ITEM) pRET, "CALL:MATRICIAL MULTIPLICATION DIMENSION ERROR");
+       }
+    }else{
+       sw=put_error((PHB_ITEM) pRET, "CALL:MATRICIAL MULTIPLICATION ARGUMENT ERROR");
+    }
+    hb_itemRelease(pB);
+    hb_itemRelease(pA);    
+}else{
+    sw=put_error((PHB_ITEM) pRET, "CALL:MATRICIAL MULTIPLICATION INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_ifenv( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pVARIABLE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_STRING( pVARIABLE ) ){
+      char * cValue = getenv( hb_itemGetCPtr(pVARIABLE) );
+      if( cValue ){
+         hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) HB_TRUE );
+      }else{
+         hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) HB_FALSE );
+      }
+     // free(cValue);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETENV ARGUMENT ERROR");
+   }
+   hb_itemRelease( pVARIABLE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:GETENV INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_getenv( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pVARIABLE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_STRING( pVARIABLE ) ){
+      char * cValue = getenv( hb_itemGetCPtr(pVARIABLE) );
+      if( cValue ){
+         const char * pValue = cValue;
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *) pValue );
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:GETENV VARIABLE ERROR");
+      }
+     // free(cValue);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:GETENV ARGUMENT ERROR");
+   }
+   hb_itemRelease( pVARIABLE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:GETENV INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_setenv( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pVARIABLE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   PHB_ITEM pVALOR = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( !HB_IS_STRING( pVALOR ) ){
+      sw=put_error((PHB_ITEM) pRET, "CALL:SETENV TYPE MISMATCH VALUE ERROR");
+   }else{
+      if( HB_IS_STRING( pVARIABLE ) ){
+         int status = setenv(hb_itemGetCPtr(pVARIABLE), hb_itemGetCPtr(pVALOR), 1); 
+         if( status ){
+            sw=put_error((PHB_ITEM) pRET, "CALL:SETENV VARIABLE ERROR");
+         }
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:SETENV ARGUMENT ERROR");
+      }
+   }
+   hb_itemRelease( pVARIABLE );
+   hb_itemRelease( pVALOR );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:SETENV INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_unsetenv( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pVARIABLE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_STRING( pVARIABLE ) ){
+      int status = unsetenv( hb_itemGetCPtr(pVARIABLE) );
+      if( status ){
+         sw=put_error((PHB_ITEM) pRET, "CALL:UNSETENV VARIABLE ERROR");
+      }
+     // free(cValue);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:UNSETENV ARGUMENT ERROR");
+   }
+   hb_itemRelease( pVARIABLE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:UNSETENV INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+#define BLACK        0
+#define BLUE         1
+#define GREEN        2
+#define CYAN         3
+#define RED          4
+#define MAGENTA      5
+#define BROWN        6
+#define LIGHTGRAY    7
+#define DARKGRAY     8
+#define LIGHTBLUE    9
+#define LIGHTGREEN   10
+#define LIGHTCYAN    11
+#define LIGHTRED     12
+#define LIGHTMAGENTA 13
+#define YELLOW       14
+#define WHITE        15
+// Special attributes 
+#define UNDERLINE    64
+#define BLINK        128
+
+// Special font attributes 
+#define UNDERLINE_ATTR 4
+#define BLINK_ATTR     5
+#define BRILLO_ATTR    1
+
+// Bright colors start in color number 9 
+#define BRILLO_MIN     9
+
+int fun_gotoxy(PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pCOL = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   PHB_ITEM pFIL = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_NUMERIC( pCOL ) && HB_IS_NUMERIC( pFIL ) ){
+      HB_INT x = (HB_INT) hb_itemGetNInt( pFIL );
+      HB_INT y = (HB_INT) hb_itemGetNInt( pCOL );  
+      printf("\033[%d;%dH", y, x);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:@|GO TO X,Y ARGUMENT ERROR");
+   }
+   hb_itemRelease( pFIL );
+   hb_itemRelease( pCOL );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:@|GO TO X,Y INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_colortext(PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pCOLOR = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_NUMERIC( pCOLOR ) ) {
+      //static const char ansicolors[16] = {30, 34, 32, 36, 31, 35, 33, 37, 0, 34, 32, 36, 31, 35, 33, 37};
+     HB_INT color = (HB_INT) hb_itemGetNInt( pCOLOR );
+     int atrval=0;
+     if (color & UNDERLINE)
+       atrval=UNDERLINE_ATTR;
+     else if (color & BLINK)
+       atrval=BLINK_ATTR;
+     else if (color>=BRILLO_MIN)
+       atrval=BRILLO_ATTR;
+
+     color=ansicolors[color & 15];
+  
+     printf("\033[%d;%dm", atrval, color);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:COLOR ARGUMENT ERROR");
+   }
+   hb_itemRelease( pCOLOR );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:COLOR INNER-STACK OVERFLOW");
+}
+return sw;  
+}
+
+int fun_background(PHB_ITEM pSTK_ADDR, PHB_ITEM pRET){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pCOLOR = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_NUMERIC( pCOLOR ) ) {
+      //static const char ansicolors[16] = {30, 34, 32, 36, 31, 35, 33, 37, 0, 34, 32, 36, 31, 35, 33, 37};
+     HB_INT color = (HB_INT) hb_itemGetNInt( pCOLOR );
+  
+     if (color<BRILLO_MIN){				   
+        color=ansicolors[color & 15]+10;
+  
+        printf("\033[%dm", color);
+     }
+   }else{
+     sw=put_error((PHB_ITEM) pRET, "CALL:BACKGROUND ARGUMENT ERROR");
+   }
+   hb_itemRelease( pCOLOR );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:BACKGROUND INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+
+int fun_char_rem( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if (CADDR>=2){
+   PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   PHB_ITEM pDELSET = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   const char *pcString = hb_itemGetCPtr( pSTRING );
+   HB_SIZE sStrLen = hb_itemGetCLen( pSTRING );
+   const char *pcOnlySet = hb_itemGetCPtr( pDELSET );
+   HB_SIZE sOnlySetLen = hb_itemGetCLen( pDELSET );
+   char *pcRet;
+   HB_SIZE sRetStrLen = 0;
+   int iShift, iBool;
+   const char *pcSub, *pc;
+
+   if( HB_IS_STRING( pSTRING ) && HB_IS_STRING( pDELSET ) ){
+      if( sStrLen == 0 ){
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "" );
+         hb_itemRelease( pSTRING );
+         hb_itemRelease( pDELSET );
+         return sw;
+      }
+      if( sOnlySetLen == 0 ){
+         //hb_retclen( pcString, sStrLen );
+//         const char *buff = szDest;
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) pcString );
+//         free(szDest);
+         hb_itemRelease( pSTRING );
+         hb_itemRelease( pDELSET );
+         return sw;
+      }
+      iShift = 1;
+
+      pcRet = ( char * ) calloc( sStrLen + 1, 1 );//hb_xgrab( sStrLen );
+
+      for( pcSub = pcString; pcSub < pcString + sStrLen + 1 - iShift; pcSub += iShift )
+      {
+         pc = ct_at_exact_forward( pcOnlySet, sOnlySetLen, pcSub, iShift, NULL );
+         iBool = ( ( pc != NULL ) && ( ( ( pc - pcOnlySet ) % iShift ) == 0 ) );
+        /* if( iBool ? ( iSwitch == DO_CHARONLY_CHARONLY ||
+                       iSwitch == DO_CHARONLY_WORDONLY )
+                   : ( iSwitch == DO_CHARONLY_CHARREM ||
+                       iSwitch == DO_CHARONLY_WORDREM ) ) */
+         if( !iBool )
+         {
+            for( pc = pcSub; pc < pcSub + iShift; pc++ )
+               pcRet[sRetStrLen++] = *pc;
+         }
+      }
+      /* copy last character if string len is odd */
+      if( iShift == 2 && sStrLen % 2 == 1 )
+      {
+         pcRet[sRetStrLen++] = pcString[sStrLen - 1];
+      }
+      const char * buff = pcRet;
+      hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) buff );
+      free( pcRet );
+      hb_itemRelease(pSTRING);
+      hb_itemRelease(pDELSET);
+//      hb_retclen( pcRet, sRetStrLen );
+//      hb_xfree( pcRet );
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:DELETECHAR ARGUMENT ERROR");
+   }
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:DELETECHAR INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+
+/** ARCHIVOS **/
+
+#define MAXREADBUFFER   2048
+
+int fun_str2utf8( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=1 ){
+   
+   PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   HB_SIZE nLen = hb_itemGetCLen ( pSTRING ), nDest = 0;
+   const char * szString;
+   char * szDest = NULL;
+
+   if( nLen )
+   {
+      PHB_CODEPAGE cdp = hb_vmCDP();
+
+      if( cdp )
+      {
+         szString = hb_itemGetCPtr( pSTRING );
+         nDest = hb_cdpStrAsUTF8Len( cdp, szString, nLen, 0 );
+         szDest = ( char * ) calloc( nDest + 1, 1 );
+         hb_cdpStrToUTF8( cdp, szString, nLen, szDest, nDest + 1 );
+      }
+   }
+   if( szDest ){
+      const char *buff = szDest;
+      hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) buff );
+      free(szDest);
+   }else{
+      hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "" );
+   }
+   hb_itemRelease( pSTRING );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:STRTOUTF8 INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_utf82str( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pSTRING = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   const char * szString = hb_itemGetCPtr( pSTRING );
+
+   if( szString )
+   {
+      HB_SIZE nLen = hb_itemGetCLen( pSTRING ), nDest = 0;
+      char * szDest = NULL;
+
+      if( nLen )
+      {
+         PHB_CODEPAGE cdp = hb_vmCDP(); 
+
+         if( cdp )
+         {
+            nDest = hb_cdpUTF8AsStrLen( cdp, szString, nLen, 0 );
+            szDest = ( char * ) calloc( nDest + 1, 1);
+            hb_cdpUTF8ToStr( cdp, szString, nLen, szDest, nDest + 1 );
+         }
+      }
+
+      if( szDest ){
+         const char *buff = szDest;
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) buff );
+         free(szDest);
+      }else{
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "" );
+      }
+   }
+   else
+      sw=put_error((PHB_ITEM) pRET, "CALL:UTF8TOSTR ARGUMENT ERROR (I NEED A STRING)");
+   hb_itemRelease( pSTRING );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:UTF8TOSTR INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_seek( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pPOS = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // posicion
+   PHB_ITEM pSET = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // SET
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   
+   int Retorno;
+   FILE_ERROR=0;
+   if( HB_IS_NUMERIC( pPOS ) && HB_IS_NUMERIC( pSET ) )
+   {
+      Retorno = hb_fsSeekLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), 
+                                hb_itemGetNInt( pPOS ), ( HB_USHORT ) hb_itemGetNInt( pSET ) ) ;
+      FILE_ERROR = hb_fsError();
+   }
+   else
+      Retorno = 0;
+
+   hb_fsSetFError( FILE_ERROR );
+   hb_arraySetNInt( pSTK_ADDR, ++CADDR, Retorno );
+   hb_itemRelease( pFD );
+   hb_itemRelease( pPOS );
+   hb_itemRelease( pSET );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:SEEK INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_count_lines( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, char * TOKENIZER ){
+int sw=1;
+if( CADDR<=nSizeStack-3 ){    // porque dejará 3 datos en el stack.
+   PHB_ITEM pFILE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+ /*  if( CADDR == 0 ){
+      hb_itemRelease(pFILE);
+      sw=put_error((PHB_ITEM) pRET, "CALL:COUNTFILE CAN'T FIND SEPARATOR TOKENS");
+      return sw;
+   } */
+ //  PHB_ITEM pTOKEN = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+
+   if( HB_IS_STRING( pFILE ) ){  //&& HB_IS_STRING( pTOKEN ) ){
+      
+      const char * pFile = hb_itemGetCPtr( pFILE );
+      const char * pSep = TOKENIZER;
+      
+      char cSep = pSep[0];
+      FILE *fp;
+      long nLin=0,nTotCar=0,nLong=0,noldLong=0, nTokens=0;
+      int sw_Enter=0,sw_Car=0, swFirstLine=1;
+      char ch;
+   
+      fp=fopen(pFile,"r");
+      if (fp!=NULL){
+         nLin = 0;
+         while ((ch = fgetc(fp)) != EOF){
+            if (ch == '\n'){
+               sw_Enter=1;
+               sw_Car=0;
+               swFirstLine=0;
+               nLin++;
+               if (noldLong < nLong) { // longitud máxima de la línea
+                  noldLong = nLong;
+               }
+               nLong=0;
+            }else{
+               if( swFirstLine ) 
+                  if( cSep == ch )
+                     nTokens++;
+               
+               sw_Enter=0;
+               sw_Car=1;
+               nLong++;
+            }
+            nTotCar++;
+         }
+         fclose(fp);
+         // suma 1 a nToken, por el último que no leyó:
+         nTokens++;
+         if(sw_Enter==0 && sw_Car==1)
+           ++nLin;
+         if(nLong > noldLong) noldLong = nLong;
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:COUNTFILE FILE OPEN TO READ ERROR");
+      }
+      hb_arraySetNL( pSTK_ADDR, ++CADDR, (long) nLin );
+      hb_arraySetNL( pSTK_ADDR, ++CADDR, (long) nTotCar );
+      hb_arraySetNI( pSTK_ADDR, ++CADDR, (int)  noldLong );
+      hb_arraySetNI( pSTK_ADDR, ++CADDR, (int)  nTokens );
+      hb_itemRelease(pFILE);
+    //  hb_itemRelease(pTOKEN);
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:COUNTFILE ARGUMENT ERROR");
+   }
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:COUNTFILE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_get_error( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR<nSizeStack ){   // analizar el tipo de error, entregar el mensaje correspondiente.
+   HB_MAXINT nTypeErr = (HB_MAXINT) hb_fsGetFError();
+   switch( nTypeErr ){
+      case 0:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Successful" ); break; }
+      case 2:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "File not found" ); break; }
+      case 3:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Path not found" ); break; }
+      case 4:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Too many files open" ); break; }
+      case 5:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Access denied" ); break; }
+      case 6:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Invalid handle" ); break; }
+      case 8:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Insufficient memory" ); break; }
+      case 15:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Invalid drive specified" ); break; }
+      case 19:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Attempted to write to a write-protected disk" ); break; }
+      case 21:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Drive not ready" ); break; }
+      case 23:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Data CRC error" ); break; }
+      case 29:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Write fault" ); break; }
+      case 30:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Read fault" ); break; }
+      case 32:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Sharing violation" ); break; }
+      case 33:{ hb_arraySetC( pSTK_ADDR, ++CADDR, (const char*) "Lock Violation" ); break; }
+   }
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:FILEERROR INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+short int fun_isNumber(const char * AX){
+  int DX;
+  short int SW_M=0,SW_N=0,SW_P=0;
+  short int retorne;
+  
+  retorne = AX[0]!='\0' ? 1 : 0;
+  
+  while( (DX=*AX)!='\0'){
+    if(DX=='-'){
+       if (SW_N || SW_P || SW_M) {retorne=0;break;}
+       SW_M=1;
+    }else if (DX=='.'){
+       if (!SW_N || SW_P) {retorne=0;break;}
+       SW_P=1;
+    }else if (isdigit(DX)) {SW_N=1;
+    }else {retorne=0;break;}
+    ++AX;
+  }
+  if (retorne==0) { SW_P = SW_N = SW_M = 0;}
+  retorne=retorne<<1;
+  retorne|=SW_P;     // 1=es decimal; 0=entero
+  return (retorne);
+}
+
+void echo_matrix_token( PHB_ITEM pSource, unsigned PRECISION, HB_MAXINT nDim, 
+                        HB_MAXINT d1, HB_MAXINT d2, HB_MAXINT d3, char * TOKENIZER, FILE *fhnd ){
+   const char * cSep = TOKENIZER;
+   switch( nDim ){
+      case 1:{
+         int i;
+         for (i=1; i<=d1; i++ ){
+            PHB_ITEM pDato = hb_itemArrayGet( pSource, i);
+            echo_single( (PHB_ITEM) pDato, PRECISION, fhnd );
+            if( d1-i ) fwrite( cSep, 1,1, fhnd );
+            hb_itemRelease(pDato);
+         }
+         break;
+      }case 2:{
+         int i;
+         for( i=1; i<=d1; i++){
+            PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+            int j;
+            for( j=1; j<=d2; j++){
+               PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+               echo_single( (PHB_ITEM) pPrint, PRECISION, fhnd );
+               hb_itemRelease(pPrint);
+               if( d2-j ) fwrite( cSep, 1,1,fhnd );
+            }
+            fwrite( "\n", 1,1,fhnd );
+            hb_itemRelease(pDato2D);
+         }
+         break;
+      }case 3:{
+         int i;
+         int k;
+         for( k=1; k<=d3; k++){
+            for( i=1; i<=d1; i++){
+               PHB_ITEM pDato2D = hb_itemArrayGet( pSource, i);
+               int j;
+               for( j=1; j<=d2; j++){
+                  PHB_ITEM pPrint = hb_itemArrayGet( pDato2D, j);
+                  PHB_ITEM pPrint2 = hb_itemArrayGet( pPrint, k);
+                  echo_single( (PHB_ITEM) pPrint2, PRECISION, fhnd );
+                  hb_itemRelease(pPrint2);
+                  if( d2-j ) fwrite( cSep, 1,1, fhnd );
+                  hb_itemRelease(pPrint);
+               }
+               hb_itemRelease(pDato2D);
+               fwrite( "\n", 1,1, fhnd );
+            }
+            fwrite( "\n", 1,1,fhnd );
+         }
+         break;     
+      }
+   }
+}
+
+int fun_savemat( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION, char * TOKENIZER ){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pFILE   = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  nombre de archivo a guardar
+   PHB_ITEM pMATRIX = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  matriz
+   
+   if( HB_IS_STRING( pFILE ) && HB_IS_ARRAY( pMATRIX ) ){
+      const char * szFile = hb_itemGetCPtr( pFILE );
+      int nPrecision = SW_PRECISION ? PRECISION : 16;
+      
+      FILE *fp;         
+      fp=fopen(szFile,"w");
+      if( fp!=NULL ){
+         HB_MAXINT nDim=0,d1=0,d2=0,d3=0,type=0;
+         get_size( (PHB_ITEM) pMATRIX, &nDim, &d1, &d2, &d3, &type);
+         echo_matrix_token( pMATRIX, nPrecision, nDim, d1, d2, d3, (char *)TOKENIZER, (FILE*) fp );
+         fclose(fp);
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:SAVE OPEN ERROR");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:SAVE ARGUMENT (FILENAME|MATRIX) ERROR");
+   }
+   hb_itemRelease( pFILE );
+   hb_itemRelease( pMATRIX );   
+   
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:SAVE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_loadmat( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int PRECISION, char * TOKENIZER ){
+int sw=1;
+if( CADDR>=5 ){
+   PHB_ITEM pFILE   = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  archivo a leer
+//   PHB_ITEM pTOKEN  = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  separador de tokens
+   PHB_ITEM pTOTTOK = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  total de tokens encontrados en primera linea.
+   PHB_ITEM pMAXLIN = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  maxima longitud de linea --> importante
+   PHB_ITEM pTOTCAR = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  total caracteres
+   PHB_ITEM pTOTLIN = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  //  total lineas --> este es importante aqui
+   
+   if( HB_IS_STRING( pFILE ) ){ //&& HB_IS_STRING( pTOKEN ) ){
+      const char * szFile = hb_itemGetCPtr( pFILE );
+      const char * szSeparator = TOKENIZER; //hb_itemGetCPtr( pTOKEN );
+   
+      char cSep = szSeparator[0];  // tommo primer caracter como separador.
+   
+      if( HB_IS_NUMERIC( pMAXLIN ) && HB_IS_NUMERIC( pTOTCAR ) && HB_IS_NUMERIC( pTOTLIN ) &&
+          HB_IS_NUMERIC( pTOTTOK ) ){
+         // aqui empieza todo!
+         FILE *fp;         
+         fp=fopen(szFile,"r");
+         if (fp!=NULL){
+            long nCurrLine=0, ctaLines=0, nTotLines = hb_itemGetNInt( pTOTLIN );
+            int  nMaxLine = hb_itemGetNI( pMAXLIN );
+            int ctaToken=0, relaToken=0, nTokens = hb_itemGetNI( pTOTTOK );
+            HB_MAXINT nTotCar = hb_itemGetNInt( pTOTCAR );
+            char ch, buffer[MAXREADBUFFER]; 
+            int i=0;
+            
+            // verificar si hay filas y columnas prestablecidas:
+            int nIniR=1, nFinR=nTotLines;
+            int nIniC=1, nFinC=nTokens;
+            if( MARK_ROW ) {
+               if( MARK_ROW == 999999999 ) MARK_ROW=nTotLines;
+               if( MARK_ROW>nTotLines ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LOAD ROW'MARK OVERFLOW");
+               }
+               nIniR=MARK_ROW;nFinR=MARK_ROW;
+               if( OFFSET_ROW ){
+                  if( OFFSET_ROW == 999999999 ) OFFSET_ROW=nTotLines;
+                  if( OFFSET_ROW<=nTotLines ){
+                     nFinR=OFFSET_ROW;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LOAD ROW'OFFSET OVERFLOW");
+                  }
+               }
+            }else{  // asume todas las filas
+               OFFSET_ROW=nFinR;
+            }
+            if( MARK_COL ) {
+               if( MARK_COL == 999999999 ) MARK_COL=nTokens;
+               if( MARK_COL>nTokens ){
+                  sw=put_error((PHB_ITEM) pRET, "CALL:LOAD COL'MARK OVERFLOW");
+               }
+               nIniC=MARK_COL;nFinC=MARK_COL;
+               if( OFFSET_COL ){
+                  if( OFFSET_COL == 999999999 ) OFFSET_COL=nTokens;
+                  if( OFFSET_COL<=nTokens ){
+                     nFinC=OFFSET_COL;
+                  }else{   // es mayor! ERROR
+                     sw=put_error((PHB_ITEM) pRET, "CALL:LOAD COL'OFFSET OVERFLOW");
+                  }
+               }
+            }else{  // asume todas las columnas
+               OFFSET_COL=nFinC;
+            }
+          /*****/
+          if (sw){
+            //PHB_ITEM pRow = hb_itemArrayNew( nTotLines );
+            PHB_ITEM pRow = hb_itemArrayNew( nFinR - nIniR + 1 );
+            /* avanzo el puntero hasta la línea donde empiezo a leer */
+            if( nIniR>1 ){
+               while ((ch = fgetc(fp)) != EOF){
+                  if ( ch == '\n' ){
+                     nCurrLine++;
+                     if(nCurrLine == nIniR-1) break;
+                  }
+               }
+            }
+            if( feof(fp) ){
+               sw=put_error((PHB_ITEM) pRET, "CALL:LOAD FILE IS NOT MATRIX COMPATIBLE");
+            }else{
+               /***/
+               PHB_CODEPAGE cdp = hb_vmCDP();
+               while( nCurrLine <= nFinR ){  //nTotLines ){
+
+                  //PHB_ITEM pCol = hb_itemArrayNew( nTokens );
+                  PHB_ITEM pCol = hb_itemArrayNew( nFinC - nIniC + 1 );
+                  ctaToken=0;
+                  relaToken=0;
+                  i=0;
+                  while ((ch = fgetc(fp)) != EOF){
+                     if ( ch == '\n' ){
+                        ++ctaToken;
+                        if( ctaToken > nTokens ){   // error!
+                           sw=put_error((PHB_ITEM) pRET, "CALL:LOAD FILE IS NOT MATRIX COMPATIBLE (TOKENS)");
+                        }else if( ctaToken>=nIniC && ctaToken<=nFinC ){
+                           // verificar el tipo y guardar en pCol:
+                          if( i ){
+                              buffer[i] = '\0';
+                              const char *cBuffer = buffer;
+                              double nDbl;
+                             // int nInt;
+                              long nLong;
+                              int nRet = fun_isNumber( cBuffer );
+                              relaToken++; 
+                              if( nRet ){  // es numero normal?
+                                 if( nRet == 2 ){  // entero o long?
+                                    sscanf(cBuffer, "%ld", &nLong);
+                                    if( nLong >= INT_MIN && nLong <= INT_MAX )
+                                       hb_arraySetNI( pCol, relaToken, (int)nLong );
+                                    else
+                                       hb_arraySetNL( pCol, relaToken, (long)nLong );
+                                 }else{    // decimal: double!
+                                    sscanf(cBuffer, "%lf", &nDbl);
+                                    hb_arraySetND( pCol, relaToken, (double)SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl  );
+                                 }
+                              }else if( xu_funIsnotation( cBuffer ) ){  // es un numero con notación cientifica?
+                                 nDbl = xu_funE2D( cBuffer );
+                                 hb_arraySetND( pCol, relaToken, (double)SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl  );
+                              }else{   // debe ser string, por default la hueá.
+                                  /*
+                                 char *szDest;
+                                 if( cdp )
+                                 {
+                                    HB_SIZE nDest = hb_cdpUTF8AsStrLen( cdp, cBuffer, i, 0 );
+                                    szDest = ( char * ) calloc( nDest + 1, 1);
+                                    hb_cdpUTF8ToStr( cdp, cBuffer, i, szDest, nDest + 1 );
+                                 }
+                                 const char *buff = szDest;
+                                 hb_arraySetC( pCol, relaToken, (const char*) buff );
+                                 free(szDest); */
+                                 hb_arraySetC( pCol, relaToken, (const char*)cBuffer );
+                              }
+                              //i=0;
+                           }else{
+                              sw=put_error((PHB_ITEM) pRET, "CALL:LOAD FILE IS NOT MATRIX COMPATIBLE (BLANK LINE)");
+                           }
+                         //  break;
+                        }
+                        i=0;
+                        relaToken=0;
+                        break;
+                     }else if( ch == cSep ){  // encontró un separador?
+                        ++ctaToken;
+                        if( ctaToken > nTokens ){   // error!
+                           sw=put_error((PHB_ITEM) pRET, "CALL:LOAD(2) FILE IS NOT MATRIX COMPATIBLE (TOKENS)");
+                           break;
+                        }else if( ctaToken>=nIniC && ctaToken<=nFinC ){
+                           // verificar el tipo y guardar en pCol:
+                           if( i ){
+                              buffer[i] = '\0';
+                              const char *cBuffer = buffer;
+                              double nDbl;
+                            //  int nInt;
+                              long nLong;
+                        
+                              int nRet = fun_isNumber( cBuffer );
+                              relaToken++;
+                              if( nRet ){  // es numero normal?
+                                 if( nRet == 2 ){  // entero o long?
+                                    sscanf(cBuffer, "%ld", &nLong);
+                                    if( nLong >= INT_MIN && nLong <= INT_MAX )
+                                       hb_arraySetNI( pCol, relaToken, (int)nLong );
+                                    else
+                                       hb_arraySetNL( pCol, relaToken, (long)nLong );
+
+                                 }else{    // decimal: double!
+                                    sscanf(cBuffer, "%lf", &nDbl);
+                                    hb_arraySetND( pCol, relaToken, (double)SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl  );
+                                 }
+                              }else if( xu_funIsnotation( cBuffer ) ){  // es un numero con notación cientifica?
+                                 nDbl = xu_funE2D( cBuffer );
+                                 hb_arraySetND( pCol, relaToken, (double) SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl );
+                              }else{   // debe ser string, por default la hueá.
+                                 hb_arraySetC( pCol, relaToken, (const char*)cBuffer );
+                              }
+                            //  i=0;
+                           }else{
+                              sw=put_error((PHB_ITEM) pRET, "CALL:LOAD(2) FILE IS NOT MATRIX COMPATIBLE (BLANK LINE)");
+                              break;
+                           }
+                        }
+                        i=0;
+                     }else{
+                        buffer[i++] = ch;
+                     }
+                  }
+                  if( sw ){
+                     hb_arraySet( pRow, ++ctaLines, pCol );
+                     ++nCurrLine;
+                  }
+                  hb_itemRelease( pCol );
+               }
+               hb_arraySet( pSTK_ADDR, ++CADDR, pRow );
+               hb_itemRelease( pRow );
+               MARK_ROW = MARK_COL = OFFSET_ROW = OFFSET_COL = 0;
+            }
+            fclose(fp);
+          }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:LOAD FILE OPEN TO READ ERROR");
+         }
+         
+      }else{
+         sw=put_error((PHB_ITEM) pRET, "CALL:LOAD ARGUMENT (COUNT FILE) ERROR");
+      }
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:LOAD ARGUMENT (FILENAME|SEPARATOR) ERROR");
+   }
+   hb_itemRelease( pFILE );
+//   hb_itemRelease( pTOKEN );
+   hb_itemRelease( pTOTLIN );
+   hb_itemRelease( pMAXLIN );
+   hb_itemRelease( pTOTCAR );
+   hb_itemRelease( pTOTTOK );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:LOAD INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_writeline( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int TypeRead, char *TOKENIZER, int PRECISION )
+{
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pTOWRITE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // string a escribir
+   
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+
+   int nWriteS;
+   FILE_ERROR=0;
+   
+   if( HB_IS_NUMERIC( pFD ) ){
+      if( TypeRead ){   // write line string
+         if( HB_IS_STRING( pTOWRITE ) ){
+            HB_SIZE nLen = hb_itemGetCLen( pTOWRITE );
+            nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), hb_itemGetCPtr( pTOWRITE ), nLen ) ;
+            FILE_ERROR = hb_fsError();
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:WRITELINE ARGUMENT ERROR");
+         }
+      }else{   // write row. graba cada token.
+         if( HB_IS_ARRAY( pTOWRITE ) ){
+            HB_MAXINT nDim=0,d1=0,d2=0, d3=0,type=0;
+            get_size( (PHB_ITEM) pTOWRITE, &nDim, &d1, &d2, &d3, &type);
+            
+            if( nDim == 1 ){
+               int i;
+               int nPrec = SW_PRECISION ? PRECISION : 16;
+               for( i=1; i<=d1; i++ ){
+                  PHB_ITEM pSource = hb_itemArrayGet( pTOWRITE, i );
+                  if( HB_IS_STRING( pSource ) ){
+                     const char * pString = hb_itemGetCPtr( pSource );
+                     long nText = hb_itemGetCLen( pSource );
+                     nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), pString, nText ) ;
+                  }else if ( HB_IS_INTEGER ( pSource ) ){
+                     int pNum = hb_itemGetNI( pSource );
+                     char * buf = (char *)calloc(32,1);
+                     int size = sprintf(buf,"%d", pNum);
+                     const char * pString = buf;
+                     nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), pString, size ) ;
+                     free(buf);
+                  }else if( HB_IS_NUMERIC( pSource ) ) {
+                     double pDbl = hb_itemGetND( pSource );
+                     char * buf = (char *)calloc(64,1);
+                     int size = sprintf(buf,"%'.*lf", nPrec, pDbl);
+                     const char * pString = buf;
+                     nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), pString, size ) ;
+                     free(buf);
+                  }else if( HB_IS_LONG( pSource ) ) {
+                     long pLong = hb_itemGetNL( pSource );
+                     char * buf = (char *)calloc(64,1);
+                     int size = sprintf(buf,"%ld", pLong);
+                     const char * pString = buf;
+                     nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), pString, size ) ;
+                     free(buf);
+                  }else if( HB_IS_LOGICAL( pSource ) ){
+                     HB_BOOL pBool = hb_itemGetL( pSource );
+                     if (pBool) hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), "1", 1 ) ;
+                     else hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), "0", 1 ) ;
+                  }
+                  if ( d1-i ) nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), TOKENIZER, 1 ) ;
+                  else nWriteS = hb_fsWriteLarge( hb_numToHandle( hb_itemGetNInt( pFD ) ), "\n", 1 ) ;
+                  FILE_ERROR = hb_fsError();
+                  hb_itemRelease( pSource );
+               }
+            }else{
+               sw=put_error((PHB_ITEM) pRET, "CALL:WRITEROW DIMENSION ERROR");
+            }
+         }else{
+            sw=put_error((PHB_ITEM) pRET, "CALL:WRITEROW ARGUMENT ERROR");
+         }
+      }
+   }else
+      if( TypeRead )
+         sw=put_error((PHB_ITEM) pRET, "CALL:WRITELINE FILE DESCRIPTOR ERROR");
+      else
+         sw=put_error((PHB_ITEM) pRET, "CALL:WRITEROW FILE DESCRIPTOR ERROR");
+
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pTOWRITE );
+   hb_itemRelease( pFD );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:WRITELINE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_readline( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, int TypeRead, char * TOKENIZER )
+{
+int sw=1;
+if( CADDR>=1 ){
+   PHB_ITEM pNTOREAD = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // n a leer
+   
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   
+   HB_FHANDLE fhnd = ( HB_FHANDLE ) hb_itemGetNInt( pFD );
+   HB_SIZE nToRead = ( HB_SIZE ) hb_itemGetNInt( pNTOREAD );
+   
+   /* obtener total de caracteres del archivo */
+   HB_SIZE nSavePos   = hb_fsSeekLarge( hb_numToHandle( fhnd ), 0, 1 ) ;
+   HB_SIZE nFinalPos  = hb_fsSeekLarge( hb_numToHandle( fhnd ), 0, 2 ) ;
+           nSavePos   = hb_fsSeekLarge( hb_numToHandle( fhnd ), nSavePos, 0 ) ;
+
+   if( nToRead + nSavePos > nFinalPos ) 
+      nToRead -= ( nToRead + nSavePos ) - nFinalPos; 
+
+   char * buffer = ( char * ) calloc( nToRead + 1, 1 ); 
+   HB_SIZE nRead;
+   HB_SIZE cbuf = 0;
+   /* primer intento */
+
+   nRead = hb_fsReadLarge( fhnd, buffer, nToRead );
+   FILE_ERROR = hb_fsError();
+
+   while( cbuf<=nToRead ){
+      if(buffer[cbuf]!='\n') ++cbuf;
+      else break;
+   }
+   long nLen;
+   if( cbuf<=nToRead ){  // encontró un '\n'
+      buffer[ cbuf ] = '\0';
+      const char * pValue = buffer;
+      if( TypeRead ){  // lee string
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *) pValue );
+      }else{    // lee row
+         const char * tokenizer = TOKENIZER;
+         char *cTexto = (char *)calloc( cbuf + 1, 1 );
+         memcpy( cTexto, buffer, cbuf );
+         char *cBuffer = strtok(cTexto, tokenizer);
+
+         int size=0;
+         long nLong;
+         double nDbl;
+         PHB_ITEM pCol = hb_itemArrayNew( 0 );
+         while( cBuffer ){
+            hb_arraySize( pCol, ++size );
+            const char * pBuffer = cBuffer;
+            int nRet = fun_isNumber( pBuffer );
+            if( nRet ){  // es numero normal?
+               if( nRet == 2 ){  // entero o long?
+                  sscanf(pBuffer, "%ld", &nLong);
+                  if( nLong >= INT_MIN && nLong <= INT_MAX )
+                     hb_arraySetNI( pCol, size, (int)nLong );
+                  else
+                     hb_arraySetNL( pCol, size, (long)nLong );
+               }else{    // decimal: double!
+                  sscanf(pBuffer, "%lf", &nDbl);
+                  //hb_arraySetND( pCol, size, (double)SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl  );
+                  hb_arraySetND( pCol, size, (double) nDbl  );
+               }
+            }else if( xu_funIsnotation( pBuffer ) ){  // es un numero con notación cientifica?
+               nDbl = xu_funE2D( pBuffer );
+               //hb_arraySetND( pCol, size, (double) SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl );
+               hb_arraySetND( pCol, size, (double) nDbl );
+            }else{   // debe ser string, por default la hueá.
+               hb_arraySetC( pCol, size, (const char*)pBuffer );
+            }
+            
+            cBuffer = strtok(0, tokenizer);
+         }
+         free(cTexto);
+         // guardo array en STK_ADDR
+         if( pCol ){
+            hb_arraySet( pSTK_ADDR, ++CADDR, (PHB_ITEM) pCol );
+         }
+         hb_itemRelease( pCol );
+      }
+      nLen = strlen( pValue );
+   }else{     // no encontró '\n'
+      buffer[ nToRead ] = '\0';
+      const char * pValue = buffer;
+      if( TypeRead ){  // lee string
+         hb_arraySetC( pSTK_ADDR, ++CADDR, (const char *) pValue );
+      }else{    // lee row
+         const char * tokenizer = TOKENIZER;
+         char *cTexto = (char *)calloc( nToRead + 1, 1 );
+         memcpy( cTexto, buffer, nToRead );
+         char *cBuffer = strtok(cTexto, tokenizer);
+         
+         int size=0;
+         long nLong;
+         double nDbl;
+         PHB_ITEM pCol = hb_itemArrayNew( 0 );
+         while( cBuffer ){
+            hb_arraySize( pCol, ++size );
+            const char * pBuffer = cBuffer;
+            int nRet = fun_isNumber( pBuffer );
+            if( nRet ){  // es numero normal?
+               if( nRet == 2 ){  // entero o long?
+                  sscanf(pBuffer, "%ld", &nLong);
+                  if( nLong >= INT_MIN && nLong <= INT_MAX )
+                     hb_arraySetNI( pCol, size, (int)nLong );
+                  else
+                     hb_arraySetNL( pCol, size, (long)nLong );
+               }else{    // decimal: double!
+                  sscanf(pBuffer, "%lf", &nDbl);
+                  //hb_arraySetND( pCol, size, (double)SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl  );
+                  hb_arraySetND( pCol, size, (double) nDbl  );
+               }
+            }else if( xu_funIsnotation( pBuffer ) ){  // es un numero con notación cientifica?
+               nDbl = xu_funE2D( pBuffer );
+               //hb_arraySetND( pCol, size, (double) SW_PRECISION ? hb_numRound(nDbl,PRECISION) : nDbl );
+               hb_arraySetND( pCol, size, (double) nDbl );
+            }else{   // debe ser string, por default la hueá.
+               hb_arraySetC( pCol, size, (const char*) pBuffer );
+            }
+            
+            cBuffer = strtok(0, tokenizer);
+         }
+         free(cTexto);
+         // guardo array en STK_ADDR
+         if( pCol ){
+            hb_arraySet( pSTK_ADDR, ++CADDR, (PHB_ITEM) pCol );
+         }
+         hb_itemRelease( pCol );
+      }
+      nLen = strlen( pValue );
+   }
+   // calcula nueva posición.
+   nLen++;
+   nSavePos = hb_fsSeekLarge( hb_numToHandle( fhnd ), nSavePos + nLen, 0 ) ;
+         
+   free(buffer);
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pNTOREAD );
+   hb_itemRelease( pFD );
+}else{
+   if( TypeRead )
+      sw=put_error((PHB_ITEM) pRET, "CALL:READLINE INNER-STACK OVERFLOW");
+   else
+      sw=put_error((PHB_ITEM) pRET, "CALL:READROW INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_eof( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   FILE_ERROR=0;
+   if( HB_IS_NUMERIC( pFD ) )
+   {
+      hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) hb_fsEof( hb_numToHandle( hb_itemGetNInt( pFD ) ) ) );
+      FILE_ERROR=hb_fsError();
+   }
+   else
+      hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) HB_TRUE );
+
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pFD );
+}else{
+  sw=put_error((PHB_ITEM) pRET, "CALL:EOF INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_ferror( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+  hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) FILE_ERROR ? HB_TRUE : HB_FALSE );
+  FILE_ERROR=0;
+}else{
+  sw=put_error((PHB_ITEM) pRET, "CALL:ERROR INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_fclose( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pRET ){
+int sw=1;
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   FILE_ERROR=0;
+//   HB_ERRCODE uiError = 0;
+   if( HB_IS_NUMERIC( pFD ) )
+   {
+      hb_fsClose( hb_numToHandle( hb_itemGetNInt( pFD ) ) );
+      FILE_ERROR = hb_fsError();
+   }
+   else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:CLOSE INVALID FILE DESCRIPTOR");
+   }
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pFD );
+return sw;
+}
+
+int fun_exist_file( PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR < nSizeStack ){
+   PHB_ITEM pFILE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // archivo
+   const char * szFile = hb_itemGetCPtr( pFILE );
+   hb_arraySetL( pSTK_ADDR, ++CADDR, szFile ? hb_spFile( szFile, NULL ) : HB_FALSE );
+   hb_itemRelease( pFILE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:EXIST INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_create( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pFILE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // archivo
+   PHB_ITEM pMODE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // modo
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   FILE_ERROR=0;
+   const char * szFile = hb_itemGetCPtr( pFILE );  //hb_parc( 1 );
+   if( szFile ){
+      hb_arraySetNInt( pSTK_REG, nItem, ( HB_NHANDLE ) hb_fsCreate( szFile,
+                                        ( HB_USHORT ) hb_itemGetNInt( pMODE ) ) );
+      FILE_ERROR = hb_fsError();
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:CREATE INVALID FILENAME");
+   }
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pFILE );
+   hb_itemRelease( pFD );
+   hb_itemRelease( pMODE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:CREATE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int fun_fopen( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM pSTK_ADDR, PHB_ITEM pRET ){
+int sw=1;
+if( CADDR>=2 ){
+   PHB_ITEM pFILE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // archivo
+   PHB_ITEM pMODE = hb_itemArrayGet( pSTK_ADDR, CADDR-- );  // modo
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pFD = hb_itemArrayGet( pSTK_REG, nItem );
+   FILE_ERROR=0;
+   const char * szFile = hb_itemGetCPtr( pFILE );  //hb_parc( 1 );
+   if( szFile ){
+      hb_arraySetNInt( pSTK_REG, nItem, ( HB_NHANDLE ) hb_fsOpen( szFile,
+                  ( HB_USHORT ) hb_itemGetNInt( pMODE ) ) );
+      
+      FILE_ERROR = hb_fsError();
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:OPEN INVALID FILENAME");
+   }
+   hb_fsSetFError( FILE_ERROR );
+   hb_itemRelease( pFILE );
+   hb_itemRelease( pFD );
+   hb_itemRelease( pMODE );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:OPEN INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int jumpCase( int STK_PRG[], PHB_ITEM pSTK_ADDR, PHB_ITEM pRET, PHB_ITEM SWITCH_VAR ){
+int sw=1;
+if( CADDR>=1 ){
+   unsigned int nJump = STK_PRG[ ++CP ];
+   PHB_ITEM pDATO = hb_itemArrayGet( pSTK_ADDR, CADDR-- );
+   if( HB_IS_NUMERIC( pDATO ) ){  
+      PHB_ITEM pSWVAR = hb_itemArrayGet( SWITCH_VAR, 1 );
+      if( hb_itemGetND( pSWVAR ) != hb_itemGetND( pDATO ) ){
+         CP = nJump - 1;
+      }
+      hb_itemRelease( pSWVAR );
+   }else if( HB_IS_STRING( pDATO ) ){
+      PHB_ITEM pSWVAR = hb_itemArrayGet( SWITCH_VAR, 2 );
+      if( strcmp( hb_itemGetCPtr( pSWVAR ), hb_itemGetCPtr( pDATO ) ) != 0 ){
+         CP = nJump - 1;
+      }
+      hb_itemRelease( pSWVAR );
+   }else{
+      sw=put_error((PHB_ITEM) pRET, "CALL:CASE ARGUMENT ERROR");
+   }
+   hb_itemRelease( pDATO );
+}else{
+   sw=put_error((PHB_ITEM) pRET, "CALL:CASE INNER-STACK OVERFLOW");
+}
+return sw;
+}
+
+int put_switch( int STK_PRG[], PHB_ITEM pSTK_REG, PHB_ITEM SWITCH_VAR ){
+
+   int nItem = STK_PRG[++CP];
+   PHB_ITEM pSWITCH = hb_itemArrayGet( pSTK_REG, nItem );
+ ///  if( SWITCH_VAR ) hb_itemClear( SWITCH_VAR );
+   if ( HB_IS_NUMERIC( pSWITCH) )
+      hb_arraySetND( SWITCH_VAR, 1, (double) hb_itemGetND( pSWITCH ) );
+
+   else if( HB_IS_STRING( pSWITCH ) )
+      hb_arraySetC( SWITCH_VAR, 2, (const char*) hb_itemGetCPtr( pSWITCH ) );
+
+   hb_itemRelease( pSWITCH );
+
+return 1;
+}
+/*
+static volatile sig_atomic_t keep_running = 1;
+//int keep_running = 1;
+
+//static void sig_handler(int _){
+//    (void)_;
+//    keep_running = 0;
+//}
+void sig_handler(int signo)
+{
+  if (signo == SIGINT){
+     printf("\nreceived SIGINT\n");
+     keep_running = 0;
+  }
+} */
+
+HB_FUNC ( XFUNCALL ){
+/*  declarar punteros a funcion que devuelvan INT: que será el numero de error, o 0 si sale bien
+    enumerar todo desde el 1. Los registros jamás serán colocados en el área de una funcion
+    Con esto, me evito el switch 
+    DEJAR ESTE LENGUAJE INDPENDIENTE. NOMBRE CLAVE: XI
+    
+    OBSERVACIONES:
+    - Solo se permite asignar datos sobre matrices 3D, y sobre porciones de estas, pero los computos son sobre matrices
+      2D, y completas.
+    - Computos sobre matrices 3D, usar getpage, putpage, y computar sbre una matriz 2D.  
+    - Para calcular sobre una porción de una matriz 2D, usar [],offset y get/put. Y que hueá.
+*/
+ // estructuras para punteros a función:
+
+    ///signal(SIGINT, sig_handler);
+    
+//    struct {
+//        int (*h)( int STK_PRG[], PHB_ITEM, PHB_ITEM, PHB_ITEM, PHB_ITEM, int);
+//    }funAsmStack[6] = {{PushReg},{NULL},{PushDS},{LetReg},{NULL},{LetDS} };
+//    }funAsmStack[6] = {{PushReg},{PushCte},{PushDS},{LetReg},{LetCte},{LetDS} };
+
+    struct {
+        int (*k)( int *, PHB_ITEM, PHB_ITEM );
+    }funAsmJump[6] = {{jumpEQ},{jumpNEQ},{jumpLT},{jumpLTE},{jumpGT},{jumpGTE} };
+    
+    struct {
+        int (*l)( int *, PHB_ITEM, PHB_ITEM );
+    }funAsmMonoJump[8] = {{jumpT},{jumpNT},{jumpV},{jumpNV},{jumpZ},{jumpNZ},{jumpNEG},{jumpPOS} };
+
+    struct {
+        int (*p)( PHB_ITEM, PHB_ITEM, PHB_ITEM, PHB_ITEM, int );
+    }funGetPutArray[6] = { {put_array},{get_array},{getrow},{getcol},{catrow},{catcol} };
+//    }funGetPutArray[6] = { {put_array},{get_array},{getrow},{getcol},{catrow},{catcol} };
+
+
+ // programa principal. Main Loop:
+    PHB_ITEM pSTK_DS  = hb_param( 1, HB_IT_ARRAY ); // dataseg
+    PHB_ITEM pSTK_PRG = hb_param( 2, HB_IT_ARRAY ); // program
+    unsigned PRECISION = hb_parni( 3 );
+    
+ //   long uiArrayLenDS = ( long ) hb_arrayLen( pSTK_DS );
+    long uiArrayLenPRG = ( long ) hb_arrayLen( pSTK_PRG );    
+    
+    CP=0;
+    CADDR=0;
+    swErr=0;
+    SW_PRECISION=0;   // por defecto, no hay precisión
+    int sw=1;      // ciclo principal
+
+    char *TOKENIZER;
+    TOKENIZER = (char*)calloc(2,1);
+    TOKENIZER[0]=' ';
+    TOKENIZER[1]='\0';
+
+    PHB_ITEM pRET = hb_itemArrayNew( 6 );   // respuesta: 5 elementos. Si aumento dimensiones de arrays, deben ser 7
+
+//    PHB_ITEM pSTK_REG = hb_itemArrayNew( nNumVar );   // stack de registros ax=1, bx=2,... zx=26
+       
+ // Carga el programa en un array int: ¿cambiará la velocidad?
+ // ATENCION!!!
+ // --- Los datos constantes de otro tipo distinto a int, son mal transformados: no cambiar parámetro pSTK_PRG
+ //     en esos casos, solo en los casos donde SE SABE que se obtendrá un ENTERO INDICE.
+    unsigned int STK_PRG[ uiArrayLenPRG + 1 ];
+    for(CP=1; CP<=uiArrayLenPRG; CP++){
+       PHB_ITEM pCP = hb_itemArrayGet( pSTK_PRG, CP);
+       STK_PRG[ CP ] = (int) hb_itemGetNInt( pCP );
+       hb_itemRelease(pCP);
+    }
+    CP=1;
+    // busco metadata: numero de variables declaradas, y otras cosas que necesite
+    unsigned int nNumVar=STK_PRG[ CP ];
+    PHB_ITEM pSTK_REG = hb_itemArrayNew( nNumVar );   // stack de registros ax=1, bx=2,... zx=26    
+
+    // busco tamaño del stack de trabajo:
+    nSizeStack=STK_PRG[ ++CP ]; 
+    PHB_ITEM pSTK_ADDR = hb_itemArrayNew( nSizeStack );   // stack de direcciones
+    
+    PHB_ITEM SWITCH_VAR=hb_itemArrayNew( 2 );  // dato de switch: 1=number, 2=string
+    hb_arraySetND( SWITCH_VAR, 1, (double) 0 );
+    hb_arraySetC( SWITCH_VAR, 2, (const char*) "" );
+      
+    // busca constantes y las guarda en STK_REG:
+  //  printf("\nCP INICIAL = %d\n", CP);
+    while(CP<=uiArrayLenPRG){
+       if(STK_PRG[ ++CP ]==0){ //(-2)){   // es una constante
+          PHB_ITEM pCP = hb_itemArrayGet( pSTK_PRG, ++CP);   // indice
+          int index = (int) hb_itemGetNInt( pCP );
+          hb_itemRelease(pCP);
+          PHB_ITEM pCP2 = hb_itemArrayGet( pSTK_PRG, ++CP);   // dato:
+          if( HB_IS_INTEGER( pCP2 ) ){
+             hb_arraySetNInt( pSTK_REG, index, hb_itemGetNInt( pCP2 ) );
+          }else if( HB_IS_LONG( pCP2 ) ){
+             hb_arraySetNL( pSTK_REG, index, hb_itemGetNL( pCP2 ) );
+          }else if( HB_IS_NUMERIC( pCP2 ) ){
+             hb_arraySetND( pSTK_REG, index, hb_itemGetND( pCP2 ) );
+          }else if( HB_IS_STRING( pCP2 ) ){
+             hb_arraySetC( pSTK_REG, index, hb_itemGetCPtr( pCP2 ) );
+          }
+          hb_itemRelease(pCP2);
+       }else if(STK_PRG[ CP ] == 255){
+          ++CP;  // para no contabilizarlo más.
+          break;
+       }
+    }
+ /*   int i;
+    for( i=1; i<=nNumVar; i++){
+       PHB_ITEM pCP2 = hb_itemArrayGet( pSTK_REG, i);
+          if( HB_IS_INTEGER( pCP2 ) ){
+             printf("%2d : %ld\n",i,hb_itemGetNInt( pCP2 ) );
+          }else if( HB_IS_LONG( pCP2 ) ){
+             printf("%2d : %ld\n",i, hb_itemGetNL( pCP2 ) );
+          }else if( HB_IS_NUMERIC( pCP2 ) ){
+             printf("%2d : %f\n",i, hb_itemGetND( pCP2 ) );
+          }else if( HB_IS_STRING( pCP2 ) ){
+             printf("%2d : %s\n",i, hb_itemGetCPtr( pCP2 ) );
+          }else{
+             printf("%2d : OTRA COSA\n",i);
+          }
+          hb_itemRelease(pCP2);
+    } */
+  //  printf("\nCP FINAL = %d\n", CP);
+  //  system("sleep 3");
+    
+    // busca inicio de ejecución: Va a tener uno, de eso la compilación se encargó.
+/*    while(CP<=uiArrayLenPRG){
+        if (STK_PRG[ CP ]==255) break;
+        ++CP;
+    } */
+   // INICIO DE EJECUCION VIENE INMEDIATAMENTE LUEGO DE CONSTANTES.
+    if (STK_PRG[ CP ]!=255){
+       sw=put_error((PHB_ITEM) pRET, "CALL:-MAIN- COULD BE FIRST LABEL");
+    }
+    
+  //  printf("\nCP BEGIN = %d\n", CP);
+    // para empezar, solo trabajará con valores atómicos, no arrays
+    while ( sw ) {    // ciclo principal
+
+        ++CP;   // aumenta contador de programa.
+
+        int nPCP = STK_PRG[ CP ];
+        
+        if(hb_inkey(0,0,128)==3){
+           sw=put_error((PHB_ITEM) pRET, "CALL:BREAK EXECUTION BY USER (CTRL-C)");
+           break;
+        }
+
+        switch( nPCP ){
+           //case -1: break;   // inicio_ nop
+           case 255: break;
+           case 140:{   // kbhit
+              if(hb_inkey(0,0,128)==0){
+                 ++CP;
+              }
+              break;
+           }case 141:{   // kbesc
+              if(hb_inkey(0,0,128)!=27){
+                 ++CP;
+              }
+              break;
+
+           }case 214: {   // lastkey
+              hb_arraySetNL( pSTK_REG, STK_PRG[ ++CP ], hb_inkeyLast( 128 ) );
+//              PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+//              hb_arraySetNL( pSTK_REG, hb_itemGetNInt( pARG1 ), hb_inkeyLast( 128 ) );
+//              hb_itemRelease(pARG1);
+              break;  
+        /*   }case 0: case 2: case 3: case 5:{  //case 1: case 4: 
+              sw=(int)(*funAsmStack[nPCP].h)((int *)STK_PRG, (PHB_ITEM)pSTK_REG, (PHB_ITEM)pSTK_DS, 
+                                        (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, (int) PRECISION);//, &CP, &CADDR);
+              break;
+           }*/
+           }case 0:{
+              sw=(int)PushReg((int*) STK_PRG, (PHB_ITEM)pSTK_REG, 
+                              (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET );
+              break;
+           }case 2:{
+              sw=(int)PushDS((int*) STK_PRG, (PHB_ITEM)pSTK_DS, (PHB_ITEM)pSTK_REG,
+                              (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET );
+              break;
+           }case 3:{
+              sw=(int)LetReg((int*) STK_PRG, (PHB_ITEM)pSTK_REG, 
+                              (PHB_ITEM)pRET, (int) PRECISION);
+              break;
+          /* macro executable del sistema */
+           }case 4:{
+              sw=(int)LetMacro((int*) STK_PRG, (PHB_ITEM)pSTK_REG, (PHB_ITEM)pRET);
+              break;
+           }case 188:{   // EXEC
+              sw=(int)fun_exec( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET);
+              break;
+          /***/ 
+           }case 5:{
+              sw=(int)LetDS((int*) STK_PRG, (PHB_ITEM)pSTK_DS, (PHB_ITEM)pSTK_REG,  
+                             (PHB_ITEM)pRET, (int) PRECISION);
+              break;
+           
+           }case 6: {   // JMP. no pide argumentos al stack
+              sw=(int)jumpSingle( (int*)STK_PRG );
+              
+              break;
+           }
+           case 7: case 8: case 9: case 10: case 11: case 12: {  // pide 2 argumentos al stack
+              sw=(int)(*funAsmJump[nPCP-7].k)( (int*)STK_PRG,(PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET );
+              break;
+           }
+           case 13: case 14: case 15: case 16: case 17: case 18: case 19: case 20: { // pide un argumento al stack
+              sw=(int)(*funAsmMonoJump[nPCP-13].l)( (int*)STK_PRG,(PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET );
+              break;
+
+          //"len"=>60, "upper"=>61, "lower"=>62, "trim"=>63, "asc"=>64, "rtrim"=>65, "ltrim"=>66, "val"=>67,;
+           }case 60: case 61: case 62: case 63: case 64: case 65: case 66: case 67: {  // argumento STRING
+              sw=(int)funStrOneArg( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, nPCP-60 );
+              break;
+          //"exp"=>80, "int"=>81, "sign"=>82, "log"=>83, "log10"=>84, "sqrt"=>85, "sin"=>86, "cos"=>87, "tan"=>88,;
+          //"sinh"=>89, "cosh"=>90, "tanh"=>91, "str"=>92, "floor"=>93, "abs"=>94, "chr"=>95, "ceil"=>96,;
+           }case 80: case 81: case 82: case 83: case 84: case 85: case 86: case 87: case 88: case 89: 
+            case 90: case 91: case 92: case 93: case 94: case 95: case 96: case 97: case 98: case 99:
+            case 100: case 101: case 102: case 103: case 104: case 105: case 106: case 107: case 108:
+            case 109: case 110: case 111: case 112: {   
+              // funciones de un solo argumento NUMBER:
+              sw=(int)funNumOneArg( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, nPCP-80, PRECISION );
+              break;
+
+           }case 21: {   // GOSUB. salta si encuentra un valor de verdad !=0 en stack, pero retorna. Este es el único
+                         // que guarda la dirección de retorno.
+                         // Es general: será falso un numero 0, un string vacío, el valor Falso, 
+              // guardar dirección de retorno en stack: CP+1
+              sw=(int)jumpGOSUB( (int*) STK_PRG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 22: {    // JSUB: salta con BACK, pero sin leer el STACK
+              sw=(int)jumpJSUB( (int*) STK_PRG, (PHB_ITEM) pRET );
+              break;
+           }case 139: {   // BACK de GOSUB/JSUB.
+              sw=(int) pop_label( (PHB_ITEM) pRET ); 
+              break;
+           
+           }case 125: case 126: case 127: case 128: case 129: {  // OR, AND, XOR, NOR, NAND
+              sw=(int)boolean_compare( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (int) nPCP-125 );
+              break;
+           }case 130: {   // NOT BOOL
+              sw=(int)boolean_not( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: 
+            case 31: case 32: case 33: {  // =, !=, <, <=, >, >=, neg, pos, in, case sensitive in, zero
+              sw=(int)logicalCompare((PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET,nPCP-23) ;
+              break;
+           }case 34: {  // VOID  Cadena vacía. Añadir ARRAY
+              sw=(int)logicalEmpty((PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET);
+              break;
+
+           }case 35: {  // BETWEEN   {a,b,v},between
+              sw=(int)between( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET );
+              break;
+           }case 36: {  // EMPTY STACK?   {a,b,v},between
+              if( CADDR ){
+                 hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) HB_FALSE );
+              }else{
+                 hb_arraySetL( pSTK_ADDR, ++CADDR, (HB_BOOL) HB_TRUE );
+              }
+              break;
+           }case 37: {   // IF ENV
+              sw=(int)fun_ifenv( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           
+           }case 230: {   // EMPTY? REG. ARRAY
+              sw=(int)fun_emptyarray((int*)STK_PRG, (PHB_ITEM) pSTK_REG,(PHB_ITEM) pSTK_ADDR, (PHB_ITEM)pRET);
+              break;
+           }case 200: {   // SIZE BIN
+              sw=(int)fun_size_binary((int*)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM)pRET);
+              break;
+           }case 204: case 215:{ // PREC
+              sw=(int)put_precision((int*) STK_PRG, pSTK_REG, pSTK_DS, &PRECISION, nPCP);
+              break;
+           
+           }case 50:  {   // JCASE jump especial
+              sw=(int)jumpCase( (int*) STK_PRG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (PHB_ITEM) SWITCH_VAR  );
+              break;
+/*           }case 51:  {   
+              
+              break; */
+           }case 241: {   // SWITCH
+              sw=(int)put_switch( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) SWITCH_VAR );
+              break;
+            
+           }case 216: {   // addrow
+              sw=(int)add_item_row((int*) STK_PRG, (PHB_ITEM) pSTK_REG,(PHB_ITEM) pSTK_ADDR, (PHB_ITEM)pRET, (int) PRECISION);
+              break;
+           }case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49: {    
+           // ADD  toma de push dos valores.
+              sw=(int)computo((PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, nPCP-40) ;
+              break;
+              
+           /* matrices */
+           }case 186:{   // LOAD MATRIX
+              sw=(int)fun_loadmat( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (int) PRECISION, (char *)TOKENIZER );
+              break;
+           }case 187:{   // SAVE MATRIX
+              sw=(int)fun_savemat( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (int) PRECISION, (char *)TOKENIZER );
+              break;
+           }case 213:{   // READ ROW
+              sw=(int)fun_readline( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, 
+                                    (PHB_ITEM) pRET, (int) 0, (char *)TOKENIZER );
+              break;
+           /* files */
+           }case 38:{    // EXIST FILE?
+              sw=(int)fun_exist_file( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 229:{   // open
+              sw=(int)fun_fopen( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 235:{   // close
+              sw=(int)fun_fclose( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pRET );
+              break;
+           }case 133:{   // FERROR
+              sw=(int)fun_ferror( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 185:{   // FILE ERROR = valor numérico
+              sw=(int)fun_get_error((PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 236:{   // WRITELINE
+              sw=(int)fun_writeline( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, 
+                                     (PHB_ITEM) pRET, (int) 1, (char *)TOKENIZER, (int) PRECISION  );
+              break;
+           }case 242:{   // WRITEROW
+              sw=(int)fun_writeline( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, 
+                                     (PHB_ITEM) pRET, (int) 0, (char *)TOKENIZER, (int) PRECISION  );
+              break;
+           }case 237:{   // READLINE
+              sw=(int)fun_readline( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, 
+                                    (PHB_ITEM) pRET, (int) 1, (char *)TOKENIZER );
+              break;
+           }case 238:{   // SEEK
+              sw=(int)fun_seek( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 239:{   // FEOF
+              sw=(int)fun_eof( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 240:{   // CREATE
+              sw=(int)fun_create( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 181:{   // COUNT FILE datos del archivo:
+              sw=(int)fun_count_lines( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (char *)TOKENIZER );
+              break;
+           }case 182:{   // TOUTF8
+              sw=(int)fun_str2utf8( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 183:{   // TOSTR
+              sw=(int)fun_utf82str( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+
+           /**/
+           }case 184:{   // DELETE CHARS
+              sw=(int)fun_char_rem( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           
+           }case 201:{    // mov  REG
+              sw=(int)move_stack_reg((int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, (int) PRECISION);
+              break;
+           }case 154:{    // KILL. saca un dato del stack, sin asignarlo a nada. No es una instrucción huevona.
+              sw=(int)kpop();
+              break;
+           }case 155:{    // CLEAR STACK
+              sw=(int)clear_stack();
+              break;
+           }case 166:{    // MULTIPLICACION MATRICIAL MUL#
+              sw=(int)fun_matrix_mul( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 202:{    // INC   incrementa en 1
+              sw=(int)funInc((int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pRET);
+              break;
+           
+           }case 203:{    // DEC   decrementa en 1
+              sw=(int)funDec((int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pRET);
+              break;
+              
+           }case 124:{    // PRINT   imprimo todo lo que encuentro en ADDR, sin sacarlo
+              print((PHB_ITEM)pSTK_ADDR, (int)PRECISION);
+              break;
+           }case 142:{    // ECHO   saco todo lo que encuentro en ADDR, i lo imprimo en bruto
+              echo((PHB_ITEM)pSTK_ADDR, (int)PRECISION, (FILE*) stdout);
+              break;
+           }case 144:{    // DUMP   saco todo lo que encuentro en ADDR y lo imprimo
+              dump((PHB_ITEM)pSTK_ADDR, (int)PRECISION);
+              break;
+
+           }case 205:{    // ARRAY lee tamaño desde ADDR, crea array y lo deja en REG. debe permitir hasta 3 dimensiones.
+              sw=(int)fun_create_array( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET);
+              break;
+           }case 231: case 232: case 233: case 234: {    
+              // XXX ARRAY lee tamaño desde ADDR, crea array y lo deja en REG. debe permitir hasta 3 dimensiones.
+              sw=(int)fun_create_fun_array( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, nPCP-230 );
+              break;
+
+           }case 208: {  //case 209:{  // case 210:{ // case 211: {   // LOC: localiza un elemento en un array
+              sw=put_coordinates_2D( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (int) nPCP);
+              break;
+           
+           }case 212:{ // case 213: {   // LOC para array
+              sw=put_coordinates_1D( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (int) nPCP);
+              break;
+           
+           }case 217: case 218: case 219: case 220: case 221: case 222: {
+              sw=(int)(*funGetPutArray[nPCP-217].p)( (PHB_ITEM) pSTK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, 
+                                                     (PHB_ITEM) pRET, (int) PRECISION );
+              break;
+           
+           }case 223: {   // GETPAGE
+              sw=getpage( (int*)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (int) PRECISION );
+              break;
+           }case 224: {   // PUTPAGE
+              sw=putpage( (int*)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 225: {   // SIZE => type, dim, fil, col, page
+              sw=size_array( (int *)STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 226: {   // TYPE
+              sw=type_item( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           
+           }case 227: {   // GET TOKEN
+              sw=(int)gettoken( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (char *)TOKENIZER );
+              break;
+           }case 228: {   // MOD TOKEN
+              sw=(int)modtoken( (int*) STK_PRG, (PHB_ITEM) pSTK_REG, (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (char *)TOKENIZER );
+              break;
+           }case 163: {   // TOKEN  define un token
+              sw=(int)settokenizer( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (char *)TOKENIZER );
+              break;
+              
+           }case 147: {   // NEXTROW
+              MARK_ROW++; 
+              break;
+           }case 148: {   // NEXTCOL
+              MARK_COL++; 
+              break;
+           }case 149: {   // BEFOREROW
+              MARK_ROW -= MARK_ROW>0 ? 1 : 0; 
+              break;
+           }case 150: {   // BEFORECOL
+              MARK_COL -= MARK_COL>0 ? 1 : 0; 
+              break;
+           }case 151: {   // NEXTPAGE
+              MARK_PAGE++; 
+              break;
+           }case 152: {   // BEFOREPAGE
+              MARK_PAGE -= MARK_PAGE>0 ? 1 : 0; 
+              break;
+           }case 153: {   // CLEAR MARKS
+              //printf("\nBORRA MARKAS\n");
+              MARK_ROW=0; MARK_COL=0; MARK_POS=0; MARK_PAGE=0;
+              OFFSET_ROW=0; OFFSET_COL=0; OFFSET_POS=0;
+              break;
+           }case 161: {   // MULTIPASS ON
+              MULTIPASS=1;
+              break;
+           }case 162: {   // MULTIPASS OFF
+              MULTIPASS=0;
+              break;
+           }case 178: {   // DECLARA PUNTERO.
+              SW_PUNTERO=1;
+              break;
+
+           }case 167: case 168: case 169: {  // PAD
+              sw=(int)fun_pad( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET, (int) nPCP-167 );
+              break;
+
+           
+           }case 137: {    // TRANSFORM STRING. Modalidades
+              sw=(int)fun_transform( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 138: {   // GETENV
+              sw=(int)fun_getenv( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           }case 172: {   // SETENV
+              sw=(int)fun_setenv( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           }case 173: {   // UNSETENV
+              sw=(int)fun_unsetenv( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           }case 174: {   // @ XY
+              sw=(int)fun_gotoxy( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           }case 175: {   // COLOR
+              sw=(int)fun_colortext( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+           }case 176: {   // BACKGROUND
+              sw=(int)fun_background( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET ); 
+              break;
+              
+           }case 143:{   // REPLACE  borra un string.
+              sw=(int)fun_replace( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 179:{    // INSERT STRING
+              sw=(int)fun_insert( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 180:{    // DELETE STRING
+              sw=(int)fun_delete( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 145: {    // SUBSTR/COPY   push(lo que extraigo, desde el string, desde la posicion), copy
+              sw=(int)funSubstr((PHB_ITEM)pSTK_ADDR, (PHB_ITEM) pRET);
+              break;
+           }case 146: { // OFFSET 1D: 
+              sw=(int)put_offset( (PHB_ITEM) pSTK_ADDR,(PHB_ITEM) pRET );
+              break;
+           }case 177: { // OFFSET 2D: rectángilo de array
+              sw=(int)put_offset2D( (PHB_ITEM) pSTK_ADDR,(PHB_ITEM) pRET );
+              break;
+           
+           }case 156: {    // COUNT AT
+              sw=(int)funCountAt( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 157: {    // INDEX AT
+              sw=(int)funIndexAt( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 158: {    // AT
+              sw=(int)funAt( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 159: {  // MASK
+              sw=(int)fun_mask( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 160: {  // MONEY
+              sw=(int)fun_money( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 164: {   // SECONDS
+              sw=(int)get_seconds( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET ); 
+              break;
+           }case 165: {   // PI
+              sw=(int)put_PI( (PHB_ITEM)pSTK_ADDR, (PHB_ITEM)pRET, (int) PRECISION );
+              break;
+           }case 170: {  // CAT
+              sw=(int)fun_cat( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+           }case 171: {  // REPLICATE
+              sw=(int)fun_replicate( (PHB_ITEM) pSTK_ADDR, (PHB_ITEM) pRET );
+              break;
+
+           }case 206:{    // HANGUP  REG,REG cuelga un registro en un array. no es Multidimensional 
+               // es como un perchero? Cuando haga Row, si puedo rescatar los arrays, lo dejo.
+              // extrae argumentos:
+ /*             PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+              long nARGd = hb_itemGetNInt( pARG1 );     // destino  REG(1)
+              PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_PRG, ++CP);  // source REG(2)
+              long nARGs = hb_itemGetNInt( pARG2 );
+              // chequea tipo de valor obtenido y guarda en STK_ADDR:
+                  PHB_ITEM pARRAY1 = hb_itemArrayGet( pSTK_REG, nARGd); 
+                  PHB_ITEM pARRAY2 = hb_itemArrayGet( pSTK_REG, nARGs); // solo capturo metadata, si es array
+                  if ( HB_IS_ARRAY( pARRAY1 ) && HB_IS_ARRAY( pARRAY2 ) ){
+                         hb_arrayAdd( (PHB_ITEM) pARRAY1, (PHB_ITEM) pARRAY2 ); //(PHB_ITEM) 
+                         hb_arraySet( (PHB_ITEM) pSTK_REG, nARGd, (PHB_ITEM) pARRAY1 ); //hb_arrayGetItemPtr( pARRAY1, 1 ) );
+                  }else{
+                      //ERROR
+                      sw=put_error((PHB_ITEM) pRET, "CALL:HANGUP REGISTER INDIRECTION ERROR");
+                  }
+                  hb_itemRelease(pARRAY2);
+                  hb_itemRelease(pARRAY1);
+
+              hb_itemRelease(pARG2);
+              hb_itemRelease(pARG1); */
+              break;
+           }case 207:{    // DHANGUP REG,DS cuelga un DS-array en un array
+              // extrae argumentos:
+ /*             PHB_ITEM pARG1 = hb_itemArrayGet( pSTK_PRG, ++CP);
+              long nARGd = hb_itemGetNInt( pARG1 );     // destino  REG
+              PHB_ITEM pARG2 = hb_itemArrayGet( pSTK_PRG, ++CP);  // source directo CTE
+              long nARGs = hb_itemGetNInt( pARG2 );
+              // chequea tipo de valor obtenido y guarda en STK_ADDR:
+
+              PHB_ITEM pARRAY1 = hb_itemArrayGet( pSTK_REG, nARGd); 
+              PHB_ITEM pARRAY2 = hb_itemArrayGet( pSTK_DS, nARGs);
+                  
+                  if ( HB_IS_ARRAY( pARRAY1 ) && HB_IS_ARRAY( pARRAY2 ) ){
+                  
+                       PHB_ITEM pARRAY = hb_itemArrayGet( pARRAY2, 1);  // obtengo array. no me sirve la metadata.
+                  
+                       hb_arrayAdd( (PHB_ITEM) pARRAY1, (PHB_ITEM) pARRAY ); //(PHB_ITEM) 
+                       hb_arraySet( (PHB_ITEM) pSTK_REG, nARGd, (PHB_ITEM) pARRAY1 ); //hb_arrayGetItemPtr( pARRAY1, 1 ) );
+                       hb_itemRelease(pARRAY);
+                  }else{
+                      //ERROR
+                      sw=put_error((PHB_ITEM) pRET, "CALL:HANGUP REGISTER INDIRECTION ERROR");
+                  }
+              hb_itemRelease(pARRAY2);
+              hb_itemRelease(pARRAY1);
+
+              hb_itemRelease(pARG2);
+              hb_itemRelease(pARG1); */
+              break;
+
+           }case 136:{     // RET, retorno con valor sacado desde ADDR
+              HB_MAXINT nDim=0,d1=0,d2=0,d3=0/*,d4=0*/,type=0;
+              if (CADDR>0){
+                 PHB_ITEM pSource = hb_itemArrayGet( pSTK_ADDR, CADDR--);
+                 PHB_ITEM pTemp = pSource;
+                 
+                 // evaluacion de resultado escalar. Después: arrays
+                 
+                 if( HB_IS_ARRAY( pSource ) ){   // es un ARRAY
+                     get_size( (PHB_ITEM) pSource, &nDim, &d1, &d2, &d3, &type); 
+                     hb_arraySet( pRET, 1, (PHB_ITEM) pTemp );//pTemp );   // asigna puntero a pRET.
+                     switch(type){
+                        case 10: hb_arraySetC( pRET, 2, (const char *)  "AC"  ); break;
+                        case 11: hb_arraySetC( pRET, 2, (const char *)  "AN"  ); break;
+                        case 12: hb_arraySetC( pRET, 2, (const char *)  "AL"  ); break;
+                     }
+                 }else{
+                      get_item_type( (PHB_ITEM) pSource, &type);
+                      switch( type ){
+                          case 10: {   // string
+                              const char * pString = hb_itemGetCPtr( pSource );
+                              hb_arraySetC( pRET, 1, (const char *)  pString  );
+                              hb_arraySetC( pRET, 2, (const char *)  "C"  );
+                              break;
+                          }case 11: {  // numint
+                              HB_MAXINT pNum = hb_itemGetNInt( pSource );
+                              hb_arraySetNInt( pRET, 1, (HB_MAXINT)  pNum  );
+                              hb_arraySetC( pRET, 2, (const char *)  "N"  );
+                              break;
+                          }case 12: {  // double
+                              double pDbl = hb_itemGetND( pSource );
+                              hb_arraySetND( pRET, 1, (double) pDbl );
+                              hb_arraySetC( pRET, 2, (const char *)  "N"  );
+                              break;
+                          }case 13: {  // long
+                              long pLong = hb_itemGetNL( pSource );
+                              hb_arraySetNL( pRET, 1, (long) pLong );
+                              hb_arraySetC( pRET, 2, (const char *)  "N"  ); 
+                              break;
+                          }case 14: {   // logical
+                              HB_BOOL pBool = hb_itemGetL( pSource );
+                              hb_arraySetL( pRET, 1, (HB_BOOL) pBool ) ;
+                              hb_arraySetC( pRET, 2, (const char *)  "L"  );
+                              break;
+                          }
+                      }
+                 }
+                 hb_arraySetNInt( pRET, 3, (HB_MAXINT)  nDim  );
+                 hb_arraySetNInt( pRET, 4, (HB_MAXINT)  d1  );
+                 hb_arraySetNInt( pRET, 5, (HB_MAXINT)  d2  );
+                 hb_arraySetNInt( pRET, 6, (HB_MAXINT)  d3  );
+                 //hb_arraySetNInt( pRET, 7, (HB_MAXINT)  d4  );
+                 sw = 0;
+                 hb_itemRelease(pSource);
+              }else{    // ERROR!!!
+                 sw=put_error((PHB_ITEM) pRET, "CALL:RET STACK UNDERFLOW"); 
+              }
+              break;
+           }
+        }  // switch
+    } // while
+    if ( swErr ){   // defino array resultado con error:
+       hb_arraySetNInt( pRET, 1, (HB_MAXINT)  CP );
+       hb_arraySetNInt( pRET, 3, (HB_MAXINT)  0  );
+       hb_arraySetNInt( pRET, 4, (HB_MAXINT)  0  );
+       hb_arraySetNInt( pRET, 5, (HB_MAXINT)  0  );
+       hb_arraySetNInt( pRET, 6, (HB_MAXINT)  0  );
+       //hb_arraySetNInt( pRET, 7, (HB_MAXINT)  0  );
+    }
+    hb_itemRelease(pSTK_ADDR);
+    hb_itemRelease(pSTK_REG);
+    free(TOKENIZER);
+    if( SWITCH_VAR ) hb_itemRelease( SWITCH_VAR );
+ //   hb_itemRelease(pJUMPRET);
+    
+    hb_itemReturnRelease( pRET );           // define retorno de puntero pRET
+
 }
 
 /*****************************************

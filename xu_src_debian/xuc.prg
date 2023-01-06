@@ -16,7 +16,7 @@
 #define XTOVARIANT  "000206"
 //
 #define ELOOP       "000272" //"000186"
-#define LOOP        "000273" //"000213"
+#define LOOP        "000273" //
 
 #define CONS_ON     "000067"
 #define FUNFIX      "000075"
@@ -43,14 +43,17 @@
 #define PUT         "000152"
 #define USE         "000228"
 #define FPOP        "000184"
-//#define      "000118"
+#define ISTYPE      "000285"
+#define ISEMPTY     "000284"
+
 #define XCODE2_NC   "000021"
 #define ENTROPY     "000236"
 #define TSTK_CODE   "000146"
 #define MULTMATRIX  "000145"
 #define TFSTK_CODE  "000147"
 #define SORT        "000200"
-///#define XXXXX     "000143"
+
+#define WRITMAP     "000213"
 
 #define GOOD_BYE    "000011"
 #define STATUS      "000093"
@@ -79,13 +82,18 @@
 #define PAD         "000154"
 #define TRY         "000159"
 #define ETRY        "000158"
-#define ISNEAR        "000071"
-#define NEGATIVE    "000028"
-#define POSITIVE    "000022"
-#define ISALL       "000032"
+#define ISNEAR      "000278"
+//#define "000071"
+#define NEGATIVE    "000259"
+//#define "000028"
+#define POSITIVE    "000260"
+//#define "000022"
+#define ISALL       "000262"
+//#define "000032"
 #define IIF         "000035"
-//#define  "000194"
-#define ISLEAP     "000196"
+#define SUB1_CODE   "000194"   // familia  isleap, istime, bitnot, xtostr, isneg, ispos, familia. ahorro 5 espacios
+#define ISLEAP      "000279"//
+#define CTEDATA     "000196"
 //#define FMISCA_CODE "000125"
 
 #define SIZEMAT     "000124"
@@ -124,7 +132,7 @@
 #define UNPARSER    "000039"
 #define TDATE2CODE  "000190"
 #define IS_RUNNING  "000187"
-//#define             "000203"
+#define OPTION      "000203"
 #define ADDMATSTR  "000202"
 #define PARSATT     "000212"
 #define IS_ALIVE    "000188"
@@ -143,22 +151,25 @@
 #define XMETA       "000133"
 #define BIT_CODE    "000211"
 #define TSTATS_CODE "000127"
-#define NOTBIT      "000136"
-#define ISANY       "000027"
+#define NOTBIT      "000281"      
+//#define  "000136"
+#define ISANY       "000261"
+//#define "000027"
 
 #define MEMSTRWRITE "000082"
 #define TDATECODE   "000221"
 #define TIME        "000226"
 #define DATE        "000224"
-#define ISTIME      "000166"
+#define ISTIME      "000280" 
+//#define "000166"
 //#define             "000183"
 #define MNSEC       "000100"
 
 #define DATEDIFF    "000207"
 #define DATEADD     "000199"
 
-//#define XHTRGCODE    "000192"
-//#define XTMATHCODE   "000193"
+#define STRONLY     "000217"
+#define STRONE      "000218"
 //#define XMATHCODE    "000189"
 
 #define SUBRUTINE   "000266"
@@ -223,7 +234,7 @@
 #define DIRMEM      "000255"
 #define RET         "000058"
 #define ADDSTR      "000043"  // no se puede optimizar porque es usado en seccion de operandos :(
-#define INTERNO     "000222"
+#define CALL        "000222"   // llamada a rutina de bajo nivel
 #define ROUND       "000005"
 
 #define STRCPY      "000092"
@@ -259,7 +270,8 @@
 #define XOR         "000128"
 #define LOPERA_CODE "000060"
 
-#define XTOSTR      "000041"
+#define XTOSTR      "000258"
+//#define  "000041"
 #define XTONUM      "000046"
 #define ESELECT     "000277" //    // POP A FSEL
 #define SELECT      "000050"     // PUSH A FSEL: FLAG DE SELECT:expresion
@@ -269,12 +281,15 @@
 #define BRKGZ       "000186"  // saltos sin comparación explícita. Más rápido
 #define BRKLZ       "000187"
 #define BRKZ        "000036"
+#define BRKSV       "000204"  // salte si string es vacio
 #define BRKNZ       "000076"
 #define BRKLEZ      "000188"
 #define BRKGEZ      "000189"
 
-#define ISNAN       "000134"     
-#define ISINF       "000139"
+#define ISNAN       "000282"
+//#define "000134"     
+#define ISINF       "000283"
+//#define "000139"
 
 #define SUBSADDSTR       "000064"
 #define SUBSSUBSTR       "000065" 
@@ -319,7 +334,7 @@
 #define LETADDSTK   "100001"
 #define LETSUBSTK   "100002"
 #define LETPMULSTK  "100003"   // multiplicacion punto a punto A * B
-#define LETMMULSTK  "000222"   // multiplicacion matricial ^mul A B
+//#define LETMMULSTK  "000222"   // multiplicacion matricial ^mul A B
 #define LETDIVSTK   "100005"
 #define LETIDIVSTK  "100006"
 #define LETPOWSTK   "100007"
@@ -396,6 +411,7 @@ PUBLIC _SW_MISC:=.T.
 set date italian
 set century on
 SETCANCEL(.T.)
+SET EXACT OFF
 
 set fixed off
 set decimals to 16
@@ -452,16 +468,17 @@ end
 
 // chequea si el primer arg es un archivo
 _archivo:=&(_argc[1])
+_archivo:=hb_utf8tostr(_archivo)
 if _sw_source
    if !FILE(PATH_SOURCE + _fileSeparator + _archivo)
       _modo_de_uso()
-      outstd(_CR+"****** No existe el archivo indicado ******"+_CR)
+      outstd(_CR+"****** No existe el archivo indicado ["+_archivo+"] en "+PATH_SOURCE + _fileSeparator +_CR)
       quit
    end
 else
    if !FILE(_archivo)
       _modo_de_uso()
-      outstd(_CR+"****** No existe el archivo indicado ******"+_CR)
+      outstd(_CR+"****** No existe el archivo indicado ["+_archivo+"]"+_CR)
       quit
    end
 end
@@ -522,6 +539,7 @@ if _sw_mensajes
 end
 _TIMESEC:=seconds()
 PUBLIC tempFile:="XU_"+alltrim(str(int(hb_random()*1000000000)))+".temp"
+
 if _sw_source
    _Carga_archivo(PATH_SOURCE+_fileSeparator+_archivo, ;
                          PATH_TEMP+_fileSeparator+tempFile)
@@ -530,26 +548,34 @@ else
 end
 
 _lineexe:=_PASO_2(PATH_TEMP+_fileSeparator+tempFile)
- 
+
+
 if _sw_mensajes
    outstd( "[Ok]")
 
    outstd(_CR+_CR +hb_UTF8tostr("Desmontando código fuente: "+_CR))
 end
+
 _Obtener_Metodo()         //obtengo nombre de metodo y modo de ejecucion
+
 
 if _sw_mensajes
    outstd(_CR+ "--->Localizando objetos simples (funciones)...")
 end
 
+
 _Define_Hash("OBJECTS:")    // Carga los objetos globales y determina
                             // existencia de UDF's. 
 
+
 if _UDFINI>0                // encontro UDF's
+
   _EncuentraMetodo()        // encuentra un metodo y crea sus variables locales
+
 end
 
 // reemplazo todas las variables globales, en principal y en todos los metodos
+
 _laMeto:=len(_aMetod)
 for i:=1 to _laMeto
    _METHOINI:=_aMetod[i][1]
@@ -559,21 +585,28 @@ for i:=1 to _laMeto
                                        // en metodo global
 next
 
+
 if _sw_mensajes
    outstd("[Ok]")
    outstd( _CR+hb_UTF8tostr("--->Localizando objetos complejos (Cálculos y hueás raras)..."))
 end
-_Reempl_Ampersand()   // por los ampersand
+
+_lineexe:=Reempl_Ampersand(_lineexe,chr(127),"")   // por los ampersand
+
+//
 //_Reempl_Code()      // reemplazo menmonicos por codigo
 //_QuitoEspacios()
+
 
 _THASH_to_HASH()    // fusiona THash con Hash y reemplaza en el codigo
                     // las direcciones equivalentes.
                     // con esto ordeno la tabla hash y puedo tratar hilos
 
+
 // anadir codigo de UDFS al final del codigo principal (despues de STOP)
 _inix:=0
 _finx:=0
+
 for _j:=2 to len(_aMetod)
 
   if _aMetod[_j][1]>0
@@ -673,8 +706,11 @@ end // _sw_pre1
 
 
 // reemplazar direcciones en programa final
+
 PUBLIC _dirMet:={}   // dejo direcciones que posteriormente seran reemplazadas
+
 _cod:=_Convertir_a_Code() //(_sw_debug)    // cuerpo principal
+
 
 for _k:=1 to len(_dirMet)
   for _y:=1 to len(_aMetod)
@@ -687,9 +723,11 @@ next
 
 // Verificar si hay llamadas redundantes ciclicamente
 
+
 _VerificaRedundancia(_dirMet)
 
 // reemplazar codigo de UDF por NOP
+
 for _k:=1 to len(_aMetod)
   for _y:=1 to len(_cod)
      if _cod[_y][2]==_aMetod[_k][4]
@@ -697,7 +735,7 @@ for _k:=1 to len(_aMetod)
 
         if _cod[_y-1][2]!="000104"  // marca para UDF
            _Tempv:=_cod[_y+1][2]
-           if _Tempv!=JMP.and._Tempv!=JT.and._Tempv!=JNT  // podrÃ­an ser los otros J...
+           if is_noall(_Tempv,JMP,JT,JNT) //_Tempv!=JMP.and._Tempv!=JT.and._Tempv!=JNT  // podrÃ­an ser los otros J...
               _cod[_y][2]:=NOP
            end
         end
@@ -705,22 +743,32 @@ for _k:=1 to len(_aMetod)
   next
 next
 
+/*
+for _k:=1 to len(_aMetod)
+   ? _aMetod[_k][1],":",_aMetod[_k][2],":",_aMetod[_k][3],":",_aMetod[_k][4]
+end*/
+
 // respaldo _COD antes de que entre a ser normalizado. AsÃ­ chequeo consistencias y
 // almaceno cÃ³digo ejecutable y la concha de la lora!!!
 //Public _XTCod:=ACLONE(_Cod)
 
+
 if _sw_pre2
+
   _GenPRE2(PATH_DEBUG+_fileSeparator+_arch+".map", _cod)
+
 end   
 
 _cnt_byte:=0
 if _sw_exec
 //  _cnt_byte:=_GenEXEC(PATH_BINARY+_fileSeparator+_arch+"x",_cod)
+
   if _sw_source
      _cnt_byte:=_GenEXEC(PATH_BINARY+_fileSeparator+_arch,_cod)
   else
      _cnt_byte:=_GenEXEC(_arch,_cod)
   end
+
 end    // _sw_exec
 
 if _sw_lib
@@ -728,7 +776,9 @@ if _sw_lib
 end
 
 if _sw_pre3
-   FILECOPY(PATH_TEMP+_fileSeparator+tempFile, PATH_DEBUG+_fileSeparator+_arch+".xpre")
+
+   FILECOPY(PATH_TEMP+_fileSeparator+tempFile, PATH_DEBUG+_fileSeparator+hb_strtoutf8(_arch)+".xpre")
+
 end
 
 if ferase(PATH_TEMP+_fileSeparator+tempFile)!=0
@@ -738,9 +788,12 @@ if ferase(PATH_TEMP+_fileSeparator+tempFile)!=0
 end
 
 SW_MSGEDITOR:=iif(_cnt_byte>0,.T.,.F.)
+set decimals to 2
+set fixed on
+tiempoFinal:=hb_ntos(round(seconds()-_TIMESEC, 2))
 if _sw_mensajes
    
-   outstd(_CR+"Tiempo de proceso: ",alltrim(str(seconds()-_TIMESEC)), " seg."+_CR)
+   outstd(_CR+"Tiempo de proceso: ",tiempoFinal, " seg."+_CR)
    if _cnt_byte>0 
       outstd( "Binario "+_arch+" creado satisfactoriamente, ")
       outstd( alltrim(str(_cnt_Byte/1024)) + " Kb"+_CR)
@@ -760,18 +813,18 @@ else
       if _sw_retorno
          outstd( "Binario "+upper(_arch)+" creado satisfactoriamente, ")
          outstd( alltrim(str(_cnt_Byte/1024)) + " Kb"+_CR)
-         outstd(_CR+"Tiempo de proceso: ",alltrim(str(seconds()-_TIMESEC)), " seg."+_CR+_CR)
+         outstd(_CR+"Tiempo de proceso: ",tiempoFinal, " seg."+_CR+_CR)
 
       end
    elseif _sw_lib
       if _sw_retorno
          outstd( _CR+hb_utf8tostr("Librería "+_arch+".lib creada satisfactoriamente."+_CR))
-         outstd(_CR+"Tiempo de proceso: ",alltrim(str(seconds()-_TIMESEC)), " seg."+_CR+_CR)
+         outstd(_CR+"Tiempo de proceso: ",tiempoFinal, " seg."+_CR+_CR)
       end
    elseif _sw_pre1 .or. _sw_pre2 .or. _sw_pre3
       if _sw_retorno
          outstd(_CR+_CR+ "*** Solo se han generado archivos para debugeo."+_CR)
-         outstd(_CR+"Tiempo de proceso: ",alltrim(str(seconds()-_TIMESEC)), " seg."+_CR+_CR)
+         outstd(_CR+"Tiempo de proceso: ",tiempoFinal, " seg."+_CR+_CR)
       end
    end
 end
@@ -788,10 +841,13 @@ lenTHASH:=len(_Thash)
 lenHASH:=len(_hash)
 lenLE:=len(_lineexe)
 
+//dirTemp:={}
+//dirNueva:={}
 for i:=1 to lenTHASH
 
   // obtengo direcion temporal de Thash
   dirTemp:=strzero(_Thash[i][6],_DIR)
+  //AADD(dirTemp,strzero(_Thash[i][6],_DIR))
 
   // redefino direccion
   _Thash[i][6]:=_hash[lenHASH][6]+1
@@ -813,14 +869,18 @@ for i:=1 to lenTHASH
   _hash[lenHASH][7] := _Thash[i][7]
 
   dirNueva:=strzero(_hash[lenHASH][6],_DIR)
+  //AADD(dirNueva,strzero(_hash[lenHASH][6],_DIR))
 
   // actualizo direccion temporal por nueva direccion
+
+  //_lineexe:=XSTRTRAN(_lineexe,dirTemp,dirNueva,0,0,{2,lenLE,2,4})
   for j:=1 to lenLE
      _lineexe[j][1]:=strtran(_lineexe[j][1], dirTemp, dirNueva)
   next
 
-
 next
+// STRTRAN no sirve aqui porque solo trabaja con strings y _lineexe tiene string y numeros.
+//_lineexe:=XSTRTRAN(_lineexe,dirTemp,dirNueva,0,0,{2,lenLE,2,4})
 
 // actualizo tamano de Hash
 _NHASH:=lenHASH
@@ -902,7 +962,7 @@ local _quinto,_mem, _sw_offset
    if _sw_mensajes
       outstd( _CR+"Generando "+ _arch+"...")
    end
-  _h:=fcreate(_arch)
+  _h:=fcreate(hb_strtoutf8(_arch))
 
   _cnt_Byte:=0
   // guardo direccion inicial de memoria
@@ -1127,7 +1187,7 @@ procedure _GenPRE2(_arch,_cod)
 local _file,_i
 local j,_offset,_sw_offset,_cuenta,_anterior,f1,f2
 
-  _file:=_arch
+  _file:=hb_strtoutf8(_arch)
 
   if _sw_mensajes
      outstd( _CR+"Generando "+ _file+"...")
@@ -1238,12 +1298,15 @@ local j,_offset,_sw_offset,_cuenta,_anterior,f1,f2
                    ??" (";??upper(DICC[val(_cod[_i][2])][1]);??")"
                 else
                    if val(_cod[_i][2])<255
-                       if _cod[_i-1][2]!="$" .and. ;
+                      if  is_noall(_cod[_i-1][2],"$",NOP) .and. ;
+                          is_noall(_cod[_i+1][2],JMP,JNT,JT) .or.;
+                           _cod[_i][2]==PUSHD
+                      /* if _cod[_i-1][2]!="$" .and. ;
                            _cod[_i+1][2]!=JMP .and.;
                            _cod[_i+1][2]!=JNT .and.;
                            _cod[_i+1][2]!=JT .and.;
                            _cod[_i-1][2]!=NOP .or.;
-                           _cod[_i][2]==PUSHD
+                           _cod[_i][2]==PUSHD */
                             ??" (";??upper(DICC[val(_cod[_i][2])][1]);??")"
                        end
   //                           _cod[_i+1][2]!=JZ .and.;
@@ -1283,7 +1346,7 @@ return
 procedure _GenPRE1(_arch)
 local _file,_i
 
-  _file:=_arch
+  _file:=hb_strtoutf8(_arch)
   if _sw_mensajes
      outstd(_CR+ "Generando "+_file+"...")
   end
@@ -1322,13 +1385,13 @@ Procedure _Error(bajada,linea)
 local fp
 
   debug_off()
-  outstd(_CR+replicate("*",len(bajada)+2))
-  setcolor("15/4")
+    setcolor("15/4")
+  outstd(_CR+"/*") //replicate("*",len(bajada)+2))
   outstd(_CR+ hb_UTF8tostr(upper(strtran(bajada,"Error","lapsus",1))))
-  setcolor("")
-  outstd(_CR+replicate("*",len(bajada)+2)  )
+  outstd(_CR+"*/") //replicate("*",len(bajada)+2)  )
+    setcolor("")
   outstd(_CR+ "Programa  = "+upper(_ARCHIVO_DEBUG) )
-  outstd(_CR+ "Fecha del 8=D~ : "+dtoc(date())+", "+time() )
+  outstd(_CR+ "Fecha del lapsus : "+dtoc(date())+", "+time() )
 
   _fuente:=PATH_SOURCE+_fileSeparator+substr(_ARCHIVO_DEBUG,1,at(".",_ARCHIVO_DEBUG))+"xu"
   
@@ -1338,7 +1401,7 @@ local fp
      linea:=_vnum
   end
   if linea!=0  
-     outstd(_CR+_CR+"Lugar del lapsus en [",_fuente,"]:" )
+     outstd( _CR,"Lugar del lapsus en"+_CR+"-->["+_fuente,"]:",_CR)
      if file(_fuente)
          // cargo programa fuente, si existe
          if file(_fuente) 
@@ -1346,15 +1409,18 @@ local fp
             outstd(_CR+"          :")
             for _j:=_vnum-3 to _vnum+3
                _linea:=rtrim(Memoline(_v,1600,_j))
-               if AT("//",_linea)>0 
+               if "//" $ _linea  //AT("//",_linea)>0 
                   _linea:=substr(_linea,1,at("//",_linea)-1)
                end
-               if AT("/*",_linea)>0 
+               if "/*" $ _linea //AT("/*",_linea)>0 
                   _linea:=substr(_linea,1,at("/*",_linea)-1)
                end
                if _j==_vnum
                   setcolor("15/2")
-                  outstd(_CR+hb_UTF8tostr(strzero(linea,5)+" >>>"+_linea+"  <<<"))
+                  if len(_linea)>MAXCOL()-15
+                     _linea:=substr(_linea,1,MAXCOL()-15)+"..."
+                  end
+                  outstd(_CR+hb_UTF8tostr(strzero(linea,5)+" >> "+_linea))
                   setcolor("")
                else
                   outstd(_CR+hb_UTF8tostr("         "+_linea ))
@@ -1446,6 +1512,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
       // procesa linea: convierte expresion a notacion polaca
 
       code:=substr(_v,1,_DIR)   // ex-3 codigo operacion queda excluido
+          
       if !isdigit(substr(code,1,1)).or. ;
          !isdigit(substr(code,2,1)).or. ;
          !isdigit(substr(code,3,1)).or. ;
@@ -1453,7 +1520,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          !isdigit(substr(code,5,1)).or. ;
          !isdigit(substr(code,6,1))
 
-         _Error ("Error: Instrucción no válida (o esto no va aquí) ["+code+"]",_l)
+         _Error ("Error: Instrucción !! no válida (o esto no va aquí) ["+code+"]",_l)
       end
 
       if code!=_v     // no es una instruccion simple: debe ser procesada
@@ -1461,6 +1528,10 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          q:={}; pila:={}; p:={}
 
          q:=_LlenaPila(_v,_l,code)   // separa direcciones y las deja en "Q"
+         
+         if q==NIL
+            _Error ("Error: No encuentro argumentos para la función",_l)
+         end
 
          // ciclo para evaluar por partes
          aadd(pila,"(")              // pila de simbolos temporal
@@ -1471,6 +1542,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
             ?? q[_chucha],":"
          end
          end */
+         
          _EvPolaca(@q,@pila,@p,_l,code)    // expresion queda en "P"
       /*   if _l==471   //code=RET   //DATEDIFF//SELECT.or.code==IF.or.code==FWHILE // solo para debugeo
          ? "COla: ",code
@@ -1765,8 +1837,9 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                end   
 
-               _fl:=iif(_vCODE==WRITE.or._vCODE==TO,;
-                          stk_len,len(_iType))
+               _fl:=iif(_vCODE==WRITE.or._vCODE==TO,stk_len,len(_iType))
+               //_fl:=iif(is_any(_vCODE,WRITE,TO),; 
+               //           stk_len,len(_iType))
 
                _tl:=0
                _nTypel:=NULL
@@ -1787,10 +1860,11 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                     _vCODE=000101:N##   NNAN   A 
                     _vCODE=000101:N##   NANN   A
                   */
-                  if _nTypel=="NANAN" .or._nTypel=="NNAN".or._nTypel=="NANN"
+                  if ;//is_any(_nTypel,"NANAN","NNAN","NANN")
+                     _nTypel=="NANAN" .or._nTypel=="NNAN".or._nTypel=="NANN"
                      _nType:="AN"
                   else
-                     _Error("Error: Argumentos distintos a los esperados, aweonao!",_l)
+                     _Error("Error: Argumentos distintos a los esperados en MIN o MAX",_l)
                   end
                
                elseif _vCODE==MULTMATRIX
@@ -1800,13 +1874,21 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                      _Error("Error: Argumentos distintos en multiplicación matricial, merme!",_l)
                   end
                
+               elseif _vCODE==OPTION
+                  if _nTypel=="ACNN"
+                     _nType:="N"
+                  else
+                     _Error("Error: Argumentos distintos a los esperados en OPTION",_l)
+                  end
                elseif _vCODE==STRLIN
-                  if _nTypel=="CN" .or. _nTypel=="CAN"
+                  if ;//is_any(_nTypel,"CN","CAN" )  
+                     _nTypel=="CN" .or. _nTypel=="CAN"
                      _nType:="C"
-                  elseif _nTypel=="ACN" .or. _nTypel=="ACAN"
+                  elseif ;//is_any(_nTypel,"ACN","ACAN")  
+                       _nTypel=="ACN" .or. _nTypel=="ACAN"
                       _nType:="AC"
                   else
-                      _Error("STRLIN: Argumentos incorrectos... Me quiero cortar las bolas!",_l)
+                      _Error("STRLIN: Argumentos incorrectos en STRLIN",_l)
                   end
                      
                elseif _vCODE==STRTOK 
@@ -1814,60 +1896,85 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   inkey(0) */
                   if _nTypel=="CN"
                      _nType:="C"
-                  elseif _nTypel=="ACN" .or. _nTypel=="ACAN"
+                  elseif ;//is_any(_nTypel,"ACN","ACAN" )  
+                      _nTypel=="ACN" .or. _nTypel=="ACAN"
                       _nType:="AC"
                   else
-                      _Error("STRTOK: Argumentos incorrectos... Me quiero cortar las bolas!",_l)
+                      _Error("STRTOK: Argumentos incorrectos en STRTOK",_l)
                   end
                
                elseif _vCODE==STRAT
                   if _nTypel=="CC"
                      _nType:="N"
-                  elseif _nTypel=="ACAC".or._nTypel=="CAC".or._nTypel=="ACC"
+                  elseif ;//is_any(_nTypel,"ACAC","CAC","ACC") 
+                       _nTypel=="ACAC".or._nTypel=="CAC".or._nTypel=="ACC"
                      _nType:="AN"
                   else
-                     _Error("Error: Argumentos incorrectos... Me quiero cortar las pelotas!",_l)
+                     _Error("Error: Argumentos incorrectos en STRAT",_l)
                   end
 
                elseif _vCODE==STRCCAR
                   if _nTypel=="CCC"
                      _nType:="C"
-                  elseif _nTypel=="ACCC".or._nTypel=="ACACC" .or._nTypel=="ACACAC".or._nTypel=="ACCAC"
+                  elseif ;//is_any(_nTypel,"ACCC","ACACC","ACACAC","ACCAC") 
+                     _nTypel=="ACCC" .or. _nTypel=="ACACC" .or._nTypel=="ACACAC" .or. _nTypel=="ACCAC"
                      _nType:="AC"
                   else
-                     _Error("Error: Argumentos incorrectos... Me quiero cortar las bolas!",_l)
+                     _Error("Error: Argumentos incorrectos en STRCCAR",_l)
                   end
                
                elseif _vCODE==STRINS
                   if _nTypel=="CNC"
                      _nType:="C"
-                  elseif _nTypel=="ACNC".or._nTypel=="ACANC" .or._nTypel=="ACANAC".or._nTypel=="ACNAC"
+                  elseif ;//is_any(_nTypel,"ACNC","ACANC","ACANAC","ACNAC")
+                    _nTypel=="ACNC".or._nTypel=="ACANC" .or._nTypel=="ACANAC".or._nTypel=="ACNAC"
                      _nType:="AC"
                   else
-                     _Error("Error: Argumentos incorrectos... Me quiero cortar las pelotas!",_l)
+                     _Error("Error: Argumentos incorrectos en STRINS",_l)
+                  end
+               
+               elseif _vCODE==STRONLY
+                  if _nTypel=="ACC"
+                     _nType:="AC"
+                  elseif _nTypel=="CC"
+                     _nType:="C"
+                  else
+                     _Error("Error: Argumentos incorrectos en STRONLY",_l)
+                  end
+               elseif _vCODE==STRONE
+                  if _nTypel=="ACC"
+                     _nType:="AC"
+                  elseif _nTypel=="CC"
+                     _nType:="C"
+                  else
+                     _Error("Error: Argumentos incorrectos en STRONE",_l)
                   end
                   
                elseif _vCODE==STRCHG 
                /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                  if _nTypel=="CCC".or._nTypel=="CACC".or._nTypel=="CACAC"
+                  if ;//is_any(_nTypel,"CCC","CACC","CACAC") 
+                   _nTypel=="CCC".or._nTypel=="CACC".or._nTypel=="CACAC"
                      _nType:="C"
                   elseif substr(_nTypel,1,1)=="A".and.!("L" $ _nTypel).and.!("N" $ _nTypel)
                      _nType:="AC"
                   else
-                     _Error("Error: Argumentos mal colocados, como el 8=D en el globo ocular",_l)
+                     _Error("Error: Argumentos mal colocados en STRCHG",_l)
                   end
 
-               elseif _vCODE==MATHLCM .or. _vCODE==MATHGCD
+               elseif ;//is_any(_vCODE,MATHLCM,MATHGCD)
+                 _vCODE==MATHLCM .or. _vCODE==MATHGCD
                   if _nTypel=="NN"
                      _nType:="N"
-                  elseif _nTypel=="ANN" .or. _nTypel=="ANAN".or._nTypel=="NAN"
+                  elseif ;//is_any(_nTypel,"ANN","ANAN","NAN")
+                    _nTypel=="ANN" .or. _nTypel=="ANAN".or._nTypel=="NAN"
                      _nType:="AN"
                   else
                      _Error("Error: espero números o matrices de números, no esto",_l)
                   end
                         
-               elseif _vCODE==FUNINC.or._vCODE==FUNDEC
+               elseif ;//is_any(_vCODE,FUNINC,FUNDEC)
+                  _vCODE==FUNINC.or._vCODE==FUNDEC
                   if _nTypel=="N"
                      _nType:="N"
                   elseif _nTypel=="AN"
@@ -1876,13 +1983,16 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                      _Error("Error: Argumento de esta operación debe ser number o matriz de number",_l)
                   end
                
-               elseif _vCODE==INC.or._vCODE==DEC   
-                  if _nTypel!="N" .and._nTypel!="AN"
+               elseif ;//is_any(_vCODE,INC,DEC)
+                  _vCODE==INC.or._vCODE==DEC   
+                  if ;//is_noall(_nTypel,"N","AN") 
+                    _nTypel!="N" .and._nTypel!="AN"
                      _Error("Error: Argumento de la operación debe ser number o matriz de number",_l)
                   end
                    
                elseif _vCODE==NOTVAR
-                  if _nTypel!="L" .and._nTypel!="AL"
+                  if ;// is_noall(_nTypel,"L","AL") 
+                     _nTypel!="L" .and._nTypel!="AL"
                      _Error("Error: Argumento de la operación negación debe ser booleano, GIL!",_l)
                   end
                   
@@ -1898,18 +2008,22 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==STRREPC
                   if _nTypel=="CCN"
                      _nType:="C"
-                  elseif _nTypel=="ACCN".or._nTypel=="ACACN".or._nTypel=="ACACAN".or._nTypel=="ACCAN"
+                  elseif ;//is_any(_nTypel,"ACCN","ACACN","ACACAN","ACCAN") 
+                     _nTypel=="ACCN".or._nTypel=="ACACN".or._nTypel=="ACACAN".or._nTypel=="ACCAN"
                      _nType:="AC"
                   else
                      _Error("Error: Argumentos mal colocados en STRREPC",_l)
                   end
                
-               elseif _vCODE==STRCUT.or._vCODE==STRCPY
+               elseif ;//is_any(_vCODE,STRCUT,STRCPY)
+                   _vCODE==STRCUT.or._vCODE==STRCPY
                   if _nTypel=="CNN" 
                      _nType:="C"
-                  elseif _nTypel=="CANN".or._nTypel=="CANAN".or._nTypel=="CNAN"
+                  elseif ;//is_any(_nTypel,"CANN","CANAN","CNAN")
+                     _nTypel=="CANN".or._nTypel=="CANAN".or._nTypel=="CNAN"
                      _nType:="AC"
-                  elseif _nTypel=="ACNN".or._nTypel=="ACANN".or._nTypel=="ACANAN".or._nTypel=="ACNAN"
+                  elseif ;//is_any(_nTypel,"ACNN","ACANN","ACANAN","ACNAN")
+                      _nTypel=="ACNN".or._nTypel=="ACANN".or._nTypel=="ACANAN".or._nTypel=="ACNAN"
                      _nType:="AC"
                   else
                      _Error("Error: Argumentos mal colocados en STRCUT|STRCPY",_l)
@@ -1918,33 +2032,38 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==STRFIND
                   if _nTypel=="CCN"
                      _nType:="N"
-                  elseif _nTypel=="ACCN".or._nTypel=="ACACN".or._nTypel=="CACN".or.;
+                  elseif ;//is_any(_nTypel,"ACCN","ACACN","CACN","ACCAN","ACACAN","CACAN")
+                      _nTypel=="ACCN".or._nTypel=="ACACN".or._nTypel=="CACN".or.;
                          _nTypel=="ACCAN".or._nTypel=="ACACAN".or._nTypel=="CACAN"
                      _nType:="AN"
                   else
-                     _Error("Error: Argumentos incorrectos (STRFIND)... Me quiero cortar las bolas!",_l)
+                     _Error("Error: Argumentos incorrectos en STRFIND (Me quiero cortar las bolas!)",_l)
                   end
                   
                elseif _vCODE==STRREP
                  /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                  if _nTypel=="CCCNN".or._nTypel=="CACCNN".or._nTypel=="CACACNN".or._nTypel=="CCACNN"
+                  if ;//is_any(_nTypel,"CCCNN","CACCNN","CACACNN","CCACNN")
+                     _nTypel=="CCCNN".or._nTypel=="CACCNN".or._nTypel=="CACACNN".or._nTypel=="CCACNN"
                      _nType:="C"
                   elseif substr(_nTypel,1,1)=="A".and.substr(_nTypel,len(_nTypel)-1,2)=="NN".and.;
                          !("L" $ _nTypel).and.!("N" $ substr(_nTypel,1,len(_nTypel)-2))
                      _nType:="AC"
                   else
-                     _Error("Error: Argumentos incorrectos (STRREP)... Me quiero cortar las bolas!",_l)
+                     _Error("Error: Argumentos incorrectos en STRREP",_l)
                   end
                   
-               elseif _vCODE==ISNAN .or. _vCODE==ISINF
-                 if _nTypel!="AN" .AND. _nTypel!="N"
+               elseif ;//is_any(_vCODE,ISNAN,ISINF)
+                    _vCODE==ISNAN .or. _vCODE==ISINF
+                 if ; //is_noall(_nTypel,"AN","N")  
+                    _nTypel!="AN" .AND. _nTypel!="N"
                     _Error("Error: Se requiere un numero o una matriz de numeros en ISNAN/ISINF",_l)
                  else
                     _nType:="L"
                  end
                elseif _vCODE==STRLZ
-                 if _nTypel!="AC".AND._nTypel!="C"
+                 if ; //is_noall(_nTypel,"AC","C")  
+                    _nTypel!="AC".AND._nTypel!="C"
                     _Error("Error: Se requiere un string o una matriz de strings en STRLZ",_l)
                  elseif _nTypel=="C"
                     _nType:="L"
@@ -1955,12 +2074,14 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==PAD
                   /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0)*/
-                  if _nTypel=="CN" .or. _nTypel=="NN"
+                  if ;//is_any(_nTypel,"CN","NN")
+                     _nTypel=="CN" .or. _nTypel=="NN"
                      _nType:="C"
-                  elseif _nTypel=="ACN" .or. _nTypel=="ACAN" //.or._nTypel=="ANN" .or. _nTypel=="ANAN"
+                  elseif ;//is_any(_nTypel,"ACN","ACAN") 
+                       _nTypel=="ACN" .or. _nTypel=="ACAN" //.or._nTypel=="ANN" .or. _nTypel=="ANAN"
                      _nType:="AC"
                   else
-                     _Error("PADx: Argumentos erróneos (si es matriz, debe ser string)",_l)
+                     _Error("Argumentos erróneos en STRPAD (si es matriz, debe ser string)",_l)
                   end   
            
                elseif _vCODE==STRLOAD
@@ -1968,7 +2089,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                      _nTypel!="CNN".and._nTypel!="ACNN"
                      _Error("Error: Tus argumentos me los meto por el orto!",_l)
                   end*/
-                  if _nTypel!="C".and. _nTypel!="AC"
+                  if ;//is_noall(_nTypel,"C","AC")  
+                     _nTypel!="C".and. _nTypel!="AC"
                      _Error("STRLOAD: Tus argumentos me los meto por el orto!",_l)
                   end
                   _nType:="C"
@@ -1985,19 +2107,22 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==PARSATT
                   if _nTypel=="CCAC"
                      _nType:="C"
-                  elseif _nTypel=="ACCAC".or._nTypel=="CACAC".or._nTypel=="ACACAC"
+                  elseif ;//is_any(_nTypel,"ACCAC","CACAC","ACACAC")
+                      _nTypel=="ACCAC".or._nTypel=="CACAC".or._nTypel=="ACACAC"
                      _nType:="AC"
                   else
                      _Error("PARSATT: Argumentos no válidos, es decir, no válidos",_l)
                   end
                
-               elseif _vCODE==PARSER .OR. _vCODE==UNPARSER
-                  if _nTypel=="ACC" .or. _nTypel=="ACAC".or._nTypel=="CAC"
+               elseif ;//is_any(_vCODE,PARSER,UNPARSER) 
+                    _vCODE==PARSER .OR. _vCODE==UNPARSER
+                  if ;//is_any(_nTypel,"ACC","ACAC","CAC")
+                     _nTypel=="ACC" .or. _nTypel=="ACAC".or._nTypel=="CAC"
                      _nType:="AC"
                   elseif _nTypel=="CC"
                      _nType:="C"
                   else
-                     _Error("xPARSER: Argumentos chantas. Si yo fuera Homero Simpson, esta weá pasa piola",_l)
+                     _Error("PARSER|UNPARSER: Argumentos incorrectos",_l)
                   end
                
                elseif _vCODE==SEEK
@@ -2010,15 +2135,17 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==XCODE_CCC  // CRYPT
                 /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                  if _nTypel=="NACC" .or. _nTypel=="NACAC"
+                  if ;//is_any(_nTypel,"NACC","NACAC")
+                     _nTypel=="NACC" .or. _nTypel=="NACAC"
                      _nType:="AC"
                   elseif _nTypel=="NCC"
                      _nType:="C"
                   else
-                     _Error("Error: Argumentos fuera de toda lógica!",_l)
+                     _Error("Los weones volarán antes de que esto funcione",_l)
                   end
                   
-               elseif _vCODE==SEQSP .or. _vCODE==SEQUENCE
+               elseif ;//is_any(_vCODE,SEQSP,SEQUENCE)
+                    _vCODE==SEQSP .or. _vCODE==SEQUENCE
                   _nType:="AN"
 
                elseif _vCODE==WRITE 
@@ -2030,7 +2157,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                /*   if _nTypel=="L"
                      _Error ("Error: No puede imprimir un valor de verdad. Use 'CERTAIN'",_l)
                   end */
-                  if len(_nTypel)>1 .and. _ntypel!="AN".and._ntypel!="AC".and._nTypel!="AV".and._nTypel!="AL"
+                  if len(_nTypel)>1 .and.; // is_noall(_ntypel,"AN","AC","AV","AL")//
+                    _ntypel!="AN".and._ntypel!="AC".and._nTypel!="AV".and._nTypel!="AL"
                      _Error ("WRITE: Argumentos deben estar separados por coma ','",_l)
                   end
                   
@@ -2046,8 +2174,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                   // guardo el tipo en stack USE
                   stackpop(stk_use)   // saco anterior
-
                   stackpush(stk_use,substr(_ntypel,2,1))
+
 
                elseif _vCODE==XJOIN
         //          ? _ntypel," - ",_ktypel   // ACC C
@@ -2090,20 +2218,22 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==RESHAPE
                  /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                  if _nTypel!="ANNNNN" .AND._nTypel!="ACNNNN".AND._nTypel!="ALNNNN"
+                  if ;//is_noall(_nTypel,"ANNNNN","ACNNNN","ALNNNN")
+                     _nTypel!="ANNNNN" .AND._nTypel!="ACNNNN".AND._nTypel!="ALNNNN"
                      _Error ("RESHAPE: Tipos de argumento radicalmente distintos a los esperados",_l)
                   end
                   
                elseif _vCODE==MATRANGE
                /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                  if _nTypel!="NNA" .AND. _nTypel!="NAN"  //.and._nTypel!="NNA"
+                  if /*is_noall(_nTypel,"NNA","NAN")*/ _nTypel!="NNA" .AND. _nTypel!="NAN"  //.and._nTypel!="NNA"
                      _Error("[* ]: Espero un number que señale fila/col, y una matriz",_l)
                   end
                   _nType:="AN"
                
                elseif _vCODE==YMATALTER
-                  if _nTypel!="NACACN".and._nTypel!="NANANN".and._nTypel!="NALALN"
+                  if ; //is_noall(_nTypel,"NACACN","NANANN","NALALN")
+                      _nTypel!="NACACN".and._nTypel!="NANANN".and._nTypel!="NALALN"
                      _Error("Error: Argumentos erróneos para insertar matrices",_l)
                   end
                   
@@ -2118,23 +2248,23 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                       _Error ("Atención: Tipo distinto al esperado en la segunda matriz (si tu intención es hacer un corte)",_l)
                    end
                    _nType:=substr(_nTypel,3,2)  // ojo! con esto aparebtemente se arregla la asignacion de SIZE
-                   _ntypel:=substr(_ntype,2,1)  // el subtipo devuelto
+                   _ntypel:= substr(_ntype,2,1)  // el subtipo devuelto
            
                elseif _vCODE==SHOWER
                  /*  ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
                    if len(_ntypel)==2
                       _Error ("SHOW: no puedes showear una matriz estática: castoreala o asígnala! "+_CR+;
-                              "También es posible que te hayas metido el índice de columnas en la raja...",_l)
+                              "También es posible que te hayas metido el índice de columnas en el orto...",_l)
                    end   
                    if substr(_nTypel,3,1)!="N" 
-                      _Error ("SHOW: Se requiere índice numérico de columnas, sacowea",_l)
+                      _Error ("SHOW: Se requiere índice numérico de columnas",_l)
                    end
                elseif _vCODE==SORT
                   /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
                    if substr(_nTypel,3,1)!="N" 
-                      _Error ("SORT: Se requiere índice numérico de ordenamiento, pelotudo",_l)
+                      _Error ("SORT: Se requiere índice numérico de ordenamiento",_l)
                    end
                    if substr(_ntypel,1,1)!="A"
                       _Error ("SORT: Se requiere un array",_l)
@@ -2153,7 +2283,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==XUCODESTATIC
                   /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
-                   if _nTypel!="CCNNNN" .and. _nTypel!="CNNNNN" .and. _nTypel!="CLNNNN"
+                   if ; //is_noall(_nTypel,"CCNNNN","CNNNNN","CLNNNN")
+                     _nTypel!="CCNNNN" .and. _nTypel!="CNNNNN" .and. _nTypel!="CLNNNN"
                    ///if substr(_nTypel,1,2)!="CC" .or. substr(_nTypel,3,4)!="NNNN"
                       _Error ("^[ ]: Argumentos mal encajados",_l)
                    else
@@ -2165,12 +2296,13 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0)*/
                    if substr(_nTypel,1,1)!="A" 
-                      _Error ("Error: Se requiere un array, sacowea",_l)
+                      _Error ("Error: Se requiere un array",_l)
                    elseif substr(_ntypel,3,1)!="C"
-                      _Error ("Error: Espero un string con el nombre del archivo, jeropa",_l)
+                      _Error ("Error: Espero un string con el nombre del archivo",_l)
                    end
 
-               elseif _vCODE==TRGCODE .or. _vCODE==TMATHCODE .or._vCODE==MATHCODE .or. _vCODE==HTRGCODE
+               elseif ; //is_any(_vCODE,TRGCODE,TMATHCODE,MATHCODE,HTRGCODE)
+                    _vCODE==TRGCODE .or. _vCODE==TMATHCODE .or._vCODE==MATHCODE .or. _vCODE==HTRGCODE
                 /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0) */
                   if _nTypel=="NN"
@@ -2178,7 +2310,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   elseif _nTypel=="NAN"
                      _nType:="AN"
                   else
-                     _Error("FUN MATHS/TRIG: Argumentos manfinfleros",_l)
+                     _Error("FUN MATHS/TRIG: Argumentos distintos a los esperados",_l)
                   end
                   
                elseif _vCODE==DATEDIFF
@@ -2186,7 +2318,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   inkey(0) */
                   if _nTypel=="CC"
                      _nType:="N"
-                  elseif _nTypel=="ACC" .or. _nTypel=="ACAC"
+                  elseif ;//is_any(_nTypel,"ACC","ACAC")
+                     _nTypel=="ACC" .or. _nTypel=="ACAC"
                      _nType:="AN"
                   else
                      _Error ("DAYSDIFF: Argumentos erróneos",_l)
@@ -2195,10 +2328,11 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==DATEADD
                   if _nTypel=="CN"
                      _nType:="C"
-                  elseif _nTypel=="ACN" .or. _nTypel=="ACAN"
+                  elseif ; //is_any(_nTypel,"ACN","ACAN")
+                     _nTypel=="ACN" .or. _nTypel=="ACAN"
                      _nType:="AC"
                   else
-                     _Error ("DATEADD: Argumentos erróneos en",_l)
+                     _Error ("DATEADD: Argumentos erróneos",_l)
                   end
                   
                elseif _vCODE==LINECOUNT
@@ -2209,11 +2343,13 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
 
                elseif _vCODE==XTOSTR
-                  if _nTypel!="N" .and. _nTypel!="AN".and._nTypel!="L".and._nTypel!="AL".and._nTypel!="V";
+                  if ; //is_noall(_nTypel,"N","AN","L","AL","V","AV","A")
+                     _nTypel!="N" .and. _nTypel!="AN".and._nTypel!="L".and._nTypel!="AL".and._nTypel!="V";
                       .and. _nTypel!="AV".and._nTypel!="A"
                      _Error ("($ ): Espero números, variants o booleanos (escalares o arrays)",_l)
                   end
-                  if _nTypel=="N".or._nTypel=="L".or._nTypel=="V"
+                  if ;//is_any(_nTypel,"N","L","V")
+                     _nTypel=="N".or._nTypel=="L".or._nTypel=="V"
                      _nType:="C"
                   else
                      _nType:="AC"
@@ -2222,19 +2358,21 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==XTONUM
                 /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_ntype
                   inkey(0)*/
-                  if _nTypel!="C" .and. _nTypel!="AC".and._nTypel!="L".and._nTypel!="AL".and._nTypel!="V";
-                      .and. _nTypel!="AV".and._nTypel!="A"
+                  if ; //is_noall(_nTypel,"C","AC","L","AL","V","AV","A")
+                     _nTypel!="C" .and. _nTypel!="AC".and._nTypel!="L".and._nTypel!="AL".and._nTypel!="V".and. _nTypel!="AV".and._nTypel!="A"
                      _Error ("(# ): Espero strings, variants o booleans (escalares o arrays)",_l)
                   end
-                  if _nTypel=="C".or._nTypel=="L".or._nTypel=="V"
+                  if ;//is_any(_nTypel,"C","L","V")
+                     _nTypel=="C".or._nTypel=="L".or._nTypel=="V"
                      _nType:="N"
                   else
                      _nType:="AN"
                   end
 
                elseif _vCODE==XCODE_CN
-                  if _nTypel!="NN" .and. _nTypel!="NAN"
-                     _Error ("Error: Se requiere un number o un array de number, gil de probeta",_l)
+                  if ;//is_noall(_nTypel,"NN","NAN")  
+                     _nTypel!="NN" .and. _nTypel!="NAN"
+                     _Error ("Error: Se requiere un number o un array de number",_l)
                   end
                   if _nTypel=="NN"
                      _nType:="C"
@@ -2243,7 +2381,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                   
                elseif _vCODE==ISNEAR
-                  if _nTypel!="NN" .and. _nTypel!="ANN".and._nTypel!="ANAN"
+                  if ;//is_noall(_nTypel,"NN","ANN","ANAN")  
+                     _nTypel!="NN" .and. _nTypel!="ANN".and._nTypel!="ANAN"
                      _Error ("ISNEAR: Se requiere dos number o dos array de number",_l)
                   end
                   _nType:="L" 
@@ -2258,12 +2397,14 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   elseif _nTypel=="NN"
                      _nType:="N"
                   else
-                     _Error ("FIX: argumentos como el pico",_l)
+                     _Error ("FIX: Argumentos erróneos",_l)
                   end
-               elseif _vCODE==FACTORIAL .or. _vCODE==NOTBIT
+               elseif ;//is_any(_vCODE,FACTORIAL,NOTBIT)
+                    _vCODE==FACTORIAL .or. _vCODE==NOTBIT
                  /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel
                   inkey(0) */
-                  if _nTypel!="N" .and. _nTypel!="AN"
+                  if ;//is_noall(_nTypel,"N","AN")  
+                     _nTypel!="N" .and. _nTypel!="AN"
                      _Error ("Error: Se requiere un number o un array de number, chamberlein",_l)
                   end
                   _nType:=_nTypel   
@@ -2275,11 +2416,21 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   _nType:=_nTypel
                   
                elseif _vCODE==SETCODE
-                  if _nTypel!="NACAC" .and._nTypel!="NANAN"
+                  if ;//is_noall(_nTypel,"NACAC","NANAN")  
+                     _nTypel!="NACAC" .and._nTypel!="NANAN"
                      _Error("Error: Operación de conjuntos requiere matrices number o string",_l)
                   end
                   _nType:=substr(_nTypel,2,2)
                
+               elseif _vCODE==CALL  // V<>AVAV
+                 // ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel," ",_nType; inkey(0)
+                  if _nTypel!="AVAV"
+                //     _nType:="V"
+                //  else
+                     _Error ("ROUND: Se requieren argumentos tipo STACK",_l)
+                  end
+                  _nType:="#"
+                  
                elseif _vCODE==ROUND
                   if _nTypel=="NN"
                      _nType:="N"
@@ -2290,7 +2441,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                
                elseif _vCODE==POSCHAR
-                  if _ntypel!="CNC" .and. _ntypel!="CNN"
+                  if ;//is_noall(_ntypel,"CNC","CNN")  
+                     _ntypel!="CNC" .and. _ntypel!="CNN"
                      _Error("Error: Argumentos incorrectos en '[. ]/POSCHAR'",_l)
                   end
                
@@ -2307,26 +2459,31 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                elseif _vCODE==XTOBOOL
                   /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel
                   inkey(0) */
-                  if _nTypel!="N".and._nTypel!="C".and._nTypel!="AN".and._nTypel!="AC".and._nTypel!="V";
-                      .and. _nTypel!="AV".and._nTypel!="A"
+                  if ;//is_noall(_nTypel,"N","C","AN","AC","V","AV","A")
+                     _nTypel!="N".and._nTypel!="C".and._nTypel!="AN".and._nTypel!="AC".and._nTypel!="V" .and. _nTypel!="AV".and._nTypel!="A"
                      _Error ("Error: Espero números, variants o strings, o un array de estos (%..)/xTObool",_l)
-                  elseif _nTypel=="N".or._nTypel=="C".or._nTypel=="V"
+                  elseif ;//is_any(_nTypel,"N","C","V")
+                     _nTypel=="N".or._nTypel=="C".or._nTypel=="V"
                     _nType:="L"
                   else
                     _nType:="AL"
                   end
                   
-               elseif _vCODE==ISALL .or. _vCODE==ISANY
+               elseif ;//is_any(_vCODE,ISALL,ISANY)
+                   _vCODE==ISALL .or. _vCODE==ISANY
                 /* ?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel
                   inkey(0) */
-                  if _nTypel!="NN" .and. _nTypel!="ANN" .and. _nTypel!="CC".and._nTypel!="ACC".and. _nTypel!="LL".and._nTypel!="ALL"
+                  if ;//is_noall(_nTypel,"NN","ANN","CC","ACC","LL","ALL")
+                    _nTypel!="NN" .and. _nTypel!="ANN" .and. _nTypel!="CC".and._nTypel!="ACC".and. _nTypel!="LL".and._nTypel!="ALL"
                      _Error ("Error: Se requiere un number o un array de number ISANY/ISALL",_l)
                   end
                   _nType:="L"
                    
 
-               elseif _vCODE==NEGATIVE.or._vCODE==POSITIVE
-                  if _nTypel!="N" .and. _nTypel!="AN"
+               elseif ;//is_any(_vCODE,NEGATIVE,POSITIVE)
+                    _vCODE==NEGATIVE.or._vCODE==POSITIVE
+                  if ;//is_noall(_nTypel,"N","AN")  
+                     _nTypel!="N" .and. _nTypel!="AN"
                      _Error ("Error: Se requiere un number o un array de number ISPOS/ISNEG",_l)
                   end
                   _nType:="L"
@@ -2351,11 +2508,12 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   elseif _nTypel=="ACANC"
                      _nType:="AC"
                   else
-                     _Error ("Error: Argumentos como el pico en 'SATURA'",_l)
+                     _Error ("Error: Argumentos no válidos en SATURA",_l)
                   end
 
                elseif _vCODE==PROCESS
-                  if _nTypel!="NLN".AND._nTypel!="NACN".AND._nTypel!="NNC" 
+                  if ;//is_noall(_nTypel,"NLN","NACN","NNC" )  
+                     _nTypel!="NLN".AND._nTypel!="NACN".AND._nTypel!="NNC" 
                      _Error ("Error: Argumentos erroneos en PROCESS",_l)
                   end 
                elseif _vCODE==SERVER
@@ -2399,7 +2557,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                      _Error ("Error: Argumentos mal ubicados en MASK",_l)
                   end  ***/
                
-               elseif _vCODE==TDATE2CODE .or. _vCODE==XCODE2_NC .or. _vCODE==XCODE_NC
+               elseif ;//is_any(_vCODE,TDATE2CODE,XCODE2_NC,XCODE_NC)
+                   _vCODE==TDATE2CODE .or. _vCODE==XCODE2_NC .or. _vCODE==XCODE_NC
                  /*?"_vCODE=";?? _vCODE;??":";?? _iType," ",_nTypel
                   inkey(0)*/
                   if _nTypel=="NC"
@@ -2407,7 +2566,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   elseif _nTypel=="NAC"
                      _nType:="AN"
                   else
-                     _Error ("Error: Se requiere un string o un array de string, amermelao",_l)
+                     _Error ("Error: Se requiere un string o un array de string, merme",_l)
                   end
 
                elseif _vCODE==BIT_CODE
@@ -2415,10 +2574,11 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   inkey(0)*/
                   if _nTypel=="NNN"
                      _nType:="N"
-                  elseif _nTypel=="NANN" .or. _nTypel=="NANAN"
+                  elseif ;//is_any(_nTypel,"NANN","NANAN")
+                      _nTypel=="NANN" .or. _nTypel=="NANAN"
                      _nType:="AN"
                   else
-                     _Error ("Error: Tus argumentos valen callampa",_l)
+                     _Error ("Error: Tus argumentos aquí valen callampa",_l)
                   end
 
                elseif _vCODE==ISLEAP
@@ -2433,8 +2593,9 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                   
                elseif _vCODE==ISTIME
-                  if _nTypel!="C" .and. _nTypel!="AC"
-                     _Error ("Error: Se requiere un string o un array de string en ISTIME, wea",_l)
+                  if ;//is_noall(_nTypel,"C","AC")  
+                     _nTypel!="C" .and. _nTypel!="AC"
+                     _Error ("Error: Se requiere un string o un array de string en ISTIME",_l)
                   elseif _nTypel=="C"
                      _nType:="L"
                   elseif _nTypel=="AC"
@@ -2449,7 +2610,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   elseif _nTypel=="AC"
                      _nType:="AN"
                   else
-                     _Error ("Error: Se requiere un string o un array de string, sacowea",_l)
+                     _Error ("Error: Se requiere un string o un array de string",_l)
                   end
                   
                elseif _vCODE==BLKCOPY
@@ -2486,7 +2647,12 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                   _nType:=substr(_ntypel,1,2) //"AN"  // ojo! con esto aparebtemente se arregla la asignacion de SIZE
                   _ntypel:=substr(_ntypel,2,1)
-                  
+               
+               elseif _vCODE == WRITMAP
+                  if _nTypel!="ANANNNNNN"
+                     _Error ("Error: Argumentos erróneos en WRITMAP",_l)  
+                  end
+                     
                elseif _vCODE == GET_ARRAY
                   // filtro por si es string y no array
                   //?"GET_ARRAY=", _nTypel, "_ntype=",_nType 
@@ -2502,12 +2668,13 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                      elseif substr(_nTypel,3,1)!="N"
                         _Error ("Error(1): Se requiere un índice numérico",_l)
                      end
-                     _ntypel:=substr(_ntypel,2,1)
+                     _ntypel:= substr(_ntypel,2,1)
                   end
 
                elseif _vCODE == PUT_ARRAY
                   //?"PUT_ARRAY=", _nTypel, "_ntype=",_nType 
-                  if _nTypel=="CNC" .or._nTypel=="CNN"
+                  if ;//is_any(_nTypel,"CNC","CNN")
+                     _nTypel=="CNC" .or._nTypel=="CNN"
                      _v:=POSCHAR
                   elseif _nTypel=="NNN"
                      _v:=SETBIT
@@ -2561,8 +2728,6 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                 //  ?"^SIZE=", _nTypel, " ITYPE= ",_itype, " NTYPE=",_ntype ; inkey(0)
                   if substr(_nTypel,1,1)!="A" 
                      _Error ("Error: Se requiere una matriz o vector",_l)
-                /*  elseif substr(_nTypel,3,1)!="N"
-                     _Error ("Error: Se requieren índices numéricos",_l) */
                   end
                   _nType:="AN"  // ojo! con esto aparebtemente se arregla la asignacion de SIZE
                   _ntypel:=substr(_ntypel,2,1)
@@ -2635,8 +2800,10 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   //? atail(stk_use)
                   //? _ktypel
                   //inkey(0)
-                  if atail(stk_use)!=_ktypel .and. atail(stk_use)!="V"
-                     _Error ("Error: El tipo en MAT.PUT debe coincidir con el tipo del Stack",_l)
+                  if is_noall(atail(stk_use),_ktypel,"V")
+                    //atail(stk_use)!=_ktypel .and. atail(stk_use)!="V"
+                      //? "LINEA=",_l
+                     _Error ("Error: El tipo en MAT.PUT no coincide con el tipo del Stack, o falta USE",_l)
                   end
    
                elseif _vCODE==PUSH 
@@ -2717,7 +2884,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   end
                   
                elseif _vCODE==SWAP    // generico
-                  if _nTypel!="CC" .and. _nTypel!="NN" .and. _nTypel!="ACAC" .and. _nTypel!="ANAN"
+                  if is_noall(_nTypel,"CC","NN","ACAC","ANAN")
+                     //_nTypel!="CC" .and. _nTypel!="NN" .and. _nTypel!="ACAC" .and. _nTypel!="ANAN"
                      _Error ("Error: Argumentos no válidos en '<->' | SWAP",_l)
                   end
                   
@@ -2750,20 +2918,23 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                if _iType!=_nTypel
                   // codigo para IIF
                   if _iType=="L##"
-                     if _nTypel!="LNN".and.;
-                        _nTypel!="LCC".and.;
-                        _nTypel!="LLL"
-                        _Error ("Error: Espero otros argumentos para la función "+upper(_vINSTR),_l)
+                     if ;//is_noall(_nTypel,"LNN","LCC","LLL")
+                        _nTypel!="LNN".and. _nTypel!="LCC".and. _nTypel!="LLL"
+                        _Error ("Error: Espero otros argumentos para la función (1)"+upper(_vINSTR),_l)
                      end
                   elseif _iType!="#"
                      
-                    /// ? _vCODE;??":";?? _iType," ",_nTypel // para sin(arra) entrega _ntypel==NAN
+                    // ? _vCODE;??":";?? _iType," ",_nTypel // para sin(arra) entrega _ntypel==NAN
                     // SE Añade _iType!="V" porque no aceptaba un unico argumento de 
                     // funcion de usuario de tipo variant. Veamos si no afecta otras cosas.
                     
-                     if !("A" $ _iType) .and. _iType!="N#" .and. _iType!="C#NNNN" ;// para tstk_code
-                        .and. _iType!="V"
-                        _Error ("Error(1): Espero otros argumentos para la función "+upper(_vINSTR),_l)
+                     if !("A" $ _iType) .and.; /*is_noall(_iType,"N#","C#NNNN","V")*/
+                        _iType!="N#" .and. _iType!="C#NNNN" .and. _iType!="V"  // para tstk_code
+                        if is_noall(upper(_vINSTR),"WHILE","IF","UNTIL") .and. _iType!="N" .and._iType!="C"//is_noall(_iType,"N","C")
+                           _Error ("Error(1): Espero otros argumentos para la función (2)"+upper(_vINSTR)+_iType+","+_nTypel,_l)
+                        //else
+                           
+                        end
                      end
                   end
                end
@@ -2831,12 +3002,48 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
            /* if _v==SWAPC .or. _v==SWAPN   // al pasar a "C++" esto no va!!
                _v:=SWAP
             end */
+             // isleap, istime, bitnot, xtostr, isneg, ispos, familia. ahorro 5 espacios  
+            if is_any(_v,ISLEAP,ISTIME,NOTBIT,XTOSTR,NEGATIVE,POSITIVE,ISNEAR,ISANY,ISALL,ISNAN,ISINF,ISEMPTY,ISTYPE)
+               aadd(arr,{dir,CTEDATA,_l})
+               ++dir
+               if _v==ISLEAP
+                  aadd(arr,{dir,"000001",_l})
+               elseif _v==ISTIME
+                  aadd(arr,{dir,"000002",_l})
+               elseif _v==NOTBIT
+                  aadd(arr,{dir,"000003",_l})
+               elseif _v==XTOSTR
+                  aadd(arr,{dir,"000004",_l})
+               elseif _v==NEGATIVE
+                  aadd(arr,{dir,"000005",_l})
+               elseif _v==POSITIVE
+                  aadd(arr,{dir,"000006",_l})
+               elseif _v==ISNEAR
+                  aadd(arr,{dir,"000007",_l})
+               elseif _v==ISANY
+                  aadd(arr,{dir,"000008",_l})
+               elseif _v==ISALL
+                  aadd(arr,{dir,"000009",_l})
+               elseif _v==ISNAN
+                  aadd(arr,{dir,"000010",_l})
+               elseif _v==ISINF
+                  aadd(arr,{dir,"000011",_l})
+               elseif _v==ISEMPTY
+                  aadd(arr,{dir,"000012",_l})
+               elseif _v==ISTYPE
+                  aadd(arr,{dir,"000013",_l})
+               end
+               ++dir
+               aadd(arr,{dir,SUB1_CODE,_l})
+               ++dir
+            
+            else
 
-
-            if _v==AND.or._v==OR.or._v==XOR
+            if is_any(_v,AND,OR,XOR)
+               //_v==AND.or._v==OR.or._v==XOR
                aadd(arr,{dir,LOPERA_CODE,_l})
                ++dir
-
+               
             elseif substr(_v,1,1)=="2"   // es un codigo de computo matricial str+-n en matriz
                aadd(arr,{dir,CODSUBMAT,_l})
                ++dir
@@ -2846,6 +3053,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                   _v:="-"
                end
             elseif substr(_v,1,1)=="1"   // es un codigo de computo matricial
+            
                aadd(arr,{dir,CODOPEMAT,_l})
                ++dir
                // cambio codigos matriciales por normales para que pasen el analisis
@@ -2879,7 +3087,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
             end
 
 
-            if _v!=REPEAT .and. _v!=UNTIL
+            if is_noall(_v,REPEAT,UNTIL) //_v!=REPEAT .and. _v!=UNTIL
                aadd(arr,{dir,(_v),_l})
                ++dir
             end      // para no tener que eliminar una posicion,mejor no lo ingreso
@@ -2957,6 +3165,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
             end
          end
 
+         end // familia subcode 
+
          _v:=SDC(p)
 
 
@@ -2969,7 +3179,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
       
       if _vCODE!=LET
         /*** solo acepto un IF/ELSE/ENDIF en este caso, por expanmsion ***/
-         if code!=IF .and. code!=ELSE .and. code!=EIF
+         if is_noall(code,IF,ELSE,EIF)  //code!=IF .and. code!=ELSE .and. code!=EIF
             _vLET:=NULL  // esto erta lo original, antes de la expansion
             SW_IFEXPANSION:=.F.
          else
@@ -2984,9 +3194,9 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
 
          if _vLET!=_vIN
             //? "VLET=",_vLET," VIN=",_vIN
-            if !(_vLET=="AC".and._vIN=="C") .and. !(_vLET=="AL".and._vIN=="L") ;
+            if !(_vLET=="AC".and._vIN=="C") .and. !(_vLET=="AL".and._vIN=="L") .and. _vIN!="AVAV" ;
                .and. !(_vLET=="AN".and._vIN=="N") .or. ;/* _vLET!="AV".and._vLET=="V" ;*/
-               (_vIN=="V" .or. _vIN=="AV")
+               (is_any(_vIN,"V","AV")) //(_vIN=="V" .or. _vIN=="AV")
                _Error ("Error: Tipos distintos no coinciden o no son válidos: "+_vLET+"<>"+_vIN,_l)
             end
            /// _Error ("Error: Tipos distintos en operación de asignación: "+_vLET+"<>"+_vIN,_l)
@@ -3098,7 +3308,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
             _Error ("Error: ELSEIF fuera del IF",_l)
          end
          if AXIF[len(AXIF)]=="-2"
-            _Error ("Error: No pueden haber dos ELSE en un IF, amermelao!",_l)
+            _Error ("Error: No pueden haber dos ELSE en un IF, novato!",_l)
          end
          // saltar al final si IF/ELSIF fue verdadero: debo incrustar dos posiciones
          // antes de la expresion de ELSIF para poner DIR y JMP a final.
@@ -3178,7 +3388,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if len(AXIF)>0
             _tl:=stackpop(AXIF)
             if _tl!="-2"     // el anterior no es un else
-               if _tl=="EI" .or. _tl=="I"
+               if is_any(_tl,"EI","I") //_tl=="EI" .or. _tl=="I"
                   _tl:=stackpop(AXIF)  // direccion desalto si IF es farzo
                   arr[_tl][2]:=strzero(dir,_DIR)   // push!
                else               // puede ser otra cosa, lo retorno
@@ -3350,7 +3560,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
       //      ? "DIR---", arr[BX][2]
             arr[BX][2]:=strzero(dir,_DIR)  // reemplazo "JMPSUB" por nueva direccion
          else
-            _Error ("Error: BACK no tiene GOSUB, aweonao",_l)
+            _Error ("Error: BACK no tiene GOSUB",_l)
          end
       
       elseif code==GOSUB    // 198   llamada a SUB
@@ -3407,7 +3617,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BREAKIF no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BREAKIF esta fuera de contexto",_l)
             end
          end
@@ -3445,6 +3656,31 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          aadd(arr,{dir,JMP,_l})                // salto
          ++dir
 
+      elseif code==BRKSV
+         // verifico que este dentro de While o Evaluate:
+         if len(AXBUCLE)==0
+            _Error ("Error: BRKSV esta fuera de contexto",_l)
+         end
+         t_orden:=AXBUCLE[len(AXBUCLE)]
+         if valtype(t_orden)!="C"
+            _Error ("Error: BRKSV no esta bien puesto aquí (póntelo en el orto)",_l)
+         else
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+               _Error ("Error: BRKSV esta fuera de contexto",_l)
+            end
+         end
+
+         --dir
+   
+         arr[dir][2]:="CODEEXITIF"           // donde debe salir
+
+         stackpush(AXEXITBUCLE,dir)         // almaceno direccion
+         stackpush(AXEXITBUCLE,"EXITIF")    // codigo exitif
+         stackpush(AXEXITBUCLE,AXBUCLE[len(AXBUCLE)-1]) // direccion de bucle padre
+         ++dir                                 // apunto a siguiente dir vacia
+         aadd(arr,{dir,BRKSV,_l})                 // salto si es vacío
+         ++dir
 
       elseif code==BRKZ
          // verifico que este dentro de While o Evaluate:
@@ -3455,7 +3691,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKZ esta fuera de contexto",_l)
             end
          end
@@ -3480,7 +3717,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKNZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKNZ esta fuera de contexto",_l)
             end
          end
@@ -3505,7 +3743,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKGZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKGZ esta fuera de contexto",_l)
             end
          end
@@ -3530,7 +3769,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKGEZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKGEZ esta fuera de contexto",_l)
             end
          end
@@ -3555,7 +3795,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKLZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKLZ esta fuera de contexto",_l)
             end
          end
@@ -3580,7 +3821,8 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          if valtype(t_orden)!="C"
             _Error ("Error: BRKLEZ no esta bien puesto aquí (póntelo en el orto)",_l)
          else
-            if t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
+            if is_noall(t_orden,"W","E","R","L" )
+               //t_orden!="W" .and. t_orden!="E" .and. t_orden!="R" .and. t_orden!="L" 
                _Error ("Error: BRKLEZ esta fuera de contexto",_l)
             end
          end
@@ -3690,7 +3932,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
       elseif code==ELOOP           // fin de loop
          BX:=stackpop(AXBUCLE)
          if BX!="L"     // ocurrio un problema con la extructura
-            _Error ("Error: Se te perdió el LOOP? (Revísate el escroto: ahí está!)",_l)
+            _Error ("Error: Se te perdió el LOOP? (Revísate el escroto: luca que ahí está!)",_l)
          end
          RetornoBucle:=stackpop(AXBUCLE) // obtiene direccion de ret.
          
@@ -3759,7 +4001,7 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
          wBUCLE:=len(AXEXITBUCLE)
          if wBUCLE>0
             if valtype(AXEXITBUCLE[wBUCLE])!="C"
-               _Error ("Error: Se propagó un error desde la concha de la lora (quizás un SELECT abierto). Búscalo jetón!",_l)
+               _Error ("Error: Se propagó un error desde la concha de la lora (quizás un SELECT abierto). Búscalo!",_l)
             end
             if RetornoBucle==AXEXITBUCLE[wBUCLE]
                BuclePadre := stackpop(AXEXITBUCLE)
@@ -3812,10 +4054,10 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
                     stackpop(_DIRWHILE),1))))
    end
    if len(BXIF)>0 .or. len(AXIF)>0
-      _Error ("Error: Parece que no cerraste bien un IF o aplicaste mal un ELSEIF, wea",stackpop(_DIRIF))
+      _Error ("Error: Parece que no cerraste bien un IF o aplicaste mal un ELSEIF",stackpop(_DIRIF))
    end
    if len(stk_module)>0
-      _ERROR ("Error: Es posible que no hayas cerrado un sector del AREA51",stackpop(_DIRSECTOR))
+      _ERROR ("Error: Es posible que no hayas cerrado un ROOM",stackpop(_DIRSECTOR))
    end
    
    // cambiar EWHILE por JMP
@@ -3823,9 +4065,10 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
    for i:=_TOP_PRG to _tl            // antes empezaba desde "1"
       if arr[i][2]==EWHILE
          arr[i][2]:=JMP
-      elseif arr[i][2]==TO .or. arr[i][2]==ELSE .or. ;
-             arr[i][2]==EIF .or. ;     
-             arr[i][2]==REPEAT   
+      elseif is_any(arr[i][2],TO,ELSE,EIF,REPEAT)
+             //arr[i][2]==TO .or. arr[i][2]==ELSE .or. ;
+             //arr[i][2]==EIF .or. ;     
+             //arr[i][2]==REPEAT   
          arr[i][2]:=NOP
       end
 
@@ -3839,19 +4082,26 @@ local AXIDSUB:=stacknew(); AXDIRSUB:=stacknew()
 return arr
 
 Procedure _EvPolaca(cola, pila, p, linErr,cod)  // cola=q, pila=pila
-local sw,l,m,_i
+local sw,l,m,_i,k,lc
 
-   while len(cola)>0
+ /*  ?"COLA="
+   for i:=1 to len(cola)
+      ?? cola[i]
+   end
+   ?*/
+   k:=1
+   lc:=len(cola)
+   while k<=lc //len(cola)>0
 
       sw:=.F.
-      l:=alltrim(SDC(cola))
+      l:=cola[k++]  //alltrim(SDC(cola))
 
       if substr(l,1,1)=="$"
          aadd(p,l)
+      
       else
          if !es_simbolo(l) .and. !es_Lsimbolo(l) .and. ;
-            l!="<=" .and. l!=">=" .and. l!="<>" .and. ;
-            l!=AND.and.l!=OR.and.l!=XOR
+            is_noall(l,"<=",">=","<>",AND,OR,XOR) //l!="<=" .and. l!=">=" .and. l!="<>" .and. l!=AND.and.l!=OR.and.l!=XOR
             if es_funcion(l)
                aadd(pila,l)     // es funcion
             else
@@ -3860,9 +4110,11 @@ local sw,l,m,_i
          else
             if l=="("
                aadd(pila,l)
-            elseif l $ "+*-/^\%" .or. es_Lsimbolo(l) .or.  ;
+            elseif l $ "+*-/^\%" .or. es_Lsimbolo(l) .or. es_funcion(l) .or. ;
+                   is_any(l,"<>","<=",">=",AND,OR,XOR)
+            /*elseif l $ "+*-/^\%" .or. es_Lsimbolo(l) .or.  ;
                l=="<>" .or. l=="<=" .or. l==">=" .or.;
-               l==AND .or. l==OR .or. l==XOR .or. es_funcion(l) 
+               l==AND .or. l==OR .or. l==XOR .or. es_funcion(l) */
                while !sw
                   m:=SDP(pila)
                   if m=="("
@@ -3871,11 +4123,12 @@ local sw,l,m,_i
                      sw:=.T.; loop //break  //
                     //exit
                   end
-                  if l==OR .or. l==AND .or. l==XOR   // conectivo logico
+                  if is_any(l,OR,AND,XOR) //l==OR .or. l==AND .or. l==XOR   // conectivo logico
                      __swlogic:=.F.
-                     while es_Lsimbolo(m) .or. m=="<>" .or. m=="<=" .or. m==">=";
-                        .or. m==OR.or.m==AND.or.l==XOR .or. es_simbolo(m) .and. m!="("
-                        if l==OR .and. (m==AND .or. m==XOR)
+                     while es_Lsimbolo(m) .or. is_any(m,"<>","<=",">=",OR,AND) .or. l==XOR .or. es_simbolo(m) .and. m!="("
+                        //m=="<>" .or. m=="<=" .or. m==">=";
+                        //.or. m==OR.or.m==AND.or.l==XOR .or. es_simbolo(m) .and. m!="("
+                        if l==OR .and. is_any(m,AND,XOR)  //(m==AND .or. m==XOR)
                            aadd(p,m)
                            aadd(pila,l)
                            __swlogic:=.T.
@@ -3901,8 +4154,9 @@ local sw,l,m,_i
                      end
                      sw:=.T.; loop //break //
                     //exit
-                  elseif l=="=" .or. l=="<=" .or. l==">=".or.;
-                     l=="<>" .or. l=="<" .or. l==">".or.l=="@"
+                  elseif is_any(l,"=","<=",">=","<>","<",">","@")
+                     //l=="=" .or. l=="<=" .or. l==">=".or.;
+                     //l=="<>" .or. l=="<" .or. l==">".or.l=="@"
                         //op. logicos
                      if es_simbolo(m)
                         aadd(p,m)
@@ -3925,14 +4179,15 @@ local sw,l,m,_i
                      end
                
                   elseif l=="*" 
-                     if es_Lsimbolo(m) .or. m=="<>" .or. m=="<=" .or. m==">="
+                     if es_Lsimbolo(m) .or. is_any(m,"<>","<=",">=") //m=="<>" .or. m=="<=" .or. m==">="
                         aadd(pila,m)   
                         aadd(pila,l)
                         sw:=.t.
-                     elseif m =="^" .or. m=="*" .or. m=="/" .or. m=="\" .or. m=="%" // puede hacer la comparaciÃ³n individual
+                     elseif is_any(m,"^","*","/","\","%") 
+                         //m =="^" .or. m=="*" .or. m=="/" .or. m=="\" .or. m=="%" // puede hacer la comparaciÃ³n individual
                         aadd(p,m)   //mete m en p
                      else
-                        if es_funcion(m).and. m!=AND.and.m!=OR.and.m!=XOR
+                        if es_funcion(m).and. is_noall(m,AND,OR,XOR)  //m!=AND.and.m!=OR.and.m!=XOR
                            aadd(p,m)
                         else
                            aadd(pila,m) //mete m en pila
@@ -3941,17 +4196,19 @@ local sw,l,m,_i
                         sw:=.T.
                      end
                
-                  elseif l=="/" .or. l=="\" .or. l=="%"
-                     if es_Lsimbolo(m).or. m=="<>" .or. m=="<=" .or. m==">="
+                  elseif is_any(l,"/","\","%") 
+                      //l=="/" .or. l=="\" .or. l=="%"
+                     if es_Lsimbolo(m).or. is_any(m,"<>","<=",">=") //m=="<>" .or. m=="<=" .or. m==">="
                         aadd(pila,m)   
                         aadd(pila,l)
                         sw:=.t.
-                     elseif m=="*".or.m=="^".or.m=="/" .or. m=="\".or. m=="%" 
+                     elseif is_any(m,"*","^","/","\","%" ) 
+                        //m=="*".or.m=="^".or.m=="/" .or. m=="\".or. m=="%" 
                         aadd(p,m)     //mete l en p
                         aadd(pila,l) //mete m en pila
                         sw:=.T.
                      else
-                        if es_funcion(m).and. m!=AND.and.m!=OR.and.m!=XOR
+                        if es_funcion(m).and. is_noall(m,AND,OR,XOR)  //m!=AND.and.m!=OR.and.m!=XOR
                            aadd(p,m)
                         else
                            aadd(pila,m) //mete m en pila
@@ -3960,9 +4217,9 @@ local sw,l,m,_i
                         sw:=.T.
                      end
                 
-                  elseif l=="+" .or. l=="-"
-                     if es_Lsimbolo(m) .or. m=="<>" .or. m=="<=" .or. m==">=";
-                        .or. m==OR .or. m==AND .or. m==XOR
+                  elseif is_any(l,"+","-")  //l=="+" .or. l=="-"
+                     if es_Lsimbolo(m) .or. is_any(m,"<>","<=",">=",OR,AND,XOR) 
+                        //m=="<>" .or. m=="<=" .or. m==">=".or. m==OR .or. m==AND .or. m==XOR
                         aadd(pila,m)   
                         aadd(pila,l)
                      else  
@@ -4011,10 +4268,35 @@ local sw,l,m,_i
          m:=SDP(pila)
       end
    end
-
+/*? "PILA="
+   for i:=1 to len(p)
+      ?? p[i]
+   end
+   ?*/
 return
 
+
 function _LlenaPila(expr,numlin,code)
+local arr:={}
+  arr:=LLENAPILA(expr)
+  if valtype(arr)=="N"
+     if arr==1
+        _Error ("Error(1): Símbolo no reconocido puesto como operador lógico ["+arr[2]+"]",numlin)
+     elseif arr==2
+        _Error ("Error: de sintaxis (quizás no declaraste una variable): "+arr[2]+"-"+expr,numlin)
+     elseif arr==3
+        _Error ("Error: Paréntesis desbalanceados. P.e., si querías: '()*()' y escribiste: '( *()'...",numlin)
+     end
+ /* else
+     ret:=array(len(arr))
+
+     for i:=1 to len(arr)
+        ret[i]:=arr[i][1]
+     end
+   */  
+  end
+return arr
+/*
 local arr:={},c,cc,w, sw,i
 local cta_par:=0
 
@@ -4022,9 +4304,10 @@ local cta_par:=0
    i:=1
    // un caracter es digito, "$", "()" u operador: nada mas
    //? "LlenaPila="+expr
-/*   if code==SELECT.or.code==IF.or.code==FWHILE  // debugueo
-      ? "EXPR:",expr
-   end */
+//   if code==SELECT.or.code==IF.or.code==FWHILE  // debugueo
+//      ? "EXPR:",expr
+//   end 
+//   ? "EXPR=",expr
    while !empty(expr)
       c:=_SacaChar(@expr,1)
 
@@ -4049,7 +4332,7 @@ local cta_par:=0
             if es_Lsimbolo(cc)   // es un operador logico compuesto
                // analizar combinaciones validas
                if c=="<"
-                   if cc==">" .or. cc=="="
+                   if is_any(cc,">","=") // cc==">" .or. cc=="="
                       aadd (arr,c+cc)
                    else
                       _Error ("Error(1): Símbolo no reconocido puesto como operador lógico ["+c+cc+"]",numlin)
@@ -4072,7 +4355,7 @@ local cta_par:=0
          aadd (arr,c+_SacaChar(@expr,_DIR-1))    // por que 2?
 
       else
-         if c!=" " .and. c!="," 
+         if is_noall(c," ","," ) // c!=" " .and. c!="," 
             _Error ("Error: Error de sintaxis (quizás no declaraste una variable): "+c+"-"+expr,numlin)
          end
       end
@@ -4083,31 +4366,31 @@ local cta_par:=0
    if cta_par!=0
       _Error ("Error: Paréntesis desbalanceados. P.e., si querías: '()*()' y escribiste: '( *()'...",numlin)
    end
-   
-
 
    aadd (arr,")")
 
 return arr
 
+*/
+
 function es_Lsimbolo(c)
-local _ret:=.F.
+//local _ret:=.F.
 
-   if c=="=" .or. c=="<" .or. c==">".or.c=="@" 
-      _ret:=.T.
-   end
+//   if is_any(c,"=","<",">","@" ) //c=="=" .or. c=="<" .or. c==">".or.c=="@" 
+//      _ret:=.T.
+//   end
 
-return _ret
+return is_any(c,"=","<",">","@" )  //_ret
 
 function es_simbolo(c)
-local _ret:=.F.
+//local _ret:=.F.
 
-   if c=="+" .or. c=="-" .or. c=="*" .or. c=="/" .or.c=="\".or.c=="%".or.;
-      c==")" .or. c=="(" .or. c=="^"
-      _ret:=.T.
-   end
+//   if c=="+" .or. c=="-" .or. c=="*" .or. c=="/" .or.c=="\".or.c=="%".or.;
+//      c==")" .or. c=="(" .or. c=="^"
+//      _ret:=.T.
+//   end
 
-return _ret
+return is_any(c,"+","-","*","/","\","%",")","(","^")  //_ret
 
 function es_funcion(arg)
 local _i,_pos:=0,_ret:=.F.
@@ -4120,13 +4403,14 @@ return _ret
 
 function _SacaChar(expr,cant)
 local w
-   w:=substr(expr,1,cant)
-   expr:=substr(expr,cant+1,len(expr))
+   w:=left(expr,cant) //substr(expr,1,cant)
+   expr:=posdel(expr,1,cant)  //substr(expr,cant+1,len(expr))
 return w
 
 function _PREPROCESO(_l)
 local f1:=.t.,f2:=.t.,f3:=.t.,f4:=.t.,f5:=.t.,f6:=.t.,f7:=.t.,f8:=.t.,f9:=.t.,f10:=.t.
 local f11:=.t.,f12:=.t.,f13:=.t.,f14:=.t.,f15:=.t.,f16:=.t.,f17:=.t.,f18:=.t.
+local f19,f20,f21,f22,f23,f24,f25,f26,f27,f28,f29,f30,f31,f32,f33,f34,f35,f36,f37,f38,f39,f40
 // preprocesos...
 
 if _SW_TRIGS
@@ -4197,7 +4481,7 @@ if _SW_TRIGS
    end
 end
 f1:=.t.;f2:=.t.;f3:=.t.;f4:=.t.;f5:=.t.;f6:=.t.;f7:=.t.;f8:=.t.;f9:=.t.;f10:=.t.
-f11:=.t.;f12:=.t.;f13:=.t.;f14:=.t.;f15:=.t.;f16:=.t.;f17:=.t.;f18:=.t.;f19:=.t.
+f11:=.t.;f12:=.t.;f13:=.t.;f14:=.t.;f15:=.t.;f16:=.t.;f17:=.t.;f18:=.t.
 
 if _SW_MATHS
    while "mth." $ _l
@@ -4209,11 +4493,6 @@ if _SW_MATHS
      elseif f13; f13:=.f.
         if "mth.rand" $ _l
         _l:=strtran(_l,"mth.rand",     "tmath_code 1 ")
-        loop
-        end
-     elseif f19; f19:=.f.
-        if "mth.seed" $ _l
-        _l:=strtran(_l,"mth.seed",     "tmath_code 1 ")
         loop
         end
      elseif f2; f2:=.f.
@@ -4679,7 +4958,8 @@ end
 
 f1:=.t.;f2:=.t.;f3:=.t.;f4:=.t.;f5:=.t.;f6:=.t.;f7:=.t.;f8:=.t.;f9:=.t.;f10:=.t.
 f11:=.t.;f12:=.t.;f13:=.t.;f14:=.t.;f15:=.t.;f16:=.t.;f17:=.t.;f18:=.t.;f19:=.t.;f20:=.t.
-f21:=.t.
+f21:=.t.;f22:=.t.;f23:=.t.;f24:=.t.;f25:=.t.;f26:=.t.;f27:=.t.;f28:=.t.;f29:=.t.;f30:=.T.
+f31:=.t.;f32:=.t.;f33:=.t.;f34:=.t.;f35:=.t.;f36:=.t.
 
 if _SW_MISC  // estas son estándar: siempre van
   while .T.
@@ -4790,15 +5070,133 @@ if _SW_MISC  // estas son estándar: siempre van
         _l:=strtran(_l,"e2d",        "xcode2_nc 6 ")   // devuelve numero normal de notacion científica
         loop
         end
+     elseif f22; f22:=.f.  //fmisca_code
+        if "crtdim" $ _l
+        _l:=strtran(_l,"crtdim",     "fmisca_code 1 ")   // devuelve max filas y max columnas del terminal
+        loop
+        end
+     elseif f23; f23:=.f.  //fmisca_code
+        if "keyput" $ _l
+        _l:=strtran(_l,"keyput",     "fmisca_code 2 ")   // pone una key en el buffer del teclado
+        loop
+        end
+     elseif f24; f24:=.f.  //fmisca_code
+        if "cursor" $ _l
+        _l:=strtran(_l,"cursor",     "fmisca_code 3 1 ")   // cambia el cursor. segundo argumento es fantasma
+        loop
+        end
+/*     elseif f25; f25:=.f.  //fmisca_code
+        if "msleep" $ _l
+        _l:=strtran(_l,"msleep",     "fmisca_code 4 1 ")   // detiene el programa "n" microsegundos. segundo argumento es fantasma
+        loop
+        end
+     elseif f26; f26:=.f.  //fmisca_code
+        if "sleep" $ _l
+        _l:=strtran(_l,"sleep",     "fmisca_code 5 1 ")   // detiene el programa "n" segundos. segundo argumento es fantasma
+        loop
+        end */
+     elseif f27; f27:=.f.  //fmisca_code
+        if "vtab" $ _l
+        _l:=strtran(_l,"vtab",     "fmisca_code 6 1 ")   // tabulacion verticas. segundo argumento es fantasma
+        loop
+        end
+     elseif f28; f28:=.f.  //fmisca_code
+        if "htab" $ _l
+        _l:=strtran(_l,"htab",     "fmisca_code 7 1 ")   // tabulacion horizontal. segundo argumento es fantasma
+        loop
+        end
+     elseif f29; f29:=.f.  //fmisca_code
+        if "millisec" $ _l
+        _l:=strtran(_l,"millisec",     "fmisca_code 8 1 ")   // detiene el programa "n" milisegundos. segundo argumento es fantasma
+        loop
+        end
+     elseif f30; f30:=.f.  //fmisca_code
+        if "precision" $ _l
+        _l:=strtran(_l,"precision",     "fmisca_code 9 1 ")   // determina precision de despliegue de numeros. segundo argumento es fantasma
+        loop
+        end
+     elseif f31; f31:=.f.  //fmisca_code
+        if "screen" $ _l
+        _l:=strtran(_l,"screen",     "fmisca_code 10 1 ")   // habilita/inhabilita salida por pantalla. segundo argumento es fantasma
+        loop
+        end
+     elseif f32; f32:=.f.  //fmisca_code
+        if "video" $ _l
+        _l:=strtran(_l,"video",     "fmisca_code 11 ")   // cambia dimensiones del terminal.
+        loop
+        end
+     elseif f33; f33:=.f.  //fmisca_code
+        if "cls" $ _l
+        _l:=strtran(_l,"cls",     "fmisca_code 12 1 1 ")   // limpia la pantalla del terminal.
+        loop
+        end
+     elseif f34; f34:=.f.  //fmisca_code
+        if "seed" $ _l
+        _l:=strtran(_l,"seed",     "fmisca_code 13 1 ")   // pone una semilla para el generador random.
+        loop
+        end
+     elseif f35; f35:=.f.  //fmisca_code
+        if "pause" $ _l
+        _l:=strtran(_l,"pause",     "fmisca_code 14 1 1 ")   // pone una pausa
+        loop
+        end
+     elseif f36; f36:=.f.  //fmisca_code
+        if "goodbye" $ _l
+        _l:=strtran(_l,"goodbye",     "fmisca_code 15 1 1 ")   // finaliza el programa antes
+        loop
+        end
      else
         exit
      end
      // existe use, push y pop, use que son universales.
   end
 end
+
 return _l
 
-procedure _Reempl_Ampersand()
+
+procedure _VerificaNombre(c,_linea,metodo_local)
+local k,c1
+
+  c1:=charonly("abcdefghijklmnopqrstuvwxyz",c)
+  c1:=charonly("ABCDEFGHIJKLMNOPQRSTUNWXYZ",c1)
+  c1:=charonly("_0123456789",c1)
+  if len(c1)!=0
+     _Error ("Error: Para un nombre de variable, se acepta a-A..z-Z, 0-9 y '_': "+c,;
+                _linea)
+  else 
+     c1:=left(c,1)
+     if !isalpha(c1)
+        _Error ("Error: Un nombre de variable debe empezar con a-z,A-Z: "+c,;
+                _linea)
+     end 
+  end
+  if BuscaVar(c,metodo_local,_NHASH,_IniVar,_hash)>0  // la variable existe
+    _Error ("Error: La variable ya fue declarada previamente",_linea)
+  end   
+/*  for k:=1 to len(c)
+    if k==1
+      if !isalpha(poscaracter(c,k))   //!isalpha(substr(c,k,1))
+        _Error ("Error: Un nombre de variable debe empezar con una letra: "+c,;
+                _linea)  
+      end
+    else
+      c1:=poscaracter(c,k)   //substr(c,k,1)
+      if !isalpha(c1) .and. !isdigit(c1) .and. c1!="_"
+        _Error ("Error: Para un nombre de variable, se acepta a-A..z-Z, 0-9 y '_': "+c,;
+                _linea)
+      end
+    end
+  next
+
+  if BuscaVar(c,metodo_local)>0  // la variable existe
+    _Error ("Error: La variable ya fue declarada previamente",_linea)
+  end
+*/
+return
+
+/*
+procedure Reempl_Ampersand()
 local i,j,k, _nl,l,_laMeto, _MAK, _MBK, _lnexe
 
 _nl := len(_lineexe)
@@ -4809,31 +5207,13 @@ for k:=1 to _laMeto
   _MBK:=_aMetod[k][2]
   if _MAK>0
      for i:=_MAK to _MBK
-        _lineexe[i][1]:=strtran(_lineexe[i][1],"@@@","")
+        _lineexe[i][1]:=strtran(_lineexe[i][1],chr(127),"") //"@@@","")
      next
   end
 next
-
 return
-
-function _BuscaInstr(v)
-local _n:=0,i,l
-
-    //?" BUSCA = ",v
-    l:=len(DICC) //239      //len(DICC)
-    i:=1
-    while i<=l
-      // ? "INSTRUCCION = ",DICC[i][1]
-       if DICC[i][1]==v
-          _n:=i
-          exit
-       end
-       i++
-    end
-
-return _n
-
-function _BuscaVar(_n,_metlocal)
+*/
+/*function BuscaVar(_n,_metlocal)
 local _ret:=0,i
 
  if _NHASH>0
@@ -4846,22 +5226,8 @@ local _ret:=0,i
       end
    next
  end
-
 return _ret
-
-function _BuscaStr(_n)
-local _ret:=0,i
-
- if _NHASH> 0  //_IniStr
-   for i:=1 to _NHASH
-      if _hash[i][3]==_n
-         _ret:=_hash[i][6]        //i
-         exit
-      end
-   next
- end
-
-return _ret
+*/
 
 function _TBuscaStr(_ML,_n)
 local _ret:=0,i,l
@@ -4901,6 +5267,19 @@ local _ret:=0,i,l
 
 return _ret
 
+/*function _BuscaStr(_n)
+local _ret:=0,i
+
+ if _NHASH> 0  //_IniStr
+   for i:=1 to _NHASH
+      if _hash[i][3]==_n
+         _ret:=_hash[i][6]        //i
+         exit
+      end
+   next
+ end
+
+return _ret */
 /*
 function _Reempl_controles_de_string(cad)
 
@@ -4913,12 +5292,20 @@ function _Reempl_controles_de_string(cad)
 
 return cad*/
 
+//function _ExtraeChar(cad,pos)
+//return  poscaracter(cad,pos) //substr(cad,pos,1)
+
+//procedure _strcat(destino, origen)
+//  destino:=destino+origen
+//return
+
+
 function XBUSCACONST(linea,METLOC,_EDIR)
 LOCAL vLinea:="",vLen,i,c,l
 LOCAL pString,pNumber,pSimbolo,pInstr,tInstr
 LOCAL nHash,swExiste///,anteriorLeido
 
-if "@@@" $ linea
+if chr(127) $ linea //"@@@" $ linea
    return linea
 end
 
@@ -5013,7 +5400,7 @@ while i<=vLen
   elseif c == "+"
         c:=substr(linea,++i,1)
         if c=="+"  // es un "FINC"
-           vlinea+=" @@@"+DICC[96][2]+" "
+           vlinea+=" "+chr(127)+DICC[96][2]+" "  //" @@@"+DICC[96][2]+" "
         else
            vlinea+="+"
            --i
@@ -5021,17 +5408,17 @@ while i<=vLen
   elseif c == "-"
         c:=substr(linea,++i,1)
         if c=="-"  // es un "FDEC"
-           vlinea+=" @@@"+DICC[97][2]+" "
+           vlinea+=" "+chr(127)+DICC[97][2]+" "  //" @@@"+DICC[97][2]+" "
         else
            vlinea+="-"
            --i
         end
-  elseif c == "!" .or. c == "~"   // factorial y negacion
-        nHash := _BuscaInstr(c)     // es instruccion?
+  elseif is_any(c,"!","~") //c == "!" .or. c == "~"   // factorial y negacion
+        nHash := BuscaInstr(c,DICC)     // es instruccion?
         if nHash>0     // es una instruccion: guarda y sigue
-           vlinea+=" @@@"+DICC[nHash][2]+" "
+           vlinea+=" "+chr(127)+DICC[nHash][2]+" "  //" @@@"+DICC[nHash][2]+" "
         end
-  elseif c == "." .or. isalpha(c) .or. c=="_"  // OJO: PUEDE TRATARSE DE UNA FUNCION DE USUARIO
+  elseif isalpha(c) .or. is_any(c,".","_") //c == "." .or. c=="_"  // OJO: PUEDE TRATARSE DE UNA FUNCION DE USUARIO
         pInstr+=c
         c:=substr(linea,++i,1)
         while isalpha(c).or.c=="_".or.isdigit(c).and. i<=vLen
@@ -5040,14 +5427,14 @@ while i<=vLen
         end
         --i
         if pInstr=="pop"  // es ".funpop"
-           vlinea+=" @@@"+DICC[184][2]+" "
+           vlinea+=" "+chr(127)+DICC[184][2]+" "  //" @@@"+DICC[184][2]+" "
         else
         ///  ? "INSTR:",pInstr
-           nHash := _BuscaInstr(pInstr)     // es instruccion?
+           nHash := BuscaInstr(pInstr,DICC)     // es instruccion?
            if nHash>0     // es una instruccion: guarda y sigue
               //strtran(_lnexe,DICC[j][1],DICC[j][2])
               //vlinea+=" "+pInstr+" "
-              vlinea+=" @@@"+DICC[nHash][2]+" "
+              vlinea+=" "+chr(127)+DICC[nHash][2]+" "  //" @@@"+DICC[nHash][2]+" "
            else        // es variable?
               swExiste:=.F.
               for l:=1 to _NHASH
@@ -5142,46 +5529,6 @@ local_EDIR:=0
 
 return 
 
-procedure _VerificaNombre(c,_linea,metodo_local)
-local k,c1
-
-  for k:=1 to len(c)
-    if k==1
-      if !isalpha(substr(c,k,1))
-        _Error ("Error: Un nombre de variable debe empezar con una letra: "+c,;
-                _linea)  
-      end
-    else
-      c1:=substr(c,k,1)
-      if !isalpha(c1) .and. !isdigit(c1) .and. c1!="_"
-        _Error ("Error: Para un nombre de variable, se acepta a-A..z-Z, 0-9 y '_': "+c,;
-                _linea)
-      end
-    end
-  next
-
-  if _BuscaVar(c,metodo_local)>0  // la variable existe
-    _Error ("Error: La variable ya fue declarada previamente",_linea)
-  end
-
-return
-
-function _ExtraeChar(cad,pos)
-return substr(cad,pos,1)
-
-procedure _strcat(destino, origen)
-  destino:=destino+origen
-return
-
-function es_entero(_n)
-local _ret:=.T.,_l,_i:=0
-_l:=len(_n)
-for _i:=1 to _l
-   if !isdigit(substr(_n,_i,1))
-      _ret:=.F.
-   end
-next 
-return _ret
 
 procedure _Obtener_Metodo()
 local _nl, i,_m,_s,_size,tipo_aplicacion
@@ -5301,10 +5648,12 @@ local _i,_j,_udf,_v,_arg,_argret
              _METHOFIN:=_k-1
              exit
           end
-          if _instEstruc=="IF" .or. _instEstruc=="WHILE" .or. _instEstruc=="FOR".or._instEstruc=="EVAL"
+          if is_any(_instEstruc,"IF","WHILE","FOR","EVAL")
+            //_instEstruc=="IF" .or. _instEstruc=="WHILE" .or. _instEstruc=="FOR".or._instEstruc=="EVAL"
              _factorRetorno:=1
           end   
-          if _instBuscada=="ENDIF" .or. _instBuscada=="WEND" .or. _instBuscada=="NEXT".or._instBuscada=="EVEND"
+          if is_any(_instBuscada,"ENDIF","WEND","NEXT","EVEND")
+             //_instBuscada=="ENDIF" .or. _instBuscada=="WEND" .or. _instBuscada=="NEXT".or._instBuscada=="EVEND"
              _factorRetorno:=0
           end   
           if _instEstruc=="RETURN"  // tiene retorno
@@ -5360,7 +5709,8 @@ local _sw_section, _upsec, _tiene_stop:=.F.
        if _instruct==_upsec
           exit
        end
-       if _instruct=="FUNCTIONS:" .or._instruct=="VARS:"
+       if is_any(_instruct,"FUNCTIONS:","VARS:")
+          //_instruct=="FUNCTIONS:" .or._instruct=="VARS:"
           --i
           exit
        end
@@ -5388,7 +5738,8 @@ local _sw_section, _upsec, _tiene_stop:=.F.
 
     // siguiente debe ser "VARS:" o "FUNCTIONS:"
     ++i
-    if upper(_lineexe[i][1])=="VARS:"  .or. upper(_lineexe[i][1])=="FUNCTIONS:" // declara las publicas
+    if is_any(upper(_lineexe[i][1]),"VARS:","FUNCTIONS:")
+       //upper(_lineexe[i][1])=="VARS:"  .or. upper(_lineexe[i][1])=="FUNCTIONS:" // declara las publicas
        // hasta donde declara publicas?
        if _instruct=="FUNCTIONS:"
           _sw_section:="UDF"
@@ -5485,7 +5836,7 @@ local _swref      // indica si argumento es pasado por referencia...
     // carga variables en el rango descubierdo _ini,_fin
     while _desde<= _hasta
         _lin:=alltrim(_lineexe[_desde][1])
-        if substr(_lin,1,1)=="{"       // es una agrupacion de variables
+        if  substr(_lin,1,1)=="{"       // es una agrupacion de variables
 
            if !("}" $ _lin)            // el grupo es de + de una linea
               _desde++
@@ -5609,27 +5960,35 @@ function _Tipo_Arg(_arg,_type,_i)
 local _ret
    _arg:=lower(_arg)
 
-   if _arg=="number" .or. _arg=="num."
+   if is_any(_arg,"number","num.") //
+      //_arg=="number" .or. _arg=="num."
       _ret:="N"
    elseif _arg=="file" 
       _ret:="F"
-   elseif _arg=="string"  .or. _arg=="str."
+   elseif is_any(_arg,"string","str.") 
+      //_arg=="string"  .or. _arg=="str."
       _ret:="C"
-   elseif _arg=="boolean" .or. _arg=="bool." .or. _arg=="logic" .or. _arg=="switch"
+   elseif is_any(_arg,"boolean","bool.","logic","switch") 
+      //_arg=="boolean" .or. _arg=="bool." .or. _arg=="logic" .or. _arg=="switch"
       _ret:="L"
-   elseif _arg=="array of number" .or. _arg=="^number" .or._arg=="^num."   // es un stack de numeros
+   elseif is_any(_arg,"array of number","^number","^num.")
+      //_arg=="array of number" .or. _arg=="^number" .or._arg=="^num."   // es un stack de numeros
       _ret:="AN"
-   elseif _arg=="array of string" .or. _arg=="^string" .or._arg=="^str."   // es un stack de strings
+   elseif is_any(_arg,"array of string","^string","^str.") 
+      //_arg=="array of string" .or. _arg=="^string" .or._arg=="^str."   // es un stack de strings
       _ret:="AC"
-   elseif _arg=="array of boolean" .or. _arg=="^boolean" .or. _arg=="^bool." .or. _arg=="^switch" // es un stack de bools
+   elseif is_any(_arg,"array of boolean","^boolean","^bool.","^switch") 
+      //_arg=="array of boolean" .or. _arg=="^boolean" .or. _arg=="^bool." .or. _arg=="^switch" // es un stack de bools
       _ret:="AL"
-   elseif _arg=="array of file" .or._arg=="^file" // es un stack de files
+   elseif is_any(_arg,"array of file","^file") 
+      //_arg=="array of file" .or._arg=="^file" // es un stack de files
       _ret:="AF"
    elseif _arg=="void"        // vacio
       _ret:="_"
    elseif _arg=="variant"    // tipo nuevo: para stacks solamente (usar con POP)
       _ret:="V"
-   elseif _arg=="stack" .or. _arg=="^variant"     // stack sin tipo
+   elseif is_any(_arg,"stack","^variant") 
+      //_arg=="stack" .or. _arg=="^variant"     // stack sin tipo
       _ret:="AV"   
    else
       _Error("Error(1): No reconozco el tipo de la declaración",;
@@ -5641,11 +6000,56 @@ return _ret
 function _CargaDiccionario()
 local _ret,_i
 //vacíos
-_ret:=array(278,3)
-for _i:=1 to 278
+_ret:=array(285,3)
+for _i:=1 to 285
    _ret[_i][2]:=strzero(_i,6)
 end
-// funciones binarias
+// funciones disponibles
+
+// isleap, istime, bitnot, xtostr, isneg, ispos, familia. ahorro 5 espacios  SUB1_CODE
+// stronly, strone pueden ser una familia, ahorro 1 espacio.
+// isnear, isany, isall pueden ser una familia, ahorro 2 espacios.
+// isnan e isinf pueden quedar en una familia, y ahorro 1 espacio.
+// dateadd, daysdiff, xummcd, xummcm, strpad, strlin, strtok, strat,parser,unparser, familia. ahorro 9 espacios.
+
+_ret[9][1]:="XXXXXX"           ;_ret[9][3]:="_"
+_ret[11][1]:="XXXXXX"          ;_ret[11][3]:="_"
+_ret[22][1]:="XXXXXX"          ;_ret[22][3]:="_"
+_ret[26][1]:="XXXXXX"          ;_ret[26][3]:="_"
+_ret[27][1]:="XXXXXX"          ;_ret[27][3]:="_"
+_ret[28][1]:="XXXXXX"          ;_ret[28][3]:="_"
+_ret[32][1]:="XXXXXX"          ;_ret[32][3]:="_"
+_ret[41][1]:="XXXXXX"          ;_ret[41][3]:="_"
+_ret[67][1]:="XXXXXX"          ;_ret[67][3]:="_"
+_ret[68][1]:="XXXXXX"          ;_ret[68][3]:="_"
+_ret[71][1]:="XXXXXX"          ;_ret[71][3]:="_"
+_ret[118][1]:="XXXXXX"         ;_ret[118][3]:="_"
+_ret[120][1]:="XXXXXX"         ;_ret[120][3]:="_"
+_ret[125][1]:="XXXXXX"         ;_ret[125][3]:="_"
+_ret[132][1]:="XXXXXX"         ;_ret[132][3]:="_"
+_ret[133][1]:="XXXXXX"         ;_ret[133][3]:="_"
+_ret[134][1]:="XXXXXX"         ;_ret[282][3]:="_"
+_ret[136][1]:="XXXXXX"         ;_ret[136][3]:="_"
+_ret[139][1]:="XXXXXX"         ;_ret[283][3]:="_"
+_ret[143][1]:="XXXXXX"         ;_ret[143][3]:="_"
+_ret[144][1]:="XXXXXX"         ;_ret[144][3]:="_"
+_ret[150][1]:="XXXXXX"         ;_ret[150][3]:="_"
+_ret[153][1]:="XXXXXX"         ;_ret[153][3]:="_"
+_ret[166][1]:="XXXXXX"         ;_ret[166][3]:="_"
+_ret[192][1]:="XXXXXX"         ;_ret[192][3]:="_"
+_ret[193][1]:="XXXXXX"         ;_ret[193][3]:="_"
+
+_ret[222][1]:="call"           ;_ret[222][3]:="#AA"
+_ret[194][1]:="sub1_code"      ;_ret[194][3]:="_N"  //N=numero de funcion
+_ret[203][1]:="option"         ;_ret[203][3]:="NANN"
+_ret[204][1]:="brksv"          ;_ret[204][3]:="_C"    // salto si es vacío
+_ret[213][1]:="writmap"        ;_ret[213][3]:="_AANNNNN"  // NECESITA AT(X Y).
+
+
+_ret[217][1]:="stronly"        ;_ret[217][3]:="C#C"
+_ret[218][1]:="strone"         ;_ret[218][3]:="C#C"
+
+// funciones definidas
 _ret[1][1]:="sget"             ;_ret[1][3]:="CCNN"
 _ret[2][1]:="sput"             ;_ret[2][3]:="_CNNC"
 _ret[3][1]:="cget"             ;_ret[3][3]:="CCN"
@@ -5654,30 +6058,29 @@ _ret[5][1]:="round"            ;_ret[5][3]:="##N"
 _ret[6][1]:="poschar"          ;_ret[6][3]:="_CN#"
 _ret[7][1]:="unique"           ;_ret[7][3]:="AA"
 _ret[8][1]:="setcode"          ;_ret[8][3]:="ANAA"
-_ret[9][1]:="cls"              ;_ret[9][3]:="_"
+
 _ret[10][1]:="jt"              ;_ret[10][3]:="_L"
-_ret[11][1]:="goodbye"         ;_ret[11][3]:="_"
-_ret[12][1]:="XXXXXX"          ;_ret[12][3]:="_"   // NO TOCAR. RESERVADO PARA FACTORIAL
+
+_ret[12][1]:="XXXXXX"          ;_ret[12][3]:="_"   // NO TOCAR. RESERVADO PARA FACTORIAL EN COMPILACION
 _ret[13][1]:="jnt"             ;_ret[13][3]:="_L"
 _ret[14][1]:="lastkey"         ;_ret[14][3]:="N"   // lee del buffer de teclado ultima tecla 
 _ret[15][1]:="!"               ;_ret[15][3]:="##"  // simbolo FACTORIAL empleado en interpretacion
 _ret[16][1]:="letstrstk"       ;_ret[16][3]:="AC"
 _ret[17][1]:="mov"             ;_ret[17][3]:="##"
 _ret[18][1]:="strload"         ;_ret[18][3]:="C#"
-_ret[19][1]:=CHR(126)          ;_ret[19][3]:="##"
+_ret[19][1]:=CHR(126)          ;_ret[19][3]:="##"   // cola de chancho: ~a, ~(isneg(...)), etc.
 _ret[20][1]:="strdiff"         ;_ret[20][3]:="ACCN"  // distancia de Levensthein
 _ret[21][1]:="xcode2_nc"       ;_ret[21][3]:="#N#"
-_ret[22][1]:="ispos"           ;_ret[22][3]:="##"
+
 _ret[23][1]:="jmp"             ;_ret[23][3]:="_N"
 _ret[24][1]:="freads"          ;_ret[24][3]:="CFN"
-_ret[25][1]:="stop"            ;_ret[25][3]:="_"
-_ret[26][1]:="pause"           ;_ret[26][3]:="_"
-_ret[27][1]:="isany"           ;_ret[27][3]:="L##"
-_ret[28][1]:="isneg"           ;_ret[28][3]:="##"
-_ret[29][1]:="readkey"         ;_ret[29][3]:="_N"
+_ret[25][1]:="stop"            ;_ret[25][3]:="_"   // debe ir aqui porque es usado en la compilacion.
+
+
+_ret[29][1]:="readkey"         ;_ret[29][3]:="_N"   // es mejor aqui que en una familia.
 _ret[30][1]:="between"         ;_ret[30][3]:="LNNN"
 _ret[31][1]:="flag"            ;_ret[31][3]:="_#"
-_ret[32][1]:="isall"           ;_ret[32][3]:="L##"
+
 _ret[33][1]:="htrg_code"       ;_ret[33][3]:="#N#"
 _ret[34][1]:="system"          ;_ret[34][3]:="C"   // devuelve el nombre del sistema operativo
 _ret[35][1]:="iif"             ;_ret[35][3]:="#L##"
@@ -5686,7 +6089,8 @@ _ret[37][1]:="fcreate"         ;_ret[37][3]:="_CN"
 _ret[38][1]:="trg_code"        ;_ret[38][3]:="#N#"
 _ret[39][1]:="unparser"        ;_ret[39][3]:="###"
 _ret[40][1]:="nop"             ;_ret[40][3]:="_"
-_ret[41][1]:="xtostr"          ;_ret[41][3]:="##"
+
+
 _ret[42][1]:="judf"            ;_ret[42][3]:="_N"  // salto a funcion
 _ret[43][1]:="addstr"          ;_ret[43][3]:="CCC"
 _ret[44][1]:="xcode_cn"        ;_ret[44][3]:="#N#"
@@ -5712,11 +6116,10 @@ _ret[63][1]:="xustticdm"       ;_ret[63][3]:="AC#NNNN"
 _ret[64][1]:="subaddstr"       ;_ret[64][3]:="CCC"
 _ret[65][1]:="subsubstr"       ;_ret[65][3]:="CCC"
 _ret[66][1]:="swap"            ;_ret[66][3]:="_##"
-_ret[67][1]:="screen"          ;_ret[67][3]:="_N"
-_ret[68][1]:="video"           ;_ret[68][3]:="_NN"
+
 _ret[69][1]:="xcode_nc"        ;_ret[69][3]:="#N#"
 _ret[70][1]:="seq"             ;_ret[70][3]:="ANNN"
-_ret[71][1]:="isnear"          ;_ret[71][3]:="L##"
+
 _ret[72][1]:="meta_sminmax"    ;_ret[72][3]:="NNA"
 _ret[73][1]:="blkcopy"         ;_ret[73][3]:="AAA"
 _ret[74][1]:="config_array"    ;_ret[74][3]:="_A"
@@ -5763,45 +6166,42 @@ _ret[114][1]:="getgbit"        ;_ret[114][3]:="NNNN"
 _ret[115][1]:="math_code"      ;_ret[115][3]:="#N#"
 _ret[116][1]:="setgbit"        ;_ret[116][3]:="_NNNN"
 _ret[117][1]:="fexist"         ;_ret[117][3]:="LC"
-_ret[118][1]:="istype"         ;_ret[118][3]:="L#C"
+
 _ret[119][1]:="trstk_code"     ;_ret[119][3]:="##"
-_ret[120][1]:="isempty"        ;_ret[120][3]:="L"
+
 _ret[121][1]:="type"           ;_ret[121][3]:="C#"
 _ret[122][1]:="matrange"       ;_ret[122][3]:="AN##"
 _ret[123][1]:="afindstk"       ;_ret[123][3]:="A#C#"
 _ret[124][1]:="xmsize"         ;_ret[124][3]:="AA"
-_ret[125][1]:="fmisca_code"    ;_ret[125][3]:="_"
+
 _ret[126][1]:="getenv"         ;_ret[126][3]:="CC"
 _ret[127][1]:="tstats_code"    ;_ret[127][3]:="ANA"
 _ret[128][1]:="xor"            ;_ret[128][3]:="LLL"
 _ret[129][1]:="xsetbit"        ;_ret[129][3]:="_NNN"
 _ret[130][1]:="xgetbit"        ;_ret[130][3]:="NNN"
-_ret[131][1]:="vtab"           ;_ret[131][3]:="_N"
-_ret[132][1]:="htab"           ;_ret[132][3]:="_N"
-_ret[133][1]:="millisec"       ;_ret[133][3]:="_N"
-_ret[134][1]:="isnan"          ;_ret[134][3]:="L#"
+_ret[131][1]:="fmisca_code"    ;_ret[131][3]:="_NNN"  // funciones miscelaneas: crtdim, keyput, msleep, sleep, cursor, vtab, htab, millisec, precision, screen, video, cls, seed, pause, goodbye
+
+
 _ret[135][1]:="strccar"        ;_ret[135][3]:="####"
-_ret[136][1]:="bitnot"         ;_ret[136][3]:="##"
+
 _ret[137][1]:="tokenstrmat"    ;_ret[137][3]:="ACC"
 _ret[138][1]:="strlin"         ;_ret[138][3]:="###"
-_ret[139][1]:="isinf"          ;_ret[139][3]:="L#"
+
 _ret[140][1]:="join"           ;_ret[140][3]:="CA"
 _ret[141][1]:="mput"           ;_ret[141][3]:="_ANN#"
 _ret[142][1]:="mget"           ;_ret[142][3]:="#ANN"
-_ret[143][1]:="seed"           ;_ret[143][3]:="_N"
-_ret[144][1]:="keyput"         ;_ret[144][3]:="_NN"   // KEY PUT keyboard
+
 _ret[145][1]:="xmat"           ;_ret[145][3]:="AAA"   // mjltiplicacion matricial
 _ret[146][1]:="tstk_code"      ;_ret[146][3]:="_N#"
 _ret[147][1]:="tfstk_code"     ;_ret[147][3]:="_NN"
 _ret[148][1]:="fcmd"           ;_ret[148][3]:="CC"
 _ret[149][1]:="cmd"            ;_ret[149][3]:="_C"
-_ret[150][1]:="precision"      ;_ret[150][3]:="_N"
+
 _ret[151][1]:=".getdata"       ;_ret[151][3]:="#"
 _ret[152][1]:=".putdata"       ;_ret[152][3]:="_#"
-_ret[153][1]:="cursor"         ;_ret[153][3]:="_N"
+
 _ret[154][1]:="strpad"         ;_ret[154][3]:="###"
 _ret[155][1]:="cleartry"       ;_ret[155][3]:="_"
-///_ret[156][1]:="fformat"        ;_ret[156][3]:="CCCAACA"
 _ret[156][1]:="process"        ;_ret[156][3]:="_N##"  // envia mensaje, escucha y sirve resultados.   
 _ret[157][1]:="tcast_code"     ;_ret[157][3]:="#N#"
 _ret[158][1]:="tend"           ;_ret[158][3]:="_"
@@ -5812,7 +6212,8 @@ _ret[162][1]:="ok"             ;_ret[162][3]:="L"
 _ret[163][1]:="fwriteb"        ;_ret[163][3]:="_FN"
 _ret[164][1]:="freadb"         ;_ret[164][3]:="NF"
 _ret[165][1]:="fwritel"        ;_ret[165][3]:="_FC"
-_ret[166][1]:="istime"         ;_ret[166][3]:="##"
+
+
 _ret[167][1]:="prange"         ;_ret[167][3]:="_AA#"
 _ret[168][1]:="grange"         ;_ret[168][3]:="AAA"
 _ret[169][1]:="server"         ;_ret[169][3]:="AN"  // devuelve un array con los datos para procesar en xu.
@@ -5841,39 +6242,36 @@ _ret[189][1]:="brkgez"         ;_ret[189][3]:="_N"  // jgez  salte si es mayor o
 _ret[190][1]:="tdate2_code"    ;_ret[190][3]:="#N#"
 
 _ret[191][1]:="pchar"          ;_ret[191][3]:="NCC"
-_ret[192][1]:="XXXXXX"         ;_ret[192][3]:="_"
-_ret[193][1]:="XXXXXX"         ;_ret[193][3]:="_"
-_ret[194][1]:="XXXXXX"         ;_ret[194][3]:="_"
 
 _ret[195][1]:="not"            ;_ret[195][3]:="_#"
-_ret[196][1]:="isleap"         ;_ret[196][3]:="##"
+
+_ret[196][1]:="ctedata"        ;_ret[196][3]:="_"   // mueve una cte al stack de direcciones, no una dirección
+
 _ret[197][1]:="back"           ;_ret[197][3]:="_"
 _ret[198][1]:="gosub"          ;_ret[198][3]:="_C"
 _ret[199][1]:="dateadd"        ;_ret[199][3]:="###"
 _ret[200][1]:="sort"           ;_ret[200][3]:="AANCNN"
 _ret[201][1]:="flc"            ;_ret[201][3]:="AC"
 _ret[202][1]:="addmatstr"      ;_ret[202][3]:="AAA"
-_ret[203][1]:="XXXXXX"         ;_ret[203][3]:="_"
-_ret[204][1]:="XXXXXX"         ;_ret[204][3]:="_"
+
+
 _ret[205][1]:="xtostack"       ;_ret[205][3]:="A#"
 _ret[206][1]:="xtovariant"     ;_ret[206][3]:="V#"
-////_ret[206][1]:="XXXXXX"         ;_ret[206][3]:="_"
 _ret[207][1]:="daysdiff"       ;_ret[207][3]:="###"
 _ret[208][1]:="timer"          ;_ret[208][3]:="LNN"   // true si var-seconds() >= millisecs
 _ret[209][1]:="xummcd"         ;_ret[209][3]:="###"
 _ret[210][1]:="xummcm"         ;_ret[210][3]:="###"
 _ret[211][1]:="bit_code"       ;_ret[211][3]:="#N##"
 _ret[212][1]:="parsatt"        ;_ret[212][3]:="###A"
-_ret[213][1]:="XXXXXX"         ;_ret[213][3]:="_"
+
 _ret[214][1]:="true"           ;_ret[214][3]:="L"
 _ret[215][1]:="false"          ;_ret[215][3]:="L"
 _ret[216][1]:="garbage"        ;_ret[216][3]:="_"
-_ret[217][1]:="XXXXXX"         ;_ret[217][3]:="_"
-_ret[218][1]:="XXXXXX"         ;_ret[218][3]:="_"
+
 _ret[219][1]:="raise"          ;_ret[219][3]:="_N"
 _ret[220][1]:="elseif"         ;_ret[220][3]:="LL"
 _ret[221][1]:="tdate_code"     ;_ret[221][3]:="#N#"
-_ret[222][1]:="letmmulstk"     ;_ret[222][3]:="AAA"
+//_ret[222][1]:="letmmulstk"     ;_ret[222][3]:="AAA"
 _ret[223][1]:="else"           ;_ret[223][3]:="_"
 _ret[224][1]:="datenow"        ;_ret[224][3]:="C"
 _ret[225][1]:="endif"          ;_ret[225][3]:="_"
@@ -5887,7 +6285,7 @@ _ret[232][1]:="write"          ;_ret[232][3]:="_#"
 _ret[233][1]:="wend"           ;_ret[233][3]:="_"
 _ret[234][1]:="at"             ;_ret[234][3]:="_NN"
 _ret[235][1]:="and"            ;_ret[235][3]:="LLL"
-_ret[236][1]:="color"          ;_ret[236][3]:="_N"
+_ret[236][1]:="color"          ;_ret[236][3]:="_N"  // es conveniente aqui y no es una familia, porque puede ser masiva su ejecucion
 _ret[237][1]:="tox"            ;_ret[237][3]:="##"
 _ret[238][1]:="or"             ;_ret[238][3]:="LLL"
 _ret[239][1]:="do"             ;_ret[239][3]:="_"
@@ -5909,15 +6307,17 @@ _ret[254][1]:="$"              ;_ret[254][3]:="_"
 _ret[255][1]:="XXXXXX"         ;_ret[255][3]:="_"  // NULO NO TOCAR
 
 /* DESDE AQUI EN ADELANTE SON INSTRUCCIONES QUE DESAPARECEN EN TIEMPO DE COMPILACION
-   NO AGREGAR NINGUNA INSTRUCCION QUE PERTENEZCA A LA EJECUCION */
+   YA SEA PORQUE SON TEMPORALES, O POR PERTENECER A UNA FAMILIA ESPECIAL
+   NO AGREGAR NINGUNA INSTRUCCION QUE PERTENEZCA A LA EJECUCION POR LLAMADA DIRECTA */
 
 _ret[256][1]:="recursive"      ;_ret[256][3]:="_"    
 _ret[257][1]:="endr"           ;_ret[257][3]:="_" 
-_ret[258][1]:="XXXXXX"         ;_ret[258][3]:="_"  // 
-_ret[259][1]:="XXXXXX"         ;_ret[259][3]:="_"  // 
-_ret[260][1]:="XXXXXX"        ;_ret[260][3]:="_"  // 
-_ret[261][1]:="XXXXXX"         ;_ret[261][3]:="_"  // 
-_ret[262][1]:="XXXXXX"         ;_ret[262][3]:="_"  // 
+_ret[258][1]:="xtostr"         ;_ret[258][3]:="##"
+_ret[259][1]:="isneg"          ;_ret[259][3]:="##"
+_ret[260][1]:="ispos"          ;_ret[260][3]:="##"  // 
+_ret[261][1]:="isany"           ;_ret[261][3]:="L##"
+_ret[262][1]:="isall"           ;_ret[262][3]:="L##"
+
 _ret[263][1]:="exception"      ;_ret[263][3]:="_"
 _ret[264][1]:="brkif"          ;_ret[264][3]:="LL"
 _ret[265][1]:="until"          ;_ret[265][3]:="LL"
@@ -5933,7 +6333,14 @@ _ret[274][1]:="again"          ;_ret[274][3]:="_"
 _ret[275][1]:="case"           ;_ret[275][3]:="_L"
 _ret[276][1]:="otherwise"      ;_ret[276][3]:="_"
 _ret[277][1]:="evend"          ;_ret[277][3]:="_"  // fin del eval
-_ret[278][1]:="XXXXXX"         ;_ret[278][3]:="_"  
+_ret[278][1]:="isnear"         ;_ret[278][3]:="L##"
+_ret[279][1]:="isleap"         ;_ret[279][3]:="##"
+_ret[280][1]:="istime"         ;_ret[280][3]:="##"
+_ret[281][1]:="bitnot"         ;_ret[281][3]:="##"
+_ret[282][1]:="isnan"          ;_ret[282][3]:="L#"
+_ret[283][1]:="isinf"          ;_ret[283][3]:="L#"
+_ret[284][1]:="isempty"        ;_ret[284][3]:="L"
+_ret[285][1]:="istype"         ;_ret[285][3]:="L#C"
 
 return _ret
 
@@ -5987,12 +6394,74 @@ for i:=1 to nLen
 end
 return Ret
 
+function ISNUMSPECIAL(pString,lineafisica)
+local i,c,t,l,pLinea
+     pLinea:=pString
+     l:=len(pString)
+     c:=substr(pString,1,2)
+     t:=substr(pString,l,1)
+     if c=="0x" .and. is_any(t,"b","o","h") // podria ser un numero especial...
+        pString:=substr(pString,3,l)
+        l:=len(pString)-1
+        pString:=substr(pString,1,l)
+
+        if t=="b"     // es binario
+           for i:=1 to l
+              c:=substr(pString,i,1)
+              if is_noall(c,"0","1")
+                 _Error("Error: Número binario mal formado",lineafisica)
+              end
+           end
+           pString:=hb_ntos(BINTODEC(pString))
+        elseif t=="o"   // es octal
+           for i:=1 to l
+              c:=substr(pString,i,1)
+              if !(c $ "01234567")
+                 _Error("Error: Número octal mal formado",lineafisica)
+              end
+           end
+           pString:=hb_ntos(OCTALTODEC(pString))
+        elseif t=="h"    // es hexa
+           for i:=1 to l
+              c:=substr(pString,i,1)
+              if !(c $ "0123456789ABCDEF")
+                 _Error("Error: Número hexadecimal mal formado",lineafisica)
+              end
+           end
+           pString:=hb_ntos(HEXATODEC(pString))
+        end 
+        pLinea:=pString
+     end
+
+return pLinea
+
+function getFamilia(orden)
+local familia
+   if orden>=0 .and. orden<=5
+      familia:=1
+   elseif orden>=6 .and. orden<=22
+      familia:=2
+   elseif orden>=23 .and. orden<=59
+      familia:=3
+   elseif orden>=60 .and. orden<=123
+      familia:=4
+   elseif orden>=124 .and. orden<=185
+      familia:=5
+   elseif orden>=186 .and. orden<=199
+      familia:=6
+   elseif orden>=200 //.and. orden<=240
+      familia:=7
+   end
+return familia
+
 procedure _Carga_archivo(file,tempFile)
-LOCAL h_ini, h_fin,nSavePos,nLineaTemp,nLineaAmp,nLineas
+LOCAL h_ini, h_fin,nSavePos,nLineaTemp,nLineaAmp,nLineas,cnt:=0
 LOCAL fp,c,linea,lineaFisica:=1,pFileInclude,pString,pCodeString,pLinea
 LOCAL fpi,i_ini,i_fin,tmpFile
-LOCAL swAmper,swEspacio,swCuerpo,swUse,sw
+LOCAL swAmper,swEspacio,swCuerpo,swUse,sw,swRet, swMAINPRG
+LOCAL registros,typeRegistro,pushes,lets,saltos,instrucc,funcs,labels,ctaIns,ctaReg,ctaLabels
 LOCAL DEF:={},DEFVAR:={},DEFBODY:={},STKSTR:={}
+LOCAL coords, swTipo, ctaCoord, swOffset, offset,i, swHayStack,linePhantom
 
 fp:=fopen(file)
 if ferror()!=0
@@ -6031,7 +6500,8 @@ while h_ini<h_fin
            instrucc..., [if/while/until], {a,b,c}<-{}/a... NO. DESPUES */
         linea:=alltrim(linea)   
         if len(linea)>1
-           if linea=="algorithm:" .or. linea=="begin:"
+           if ;//is_any(linea,"algorithm:","begin:")
+              linea=="algorithm:" .or. linea=="begin:"
               swCuerpo:=.T.
            end
            if linea=="end"
@@ -6042,28 +6512,36 @@ while h_ini<h_fin
 
           /**** PARA DESPUÉS, CUANDO TENGA MI ARCHIVO TEMPORAL LSTO ****/
            if swCuerpo
+
               linea:=BUSCAMATENDURO(linea,lineaFisica)
-           
+
               if "^[" $ linea 
                  linea:=_BuscaEstaticos(linea,lineaFisica)
               end
 
               linea:=_PREPROCESO(linea)
-           
-              
+
               linea:=SEPARAESTRUCT(linea,lineaFisica)
+
+
               linea:=REPLASIGCOMP(linea,lineaFisica)
+
               linea:=SEPARACOMBINADOS(linea,lineaFisica)
+
               linea:=REPLSEMANTOS(linea)
+
               ct:=0
-              while at("{",linea)>0 .and. at("?",linea)>0 .and. "}" $ linea .and. ct<20
+
+              while /*at("{",linea)>0 .and. at("?",linea)>0*/ "{" $ linea .and. "?" $ linea .and. "}" $ linea .and. ct<20
                //  ? "--->",linea
                  linea:=EXPANSIONMACRO(linea,lineaFisica)
                 // linea:=SEPARACOMBINADOS(linea,lineaFisica)
                //  ? "<---",linea
                  ++ct
               end
+
               linea:=REPLIFFINLINE(linea,STKSTR)
+              
            else
               if ":=" $ linea
                  linea:=strtran(linea,":=","=")
@@ -6083,6 +6561,7 @@ while h_ini<h_fin
               end
            end
            
+
            if nLineaTemp>0
               if nLineaAmp>0
                  nLineaTemp:=nLineaAmp
@@ -6109,11 +6588,12 @@ while h_ini<h_fin
                  end
               end
            end
+
            nLineaTemp:=0
            nLineaAmp:=0
            
            linea+=_CR
-           
+
            fwrite(ft,linea,len(linea))
 
         //   aadd(Ret,{alltrim(hb_utf8tostr(linea)),lineaFisica})
@@ -6124,6 +6604,1444 @@ while h_ini<h_fin
         swAmper:=.F.   // bajo bandera, por si ya no hay más "&"
      end
      ++lineaFisica
+
+  elseif c == "d"   // podría ser "down:" 
+     
+     SET EXACT ON
+     
+     pString:=c
+     cnt:=1
+    // fread(fp,@c,1); ++h_ini; ++cnt
+    // nSavePos := fseek( fp, 0, 1 )
+     sw:=.F.
+     while (/*isalpha(c) .and.*/ h_ini<=h_fin .and. c!=chr(10)) .and. cnt<=5//.or. c=="{"
+        fread(fp,@c,1); ++h_ini
+        nSavePos := fseek( fp, 0, 1 )
+        if isalpha(c) .or. c=="{"
+           pString+=c
+           if c=="{"
+              exit
+           end
+        else
+           sw:=.T.
+           exit
+        end
+        ++cnt
+       /* if cnt>5
+           exit
+        end*/
+     end
+   //  
+    // ? "PSTRING=",pString
+     if pString!="down{"     //c==chr(10)   // pudo leer un "do"
+        linea+=pString
+        pString:=NULL
+        if sw
+            fseek(fp,nSavePos-1,0); --h_ini  // vuelvo a posición de chr(10)
+        end
+     else   // leyó 5 caracteres. Analizar si es "down:"
+       // ? pString; inkey(0)
+        //if pString=="down{"
+           pString:=NULL
+           // a cargar lowlevel!
+           //nLineas:=lineaFisica
+           //++lineaFisica
+           
+           linea:=NULL
+           swCierre:=.F.
+           //QuitaEspacio(@h_ini,@h_fin,@fp,@c)  // quito espacio entre "down:" y posible comentario
+           while is_noall(c,chr(10),"/") .and.h_ini<=h_fin
+              fread(fp,@c,1); ++h_ini
+
+              nSavePos := fseek( fp, 0, 1 )
+           end
+           if c==chr(10)
+              //++nLineas
+              ++lineaFisica   
+           elseif c=="/"  // es un comentario.
+              fread(fp,@c,1); ++h_ini
+              nSavePos := fseek( fp, 0, 1 )
+              
+              if c=="*"  // comentario de bloque
+                 BloqueComentario(@h_ini,@h_fin,@fp,@lineaFisica,@c)
+              elseif c=="/"  // comentario de linea
+                 while c!=chr(10) .and.h_ini<=h_fin
+                    fread(fp,@c,1); ++h_ini
+                    nSavePos := fseek( fp, 0, 1 )
+                 end
+                 if c==chr(10)
+                    ++lineaFisica
+                 end
+              else     // es cualquier weá. Error!
+                 _Error("Error: ¿Qué hueá es esto por la chucha?: '/"+c+"'",lineaFisica)
+              end  
+           end
+
+            // comienza carga de funciones de bajo nivel: NO.CARGO TODO HASTA "UP" Y LUEGO APLICO STRTRAN " "=>",", "PUSH"=>100 ETC.
+
+          /*  registros:={"ax"=>1, "bx"=>2, "cx"=>3, "dx"=>4, "ex"=>5, "fx"=>6, "gx"=>7, "hx"=>8, "ix"=>9, "jx"=>10, "kx"=>11,;
+                        "lx"=>12,"mx"=>13,"nx"=>14,"ox"=>15,"px"=>16,"qx"=>17,"rx"=>18,"sx"=>19,"tx"=>20,"ux"=>21,;
+                        "vx"=>22,"wx"=>23,"xx"=>24,"yx"=>25,"zx"=>26}*/
+            registros:={}      // guardo variables y constantes
+            typeRegistro:={}     // guardo el tipo de objeto encontrado: R(registro), C(cte)
+            pushes   :={"spush"=>0, "..."=>1, "dpush"=>2}
+            lets     :={"slet"=>3,  "clet"=>4,  "dlet"=>5}
+/*            pushes   :={"push"=>100, "cpush"=>101, "dpush"=>102}
+            lets     :={"let"=>103,  "clet"=>104,  "dlet"=>105} */
+            saltos   :={"jmp"=>6, "jump"=>6, "jeq"=>7, "jumpifeq"=>7, "jneq"=>8, "j!eq"=>8,"jumpif!eq"=>8, "jlt"=>9,"jumpiflt"=>9,;
+                        "jlte"=>10, "jumpiflte"=>10,"jgt"=>11, "jumpifgt"=>11, "jgte"=>12, "jumpifgte"=>12,;
+                        "jt"=>13, "jumpift"=>13, "jumpiftrue"=>13, "jnt"=>14, "j!t"=>14, "jumpif!true"=>14, "jv"=>15, "jumpifvoid"=>15,;
+                        "jnv"=>16, "j!v"=>16, "jumpif!void"=>16, "jz"=>17, "jumpifzero"=>17, "jnz"=>18, "j!z"=>18, "jumpif!zero"=>18,;
+                        "jneg"=>19, "jumpifneg"=>19, "jpos"=>20, "jumpifpos"=>20, "gosub"=>21, "jsub"=>22}
+/*            saltos   :={"jmp"=>27,  "jeq"=>30,  "jneq"=>31,  "jlt"=>32,  "jlte"=>33, "jgt"=>34,  "jgte"=>35, ;
+                        "jt"=>28,   "jnt"=>29,  "jv"=>36,   "jnv"=>37,  "jz"=>38, "jnz"=>39,;
+                        "gosub"=>40}*/
+            instrucc :={"eq?"=>23, "iseq?"=>23, "neq?"=>24, "is!eq"=>24, "isnoteq?"=>24, "!eq?"=>24, "lt?"=>25,;
+                        "islt?"=>25, "lte?"=>26, "islte?"=>26, "gt?"=>27, "isgt?"=>27, "gte?"=>28, "isgte?"=>28,;
+                        "neg?"=>29, "isneg?"=>29, "pos?"=>30, "ispos?"=>30,;
+                        "in?"=>31, "isin?"=>31, "iscasein?"=>31, "ciin?"=>32, "isciin?"=>32, "iscaseinsensitivein?"=>32, ;
+                        "zero?"=>33, "iszero?"=>33,;
+                        "void?"=>34, "isvoid?"=>34, "between?"=>35, "emptystack?"=>36, "isenv?"=>37, "exist?"=>38, ;
+                        "add"=>40,  "sub"=>41, "mul"=>42,  "div"=>43,  "idiv"=>44,  "pow"=>45,   "mod"=>46, "round"=>47,;
+                        "max"=>48, "min"=>49, "jcase"=>50, ;
+                        "len"=>60, "upper"=>61, "lower"=>62, "trim"=>63, "asc"=>64, "rtrim"=>65, "ltrim"=>66, "xtonum"=>67,;
+                        "exp"=>80, "int"=>81, "sign"=>82, "log"=>83, "log10"=>84, "sqrt"=>85, "sin"=>86, "cos"=>87, "tan"=>88,;
+                        "sinh"=>89, "cosh"=>90, "tanh"=>91, "xtostr"=>92, "floor"=>93, "abs"=>94, "chr"=>95, "ceil"=>96, ;
+                        "exp2"=>97, "log2"=>98, "exp10"=>99, "hex"=>100, "bin"=>101, "oct"=>102, "lennum"=>103, "fact"=>104,;
+                        "factorial"=>104, "sci"=>105, "notation"=>105, "deg2rad"=>106, "d2r"=>106, "rad2deg"=>107, "r2d"=>107,;
+                        "cbrt"=>108, "rand"=>109, "trunc"=>110, "odd"=>111, "isodd?"=>111, "neg"=>112, "negative"=>112,;
+                        "print"=>124, "or"=>125, "and"=>126, "xor"=>127, "nor"=>128, "nand"=>129, "not"=>130, ;
+                        "error?"=>133, "..."=>134,"up"=>135, "ret"=>136, "return"=>136, "transform"=>137,;
+                        "getenv"=>138,  "back"=>139,  "kbhit?"=>140,  "kbesc?"=>141,  "echo"=>142,"replace"=>143,"dump"=>144,;
+                        "copy"=>145, "offset"=>146, "nextrow"=>147, "nextcol"=>148, "beforerow"=>149, "beforecol"=>150,;
+                        "nextpage"=>151, "beforepage"=>152, "clearmark"=>153, "kill"=>154, "clearstack"=>155, "countat"=>156,;
+                        "indexat"=>157, "at"=>158, "mask"=>159, "money"=>160,"multipasson"=>161,;
+                        "multipassoff"=>162, "tokenseparator"=>163, "tokensep"=>163, "toksep"=>163, "seconds"=>164, ;
+                        "pi"=>165, "PI"=>165, "mul#"=>166,;
+                        "padc"=>167, "padr"=>168, "padl"=>169, "cat"=>170, "repl"=>171, "replicate"=>171, ;
+                        "setenv"=>172, "unsetenv"=>173, "@"=>174, "xy"=>174, "color"=>175, "background"=>176, "offset2d"=>177,;
+                        "ptr"=>178, "ins"=>179,"insert"=>179, "del"=>180,"delete"=>180, "countfile"=>181, "strtoutf8"=>182,;
+                        "utf8tostr"=>183, "deletechar"=>184, "fileerror"=>185, "load"=>186, "save"=>187, "exec"=>188 }
+            funcs    :={"sizebin"=>200, "mov"=>201,   "inc"=>202,  "dec"=>203,  "prec"=>204, "precision"=>204, "array"=>205,;
+                        "..."=>206, "..."=>207, "loc"=>208, /*"crloc"=>209, "rcloc"=>210, "ccloc"=>211,*/ "rloc"=>212,;
+                        "readrow"=>213, "lastkey"=>214, "dprec"=>215, "addrow"=>216, "put"=>217, "get"=>218,"getrow"=>219,;
+                        "getcol"=>220, "getcolumn"=>220, "catrow"=>221, "catcol"=>222, "catcolumn"=>222, "getpage"=>223,;
+                        "putpage"=>224, "size"=>225, "type"=>226, "gettoken"=>227, "$"=>227, "modtoken"=>228, "$$"=>228,;
+                        "open"=>229, "empty"=>230, "randarray"=>231, "zerosarray"=>232, "onesarray"=>233,;
+                        "eyesarray"=>234, "close"=>235, "writeline"=>236, "readline"=>237, "seek"=>238, "eof"=>239, "create"=>240,;
+                        "dowith"=>241, "writerow"=>242 }
+                        // NO TOCAR 255: ES ARRANQUE DE MAIN
+                        
+            // recuperar labels de salto
+            labels:={=>}
+
+            ctaIns:=0
+            ctaReg:=0
+            ctaLabels:=0
+            swRet:=.F.
+            swMAINPRG:=.F.  // indica si se encontró un "main:"
+
+           /* siguientes lineas se agregan al final, junto con la declaración de constantes */
+            linePhantom:=NULL
+            /* guardo línea fantasma con longitud del stack de registros */
+            linePhantom:=alltrim(strzero(lineaFisica,10))+":"+"push __LONG_REGISTER__"+_CR
+            ++ctaIns
+            /* guardo linea fantasma con longitud del stack de trabajo */
+            linePhantom+=alltrim(strzero(lineaFisica,10))+":"+"push __LONG_STACK__"+_CR
+            ++ctaIns
+            nLineaTemp:=lineaFisica
+            
+            c:=" "    // inicia carga desde cero.
+            linea:=NULL
+            pLinea:=NULL
+            pString:=NULL
+
+            phantomLabels:={}
+            nPhantom:=0
+
+            swHayStack:=.T.
+          //  ? "ENTRA Linea=",lineaFisica
+            while h_ini<=h_fin
+               fread(fp,@c,1); ++h_ini   // leo sig caracter
+               if c=='"'
+                  _Error("Error: este elemento no debe ir aqui (un string?)",lineaFisica)
+               elseif c==" "
+                  if swHayStack
+                     if pLinea==".stack"
+                        pLinea:=NULL
+                        swHayStack:=.F.
+                        while h_ini<=h_fin
+                           fread(fp,@c,1); ++h_ini
+                           nSavePos := fseek( fp, 0, 1 )
+                           if c==" "
+                              loop
+                           elseif c=="/"
+                              fseek(fp,nSavePos-1,0); --h_ini
+                              exit
+                           elseif c==chr(10)
+                              fseek(fp,nSavePos-1,0); --h_ini
+                              exit
+                           else
+                              pLinea+=c
+                           end
+                        end
+                        if h_ini>h_fin
+                           _Error("Error: Directiva .STACK mal declarada",lineaFisica)
+                        else
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)  // por si está en otra base
+
+                           if ISTNUMBER(pLinea)==1
+                              linePhantom:=strtran(linePhantom,"__LONG_STACK__",pLinea)
+                              pLinea:=NULL
+                              //++ctaIns  // por .stack
+                           else
+                              _Error("Error: Directiva .STACK: error en argumento",lineaFisica)
+                           end
+                        end
+                     end
+                  end
+                  loop
+               elseif c=="}"
+                  if len(phantomLabels)==0
+                     swCierre:=.T.
+                     loop
+                  else   // cierre de "do{" o "case{"
+                     labelPhantom:=stackpop(phantomLabels)
+                     --nPhantom
+                     hb_hset(labels,labelPhantom,ctaIns+1)  // no debe dejar constancia, dado que no volverá a usarse
+
+                     ++ctaLabels
+                  end
+               elseif c==chr(10)  // si quito espacios, deberá quedar esto aquí
+                  //++lineaFisica
+                  if len(pLinea)>0
+                     // buscar en instrucc
+                     pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                     orden := hb_HGetDef( instrucc, pLinea, -1 )
+                     if orden==-1
+                        _Error("Error: (1) Instrucción de bajo nivel no reconocida: ["+pLinea+"]",lineaFisica)
+                     end
+                     if orden==135  //up
+                        if !swCierre
+                            _Error("Error: Falta '}up', o un grupo 'DO' no ha sido cerrado",lineaFisica)
+                        end
+                        pLinea:=NULL
+                        linea:=NULL
+                        ++lineaFisica
+                        //++nLineas
+                        exit
+                     elseif orden==136  // ret
+                        swRet:=.T.
+                     end
+                     //familia:=getFamilia(orden)
+                     
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                     //fwrite(ft,linea,len(linea))
+                     pString+=linea
+                     linea:=NULL
+                     ++ctaIns
+                     pLinea:=NULL
+                     ++lineaFisica
+                     loop
+                  end
+                  linea:=NULL
+                  pLinea:=NULL
+                  ++lineaFisica
+                  //++nLineas
+                  
+               elseif c=="/"  //";"   // es un comentario
+                  fread(fp,@c,1); ++h_ini
+                  nSavePos := fseek( fp, 0, 1 )
+              
+                  if c=="*"  // comentario de bloque
+                      BloqueComentario(@h_ini,@h_fin,@fp,@lineaFisica,@c)
+                  elseif c=="/"  // comentario de linea
+                      while c!=chr(10) .and.h_ini<=h_fin
+                         fread(fp,@c,1); ++h_ini
+                         nSavePos := fseek( fp, 0, 1 )
+                      end
+                      if h_ini>h_fin
+                          // ERROR
+                          _Error("Error: Rutina de bajo nivel no ha sido cerrada",lineaFisica)
+                      end
+                      if c==chr(10)
+                         fseek(fp,nSavePos-1,0); --h_ini
+                      end
+                  else     // es cualquier weá. Error!
+                      _Error("Error: ¿Qué hueá es esto por la chucha?: '/"+c+"'",lineaFisica)
+                  end
+
+               elseif c==":"   // es un label
+                  // extraer e identificar label
+                  // Identificar MAIN: definir el punto de inicio del programa, si quiero que el sistema
+                  // de saltos bottom-up funcione.
+                  if pLinea == "main" //.or. pLinea == "begin:"
+                     if swMAINPRG
+                        _Error("Error: Solo debe haber un MAIN",lineaFisica)
+                     else
+                        swMAINPRG:=.T.
+                     end
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push 255"+_CR
+                     //fwrite(ft,linea,len(linea))
+                     pString+=linea
+                     ++ctaIns
+                  end
+                  dato:=hb_HGetDef( labels, pLinea, -1 )
+                  if dato==-1
+                     hb_hset(labels,pLinea,ctaIns+1)
+                     ++ctaLabels
+                  else
+                     _Error("Error: Se detecta una etiqueta repetida",lineaFisica)
+                  end
+                  pLinea:=NULL
+                  linea:=NULL
+
+               elseif c=="{"  // inicia push... analizar el tipo de push, según el mismo algoritmo de PUSH más abajo
+                              // hasta que encuentre un "}".
+                              // puede ser "do{"
+                  if pLinea=="do"
+                     // genera etiqueta fantasma:
+                     nPhantom++
+                     labelPhantom := alltrim(str(int(hb_random()*1000000000))) 
+                     stackpush(phantomLabels, labelPhantom)
+                     labelPhantom := "____CODE__JUMP____"+labelPhantom
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push 14"+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+labelPhantom+_CR
+
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=2
+                     pLinea:=NULL
+
+                  elseif pLinea=="case"
+                     labelPhantom := alltrim(str(int(hb_random()*1000000000))) 
+                     stackpush(phantomLabels, labelPhantom)
+                     labelPhantom := "____CODE__JUMP____"+labelPhantom
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push 50"+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+labelPhantom+_CR
+
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=2
+                     pLinea:=NULL
+
+                  else
+                     swString:=.F.
+                     orden:=0    // por default=push de registros.
+                     while c!=chr(10) .and. h_ini<=h_fin
+                        fread(fp,@c,1); ++h_ini
+                        nSavePos := fseek( fp, 0, 1 )
+
+                        if c==" "
+                           loop
+                        elseif c=="/"    // inicia un comentario.
+                           fseek(fp,nSavePos-1,0); --h_ini
+                           exit
+                        elseif c==chr(34)   // es una cte string.
+                           if len(pLinea)==0
+                              pLinea:=c
+                           else
+                              pLinea += c
+                           end
+                           swString:=.T.
+                           c:=" "
+                           while c!=chr(10) .and. h_ini<=h_fin
+                              fread(fp,@c,1); ++h_ini
+                              pLinea+=c
+                              if c=="\"
+                                 fread(fp,@c,1); ++h_ini
+                                 pLinea+=c
+                              elseif c==chr(34)
+                                 exit
+                              end
+                           end
+                           //? "string detectado: [",pLinea,"]"
+                           if c==chr(10)
+                              _Error("Error: Función PUSH|{} no ha sido cerrada: "+pLinea,lineaFisica)
+                           end
+                        elseif c=="," .or. c=="}"
+                           //? "??? ",pLinea
+                           ctaRep:=1
+                           rep:=substr(pLinea,1,1)
+                           while rep=="*" //isdigit(rep)
+                             ++ctaRep
+                             pLinea:=substr(pLinea,2,len(pLinea))
+                             rep:=substr(pLinea,1,1)
+                           end
+                           // si es string, quitar las comillas:
+                         //  if swString
+                              //? "String: ", pLinea
+                         //     pLinea:=substr(pLinea,2,len(pLinea))
+                         //     pLinea:=substr(pLinea,1,len(pLinea)-1)  // chao comillas
+                              
+                         //  end
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                           pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                          // ? "BUSCA : ",pLinea
+                           dato:=ascan(registros, pLinea)
+                          // ? "DATO encontrado : ",dato, iif(dato>0, " = "+registros[dato],"")
+                           if dato==0   // no es un registro
+                              //if !swString   //
+                              if substr(pLinea,1,1)!=chr(34)  // no es un string
+                                 if ISTNUMBER(pLinea)!=1   // no es un numero
+                                    if substr(pLinea,1,1)=="["  // es un dataseg
+                                       pLinea:=strtran(pLinea,"[","")
+                                       pLinea:=strtran(pLinea,"]","")
+                                       pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                                       pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                                       reg := ascan(registros, pLinea)
+                                       if reg==0   // no existe. ver si es un cte o registro
+                                          if ISTNUMBER(pLinea)==1
+                                             aadd(registros,pLinea)     // agrego label de registro variable
+                                             aadd(typeRegistro, "N")    // agrego tipo registro
+                                             ++ctaReg
+                                             reg:=ctaReg
+                                          else
+                                             _Error("Error: quiero un registro inicializado o numero, no esto: "+pLinea,lineaFisica)
+                                          end
+                                       else         // ver si es un registro o constante.
+                                          if typeRegistro[reg] == "C"
+                                             _Error("Error: quiero un registro inicializado o numero, no esto: "+pLinea,lineaFisica)
+                                          end
+                                       end
+                                       for i:=1 to ctaRep
+                                          linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden+2))+_CR
+                                          linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                                          ctaIns+=2
+                                       end
+                                       //fwrite(ft,linea,len(linea))
+                                       pString+=linea
+                                       linea:=NULL
+                                       pLinea:=NULL
+                                    else
+                                       _Error("Error: Registro no inicializado: ["+pLinea+"]",lineaFisica)
+                                    end
+                                 else   // es un numero no registrado
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")    // agrego tipo registro
+                                    ++ctaReg
+                                    for i:=1 to ctaRep
+                                       linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                                       linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                       ctaIns+=2
+                                    end
+                                    pString+=linea
+                                    linea:=NULL
+                                    pLinea:=NULL
+                                 end
+                              else    // es un string
+                                 swString:=.F.
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "C")    // agrego tipo registro
+                                 ++ctaReg
+                                 for i:=1 to ctaRep
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                    ctaIns+=2
+                                 end
+                                 pString+=linea
+                                 linea:=NULL
+                                 pLinea:=NULL
+                              end
+                           else
+                              swString:=.F.
+                              for i:=1 to ctaRep
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dato))+_CR
+                                 ctaIns+=2
+                              end
+                              pString+=linea
+                              linea:=NULL
+                              pLinea:=NULL
+                           end
+                           if c=="}"   // llegó al final
+                              exit
+                           end
+                        else
+                           pLinea+=c
+                        end 
+                     end
+                     if c==chr(10)
+                        fseek(fp,nSavePos-1,0); --h_ini
+                     end
+                  end   // do{
+               elseif c=="+"   // puede ser REG++ o ++REG
+                  fread(fp,@c,1); ++h_ini
+                  nSavePos := fseek( fp, 0, 1 )
+                  if c=="+"   // es INC
+                     orden:=202
+                     if len(pLinea)>0
+                        pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                        pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                        reg:=ascan(registros, pLinea)
+                        if reg>0
+                           if typeRegistro[reg] $ "CN"
+                              _Error("Error: quiero un registro inicializado, no esto: "+pLinea,lineaFisica)
+                           end
+                        else
+                           _Error("Error: Registro no inicializado ["+pLinea+"]",lineaFisica) 
+                        end
+                     else
+                        _Error("Error: Orden debe ser: [ reg++ ]",lineaFisica) 
+                     end
+                     pLinea:=NULL
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                     //fwrite(ft,linea,len(linea))
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=2
+                  else
+                     _Error("Error: Símbolo no reconocido: ["+c+"]",lineaFisica)
+                  end
+               elseif c=="-"   // debe ser REG-- o --REG
+                  fread(fp,@c,1); ++h_ini
+                  nSavePos := fseek( fp, 0, 1 )
+                  if c=="-"   // es DEC
+                     orden:=203
+                     if len(pLinea)>0
+                        pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                        pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                        reg:=ascan(registros, pLinea)
+                        if reg>0   // existe. ver si es un registro o una constante
+                           if typeRegistro[reg] $ "CN"
+                              _Error("Error: quiero un registro inicializado, no esto: "+pLinea,lineaFisica)
+                           end
+                        else
+                           _Error("Error: Registro no inicializado ["+pLinea+"]",lineaFisica)
+                        end
+                     else
+                        _Error("Error: Orden debe ser: [ reg-- ]",lineaFisica) 
+                     end
+                     pLinea:=NULL
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                     //fwrite(ft,linea,len(linea))
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=2
+                  else
+                     _Error("Error: Símbolo no reconocido: ["+c+"]",lineaFisica)
+                  end
+
+               elseif c=="["  //orden==208 // .and. orden<=211       // localizacion de elemento de un array.
+                  // semejante a 206
+                  //? "ENTRA AQUI"
+                  coords:={-1,-1,-1}
+                  swTipo:={.F.,.F.,.F.}
+                  ctaCoord:=0
+                  swoffset:={.F.,.F.,.F.}
+                  offset:={0,0,0}
+                  swFinalBrag:=.F.
+                  while c!=chr(10) .and. h_ini<=h_fin
+                     fread(fp,@c,1); ++h_ini
+                     nSavePos := fseek( fp, 0, 1 )
+                     if c==" "
+                        loop
+                     elseif c=="/"    // inicia un comentario.
+                        fseek(fp,nSavePos-1,0); --h_ini
+                        exit
+                     elseif c=="," .or. (c=="]" .and. !swFinalBrag) // buscar registro.
+                        ++ctaCoord
+                        if ctaCoord>3
+                           _Error("Error: Solo se pueden direccionar arrays hasta 3 dimensiones",lineaFisica)
+                        end 
+                        if pLinea=="end"
+                           dInfinito:=ascan(registros, "999999999")
+                           if dInfinito>0
+                              coords[ctaCoord]:=dInfinito
+                           else
+                              aadd(registros,"999999999")     // agrego label de registro variable
+                              aadd(typeRegistro, "N")    // agrego tipo registro
+                              ++ctaReg
+                              coords[ctaCoord]:=ctaReg   // infinito imaginario de "end"   
+                           end
+                           swTipo[ctaCoord]:=.T.
+                        else
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                           pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                           dato:=ascan(registros, pLinea)
+
+                           if dato==0      // no está registrado ni como cte ni como registro
+                              if ISTNUMBER(pLinea)!=1   // no es un número?
+                                 _Error("Error: quiero un registro inicializado o un numero, no esto: "+pLinea,lineaFisica)
+                              else
+                                 // añade el numero a registros
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "N")    // agrego tipo registro
+                                 ++ctaReg
+                                 swTipo[ctaCoord]:=.T.  // es una cte.
+                                 dato:=ctaReg
+                              end
+                           else   // ver si no se trata de un string
+                              if typeRegistro[dato] == "C"
+                                 _Error("Error: quiero un registro inicializado o un numero, no esto: "+pLinea,lineaFisica)
+                              end
+                           end
+                           coords[ctaCoord]:=dato
+                         //  ? "DATO=",coords[ctaCoord], " C=",c
+                           reg:=dato
+                        end
+                        pLinea:=NULL
+                        if c=="]"
+                           fseek(fp,nSavePos-1,0); --h_ini
+                           swFinalBrag:=.T.
+                        end
+                     elseif c==":"   // es un offset
+                        // cuento primero el registro inicial, y luego obtengo el desplazamiento.
+                        // se repite el código para c==","
+                        ++ctaCoord
+                        if ctaCoord>3
+                           _Error("Error: Solo se pueden direccionar arrays hasta 3 dimensiones",lineaFisica)
+                        end 
+                        if pLinea=="end"
+                           dInfinito:=ascan(registros, "999999999")
+                           if dInfinito>0
+                              coords[ctaCoord]:=dInfinito
+                           else
+                              aadd(registros,"999999999")     // agrego label de registro variable
+                              aadd(typeRegistro, "N")    // agrego tipo registro
+                              ++ctaReg
+                              coords[ctaCoord]:=ctaReg   // infinito imaginario de "end"   
+                           end
+                           swTipo[ctaCoord]:=.T.
+                        else
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                           pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                           dato:=ascan(registros, pLinea)
+
+                           if dato==0
+                              if ISTNUMBER(pLinea)!=1   // busca lo asignado
+                                 _Error("Error: quiero un registro inicializado o un numero, no esto: "+pLinea,lineaFisica)
+                              else
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "N")    // agrego tipo registro
+                                 ++ctaReg
+                                 swTipo[ctaCoord]:=.T.  // es una cte.
+                                 dato:=ctaReg
+                               //  dato:=val(pLinea)
+                              end
+                           else   // debo verificar que sea registro o numero
+                              if typeRegistro[dato] == "C"
+                                 _Error("Error: quiero un registro inicializado o un numero, no esto: "+pLinea,lineaFisica)
+                              end
+                           end
+                           coords[ctaCoord]:=dato
+                         //  ? "DATO=",coords[ctaCoord]
+                           reg:=dato
+                        end
+                        pLinea:=NULL
+                        // busco offset. Debo dejar asignacion en bruto, porque asigno después
+                        c:=" "
+                        swBasta:=.F.
+                        while c!=chr(10) .and. h_ini<=h_fin// .and. c!=chr(34)
+                            fread(fp,@c,1); ++h_ini
+                            nSavePos := fseek( fp, 0, 1 )
+                            if c==" "; loop; end
+                            if c=="," .or. c=="]"  // lo suelto
+                                swBasta:=.T.
+                                exit
+                            end
+                            pLinea+=c
+                        end
+                        if !swBasta
+                            _Error("Error: Desplazamiento mal declarado",lineaFisica)
+                        end
+                        if pLinea=="end"
+                           dInfinito:=ascan(registros, "999999999")
+                           if dInfinito>0
+                              offset[ctaCoord]:=dInfinito
+                           else
+                              aadd(registros,"999999999")     // agrego label de registro variable
+                              aadd(typeRegistro, "N")    // agrego tipo registro
+                              ++ctaReg
+                              offset[ctaCoord]:=ctaReg   // infinito imaginario de "end"   
+                           end
+
+                        else
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                           pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                           dato:=ascan(registros, pLinea)
+                           if dato==0
+                              if ISTNUMBER(pLinea)!=1   // busca lo asignado
+                                 _Error("Error: Se requiere un registro o una constante, no esto: "+pLinea,lineaFisica)
+                              else
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "N")    // agrego tipo registro
+                                 ++ctaReg
+                                 offset[ctaCoord]:=ctaReg
+                                // offset[ctaCoord]:=val(pLinea)
+                              end
+                           else  // verificar que sea registro o numero
+                              if typeRegistro[dato] == "C"
+                                 _Error("Error: quiero un registro inicializado o un numero, no esto: "+pLinea,lineaFisica)
+                              end
+                              offset[ctaCoord]:=dato
+                              swoffset[ctaCoord]:=.T.  // es un reg.
+                           end
+                        end
+                     //   ? "OFFSET=",offset[ctaCoord], " C=",c
+                        pLinea:=NULL
+                        if c=="]"
+                           fseek(fp,nSavePos-1,0); --h_ini
+                           swFinalBrag:=.T.
+                        end
+                     elseif c=="]"   //
+                        // busco ceros para añadirlos a registros:
+                        
+                        // analizo marcas para offset
+                        switch(ctaCoord)
+                        case 1
+                           //if swTipo[ctaCoord]   // es cte.
+                           //   linea+=alltrim(strzero(lineaFisica,10))+":"+"push 213"+_CR
+                           //else    // es reg.
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 212"+_CR
+                           //end
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[ctaCoord]))+_CR
+                           ctaIns+=2
+                           // veo offset
+                           if offset[ctaCoord]>0
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[ctaCoord]))+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 146"+_CR  // offset
+                              ctaIns+=3
+                           end
+                           pString+=linea
+                           linea:=NULL
+                           //ctaIns+=5  // esto es si incluyo offset 0
+                           pLinea:=NULL 
+                           exit
+
+                        case 2
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push 208"+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[1]))+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[2]))+_CR
+                           ctaIns+=3
+                           // veo offset
+                           if offset[1]>0 .or. offset[2]>0
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                              if offset[1]>0   // offset ya está registrado.
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[1]))+_CR
+                              else  // es cero, registrarlo si no está registrado:
+                                 pLinea:=alltrim(str(offset[1]))
+                                 dOffset:=ascan(registros, pLinea)
+                                 if dOffset==0
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")         // agrego tipo registro
+                                    ++ctaReg
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                 else
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dOffset))+_CR
+                                 end                           
+                              end
+                              
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                              if offset[2]>0
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[2]))+_CR
+                              else
+                                 pLinea:=alltrim(str(offset[2]))
+                                 dOffset:=ascan(registros, pLinea)
+                                 if dOffset==0
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")         // agrego tipo registro
+                                    ++ctaReg
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                 else
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dOffset))+_CR
+                                 end
+                              end
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 177"+_CR  // offset
+                              ctaIns+=5
+                           end
+                           pString+=linea
+                           linea:=NULL
+                           /// ctaIns+=8   // si meto offset 0,0
+                           pLinea:=NULL 
+                           exit
+
+                        case 3
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push 212"+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[3]))+_CR
+                           ctaIns+=2
+                           // veo offset
+                           if offset[3]>0
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                             /* pLinea:=alltrim(str(offset[3]))
+                              dOffset:=ascan(registros, pLinea)
+                              if dOffset==0
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "N")         // agrego tipo registro
+                                 ++ctaReg
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                              else
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dOffset))+_CR
+                              end*/
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[3]))+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 146"+_CR  // offset
+                              ctaIns+=3
+                           end
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push 208"+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[1]))+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(coords[2]))+_CR
+                           ctaIns+=3
+                           // veo offset
+                           if offset[1]>0 .or. offset[2]>0
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                              if offset[1]>0   // offset ya está registrado.
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[1]))+_CR
+                              else  // es cero, registrarlo si no está registrado:
+                                 pLinea:=alltrim(str(offset[1]))
+                                 dOffset:=ascan(registros, pLinea)
+                                 if dOffset==0
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")         // agrego tipo registro
+                                    ++ctaReg
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                 else
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dOffset))+_CR
+                                 end                           
+                              end
+
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 0"+_CR
+                              if offset[2]>0
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(offset[2]))+_CR
+                              else
+                                 pLinea:=alltrim(str(offset[2]))
+                                 dOffset:=ascan(registros, pLinea)
+                                 if dOffset==0
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")         // agrego tipo registro
+                                    ++ctaReg
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                 else
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dOffset))+_CR
+                                 end
+                              end
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 177"+_CR  // offset
+                              ctaIns+=5
+                           end
+                           pString+=linea
+                           linea:=NULL
+                           /// ctaIns+=8   // si meto offset 0,0
+                           pLinea:=NULL 
+                           exit
+                        otherwise
+                           _Error("Error: Solo se pueden direccionar arrays hasta 3 dimensiones",lineaFisica)
+                        end                          
+                        exit
+
+                     else
+                        pLinea+=c
+                     end 
+                     
+                  end
+                  if c==chr(10)
+                     fseek(fp,nSavePos-1,0); --h_ini
+                  end
+                  //? pString; inkey(0)
+
+               elseif c=="="  // emcontró una asignación. dejar pLinea en label, asignar un número, y ya.
+                  pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                  pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                  reg:=ascan(registros, pLinea)  //hb_HGetDef( registros, pLinea, -1 )
+                  if reg==0    // si es nuevo el registro, agregarlo.
+                     // solo cuando no sea algun tipo de constante.
+                     if ISTNUMBER(pLinea)!=1   // no es un numero
+                        //if substr(pLinea,1,1)!=chr(34)  // no es un string
+                           if substr(pLinea,1,1)!="["  // no es un dataseg
+                              //? "Recipiente = ",pLinea, " ctaReg = ", ctaReg+1
+                              aadd(registros,pLinea)     // agrego label de registro variable
+                              aadd(typeRegistro, "R")    // agrego tipo registro
+                              ++ctaReg
+                              reg:=ctaReg
+                           else
+                              _Error("Error: Se requiere un registro, no esto: "+pLinea,lineaFisica)
+                           end
+                        //else
+                        //   _Error("Error: Se requiere un registro, no esto: "+pLinea,lineaFisica)
+                        //end
+                     else
+                        _Error("Error: Se requiere un registro, no esto: "+pLinea,lineaFisica)
+                     end
+                  else     // lo encontré: debe ser registro y no constante
+                     if typeRegistro[reg] != "R"
+                        _Error("Error: Se requiere un registro, no esto: "+pLinea,lineaFisica)
+                     end
+                  end
+                  // verifico si es una asignación de puntero:
+                  
+                  orden:=3    // establece orden=LET de registros por default.
+                  
+                  fread(fp,@c,1); ++h_ini
+                  nSavePos := fseek( fp, 0, 1 )
+                  swPuntero:=.F.
+                  if c=="="    // puntero!
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push 178"+_CR
+                     swPuntero:=.T.
+                     ctaIns++
+                  elseif c==chr(96)  // es una orden de sistema
+                     pLinea:='"'
+                     while c!=chr(10) .and. h_ini<=h_fin
+                        fread(fp,@c,1); ++h_ini
+                        nSavePos := fseek( fp, 0, 1 )
+                        if c==chr(96)  // cierra
+                           pLinea+='"'
+                           exit
+                        else
+                           pLinea+=c
+                        end
+                     end
+                     if c==chr(10) .or. h_ini>h_fin
+                        _Error("Error: macro de sistema no ha sido cerrada",lineaFisica)
+                     end
+                     pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                     pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                     if len(pLinea)>0
+                        dato:=ascan(registros, pLinea)
+                     else
+                        _Error("Error: no hay macro de sistema",lineaFisica)
+                     end
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden+1))+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                     if dato==0
+                        aadd(registros,pLinea)     // agrego label de registro variable
+                        aadd(typeRegistro, "C")    // agrego tipo registro
+                        ++ctaReg
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                     else
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dato))+_CR
+                     end
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=3
+                     pLinea:=NULL
+                     if swPuntero
+                        outstd(_CR+"l:"+alltrim(str(lineaFisica))+" - Warning: pointer asignment only can be used by array-register, merme."+_CR)
+                     end
+                     loop
+                  else
+                     fseek(fp,nSavePos-1,0); --h_ini
+                  end
+                  
+                  // busca el dato asignado, y define el tipo de instrucción LET
+                  pLinea:=NULL
+                  swString:=.F.
+                  while c!=chr(10) .and. h_ini<=h_fin
+                      fread(fp,@c,1); ++h_ini
+                      nSavePos := fseek( fp, 0, 1 )
+                      if c==" "
+                         loop
+                      elseif c=="/"    // inicia un comentario.
+                         fseek(fp,nSavePos-1,0); --h_ini
+                         exit
+                      elseif c==chr(34)   // es una cte string. debo guardar sin comillas, luego se quitan
+                         pLinea:=c
+                         c:=" "
+                         swString:=.T.
+                         while c!=chr(10) .and. h_ini<=h_fin// .and. c!=chr(34)
+                            fread(fp,@c,1); ++h_ini
+                            pLinea+=c
+                            if c=="\"
+                               //
+                               fread(fp,@c,1); ++h_ini
+                               pLinea+=c
+                            elseif c==chr(34)
+                               exit
+                            //else
+                            //   pLinea+=c
+                            end
+                         end
+                         if h_ini>h_fin
+                            _Error("Error: string no ha sido cerrado",lineaFisica)
+                         end
+                        // ? "string 2 detectado: [",pLinea,"]"
+                         /*if len(pLinea)==0
+                            ? "String vacio"
+                         end*/
+                      elseif c==","   // debe saltar, para entrar otra vez desde el ciclo central
+                         exit
+                      else
+                         if c!=chr(10)
+                            pLinea+=c
+                         end
+                      end
+                  end
+                  if c==chr(10)
+                      fseek(fp,nSavePos-1,0); --h_ini  // debe contar chr(0) para santo de línea.
+                  end
+
+                  pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                  pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                  dato:=0
+                  if len(pLinea)>0
+                     dato:=ascan(registros, pLinea)
+                  end
+                /*  if len(pLinea)==0
+                     ? "DATO = ",dato
+                  end */
+                  if dato==0   // no es un registro existente: puede ser constante o parametro, o inicializacion de algo, nuevo
+                     //if !swString ////
+                     if substr(pLinea,1,1)!=chr(34)  // no es un string
+                        if ISTNUMBER(pLinea)!=1   // no es un numero
+                           if substr(pLinea,1,1)=="["  // es un dataseg
+                              pLinea:=strtran(pLinea,"[","")
+                              pLinea:=strtran(pLinea,"]","")
+                              pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                              pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden+2))+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                              reg := ascan(registros, pLinea)
+                              // pLinea debe ser numero o registro
+                              if reg==0   // no está registrado. hay que registrarlo, si es un numero.
+                                 if ISTNUMBER(pLinea)==1
+                                    aadd(registros,pLinea)     // agrego label de registro variable
+                                    aadd(typeRegistro, "N")    // agrego tipo registro
+                                    ++ctaReg
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                                 else
+                                    _Error("Error: espero un numero, o registro inicializado: "+pLinea,lineaFisica)
+                                 end
+                              else   // existe: es un registro o un numero?
+                                 if typeRegistro[reg] == "C" // no es un numero? no es un registro
+                                    _Error("Error: espero un numero o un registro aqui: "+pLinea,lineaFisica)
+                                 end   
+                                 // es un registro o un numero valido y registrado
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                              end
+
+                              pString+=linea
+                              linea:=NULL
+                              ctaIns+=3
+                              pLinea:=NULL
+                              if swPuntero
+                                 outstd(_CR+"l:"+alltrim(str(lineaFisica))+" - Warning: pointer asignment only can be used by array-register, asopao."+_CR)
+                              end
+                           elseif substr(pLinea,1,1)=="{"   // es un array inicializado
+                              pLinea:=strtran(pLinea,"{","")
+                              pLinea:=strtran(pLinea,"}","")
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push 205"+_CR  // array
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                              pString+=linea
+                              linea:=NULL
+                              ctaIns+=2
+                              pLinea:=NULL
+                              if swPuntero
+                                 outstd(_CR+"l:"+alltrim(str(lineaFisica))+" - Warning: pointer asignment only can be used by array-register, longi."+_CR)
+                              end
+                           else
+                              _Error("Error: Registro no inicializado: ["+pLinea+"]",lineaFisica)
+                           end
+                        else   // es una constante numerica:
+                           // añadirlo a registros:
+                           aadd(registros,pLinea)     // agrego label de registro variable
+                           aadd(typeRegistro, "N")    // agrego tipo registro
+                           ++ctaReg
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                           linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                           pString+=linea
+                           linea:=NULL
+                           ctaIns+=3
+                           pLinea:=NULL
+                           if swPuntero
+                              outstd(_CR+"l:"+alltrim(str(lineaFisica))+" - Warning: pointer asignment only can be used by array-register, wea."+_CR)
+                           end
+                        end
+                     else  // es un string
+
+                        swString:=.F.
+                        aadd(registros,pLinea)     // agrego label de registro variable
+                        aadd(typeRegistro, "C")    // agrego tipo registro
+                        ++ctaReg
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+                        pString+=linea
+                        linea:=NULL
+                        ctaIns+=3
+                        pLinea:=NULL
+                        if swPuntero
+                           outstd(_CR+"l:"+alltrim(str(lineaFisica))+" - Warning: pointer asignment only can be used by array-register, merme."+_CR)
+                        end
+                     end
+                  else   // es un registro o constante. Es asignado, luego, no hay que hacer nada nuevo.
+                     swString:=.F.
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                     linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(dato))+_CR
+                     pString+=linea
+                     linea:=NULL
+                     ctaIns+=3
+                     pLinea:=NULL
+                  end
+                  
+               elseif c=="("   // inicia funcion. dejar igual
+                  orden := hb_HGetDef( lets, pLinea, -1 )
+                  if orden==-1
+                     orden := hb_HGetDef( pushes, pLinea, -1 )
+                     if orden==-1
+                        orden := hb_HGetDef( saltos, pLinea, -1 )
+                        if orden==-1
+                           orden := hb_HGetDef( funcs, pLinea, -1 )
+                           if orden==-1
+                              _Error("Error: Funcion de bajo nivel no reconocida",lineaFisica)
+                           end
+                        end
+                     end
+                  end
+                  pLinea:=NULL
+                  if orden>=6 .and. orden<=22   // es un salto
+                     //++lineaFisica
+                     while c!=chr(10) .and. h_ini<=h_fin
+                        fread(fp,@c,1); ++h_ini
+                        nSavePos := fseek( fp, 0, 1 )
+                        if c==" "
+                           loop
+                        elseif c=="/"    // inicia un comentario.
+                            fseek(fp,nSavePos-1,0); --h_ini
+                            exit
+                        elseif c==")"
+                           // chequear label y obtener numero de instruccion
+                              hValue:="____CODE__JUMP____"+pLinea
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+hValue+_CR
+                              //fwrite(ft,linea,len(linea))
+                              pString+=linea
+                              linea:=NULL
+                              ctaIns+=2
+                         //     _Error("Error: Dirección de salto para Jxx no definida",lineaFisica)
+                         //  end
+                           pLinea:=NULL
+                           exit
+                        else
+                           pLinea+=c
+                        end
+                     end
+                     if c==chr(10)
+                        fseek(fp,nSavePos-1,0); --h_ini
+                        //++lineaFisica
+                     end
+                  elseif (orden>=200 .and. orden<=205) .or. orden>=213 //.and. orden<=218)   // es una funcion
+                     //++lineaFisica
+                     while c!=chr(10) .and. h_ini<=h_fin
+                        fread(fp,@c,1); ++h_ini
+                        nSavePos := fseek( fp, 0, 1 )
+                        if c==" "
+                           loop
+                        elseif c=="/"    // inicia un comentario.
+                            fseek(fp,nSavePos-1,0); --h_ini
+                            exit
+                        elseif c==")"
+                           // chequear registros. no debería dejar pasar ningún string, por default.
+                           pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                           pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                           reg := ascan(registros, pLinea)
+                           if reg>0
+                              // chequear que sea registro; constante: solo para 204
+
+                              if typeRegistro[reg] == "N"
+                                 if orden!=204 .and. orden!=200 // PREC/SIZEBIN: vale un entero. chequear otros posibles.
+//                                  orden:=200
+//                                else
+                                    _Error("Error: No espero un numero aqui: "+pLinea,lineaFisica)
+//                                 else
+//                                    _Error("Error: espero un numero o un registro: "+pLinea,lineaFisica)
+                                 end
+                              elseif typeRegistro[reg] != "R"
+                                 _Error("Error: Se requiere un registro, no esto: "+pLinea,lineaFisica)
+                              end
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                              linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                              //fwrite(ft,linea,len(linea))
+                              pString+=linea
+                              linea:=NULL
+                              ctaIns+=2
+                           else  // no existe el registro, ni como variable, ni como constante?
+                              
+                              if ISTNUMBER(pLinea)==1
+                                 if orden!=204 .and. orden!=200 // PREC/SIZEBIN: vale un entero. chequear otros posibles.
+//                                    orden:=200
+//                                 else
+                                    _Error("Error: No espero un numero aqui: "+pLinea,lineaFisica)
+                                 end
+                                 // agregar nueva constante a tabla registros:
+                                 aadd(registros,pLinea)     // agrego label de registro variable
+                                 aadd(typeRegistro, "N")    // agrego tipo registro
+                                 ++ctaReg
+                                 
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+//                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+pLinea+_CR
+                                 pString+=linea
+                                 linea:=NULL
+                                 ctaIns+=2
+
+                              elseif substr(pLinea,1,1)=="["  // es un dataseg
+                                 if orden!=204
+                                    orden:=215
+                                 else
+                                    _Error("Error: No espero un data segment aqui: "+pLinea,lineaFisica)
+                                 end
+                                 pLinea:=strtran(pLinea,"[","")
+                                 pLinea:=strtran(pLinea,"]","")
+                                 pLinea:=ISNUMSPECIAL(pLinea,lineafisica)
+                                 pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                                 reg := ascan(registros, pLinea)
+                                 linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                                 // pLinea debe ser numero o registro
+                                 if reg==0   // no está registrado. hay que registrarlo, si es un numero.
+                                    if ISTNUMBER(pLinea)==1
+                                       aadd(registros,pLinea)     // agrego label de registro variable
+                                       aadd(typeRegistro, "N")    // agrego tipo registro
+                                       ++ctaReg
+                                       linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(ctaReg))+_CR
+//                                       linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+pLinea+_CR
+                                    else
+                                       _Error("Error: espero un numero, o registro inicializado: "+pLinea,lineaFisica)
+                                    end
+                                 else   // existe: es un registro o un numero?
+                                    if typeRegistro[reg] == "C"  // es un numero?
+                                       _Error("Error: espero un numero o un registro aqui: "+pLinea,lineaFisica)
+                                    end   
+                                    // es un registro o un numero valido y registrado
+                                    linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(reg))+_CR
+                                 end
+                                 pString+=linea
+                                 linea:=NULL
+                                 ctaIns+=2
+                                 pLinea:=NULL
+
+                              else
+                                 _Error("Error: Argumento no valido: ["+pLinea+"]",lineaFisica)
+                              end
+                           end
+                           pLinea:=NULL
+                           exit
+                        else
+                           pLinea+=c
+                        end
+                     end
+                     if c==chr(10)
+                        fseek(fp,nSavePos-1,0); --h_ini
+                        //++lineaFisica
+                        //++nLineas
+                     end
+                     
+                  else
+                     _Error("Error: Esta función no necesita paréntesis",lineaFisica)
+                  end
+
+               elseif c=="," .or. c=="?"    // separador de funciones, obligadamente
+                  // buscar en instrucc
+                  if c=="?"  // añade. Con esto no necesito la "," => error? do{...
+                     pLinea+=c
+                  end
+                  if len(pLinea)>0
+                     //? pLinea
+                     ctaRep:=1
+                     rep:=substr(pLinea,1,1)
+                     while rep=="*" //isdigit(rep)
+                        ++ctaRep
+                        pLinea:=substr(pLinea,2,len(pLinea))
+                        rep:=substr(pLinea,1,1)
+                     end
+                     pLinea:=_CAMBIODEFINE(@DEF,@DEFVAR,@DEFBODY,pLinea,@lineaFisica)
+                     orden := hb_HGetDef( instrucc, pLinea, -1 )
+                     if orden==-1
+                        _Error("Error: (2) Instrucción de bajo nivel no reconocida: "+pLinea,lineaFisica)
+                     end
+                     for i:=1 to ctaRep
+                        linea+=alltrim(strzero(lineaFisica,10))+":"+"push "+alltrim(str(orden))+_CR
+                        ++ctaIns
+                     end
+                     //fwrite(ft,linea,len(linea))
+                     pString+=linea
+                     if orden==136
+                        if ctaRep==1
+                           swRet:=.T.
+                        else
+                           _Error("Error: No se puede repetir esta instrucción: "+pLinea,lineaFisica)
+                        end
+                     end
+                  end
+                  linea:=NULL
+
+                  pLinea:=NULL
+
+/****   números especiales. hexa, bin, etc. y notacion científica ****/
+
+/*  elseif isdigit(c)    // esto, porque podría ser un número en notación científica
+     // n.nEk, n.nE-k
+     // numeros así no aceptan negativos. Se debe hacer: (n.nEk*(-1))
+     pString:=c
+     c:=" "
+     sw:=.T.
+     while c!=chr(10).and.h_ini<=h_fin.and.sw
+        fread(fp,@c,1); ++h_ini
+        nSavePos := fseek( fp, 0, 1 )
+        if isdigit(c) .or. c=="."
+           pString+=c
+           c:=" "
+        elseif c=="e" .or. c=="E"   // notacion cientifica
+           pString+=upper(c)
+           while c!=chr(10).and.h_ini<=h_fin
+              fread(fp,@c,1); ++h_ini
+              nSavePos := fseek( fp, 0, 1 )
+              if isdigit(c)
+                 pString+=c
+              elseif c=="-" .or. c=="+"
+                 pString+=c
+              else
+                 fseek(fp,nSavePos-1,0); --h_ini
+                 sw:=.F.
+                 exit
+              end
+              c:=" "
+           end
+           if c==chr(10)
+              fseek(fp,nSavePos-1,0); --h_ini
+              c:=" "
+           end
+           if ISNOTATION(pString)==1
+              xt:=val(substr(pString,at("E",pString)+1,len(pString)))
+              if xt<0
+                 xt:=xt*(-1)
+              end
+              if xt>14
+                 pString:='e2d("'+pString+'")'
+                 ///_Error("Error: Use la función E2D() para usar este número",lineafisica)
+              else
+                // ? "string = ",pString
+                // ? "normal = ",E2D(pString)
+                 pString:=alltrim(str(E2D(pString)))
+                // ? "alltrim str string = ",pString
+              end
+           else
+              _Error("Error: Número en notación científica mal formado",lineafisica)
+           end
+           linea+=pString
+           exit
+        else
+           // es otra cosa continua...
+           if c!=chr(10).and.c!=";".and.c!="/"
+              linea+=pString+c
+           end
+           exit
+        end
+     end
+     if c==chr(10).or.c==";".or.c=="/"
+        fseek(fp,nSavePos-1,0); --h_ini
+        linea+=pString
+     end */
+
+/****   hasta aquí ****/
+
+               else         // proceso lo que sea
+                  pLinea+=c
+               end
+               //? "==>",linea
+              // inkey(0)
+            end
+            //lineafisica:=++nLineas
+            if !swMAINPRG
+                _Error("Error: No fue declarado el inicio de la ejecución (main:)",lineaFisica-1)
+            end
+            if !swRet
+               _Error("Error: Toda función de bajo nivel debe retornar algo (ret)",lineaFisica-1)
+            end
+            if len(phantomLabels)>0
+               _Error("Error: Encontré un grupo 'DO' sin cerrar",lineaFisica-1)
+            end
+
+            linePhantom:=strtran(linePhantom,"__LONG_REGISTER__",alltrim(str(ctaReg)))
+            if at("__LONG_STACK__",linePhantom)>0
+               linePhantom:=strtran(linePhantom,"__LONG_STACK__","10")
+            end
+
+            // recorre registros y typeRegistro, para añadir tabla de constantes, y
+            // obtener numero de constantes registradas, para recalcular aJump:
+            noffset:=0
+            for i:=1 to ctaReg
+          //     ? registros[i]," : ",typeRegistro[i]
+               if typeRegistro[i]!="R"
+                  linePhantom+=alltrim(strzero(nLineaTemp,10))+":"+"push 0"+_CR  // constantes
+                  linePhantom+=alltrim(strzero(nLineaTemp,10))+":"+"push "+alltrim(str(i))+_CR   // posicion
+                //  if typeRegistro[i]=="C"
+                //     registros[i]:='"'+registros[i]+'"'
+                //  end
+                  linePhantom+=alltrim(strzero(nLineaTemp,10))+":"+"push "+registros[i]+_CR   // dato
+                  noffset+=3
+               end
+            end
+            // añado un 255 como final de constantes. Este valor jamas será una instrucción
+            linePhantom+=alltrim(strzero(nLineaTemp,10))+":"+"push 255"+_CR  // separador de constantes
+            noffset++
+           /* quit */
+            
+            // añadir encabezado a resto de programa
+            pString:=linePhantom+pString
+            
+           // ? pString; ?
+           // quit
+            
+            // recorrer cada una de las claves de labels, y reemplazar en todo el codigo por su key.
+            // eliminar la clave seleccionada de labels.
+            // si quedan "CODE JUMP" en el codigo, hay error: etiqueta de salto no reconocido.
+            // si quedan claves, no hay error: puede ser un codigo que, de igual forma, sea ejecutado.
+            i:=1
+            while at("____CODE__JUMP____", pString)>0
+//            for i:=1 to ctaLabels   // recorreré las claves, una por una
+                ///hb_HValueAt(<hHash>, <nPosition>, [<xNewValue>]) -> xValue
+                aJump:=hb_HPairAt(labels, i)
+                linea:="____CODE__JUMP____"+aJump[1]
+                hLen:=len(linea)
+                hValue:=alltrim( str( aJump[2] + noffset ))
+                
+                nPos:=at(linea,pString)
+                while nPos>0
+                   pString:=stuff(pString, nPos, hLen, hValue)
+                   nPos:=at(linea,pString)
+                end
+               // pString:=strtran(pString,linea,hValue)
+                //labels:=hb_HDel(labels, aJump[1,2])
+                ++i
+                if i>ctaLabels
+                   exit
+                end
+            end
+            if at("____CODE__JUMP____", pString)>0
+               _Error("Error: Una etiqueta de salto no tiene destino declarado: ",lineaFisica-1)
+            end
+
+/*            // chequea numero de variables encontradas
+            pString:=strtran(pString,"__LONG_REGISTER__",alltrim(str(ctaReg)))
+            if at("__LONG_STACK__",pString)>0
+               pString:=strtran(pString,"__LONG_STACK__","10")
+            end */
+
+            // guarda pString en fd.
+            fwrite(ft,pString,len(pString))
+            pString:=NULL
+            linea:=NULL
+            hValue:=NULL
+            hb_HClear(labels)
+            hb_HClear(pushes)
+            hb_HClear(lets)
+            hb_HClear(saltos)
+            hb_HClear(instrucc)
+            hb_HClear(funcs)
+            release registros
+            release typeRegistro
+        //else   // leyó otra cosa...
+        //   linea+=pString    // la rescato.
+        //   pString:=NULL
+           // devolver el puntero, porque se come el último caracter leído
+           //fseek(fp,nSavePos-1,0); --h_ini
+        //end
+     end
+     SET EXACT OFF
+     
   elseif c == "&"   // une líneas
      swAmper:=.T.
      if nLineaAmp==0
@@ -6147,10 +8065,11 @@ while h_ini<h_fin
      fread(fp,@c,1); ++h_ini
      nSavePos := fseek( fp, 0, 1 )
      if c == "."
-        linea+=c   // porque después puede venir una comilla
+        linea+=c   // porque después puede venir una comilla si es un string
      else
         fseek(fp,nSavePos-1,0); --h_ini
      end
+
   elseif c == "#"   // use, define, include, insert
      fread(fp,@c,1); ++h_ini
      while isalpha(c) .and. h_ini<=h_fin
@@ -6163,7 +8082,7 @@ while h_ini<h_fin
      if linea=="use"
         linea:=NULL
         while c!=chr(10) .and.h_ini<=h_fin
-           while c!="," .and. c!=chr(10) .and. h_ini<=h_fin
+           while is_noall(c,",",chr(10)) /*c!="," .and. c!=chr(10)*/ .and. h_ini<=h_fin
               linea+=c
               fread(fp,@c,1); ++h_ini
               nSavePos := fseek( fp, 0, 1 )
@@ -6223,7 +8142,7 @@ while h_ini<h_fin
           nLineas:=lineaFisica
           QuitaEspacio(@h_ini,@h_fin,@fp,@c)
           pFileInclude:=NULL    // archivo insert
-          while c!=chr(10) .and. c!=".".and.h_ini<=h_fin
+          while is_noall(c,chr(10),".") /*c!=chr(10) .and. c!="."*/ .and.h_ini<=h_fin
              pFileInclude+=c
              fread(fp,@c,1); ++h_ini
              nSavePos := fseek( fp, 0, 1 )
@@ -6243,7 +8162,7 @@ while h_ini<h_fin
           elseif c=="{"   // es una lista de funciones
              pLinea:=NULL
              fread(fp,@c,1); ++h_ini
-             while c!=chr(10) .and. c!="}".and.h_ini<=h_fin
+             while is_noall(c,chr(10),"}") /*c!=chr(10) .and. c!="}"*/ .and.h_ini<=h_fin
                 if c!="/"
                    pLinea+=c
                 else   // busca el puto comentario
@@ -6281,7 +8200,7 @@ while h_ini<h_fin
                    else  // es nombre de funcion y tiene esta huea
                       _Error("Error: No es un nombre de función: "+pLinea,nLineas)
                    end
-                elseif c=="," .or. c=="}"  //
+                elseif is_any(c,",","}") //c=="," .or. c=="}"  //
                   /*** carga la funcion ***/
                    pLinea:=alltrim(pLinea)
                    pString:=CARGAFUNCION(@fpi,@STKSTR,pLinea)
@@ -6380,7 +8299,7 @@ while h_ini<h_fin
           ***/
         QuitaEspacio(@h_ini,@h_fin,@fp,@c)
         pFileInclude:=NULL
-        while c!=chr(10) .and. c!=" ".and.h_ini<=h_fin
+        while is_noall(c,chr(10)," ") /*c!=chr(10) .and. c!=" "*/ .and.h_ini<=h_fin
            pFileInclude+=c
            fread(fp,@c,1); ++h_ini
            nSavePos := fseek( fp, 0, 1 )
@@ -6442,7 +8361,7 @@ while h_ini<h_fin
      pString:=NULL
      //pCodeString:=c      // para resguardar el string de cambios futuros
      c:=" "
-     while c!=chr(10).and.c!='"'.and.h_ini<=h_fin
+     while is_noall(c,chr(10),'"') /*c!=chr(10).and.c!='"' */ .and.h_ini<=h_fin
         fread(fp,@c,1); ++h_ini
         // AQUI NO DEBO PONER ANALISIS DE "\n" PORQUE VA EN XBUSCACONST
         if c == "\"   // veo si es '\"'
@@ -6463,9 +8382,11 @@ while h_ini<h_fin
      aadd(STKSTR,{pCodeString,pString})
      linea+='"'+pCodeString+'"'
   elseif c==";"      // separador de instrucciones
+
      linea:=alltrim(linea)
      if len(linea)>0
-        if linea=="algorithm:" .or. linea=="begin:"
+        if ;//is_any(linea,"algorithm:","begin:")
+           linea=="algorithm:" .or. linea=="begin:"
            swCuerpo:=.T.
         end
         if linea=="end"
@@ -6476,20 +8397,24 @@ while h_ini<h_fin
         
        /**** PARA DESPUÉS, CUANDO TENGA MI ARCHIVO TEMPORAL LSTO ****/ 
         if swCuerpo
+           
            linea:=BUSCAMATENDURO(linea,lineaFisica)
+           
            
            if "^[" $ linea 
               linea:=_BuscaEstaticos(linea,lineaFisica)
            end
            
+           
            linea:=_PREPROCESO(linea)
+           
            
            linea:=SEPARAESTRUCT(linea,lineaFisica)
            linea:=REPLASIGCOMP(linea,lineaFisica)
            linea:=SEPARACOMBINADOS(linea,lineaFisica)
            linea:=REPLSEMANTOS(linea)
            ct:=0
-           while at("{",linea)>0 .and. at("?",linea)>0 .and. "}" $ linea .and. ++ct<20
+           while /*at("{",linea)>0 .and. at("?",linea)>0*/ "{" $ linea .and. "?" $ linea .and. "}" $ linea .and. ++ct<20
                
               linea:=EXPANSIONMACRO(linea,lineaFisica)
            end
@@ -6501,6 +8426,7 @@ while h_ini<h_fin
         end
         
        /**** reemplazar CR por num linea fisica ****/ 
+
            if nLineaTemp>0
               if nLineaAmp>0
                  nLineaTemp:=nLineaAmp
@@ -6527,6 +8453,7 @@ while h_ini<h_fin
                  end
               end
            end
+
            nLineaTemp:=0
            nLineaAmp:=0
         linea+=_CR
@@ -6537,6 +8464,7 @@ while h_ini<h_fin
         linea:=NULL
         STKSTR:={}
      end
+
   elseif c=="."   // ver si se trata de un write
      fread(fp,@c,1); ++h_ini
      nSavePos := fseek( fp, 0, 1 )
@@ -6578,7 +8506,8 @@ while h_ini<h_fin
         pString:=""
         while c!=chr(10).and.h_ini<=h_fin
            fread(fp,@c,1); ++h_ini
-           if isdigit(c) .or. c=="A".or.c=="B".or.c=="C".or.c=="D".or.c=="E".or.c=="F"
+           if isdigit(c) .or. is_any(c,"A","B","C","D","E","F") 
+              //c=="A".or.c=="B".or.c=="C".or.c=="D".or.c=="E".or.c=="F"
               pString+=c
               c:=" "
            else
@@ -6588,7 +8517,7 @@ while h_ini<h_fin
         if c=="b"     // es hexadecimal
            for i:=1 to len(pString)
               xt:=substr(pString,i,1)
-              if xt!="0" .and. xt!="1"
+              if is_noall(xt,"0","1")  //xt!="0" .and. xt!="1"
                  _Error("Error: Número binario mal formado",lineafisica)
               end
            end
@@ -6700,12 +8629,14 @@ while h_ini<h_fin
   end 
 end
 
+
 if len(linea)>0   // por si no hay salto de linea al final del archivo
   linea+=_CR
   linea:=strzero(lineaFisica,10)+":"+alltrim(linea)
-  fwrite(ft,linea,len(linea));
+  fwrite(ft,linea,len(linea))
   //aadd(Ret,{linea,lineaFisica})
 end
+
 fclose(ft)
 fclose(fp)
 
@@ -6721,6 +8652,7 @@ function BinToDec( cString )
 
    for nX := 1 to nLen
       nNumber += ( At( SubStr( cNewString, nX, 1 ), "01" ) - 1 ) * ( 2 ^ ( nLen - nX ) )
+      
    end
 
 return nNumber
@@ -6733,6 +8665,7 @@ function OctalToDec( cString )
 
    for nX := 1 to nLen
       nNumber += ( At( SubStr( cNewString, nX, 1 ), "01234567" ) - 1 ) * ( 8 ^ ( nLen - nX ) )
+      
    end
 
 return nNumber
@@ -6745,40 +8678,36 @@ function HexaToDec( cString )
 
    for nX := 1 to nLen
       nNumber += ( At( SubStr( cNewString, nX, 1 ), "0123456789ABCDEF" ) - 1 ) * ( 16 ^ ( nLen - nX ) )
+      
    end
 
 return nNumber
 
 function BUSCAMATENDURO(a,lineaFisica)
 LOCAL nPos,cVar,pIzq,pLinea,pString,pAnterior,numFilas,numColumnas,numPaginas,numBloques
-LOCAL cColumnas,swPrimeraCol,swPrimeraRow,swPrimeraPag,swPrimeraBlk
-LOCAL pDim,cPar,cParc,pSeccion,cSeccion,nTok,i,c,ctaPar,aTemp
+LOCAL swPrimeraCol,swPrimeraRow,swPrimeraPag,swPrimeraBlk
+LOCAL pDim,cPar,cParc,pSeccion,cSeccion,nTok,i,c,ctaPar,aTemp,aLinea
 
 aTemp:=a
 
-nPos:=at("<-",a)
+nPos:=at(":[",a)
 cVar:=alltrim(substr(a,1,nPos-1))
+//a:=alltrim(substr(a,nPos+2,len(a)))
+pIzq:= substr(a,nPos,2) //substr(a,1,2)
 a:=alltrim(substr(a,nPos+2,len(a)))
-pIzq:=substr(a,1,2)
 pLinea:=NULL
-pString:=NULL
-pAnterior:=NULL
+aLinea:={}
 
-cColumnas:=0
-swPrimeraCol:=.T.
-swPrimeraRow:=.T.
-swPrimeraPag:=.T.
-swPrimeraBlk:=.T.
-numFilas:=0
-numColumnas:=0
-numPaginas:=0
-numBloques:=0
 
-if pIzq=="_("
-   nPos:=rat(")",a)
+
+if pIzq==":["
+   
+   tt:=seconds()
+
+   nPos:=rat("]",a)
    if nPos>0
-      a:=substr(a,1,nPos-1)  // quito ")"
-      a:=substr(a,3,len(a))  // quito "_("
+      a:=substr(a,1,nPos-1)  // quito "]"
+      //a:=substr(a,3,len(a))  // quito ":["
    else
       _Error("Error: NO CERRASTE EL CASTOR",lineaFisica)
    end
@@ -6802,14 +8731,14 @@ if pIzq=="_("
       _Error("Error: DIMENSION UNDERFLOW U OVERFLOW",lineaFisica)
    end
    a:=alltrim(substr(a,at(")",a)+1,len(a)))
-   pLinea:="dim "+cVar+pDim+_CR
+   pLinea:="dim "+cVar+pDim+_CR  // armo dim var(i,j..)
 
    if len(a)==0
       return pLinea
    elseif numtoken(a,",")==1
       /*** DECLARA PARA RELLENAR CON UN VALOR ***/
-      a:=substr(a,at("{",a)+1,len(a))
-      a:=substr(a,1,at("}",a)-1)
+      a:=substr(a,at("[",a)+1,len(a))
+      a:=substr(a,1,at("]",a)-1)
       pLinea+=cVar+"<-("+a+")"
       return pLinea
  /*  elseif numtoken(a,",")==2
@@ -6835,10 +8764,66 @@ if pIzq=="_("
    pLinea+="use ("+cVar+")"+_CR
    cPar:=0
    i:=1
+   
+   swPrimeraCol:=.T. 
+   swPrimeraRow:=.T.
+   swPrimeraPag:=.T.
+   swPrimeraBlk:=.T.
+   numFilas:=0
+   numColumnas:=0
+   numPaginas:=0
+   numBloques:=0
+   pString:=NULL
+   pAnterior:=NULL
+ /*  ? "ENTRA= ",a
+ 
+   NOTA: EL PROCESO HARBOUR NO DEMORA NADA. UN ERROR ME HIZO PROGRAMAR GETSUBARRAY.
+   NO DEBE EMPLEARSE LA VERSIÓN EN C, porque falla. LA DEJO SOLO COMO EJEMPLO PARA FUTUROS DESARROLLOS.
+   
+   aLinea := GETSUBARRAY(a,pSeccion,cSeccion,cParc)
 
+ //  ? "ALINEA=",valtype(aLinea)," LEN=",len(aLinea)," LEN(1)=",len(aLinea[1])
+   pLinea:=aLinea[1][1]
+   ? "SALE= ",len(pLinea)
+   numFilas:=aLinea[1][2]
+   numColumnas:=aLinea[1][3]
+   numPaginas:=aLinea[1][4]
+   numBloques:=aLinea[1][5]
+
+   if pLinea=="-1"
+      _Error("Error: DIMENSION DECLARADA EXCEDIDA"+pLinea,lineaFisica)
+   elseif "-2" $ pLinea
+      _Error("Error: ARRAY ESTATICO MAL FORMADO (1)"+pLinea,lineaFisica)
+   elseif "-3" $ pLinea
+      _Error("Error: NO SE ADMITEN ELEMENTOS NULOS"+pLinea,lineaFisica)
+   elseif "-4" $ pLinea
+      _Error("Error: ARRAY ESTATICO MAL FORMADO (FILAS)"+pLinea,lineaFisica)
+   elseif "-5" $ pLinea
+      _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(1)"+pLinea,lineaFisica)
+   elseif "-6" $ pLinea
+      _Error("Error: ARRAY ESTATICO MAL FORMADO (PAGINAS)"+pLinea,lineaFisica)
+   elseif "-7" $ pLinea
+      _Error("Error: ARRAY ESTATICO MAL FORMADO (BLOQUES)"+pLinea,lineaFisica)
+   elseif "-8" $ pLinea
+      _Error("Error: PUSISTE UNA ']' DE MÁS"+pLinea,lineaFisica)
+   elseif "-9" $ pLinea
+      _Error("Error: QUE HUEA ES ESTO? ==> "+pLinea+"["+c+"]",lineaFisica)
+   end
+*/
    while i<=len(a)
-      c:=substr(a,i,1)
-      if c=="{"
+      c:=poscaracter(a,i) //substr(a,i,1)
+      if c=='"'
+         pString+=c
+         while ++i<=len(a)
+            c:=poscaracter(a,i) //substr(a,i,1)
+            if c=='"'
+               pString+=c
+               exit
+            end
+            pString+=c
+         end
+      
+      elseif c=="["
             ++cPar
             if cPar>4
                _Error("Error: DIMENSION DECLARADA EXCEDIDA",lineaFisica)
@@ -6848,15 +8833,15 @@ if pIzq=="_("
             else
                _Error("Error: ARRAY ESTATICO MAL FORMADO (1)",lineaFisica)
             end
-      elseif c=="}"
-         if pAnterior!="}"
+      elseif c=="]"
+         if pAnterior!="]"
             if len(alltrim(pString))>0
                pLinea+="mat.put("+alltrim(pString)+")"+_CR
             else
                _Error("Error: NO SE ADMITEN ELEMENTOS NULOS",lineaFisica)
             end
             pString:=NULL
-            ++cColumnas
+
          end
          if cParc==1
             if swPrimeraRow
@@ -6883,7 +8868,7 @@ if pIzq=="_("
                   numColumnas:=cSeccion[cPar]
                else
                   if numColumnas!=cSeccion[cPar]
-                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)",lineaFisica)
+                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(1)",lineaFisica)
                   end
                end
             end
@@ -6912,7 +8897,7 @@ if pIzq=="_("
                   numColumnas:=cSeccion[cPar]
                else
                   if numColumnas!=cSeccion[cPar]
-                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)",lineaFisica)
+                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(2)",lineaFisica)
                   end
                end
             end
@@ -6950,20 +8935,20 @@ if pIzq=="_("
                   numColumnas:=cSeccion[cPar]
                else
                   if numColumnas!=cSeccion[cPar]
-                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)",lineaFisica)
+                     _Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(3)",lineaFisica)
                   end
                end
             end
          end
-         cColumnas:=0
+
          cSeccion[cPar]:=0
          --cPar
          if cPar<0
-            _Error("Error: PUSISTE UNA '}' DE MÁS",lineaFisica)
+            _Error("Error: PUSISTE UNA ']' DE MÁS",lineaFisica)
          end
-         pAnterior:="}"
+         pAnterior:="]"
       elseif c==","
-         if pAnterior!="}"
+         if pAnterior!="]"
             if len(alltrim(pString))>0
                pLinea+="mat.put("+alltrim(pString)+")"+_CR
             else
@@ -6975,17 +8960,17 @@ if pIzq=="_("
                _Error("Error: ARRAY ESTATICO MAL FORMADO (2)",lineaFisica)
             end
             pString:=NULL
-            ++cColumnas
+
          else
-            while c!="{" .and.i<=len(a)
-               c:=substr(a,++i,1)
-               if c!="{"
+            while c!="[" .and.i<=len(a)
+               c:=poscaracter(a,++i) //substr(a,++i,1)
+               if c!="["
                   if c!=" "
                      _Error("Error: QUE HUEA ES ESTO? ==> "+c,lineaFisica)
                   end
                end
             end
-            if c=="{"
+            if c=="["
                if cPar>0 .and. cPar<=cParc
                   pLinea+=pSeccion[cPar]+alltrim(str(++cSeccion[cPar]))+")"+_CR
                else
@@ -6997,32 +8982,101 @@ if pIzq=="_("
             end
             pAnterior:=NULL
          end
-      elseif c=="!"
-         ctaPar:=0
-         while ++i<=len(a)
-            c:=substr(a,i,1)
-            if c==","
-               if ctaPar==0
-                  --i
-                  exit
-               end
-            elseif c=="{"
-               ++ctaPar
-            elseif c=="}"
-               --ctaPar
-               if ctaPar<0
-                  --i
-                  //numFilas:=1
-                  exit
-               end
-            end 
+      elseif c=="!"  // aqui puede ser !{} o ![] un castor
+         c:=poscaracter(a,++i) //substr(a,++i,1)
+         if c=="["
+           // ?"ENTRE ![...",cPar,cParc
             pString+=c
+            ctaPar:=1
+            while ++i<=len(a)
+               c:=poscaracter(a,i) //substr(a,i,1)
+               if c==","
+                  if ctaPar==0
+                     --i
+                     exit
+                  end
+               elseif c=="["//.or.c=="{".or.c=="("
+                  ++ctaPar
+               elseif c=="]"//.or.c=="}".or.c==")"
+                  --ctaPar
+                  if ctaPar<0
+                     --i
+                     //numFilas:=1
+                     exit
+                  end
+               elseif c=="!"
+                  c:=poscaracter(a,++i) //substr(a,++i,1)
+                  if c!="["  // no es un acceso
+                     --i
+                     c:=""
+                  else
+                     ++ctaPar
+                  end
+               elseif c=='"'
+                  pString+=c
+                  while ++i<=len(a)
+                     c:=poscaracter(a,i) //substr(a,i,1)
+                     if c=='"'
+                         pString+=c
+                         c:=""
+                        exit
+                     end
+                     pString+=c
+                  end
+               end 
+               pString+=c
+            end
+           // ? "SALE ![",cPar,cParc,_CR,pString
+         else
+           // ? "ENTRE !{..."
+            ctaPar:=0
+            --i
+            while ++i<=len(a)
+               c:=poscaracter(a,i) //substr(a,i,1)
+               if c==","
+                  if ctaPar==0
+                     --i
+                     exit
+                  end
+               elseif c=="{"//.or.c=="("
+                  ++ctaPar
+               elseif c=="}"//.or.c==")"
+                  --ctaPar
+                  if ctaPar==0
+                     --i
+                     //numFilas:=1
+                     exit
+                  end
+               elseif c=="!"
+                  c:=poscaracter(a,++i) //substr(a,++i,1)
+                  if c!="["  // no es un acceso
+                     --i
+                     c:=""
+                  else
+                     ++ctaPar
+                  end
+               elseif c=='"'
+                  pString+=c
+                  while ++i<=len(a)
+                     c:=poscaracter(a,i) //substr(a,i,1)
+                     if c=='"'
+                         pString+=c
+                         c:=""
+                        exit
+                     end
+                     pString+=c
+                  end
+               end 
+               pString+=c
+            end
+          //  ? "SALE !{ : ",pString
          end
       else  // es un caracter leible
          pString+=c
       end
       ++i
-   end
+   end 
+
 else
    return aTemp
 end
@@ -7065,6 +9119,7 @@ else
       _Error("Error: COLUMNAS DECLARADAS NO COINCIDEN CON COLUMNAS LEIDAS"+str(numColumnas)+","+str(nTok[2]),lineaFisica)
    end
 end
+
 return substr(pLinea,1,len(pLinea)-1)
 
 function CARGAFUNCION(fpi,STKSTR,pLinea)
@@ -7075,7 +9130,7 @@ nLen:=mlcount(fpi,512)
 pLen:=len(pLinea)
 i:=0
 while ++i<=nLen .and. !swFin
-   linea:=alltrim(memoline(fpi,1024,i))
+   linea:=alltrim(memoline(fpi,4096,i))
    if substr(linea,1,at("=",linea)-1)==pLinea
       swFind:=.T.
       while i<=nLen   // leo toda la funcion
@@ -7115,7 +9170,7 @@ while ++i<=nLen .and. !swFin
                exit
             end
       //   end
-         linea:=alltrim(memoline(fpi,1024,++i))
+         linea:=alltrim(memoline(fpi,4096,++i))
       end
    end
 end
@@ -7141,13 +9196,15 @@ LOCAL pTox:=NULL,swTox:=.F.,ctaPar
      ***/
 
  pLinea:=NULL
- nLen:=mlcount(linea,1024)
+ nLen:=mlcount(linea,4096)
  for i:=1 to nLen
-    Temporal:=alltrim(memoline(linea,1024,i))
+    Temporal:=alltrim(memoline(linea,4096,i))
 
     if "?" $ Temporal /*.and. ":" $ Temporal */.and. "{" $ Temporal .and. "}" $ Temporal
        sInst:=alltrim( substr(Temporal,1,at(" ",Temporal)) )
-       if sInst!="if" .or. sInst!="while" .or. sInst!="eval" .or. sInst!="room" // ver otras
+       if is_noall(sInst,"if","while","eval","room")
+          //sInst!="if" .and. sInst!="while" .and. sInst!="eval" .and. sInst!="room"
+          //sInst!="if" .or. sInst!="while" .or. sInst!="eval" .or. sInst!="room" // ver otras
         /*** busco pCodeI lado izquiero ***/
           nPos:=at("{",Temporal)
           pCodeI:=substr(Temporal,1,nPos-1)
@@ -7213,7 +9270,7 @@ LOCAL pTox:=NULL,swTox:=.F.,ctaPar
                    end
                 end
                /** veo si hay expresiones combinadas **/
-                if at(",",pAsigna)>0
+                if "," $ pAsigna  //at(",",pAsigna)>0
                    pComb:=NULL
                    if swTox
                       pComb+=alltrim(strtran(substr(pTox,4,len(pTox)),_CR,"") )
@@ -7283,7 +9340,7 @@ LOCAL pTox:=NULL,swTox:=.F.,ctaPar
        end
     else
        if substr(Temporal,1,3)!="tox" 
-          if Temporal!="else" .and. Temporal!="endif"
+          if is_noall(Temporal,"else","endif")  //Temporal!="else" .and. Temporal!="endif"
              if swTox
                 pLinea+=pTox
              end
@@ -7304,9 +9361,10 @@ function REPLIFFINLINE(linea,STKSTR)
 LOCAL pLinea,nLen,i,j,Temporal,sLen
  sLen:=len(STKSTR)
  pLinea:=NULL
- nLen:=mlcount(linea,1024)
+ nLen:=mlcount(linea,4096)
+
  for i:=1 to nLen
-    Temporal:=alltrim(memoline(linea,1024,i))
+    Temporal:=alltrim(memoline(linea,4096,i))
 
     if "++" $ Temporal
        Temporal:=strtran(Temporal,"++","finc ")
@@ -7326,14 +9384,15 @@ LOCAL pLinea,nLen,i,j,Temporal,sLen
    /*** ***/ 
     pLinea+=Temporal+_CR
  end
+
 return substr(pLinea,1,len(pLinea)-1)
 
 function REPLASIGCOMP(linea,lineaFisica)
 LOCAL pLinea,nLen,i,Temporal,pVar,pFin,nAtPos
  pLinea:=NULL
- nLen:=mlcount(linea,1024)
+ nLen:=mlcount(linea,4096)
  for i:=1 to nLen
-    Temporal:=alltrim(memoline(linea,1024,i))      
+    Temporal:=alltrim(memoline(linea,4096,i))      
     if "<-+" $ Temporal 
          nAtpos:=at("<-+",Temporal)
          pVar:=substr(Temporal,1,nAtPos-1)
@@ -7382,9 +9441,9 @@ LOCAL pLinea,nLen,i,Temporal,pVar,pFin,nAtPos
             _Error("Error: Esta combinación no es válida",lineaFisica)
          end
          pLinea+=alltrim(pVar+"<-"+pVar+"%"+pFin)+_CR
-    elseif at("<-^",Temporal)>0
+    elseif "<-^" $ Temporal  //at("<-^",Temporal)>0
         /*** chequear si no es un aray estático mal declarado ***/
-         if at("<-^[",Temporal) > 0
+         if "<-^[" $ Temporal  //at("<-^[",Temporal) > 0
             _Error("Error: Debes castear el array estático",lineaFisica)
          end
          nAtpos:=at("<-^",Temporal)
@@ -7406,9 +9465,9 @@ LOCAL pLinea,nLen,i,Temporal
 LOCAL op1,op2,pPos
 
  pLinea:=NULL
- nLen:=mlcount(linea,1024)
+ nLen:=mlcount(linea,4096)
  for i:=1 to nLen
-    Temporal:=alltrim(memoline(linea,1024,i))
+    Temporal:=alltrim(memoline(linea,4096,i))
 
     
     /*** REEMPLAZO CASTORES ***/
@@ -7451,10 +9510,10 @@ pLinea:=NULL
             pAsigna:=NULL
             while c<=len(cuerpo2)
                s:=substr(cuerpo2,c,1)
-               if s=="{"
+               if s=="{".or.s=="(".or.s=="["
                   ++ctaPar
                   pAsigna+=s
-               elseif s=="}"
+               elseif s=="}".or.s==")".or.s=="]"
                   --ctaPar
                   pAsigna+=s
                elseif s==","
@@ -7495,12 +9554,13 @@ function SEPARACOMBINADOS(linea,lineaFisica)
    SELECT / CASE
    ********************/
 LOCAL Temporal,posAsig,i,j,k,nLen,nPos,nAtpos,nDim,pTemporal
-LOCAL pLinea,pVar,pIni,pFin,pInc,pTo,pQuita,tokCuerpo2
+LOCAL pLinea,pVar,pIni,pFin,pInc,pTo,pQuita,tokCuerpo2,cpar
 LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
    pLinea:=NULL
    nLen:=mlcount(linea,512)
+
    for i:=1 to nLen
-      Temporal:=alltrim(memoline(linea,1024,i))
+      Temporal:=alltrim(memoline(linea,4096,i))
   
       if substr(Temporal,1,4)=="push"
          nPos:=at("{",Temporal)
@@ -7515,10 +9575,10 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
                pAsigna:=NULL
                while c<=len(Temporal)
                   s:=substr(Temporal,c,1)
-                  if s=="{"
+                  if s=="{".or.s=="(".or.s=="["
                      ++ctaPar
                      pAsigna+=s
-                  elseif s=="}"
+                  elseif s=="}".or.s==")".or.s=="]"
                      --ctaPar
                      pAsigna+=s
                   elseif s==","
@@ -7552,13 +9612,42 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
          pLinea+="dec "+substr(Temporal,3,len(Temporal))+_CR
          
       elseif substr(Temporal,1,5)=="write"
+       
          cuerpo1:=alltrim(substr(Temporal,6,len(Temporal)))  // saco write
+       //  ? "CUERPO1=",cuerpo1
          c:=1
-         tot1:=numtoken(cuerpo1, ",")
+         cpar:=0
+         pVar:=""
+         for j:=1 to len(cuerpo1)
+            c:=substr(cuerpo1,j,1)
+            if c=="("
+               ++cpar
+               pVar+=c
+            elseif c==")"
+               --cpar
+               pVar+=c
+            else
+               if c==","
+                  if cpar==0
+                     pLinea+="write "+pVar+_CR
+                     pVar:=""
+                  else
+                     pVar+=c
+                  end
+               else
+                  pVar+=c
+               end
+            end
+         end
+         if len(pVar)>0
+            pLinea+="write "+pVar+_CR
+         end
+       //  ? "PLINEA=[",pLinea,"]"
+         /*tot1:=numtoken(cuerpo1, ",")
          while !empty(cuerpo1) .and. c<=tot1
             pVar:=token(cuerpo1,",",c++)
             pLinea+="write "+pVar+_CR 
-         end
+         end*/
          
       elseif substr(Temporal,1,1)=="!"  // asignación con target múltiple
          nPos:=at("<-",Temporal)
@@ -7566,7 +9655,7 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
             Temporal:=substr(Temporal,2,len(Temporal))
             //cuerpo1:=alltrim(substr(Temporal,1,nPos-1))
             cuerpo2:=alltrim(substr(Temporal,nPos,len(Temporal)))
-            if at(",",cuerpo2)>0
+            if "," $ cuerpo2  //at(",",cuerpo2)>0
                Temporal:=DESCOMBINA(Temporal)
                pIni:=numtoken(Temporal,_CR)
                for j:=1 to pIni
@@ -7576,10 +9665,10 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
                   cuerpo1:=alltrim(substr(pTemporal,1,nPos-1))
                   cuerpo2:=alltrim(substr(pTemporal,nPos,len(pTemporal)))
                   cuerpo1:=EXPANSIONMACRO(cuerpo1,lineaFisica)
-                  nPos:=mlcount(cuerpo1,1024)
+                  nPos:=mlcount(cuerpo1,4096)
                   for k:=1 to nPos
-                     pAsigna:=alltrim(memoline(cuerpo1,1024,k))
-                     if substr(pAsigna,1,2)!="if" .and. pAsigna!="else".and.pAsigna!="endif"
+                     pAsigna:=alltrim(memoline(cuerpo1,4096,k))
+                     if substr(pAsigna,1,2)!="if" .and. is_noall(pAsigna,"else","endif") //pAsigna!="else".and.pAsigna!="endif"
                         pLinea+=pAsigna+cuerpo2+_CR
                      else
                         pLinea+=pAsigna+_CR
@@ -7589,10 +9678,10 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
             else
                cuerpo1:=alltrim(substr(Temporal,1,nPos-1))
                cuerpo1:=EXPANSIONMACRO(cuerpo1,lineaFisica)
-               nPos:=mlcount(cuerpo1,1024)
+               nPos:=mlcount(cuerpo1,4096)
                for j:=1 to nPos
-                  pAsigna:=alltrim(memoline(cuerpo1,1024,j))
-                  if substr(pAsigna,1,2)!="if" .and. pAsigna!="else".and.pAsigna!="endif"
+                  pAsigna:=alltrim(memoline(cuerpo1,4096,j))
+                  if substr(pAsigna,1,2)!="if" .and. is_noall(pAsigna,"else","endif") //pAsigna!="else".and.pAsigna!="endif"
                      pLinea+=pAsigna+cuerpo2+_CR
                   else
                      pLinea+=pAsigna+_CR
@@ -7606,7 +9695,7 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
            // ? pLinea
             //_Error("Error: Esta expansión requiere una asignación (<-)",lineaFisica)
          end
-      elseif at("<-",Temporal)>0 .and. at("{",Temporal)>at("<-",Temporal)
+      elseif "<-" $ Temporal /*at("<-",Temporal)>0*/ .and. at("{",Temporal)>at("<-",Temporal)
          pLinea:=DESCOMBINA(Temporal)
          
       elseif numat("<-",Temporal)>1 .and. substr(Temporal,1,3)!="for"  
@@ -7621,7 +9710,7 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
          end
          pLinea+=cuerpo2+"<-"+cuerpo1+_CR
          
-      elseif substr(Temporal,1,1)=="{" .and. at("<-",Temporal)>0
+      elseif substr(Temporal,1,1)=="{" .and. "<-" $ Temporal //at("<-",Temporal)>0
          cuerpo1:=alltrim(substr(Temporal,1,at("<-",Temporal)-1))
          cuerpo2:=alltrim(substr(Temporal,at("<-",Temporal)+2,len(Temporal)))
 
@@ -7645,10 +9734,10 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
             pAsigna:=NULL
             while c<=len(cuerpo2)
                s:=substr(cuerpo2,c,1)
-               if s=="{"
+               if s=="{".or.s=="(".or.s=="["
                   ++ctaPar
                   pAsigna+=s
-               elseif s=="}"
+               elseif s=="}".or.s==")".or.s=="]"
                   --ctaPar
                   pAsigna+=s
                elseif s==","
@@ -7869,6 +9958,7 @@ LOCAL Estructura,c,s,cuerpo1,cuerpo2,tot1,tot2,ctaPar,pAsigna
          pLinea+=Temporal+_CR   
       end
    end
+   
 return substr(pLinea,1,len(pLinea)-1)
 
 function SEPARAESTRUCT(linea,lineaFisica)
@@ -7877,10 +9967,10 @@ LOCAL pos_cond,Estructura,Orden,pOrden
 LOCAL pStruct:={},nLen
 
 tLinea:=linea
-nLen:=mlcount(linea,1024)
+nLen:=mlcount(linea,4096)
 
 for j:=1 to nLen
-   linea:=memoline(tlinea,1024,j)
+   linea:=memoline(tlinea,4096,j)
    if "," $ linea    // existen mas de un proceso en la fila
       Temporal:=linea
       pLinea:=linea
@@ -7941,8 +10031,8 @@ pVarDef:=NULL
         
         QuitaEspacio(@h_ini,@h_fin,@fp,@c)
         
-        while c!=" ".and.c!=chr(10) .and.h_ini<=h_fin
-           pDefine+=c
+        while is_noall(c," ",chr(10)) /*c!=" ".and.c!=chr(10)*/ .and.h_ini<=h_fin
+           pDefine+=c //iif(c==":",",",c)
            fread(fp,@c,1); ++h_ini
            nSavePos := fseek( fp, 0, 1 )
         end
@@ -8067,6 +10157,8 @@ pVarDef:=NULL
            pVarDef:=alltrim( substr(pVarDef,1,at(")",pVarDef)-1) )
            pDefine:=alltrim( substr(pDefine,1,at("(",pDefine)-1) )
 
+          // y si es una lista <list>?
+
            nTok:=numtoken(pVarDef,",")
            iTok:=1
            while iTok<=nTok
@@ -8084,8 +10176,9 @@ function _CAMBIODEFINE(DEF,DEFVAR,DEFBODY,linea,lineaFisica)
 LOCAL nLen,i,j,nPos,pLinea:="",pLineafin:="",ctaPar 
 LOCAL c:="",pPos,pBody:="",tBody,nTok:=0,cTok:=""
 nLen:=len(DEF)
+
 for i:=1 to nLen
-   if at(DEF[i],linea)>0
+   if DEF[i] $ linea  //at(DEF[i],linea)>0
       if len(DEFVAR[i])==0   // no tiene variable. solo reemplazo
          linea:=strtran(linea,DEF[i],DEFBODY[i])
       else   // aqui empieza el webeo por la puta
@@ -8143,18 +10236,19 @@ for i:=1 to nLen
       end
    end
 end
+
 return linea
 
 function BUSCALINEASBLANCAS(pBodyDef)
 LOCAL i,s,nLineas,pLinea:=""
-nLineas:=mlcount(pBodyDef,1024)
+nLineas:=mlcount(pBodyDef,4096)
 for i:=1 to nLineas-1
-   s:=alltrim(Memoline(pBodyDef,1024,i))
+   s:=alltrim(Memoline(pBodyDef,4096,i))
    if len(s)>0
       pLinea+=s+_CR
    end
 end
-s:=alltrim(Memoline(pBodyDef,1024,i))
+s:=alltrim(Memoline(pBodyDef,4096,i))
 if len(s)==0
    pLinea:=substr(pLinea,1,len(pLinea)-1)
 else
@@ -8215,9 +10309,9 @@ _n:=len(_l)
     end
     if _c=="|" 
        if _sw_val 
-           if _cant=="+" .or. _cant=="-" .or. _cant=="*" .or. _cant=="?".or.;
-              _cant=="/" .or._cant=="\".or._cant=="%".or. _cant=="^".or.;
-              _cant==":"
+           if ;//is_any(_cant,"+","-","*","?","/","\","%","^",":")
+              _cant=="+" .or. _cant=="-" .or. _cant=="*" .or. _cant=="?".or.;
+              _cant=="/" .or._cant=="\".or._cant=="%".or. _cant=="^".or._cant==":"
               _c:="math_code(6 "
            else
               _c:=")"
@@ -8261,6 +10355,7 @@ while "^[" $ s
   _head:='xustticdm("{'
   while pos<=len(s) .and. _ctapar>0
  
+    //_c:=poscaracter(s,pos)   //
     _c:=substr(s,pos,1)
     _sust:=_sust+_c 
     if _c==" "
@@ -8376,6 +10471,7 @@ while "^[" $ s
        _cc:="'"
        _c:=""
        while _c!='"' .and. pos<=len(s) // busco el string constante
+         //_c:=poscaracter(s,++pos)  //
          _c:=substr(s,++pos,1)
          _cc:=_cc+iif(_c=='"',"'",_c)
          _sust:=_sust+_c
@@ -8383,6 +10479,8 @@ while "^[" $ s
        if pos>len(s)
           _Error("Error: cierra este string como si fuera tu ojete: >>"+_sust+"<<",_lv)  
        end
+     //  ? "_CC=",_cc
+     //  ? "_SUST=",_sust ; inkey(0)
        stackpush(_e,_cc)
        
     elseif isdigit(_c) .or. _c=="-"
@@ -8398,6 +10496,7 @@ while "^[" $ s
        _cc:=""
        while isdigit(_c) .or. _c=='.' .or. _c=="-" // busco el string constante
          _cc:=_cc+_c
+         //_c:=poscaracter(s,++pos)  
          _c:=substr(s,++pos,1)
          if _c=="."
             ++_ctapto
@@ -8428,6 +10527,7 @@ while "^[" $ s
        end 
        _cc:=_c
        while isalpha(_c)   // busco el string constante
+         //_c:=poscaracter(s,++pos)  
          _c:=substr(s,++pos,1)
          _cc:=_cc+_c
        end  
@@ -8523,7 +10623,9 @@ if "[" $ s
 
       // cambiar put a mano:
       
-      if substr(recept,1,1)=="["    // hay un put!!
+      if ;//poscaracter(recept,1)=="["  
+         substr(recept,1,1)=="["    // hay un put!!
+         //s1:=poscaracter(recept,2)  
          s1:=substr(recept,2,1)
          if !(s1 $ "_:.>")  // es un vector simple
             var:=substr(recept,2,at(" ",recept)-1)
@@ -8545,27 +10647,67 @@ if "[" $ s
          recept:=substr(recept,1,len(recept)-1)  // quito último parentesis
 
          if "[" $ recept   // hay posibles gets dentro de put (indireccion)
-            recept:=strtran(recept,"[_","bget(")
-            recept:=strtran(recept,"[:","pget( ")
-            recept:=strtran(recept,"[.","mget( ")
-            recept:=strtran(recept,"[@","xmsize( ")
-            recept:=strtran(recept,"[=","seqsp( ")
-            recept:=strtran(recept,"[\","afindstk( ")
-            recept:=strtran(recept,"[%","blkcopy( ")
-            recept:=strtran(recept,"[!","unique( ")
+            if "[_" $ recept
+               recept:=strtran(recept,"[_","bget(")
+            end
+            if "[:" $ recept
+               recept:=strtran(recept,"[:","pget( ")
+            end
+            if "[." $ recept
+               recept:=strtran(recept,"[.","mget( ")
+            end
+            if "[@" $ recept
+               recept:=strtran(recept,"[@","xmsize( ")
+            end
+            if "[=" $ recept
+               recept:=strtran(recept,"[=","seqsp( ")
+            end
+            if "[\" $ recept
+               recept:=strtran(recept,"[\","afindstk( ")
+            end
+            if "[%" $ recept
+               recept:=strtran(recept,"[%","blkcopy( ")
+            end
+            if "[!" $ recept
+               recept:=strtran(recept,"[!","unique( ")
+            end
    //         recept:=strtran(recept,"[>>","bit_code(5 ")
-            recept:=strtran(recept,"[<","grange( ")
-            recept:=strtran(recept,"[+|","xmatalter( 1 1 ")  // cat horizontal
-            recept:=strtran(recept,"[+-","xmatalter( 1 2 ")  // cat vertical
-            recept:=strtran(recept,"[--","xmatalter( 2 1 ") // cut de filas
-            recept:=strtran(recept,"[-|","xmatalter( 2 2 ") // cut de columnas
-            recept:=strtran(recept,"[^-","ymatalter( 1 ") // ins de filas
-            recept:=strtran(recept,"[^|","ymatalter( 2 ") // ins de columnas
-            recept:=strtran(recept,"[*'","matrange( 4 ")
-            recept:=strtran(recept,"[*|","matrange( 2 ")
-            recept:=strtran(recept,"[*-","matrange( 3 ")
-            recept:=strtran(recept,"[$","money( ")
-            recept:=strtran(recept,"[*","matrange( 1 1 ")  // 1=FANTASMA
+            if "[<" $ recept
+               recept:=strtran(recept,"[<","grange( ")
+            end
+            if "[+|" $ recept
+               recept:=strtran(recept,"[+|","xmatalter( 1 1 ")  // cat horizontal
+            end
+            if "[+-" $ recept
+               recept:=strtran(recept,"[+-","xmatalter( 1 2 ")  // cat vertical
+            end
+            if "[--" $ recept
+               recept:=strtran(recept,"[--","xmatalter( 2 1 ") // cut de filas
+            end
+            if "[-|" $ recept
+               recept:=strtran(recept,"[-|","xmatalter( 2 2 ") // cut de columnas
+            end
+            if "[^-" $ recept
+               recept:=strtran(recept,"[^-","ymatalter( 1 ") // ins de filas
+            end
+            if "[^|" $ recept
+               recept:=strtran(recept,"[^|","ymatalter( 2 ") // ins de columnas
+            end
+            if "[*'" $ recept
+               recept:=strtran(recept,"[*'","matrange( 4 ")
+            end
+            if "[*|" $ recept
+               recept:=strtran(recept,"[*|","matrange( 2 ")
+            end
+            if "[*-" $ recept
+               recept:=strtran(recept,"[*-","matrange( 3 ")
+            end
+            if "[$" $ recept
+               recept:=strtran(recept,"[$","money( ")
+            end
+            if "[*" $ recept
+               recept:=strtran(recept,"[*","matrange( 1 1 ")  // 1=FANTASMA
+            end
             recept:=strtran(recept,"]",")")
             recept:=strtran(recept,"[","vget( ")
          end
@@ -8578,7 +10720,7 @@ if "[" $ s
    end
   // convierto:
    if "[" $ body   // hay posibles gets
-      body:=strtran(body,"[_","bget( ")
+/*      body:=strtran(body,"[_","bget( ")
       body:=strtran(body,"[:","pget( ")
       body:=strtran(body,"[.","mget( ")
       body:=strtran(body,"[@","xmsize( ")
@@ -8598,7 +10740,68 @@ if "[" $ s
       body:=strtran(body,"[*|","matrange( 2 ")
       body:=strtran(body,"[*-","matrange( 3 ")
       body:=strtran(body,"[*","matrange( 1 1 ")
-      body:=strtran(body,"[$","money( ")
+      body:=strtran(body,"[$","money( ") */
+            if "[_" $ body
+               body:=strtran(body,"[_","bget(")
+            end
+            if "[:" $ body
+               body:=strtran(body,"[:","pget( ")
+            end
+            if "[." $ body
+               body:=strtran(body,"[.","mget( ")
+            end
+            if "[@" $ body
+               body:=strtran(body,"[@","xmsize( ")
+            end
+            if "[=" $ body
+               body:=strtran(body,"[=","seqsp( ")
+            end
+            if "[\" $ body
+               body:=strtran(body,"[\","afindstk( ")
+            end
+            if "[%" $ body
+               body:=strtran(body,"[%","blkcopy( ")
+            end
+            if "[!" $ body
+               body:=strtran(body,"[!","unique( ")
+            end
+   //         body:=strtran(body,"[>>","bit_code(5 ")
+            if "[<" $ body
+               body:=strtran(body,"[<","grange( ")
+            end
+            if "[+|" $ body
+               body:=strtran(body,"[+|","xmatalter( 1 1 ")  // cat horizontal
+            end
+            if "[+-" $ body
+               body:=strtran(body,"[+-","xmatalter( 1 2 ")  // cat vertical
+            end
+            if "[--" $ body
+               body:=strtran(body,"[--","xmatalter( 2 1 ") // cut de filas
+            end
+            if "[-|" $ body
+               body:=strtran(body,"[-|","xmatalter( 2 2 ") // cut de columnas
+            end
+            if "[^-" $ body
+               body:=strtran(body,"[^-","ymatalter( 1 ") // ins de filas
+            end
+            if "[^|" $ body
+               body:=strtran(body,"[^|","ymatalter( 2 ") // ins de columnas
+            end
+            if "[*'" $ body
+               body:=strtran(body,"[*'","matrange( 4 ")
+            end
+            if "[*|" $ body
+               body:=strtran(body,"[*|","matrange( 2 ")
+            end
+            if "[*-" $ body
+               body:=strtran(body,"[*-","matrange( 3 ")
+            end
+            if "[$" $ body
+               body:=strtran(body,"[$","money( ")
+            end
+            if "[*" $ body
+               body:=strtran(body,"[*","matrange( 1 1 ")  // 1=FANTASMA
+            end
       body:=strtran(body,"]",")")
       body:=strtran(body,"[","vget( ")
     //  body:=strtran(body,";"," ") choca con FOR: no va!
@@ -8863,9 +11066,9 @@ return _ret
 */
 
 procedure _header()
-    outstd("XU v0.9999999+.2010-2018 --- XU VM ",_CR)
-    outstd(hb_UTF8tostr("Diseño y programación (vintash) Daniel Stuardo (Dr.DaLiEn). Full Spanglish!!"),_CR)
-    outstd(hb_UTF8tostr("Verano de 2010 - 27F - Laura no está :( - ¡Copitos! :O - Invierno de 2018."),_CR)
+    outstd("XU v1.0+.2010-2020 --- XU VM ",_CR)
+    outstd(hb_UTF8tostr("Mi Usuario es: Daniel Stuardo (Mr.DaLiEn)."),_CR)
+    outstd(hb_UTF8tostr("2010 - 2020."),_CR)
     
 return
 
@@ -8907,7 +11110,7 @@ procedure _modo_de_uso()
     outstd("  Bugs, dudas y aportes: daniel.stuardo@gmail.com"+_CR)
 return
 
-
+/*
 function SDP( _lista )
 Local _last_valor,_nLongi
 
@@ -8927,7 +11130,7 @@ _nLongi := len( _lista )
 
    // Retorna el elemento extraido
 return  _Last_valor 
-
+*/
 
 *  Determina si el stack esta vacio
 *
@@ -9050,9 +11253,1133 @@ return nil
    #include <time.h>
 #endif
 
+/* StackPop( <aStack> ) --> <xValue>
+   Returns NIL if the stack is empty
+ *
+ * renamed: SDP
+ * Harbour Project source code:
+ * Stack structure
+ *
+ * Copyright 2000 Jose Lalin <dezac@corevia.com>
+ * www - http://harbour-project.org
+*/
+HB_FUNC( SDP )
+{
+   PHB_ITEM pArray = hb_param( 1, HB_IT_ARRAY );
+   HB_ISIZ ulLen = hb_arrayLen( pArray );
+   PHB_ITEM pLast = hb_itemNew( NULL );
+
+   if( ulLen )
+   {
+      hb_arrayLast( pArray, pLast );
+      hb_arrayDel( pArray, ulLen );
+      --ulLen;
+      hb_arraySize( pArray, HB_MAX( ulLen, 0 ) );
+   }
+
+   hb_itemReturnRelease( pLast );
+}
+HB_FUNC( LLENAPILA )
+{
+   PHB_ITEM pSTRING  = hb_param( 1, HB_IT_STRING );
+   const char * expr = hb_itemGetCPtr( pSTRING );
+   
+   PHB_ITEM pCWM = hb_itemArrayNew( 100 );
+   unsigned int cta_par=0,cont=0;
+   char c,cc;
+   
+ //  printf("string = %s\n",expr);
+   while(*expr){
+      c = *expr;
+ //     printf("car = %c\n",c);
+      ++expr;
+      if (c=='('){
+         ++cta_par;
+      }else if(c==')'){
+         --cta_par;
+      }
+      if(c=='?') continue;
+      if(c=='$'){
+  //       printf("Entra a $...\n");
+         char * s = (char *)calloc(8,1); // c+6chars+\0
+         int i=1;
+         s[0]=c;
+         while (*expr){
+            s[i] = *expr;
+            ++expr;
+  //          printf("    Leo %c, queda %s\n",s[i],expr);
+            if (++i>6) break;
+         }
+         s[i]='\0';
+         const char * t=s;
+        // PHB_ITEM pC = hb_itemArrayNew( 1 );
+         hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//         hb_arrayAdd( pCWM, pC );
+//         hb_itemRelease(pC);
+//         ++cont;
+         free(s);
+  //       printf("Sale de $...\n");
+      }else if(c=='+'||c=='-'||c=='*'||c=='/'||c=='\\'||c=='%'||
+               c==')'||c=='('||c=='^'){ //is_any(c,"+","-","*","/","\","%",")","(","^")
+         //aadd (arr,c)
+         char * s = (char *)calloc(2,1);
+         s[0] = c; s[1]='\0';
+         const char * t = s;
+  //       PHB_ITEM pC = hb_itemArrayNew( 1 );
+         hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//         hb_arrayAdd( pCWM, pC );
+//         hb_itemRelease(pC);
+//         ++cont;
+         free(s);
+      }else if(c=='='||c=='<'||c=='>'||c=='@'){  //is_any(c,"=","<",">","@" )
+         const char * r = expr;
+         cc = *r;
+         ++r;
+         if(cc=='='||cc=='<'||cc=='>'||cc=='@'){
+            if(c=='<'){
+               if (cc=='>'||cc=='='){
+                  //aadd (arr,c+cc)
+                  char * s = (char *)calloc(3,1);
+                  s[0] = c; s[1] = cc; s[2]='\0';
+                  const char * t = s;
+                //  PHB_ITEM pC = hb_itemArrayNew( 1 );
+                  hb_arraySetC(pCWM,++cont,(const char *) t) ;
+                //  hb_arrayAdd( pCWM, pC );
+                //  hb_itemRelease(pC);
+                  free(s);
+//                  ++cont;
+                  expr = r;  // actualizo expr
+               }else{
+                  hb_retni( 1 );
+                  hb_itemClear(pCWM);
+                  break;
+               }
+            }else if(c=='>'){
+               if(cc=='='){
+                  char * s = (char *)calloc(3,1);
+                  s[0] = c; s[1] = cc; s[2]='\0';
+                  const char * t = s;
+//                  PHB_ITEM pC = hb_itemArrayNew( 1 );
+                  hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//                  hb_arrayAdd( pCWM, pC );
+//                  hb_itemRelease(pC);
+//                  ++cont;
+                  free(s);
+                  expr = r;  // actualizo expr
+               }else{
+                  hb_retni( 1 );
+                  hb_itemClear(pCWM);
+                  break;
+               }
+            }else{
+               hb_retni( 1 );
+               hb_itemClear(pCWM);
+               break;
+            }
+         }else{
+            //    expr:=cc+expr   // devuelvo caracter extraido
+            //   aadd (arr,c)    // agregado            
+            // no actualizo "expr" (no devuelvo caracter extraido)
+            char * s = (char *)calloc(2,1);
+            s[0] = c; s[1]='\0';
+            const char * t = s;
+//            PHB_ITEM pC = hb_itemArrayNew( 1 );
+            hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//            hb_arrayAdd( pCWM, pC );
+//            hb_itemRelease(pC);
+//            ++cont;
+            free(s);
+         }
+      }else if (isdigit(c)){
+         //aadd (arr,c+_SacaChar(@expr,_DIR-1))
+         char * s = (char *)calloc(7,1); // c+6chars+\0
+         int i=1;
+         s[0]=c;
+         while (*expr){
+            s[i++] = *expr;
+            ++expr;
+            if (i>5) break;
+         }
+         s[i]='\0';
+         const char * t=s;
+//         PHB_ITEM pC = hb_itemArrayNew( 1 );
+         hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//         hb_arrayAdd( pCWM, pC );
+//         hb_itemRelease(pC);
+//         ++cont;
+         free(s);
+      }else{
+         if(c!=' '&&c!=','){
+            hb_retni( 2 );
+            hb_itemClear(pCWM);
+            break;
+         }
+      }
+   } 
+ //  printf("Sale de ciclo main...\n");
+   if(cta_par!=0){
+      hb_retni( 3 );
+      hb_itemClear(pCWM);
+   }else{
+      //aadd (arr,")")
+      char * s = (char *)calloc(2,1);
+      s[0] = ')'; s[1]='\0';
+      const char * t = s;
+//      PHB_ITEM pC = hb_itemArrayNew( 1 );
+      hb_arraySetC(pCWM,++cont,(const char *) t) ;
+//      hb_arrayAdd( pCWM, pC );
+//      hb_itemRelease(pC);
+//      ++cont;
+      free(s);
+      
+      hb_arraySize( pCWM, cont );
+      
+      hb_itemReturnRelease( pCWM );
+ //     printf("Retorna ...\n");
+   }
+  // hb_itemClear(pSTRING);
+}
+
+
+  // pLinea += GETSUBARRAY(a,pSeccion,cSeccion,cParc)
+/*HB_FUNC( GETSUBARRAY )
+{
+   PHB_ITEM pSTRING   = hb_param( 1, HB_IT_STRING );
+   PHB_ITEM pSECCION  = hb_param( 2, HB_IT_ARRAY );
+   PHB_ITEM cSECCION  = hb_param( 3, HB_IT_ARRAY );
+   int cParc = hb_parni( 4 );
+   
+   const char * a = hb_itemGetCPtr( pSTRING );
+   
+   char * pString = (char*)calloc(64,1);
+   char * Linea  = (char*)calloc(65536,1);
+   char c, pAnterior=' ';
+   int i=0,cPar=0,ctaPar=0; //,cColumnas=0;
+   int numFilas=0,numColumnas=0,numPaginas=0,numBloques=0;
+   int swPrimeraRow=1,swPrimeraCol=1,swPrimeraPag=1,swPrimeraBlk=1;
+   
+   printf("\nENTRA A PROCESO...\n");
+   
+   int nLen = ( int ) hb_arrayLen( cSECCION );
+   int cSeccion[nLen+1];
+   // rescato los valores de pSECCION
+   cSeccion[0]=0;  // necesario para que parta de 1.
+   for (i=1; i<=nLen; i++){
+      PHB_ITEM pAA = hb_itemArrayGet( cSECCION, i);
+      cSeccion[i] = hb_itemGetNI( pAA );
+      hb_itemRelease(pAA);
+   }
+   hb_itemClear(cSECCION);
+   i=0;
+   while (*a){ //i<=len(a)
+      c=*a; //c:=poscaracter(a,i) //substr(a,i,1)
+
+      if( c==(char)34 ) { //if c=='"'
+         pString[i++]=c; pString[i]='\0';
+
+         while (*(++a)) { //++i<=len(a)
+            c=*a;    //c:=poscaracter(a,i) //substr(a,i,1)
+            if ( c == (char)34 ){
+               pString[i++] = c; pString[i]='\0';
+               break;
+            }
+            pString[i++]=c; pString[i]='\0';
+         }
+      }else if (c == (char)91){
+         ++cPar;
+         if (cPar>4){
+            strcpy(Linea,"-1");
+            //const char * pLinea = Linea;
+            //hb_retc ( pLinea );  //_Error("Error: DIMENSION DECLARADA EXCEDIDA",lineaFisica)
+            break; 
+         } 
+         if (cPar>0 && cPar<=cParc){
+            PHB_ITEM pA = hb_itemArrayGet( pSECCION, cPar);
+            const char * pSeccion = hb_itemGetCPtr( pA );
+            char * buf = (char *)calloc(10,1);
+            sprintf(buf,"%.*d)\n",0,++cSeccion[cPar]);
+            const char * pBuf = buf;
+            strcat(Linea, pSeccion);
+            strcat(Linea, pBuf); 
+            free( buf );
+            hb_itemRelease(pA);
+             //  pLinea+=pSeccion[cPar]+alltrim(str(++cSeccion[cPar]))+")"+_CR
+         }else{
+            
+            strcpy(Linea,"-21");
+            //const char * pLinea = Linea;
+            //hb_retc ( pLinea );
+            break; 
+            //_Error("-2,Error: ARRAY ESTATICO MAL FORMADO (1)",lineaFisica)
+         }
+
+      }else if ( c==(char)93 ){
+         if ( pAnterior!=(char)93){
+            if ( strlen(pString)>0 ){
+               strcat(Linea, "mat.put(");
+               strcat(Linea, pString);
+               strcat(Linea,")\n"); 
+              // pLinea+="mat.put("+alltrim(pString)+")"+_CR
+            }else{
+               strcpy(Linea,"-31");
+               //const char * pLinea = Linea;
+               //hb_retc ( pLinea );
+               break; 
+               //_Error("-2,Error: ARRAY ESTATICO MAL FORMADO (1)",lineaFisica)
+            }
+            pString[0]='\0'; //NULL
+            i=0;
+         }
+
+         if (cParc==1){
+            if (swPrimeraRow){
+               swPrimeraRow=0; //.F.
+               numFilas=cSeccion[cPar];  //cSeccion[cPar]
+            }else{
+               if (numFilas!=cSeccion[cPar]){
+                  strcpy(Linea,"-4");
+                  //const char * pLinea = Linea;
+                  //hb_retc ( pLinea );
+                  break; 
+                 // _Error("-4,Error: ARRAY ESTATICO MAL FORMADO (FILAS)",lineaFisica)
+               }
+            }
+         }else if (cParc==2){
+            if (cPar==1){
+               if (swPrimeraRow){
+                  swPrimeraRow=0; //:=.F.
+                  numFilas=cSeccion[cPar];
+               }else{
+                  if (numFilas!=cSeccion[cPar]){
+                     strcpy(Linea,"-4");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break; 
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (FILAS)",lineaFisica)
+                  }
+               }
+            }else{
+               if (swPrimeraCol){
+                  swPrimeraCol=0; //:=.F.
+                  numColumnas=cSeccion[cPar];
+               }else{
+                  if (numColumnas!=cSeccion[cPar]){
+                     strcpy(Linea,"-5");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break; 
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(1)",lineaFisica)
+                  }
+               }
+            }
+         }else if (cParc==3){
+            if (cPar==1){
+               if (swPrimeraPag){
+                  swPrimeraPag=0; //.F.
+                  numPaginas=cSeccion[cPar];
+               }else{
+                  if (numPaginas!=cSeccion[cPar]){
+                     strcpy(Linea,"-6");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                    // _Error("Error: ARRAY ESTATICO MAL FORMADO (PAGINAS)",lineaFisica)
+                  }
+               }
+            }else if (cPar==2){
+               if (swPrimeraRow){
+                  swPrimeraRow=0; //.F.
+                  numFilas=cSeccion[cPar];
+               }else{
+                  if (numFilas!=cSeccion[cPar]){
+                     strcpy(Linea,"-4");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (FILAS)",lineaFisica)
+                  }
+               }
+            }else{
+               if (swPrimeraCol){
+                  swPrimeraCol=0; //.F.
+                  numColumnas=cSeccion[cPar];
+               }else{
+                  if (numColumnas!=cSeccion[cPar]){
+                     strcpy(Linea,"-5");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(2)",lineaFisica)
+                  }
+               }
+            }
+         }else if (cParc==4){
+            if (cPar==1){
+               if (swPrimeraBlk){
+                  swPrimeraBlk=0; //.F.
+                  numBloques=cSeccion[cPar];
+               }else{
+                  if (numBloques!=cSeccion[cPar]){
+                     strcpy(Linea,"-7");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;                  
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (BLOQUES)",lineaFisica)
+                  }
+               }
+            }else if (cPar==2){
+               if (swPrimeraPag){
+                  swPrimeraPag=0;
+                  numPaginas=cSeccion[cPar];
+               }else{
+                  if (numPaginas!=cSeccion[cPar]){
+                     strcpy(Linea,"-6");
+                    // const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (PAGINAS)",lineaFisica)
+                  }
+               }
+            }else if (cPar==3){
+               if (swPrimeraRow){
+                  swPrimeraRow=0;
+                  numFilas=cSeccion[cPar];
+               }else{
+                  if (numFilas!=cSeccion[cPar]){
+                     strcpy(Linea,"-4");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (FILAS)",lineaFisica)
+                  }
+               }
+            }else{
+               if (swPrimeraCol){
+                  swPrimeraCol=0;
+                  numColumnas=cSeccion[cPar];
+               }else{
+                  if (numColumnas!=cSeccion[cPar]){
+                     strcpy(Linea,"-5");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break;
+                     //_Error("Error: ARRAY ESTATICO MAL FORMADO (COLUMNAS)(3)",lineaFisica)
+                  }
+               }
+            }
+         }
+         //cColumnas:=0
+         cSeccion[cPar]=0;
+         --cPar;
+         if (cPar<0){
+            strcpy(Linea,"-8");
+            //const char * pLinea = Linea;
+            //hb_retc ( pLinea );
+            break;
+            //_Error("Error: PUSISTE UNA ']' DE MÁS",lineaFisica)
+         }
+         pAnterior=(char)93; //']';
+      }else if (c==','){
+         if (pAnterior!=(char)93){
+           
+            if (strlen(pString)>0){
+               strcat(Linea, "mat.put(");
+               strcat(Linea, pString);
+               strcat(Linea,")\n"); 
+               //pLinea+="mat.put("+alltrim(pString)+")"+_CR
+            }else{
+               strcpy(Linea,"-32");
+               //const char * pLinea = Linea;
+               //hb_retc ( pLinea );
+               break; 
+               //_Error("Error: NO SE ADMITEN ELEMENTOS NULOS",lineaFisica)
+            }
+            if (cPar>0 && cPar<=cParc){
+               PHB_ITEM pA = hb_itemArrayGet( pSECCION, cPar);
+               const char * pSeccion = hb_itemGetCPtr( pA );
+               char * buf = (char *)calloc(10,1);
+               sprintf(buf,"%.*d)\n",0,++cSeccion[cPar]);
+               const char * pBuf = buf;
+               strcat(Linea, pSeccion);
+               strcat(Linea, pBuf); 
+               free( buf );
+               hb_itemRelease(pA);
+
+               ///pLinea+=pSeccion[cPar]+alltrim(str(++cSeccion[cPar]))+")"+_CR
+            }else{
+               strcpy(Linea,"-22");
+               //const char * pLinea = Linea;
+               //hb_retc ( pLinea );
+               break; 
+               //_Error("Error: ARRAY ESTATICO MAL FORMADO (2)",lineaFisica)
+            }
+            pString[0]='\0'; //NULL
+            i=0;
+         }else{
+
+            while (c!=(char)91 && *a){  ////i<=len(a)
+               c=*(++a); //c:=poscaracter(a,++i) //substr(a,++i,1)
+               if (c!=(char)91){
+                  if (c!=' '){
+                     strcpy(Linea,"-9");
+                     //const char * pLinea = Linea;
+                     //hb_retc ( pLinea );
+                     break; 
+                     //_Error("Error: QUE HUEA ES ESTO? ==> "+c,lineaFisica)
+                  }
+               }
+            }
+            if (c==(char)91){
+               if (cPar>0 && cPar<=cParc){
+                  PHB_ITEM pA = hb_itemArrayGet( pSECCION, cPar);
+                  const char * pSeccion = hb_itemGetCPtr( pA );
+                  char * buf = (char *)calloc(10,1);
+                  sprintf(buf,"%.*d)\n",0,++cSeccion[cPar]);
+                  const char * pBuf = buf;
+                  strcat(Linea, pSeccion);
+                  strcat(Linea, pBuf); 
+                  free( buf );
+                  hb_itemRelease(pA);
+                  //pLinea+=pSeccion[cPar]+alltrim(str(++cSeccion[cPar]))+")"+_CR
+               }else{
+                  strcpy(Linea,"-23");
+                  //const char * pLinea = Linea;
+                  //hb_retc ( pLinea );
+                  break; 
+                  //_Error("Error: ARRAY ESTATICO MAL FORMADO (3)",lineaFisica)
+               }
+               --a;//--i;
+            }else{
+               strcpy(Linea,"-24");
+              // const char * pLinea = Linea;
+               //hb_retc ( pLinea );
+               break; 
+               //_Error("Error: ARRAY ESTATICO MAL FORMADO (4)",lineaFisica)
+            }
+            pAnterior=' ';
+         }
+      }else if (c=='!'){  // aqui puede ser !{} o ![] un castor
+         //const char * tb = a;
+         ++a;    ///c:=poscaracter(a,++i) //substr(a,++i,1)
+         c=*a;
+         if (c==(char)91){
+           // ?"ENTRE ![...",cPar,cParc
+            pString[i++]=c; pString[i]='\0';    ////pString+=c
+            ctaPar=1;
+
+            while (*(++a)){  ///++i<=len(a)
+               c=*a;  //c:=poscaracter(a,i) //substr(a,i,1)
+               if (c==','){
+                  if (ctaPar==0){
+                     --a; //--i
+                     break;
+                  }
+               }else if (c==(char)91) {  //.or.c=="{".or.c=="("
+                  ++ctaPar;
+               }else if (c==(char)93) {  //.or.c=="}".or.c==")"
+                  --ctaPar;
+                  if (ctaPar<0){
+                      --a;  //--i
+                     //numFilas:=1
+                     break;
+                  }
+               }else if (c=='!'){
+                  c=*(++a);    ///c:=poscaracter(a,++i) //substr(a,++i,1)
+                  if (c!=(char)91){   // no es un acceso
+                     --a;  //--i
+                     c = '\0';
+                  }else{
+                     ++ctaPar;
+                  }
+               }else if (c==(char)34){
+                  pString[i++]=c; pString[i]='\0';
+                  while (*(++a)){  ///++i<=len(a)
+                     c=*a;    ///c:=poscaracter(a,i) //substr(a,i,1)
+                     if (c==(char)34){
+                         pString[i++]=c; pString[i]='\0';
+                         c = '\0';
+                        break;
+                     }
+                     pString[i++]=c; pString[i]='\0';
+                  }
+               }
+               if ( c!='\0'){
+                  pString[i++]=c; pString[i]='\0';
+               }else{
+                  c=' ';
+               }
+            }
+           // ? "SALE ![",cPar,cParc,_CR,pString
+         }else{
+           // ? "ENTRE !{..."
+            ctaPar=0;
+            // --i;
+            while (*a){    //++i<=len(a)
+               c=*a;  //c:=poscaracter(a,i) //substr(a,i,1)
+               if (c==','){
+                  if (ctaPar==0){
+                     --a;   //--i
+                     break;
+                  }
+               }else if (c=='{'){  //.or.c=="("
+                  ++ctaPar;
+               }else if (c=='}'){  //.or.c==")"
+                  --ctaPar;
+                  if (ctaPar==0){
+                     --a;   //--i
+                     break;
+                  }
+               }else if (c=='!'){
+                  ++a; 
+                  c=*a;  ///c:=poscaracter(a,++i) //substr(a,++i,1)
+                  if (c!=(char)91){  // no es un acceso
+                     --a;    ///--i
+                     c='\0';  //:=""
+                  }else{
+                     ++ctaPar;
+                  }
+               }else if (c==(char)34){
+                  pString[i++]=c; pString[i]='\0';
+                  while (*(++a)){     //++i<=len(a)
+                     c=*a; // *ta;   //c:=poscaracter(a,i) //substr(a,i,1)
+                     if (c==(char)34){
+                         pString[i++]=c; pString[i]='\0';
+                         c='\0';   //:=""
+                        break;
+                     }
+                     pString[i++]=c; pString[i]='\0';
+                  }
+               }
+               if ( c!='\0'){
+                  pString[i++]=c; pString[i]='\0';
+               }else{
+                  c=' ';
+               }
+               ++a;
+            }
+          //  ? "SALE !{ : ",pString
+         }
+      }else{  // es un caracter leible
+         pString[i++]=(char)c; pString[i]='\0';
+        // printf("pString=%s\n",pString);
+      }
+      //++i
+      ++a;
+   }
+   // arma array resultado: GETSUBARRAY
+   const char * pLinea = Linea;
+   PHB_ITEM pCWM = hb_itemArrayNew( 0 );
+   PHB_ITEM pC  = hb_itemArrayNew( 5 );
+   hb_arraySetC( pC, 1, (const char *) pLinea );
+   hb_arraySetNI( pC, 2, (HB_MAXINT)  numFilas );
+   hb_arraySetNI( pC, 3, (HB_MAXINT)  numColumnas );
+   hb_arraySetNI( pC, 4, (HB_MAXINT)  numPaginas );
+   hb_arraySetNI( pC, 5, (HB_MAXINT)  numBloques );
+   hb_arrayAdd( pCWM, pC );
+   hb_itemRelease( pC );
+   hb_itemReturnRelease( pCWM );
+   
+   printf("\nSALE DE PROCESO...\n");
+   //hb_retc ( pLinea );
+   free( Linea );
+   free( pString );
+   hb_itemClear(pSTRING);
+   hb_itemClear(pSECCION);
+}
+*/
+/**** STRTRAN Y FUNCIONES AUXILIARES ****/
+uint16_t fun_tokens(const char *linea, const char *buscar, uint16_t lb) {
+   const char *t,*r; // son solo punteros apuntando a la cadena s.
+
+   uint16_t n=0;
+
+   r = linea;  // rescato primera posición
+   t = strstr(r,buscar);
+   while (t!=NULL) {
+      r = t + lb;
+      ++n;
+      t = strstr(r,buscar);
+   }
+
+   return n;
+}
+
+
+char *FUNSTRTRAN(const char *linea,
+               const char *buscar,
+               const char *reempl,
+               int ignore,
+               int limite ){
+   int ntoken;
+   size_t llinea=strlen(linea);
+   size_t lbuscar=strlen(buscar);
+   size_t lreempl=strlen(reempl);
+   if ((ntoken = fun_tokens(linea,buscar,lbuscar))==0){
+      char * Retorno = (char *)calloc(llinea+1,1);
+      strcpy(Retorno, linea);
+      return Retorno;  // para qué voy a calcular.
+   }
+   if (limite==0) limite = ntoken;
+
+   const char *t;
+   char *r;
+   size_t l=0;
+   size_t size;
+
+   // cálculo del espacio con excedente a reservar
+   size = llinea + (lreempl + lbuscar)*ntoken;
+   const char *u;
+   u = (const char *)linea;
+   
+   r=(char *)calloc(size+1,1);
+
+   if (r==NULL) return NULL;
+
+   int i=0;
+   
+   do{
+      t = strstr(u,buscar);
+      l = t - u;
+      if (l>0){
+         while(l--){
+            r[i] = *u ; 
+            ++i; u++;
+         }
+         r[i]='\0';
+      }
+      if (ignore > 0) {
+/////         printf("\ni = %d\n",i);
+         int LB = lbuscar;
+         //const char * pLB = buscar;
+         while(LB--){
+            r[i] = *u; //*pLB;
+            ++i; ++u; //++pLB;
+         }
+         r[i]='\0';
+         ignore--;
+      } else {
+         if (limite > 0){ // porque si limite==0, limite=ntoken
+            int LR = lreempl;
+            const char * pLR = reempl;
+            while(LR--){
+               r[i] = *pLR;
+               ++i; ++pLR;
+            }
+            r[i]='\0';
+            limite--;
+         } else {
+            int LB = lbuscar;
+            const char * pLB = buscar;
+            while(LB--){
+               r[i] = *pLB;
+               ++i; ++pLB;
+            }
+            r[i]='\0';
+         }
+      }
+      t += lbuscar;
+      u = t;
+   }while(--ntoken);
+
+   while(*u){
+     r[i] = *u ; 
+     ++i; ++u;
+   }
+   r[i]='\0';
+   
+   char * Retorno = (char *)calloc(i+1,1);
+   strcpy(Retorno,r);
+   free(r);
+
+   return Retorno;
+}
+/*
+function _BuscaVar(_n,_metlocal)
+local _ret:=0,i
+
+ if _NHASH>0
+   for i:=_IniVar to _NHASH
+      if _hash[i][1]==_metlocal
+         if _hash[i][3]==_n
+            _ret:=_hash[i][6]        //i
+            exit
+         end
+      end
+   next
+ end
+
+return _ret
+*/
+/*HB_FUNC( XSTRTRAN )
+{
+    PHB_ITEM pA = hb_param( 1, HB_IT_ARRAY ); // A = STRING
+    PHB_ITEM pB = hb_param( 2, HB_IT_ANY ); // B = BUSCA
+    PHB_ITEM pD = hb_param( 3, HB_IT_ANY ); // D = REEMPLAZA POR
+    unsigned int pOcurr = hb_parni( 4 );   // desde donde empieza a reemplazar
+    unsigned int pNumre = hb_parni( 5 );   // cuantos reemplaza
+    PHB_ITEM params   = hb_param( 6, HB_IT_ARRAY ); // PARAMETROS
+    
+    PHB_ITEM p1 = hb_itemArrayGet( params, 1);
+    PHB_ITEM p2 = hb_itemArrayGet( params, 2);
+    PHB_ITEM p3 = hb_itemArrayGet( params, 3);
+    PHB_ITEM p4 = hb_itemArrayGet( params, 4);
+    
+    unsigned int pDim = hb_itemGetNI( p1 );   // dimension de matrices
+    unsigned int pRow = hb_itemGetNI( p2 );   // rows
+    unsigned int pCol = hb_itemGetNI( p3 );   // cols
+    int codfun = hb_itemGetNI( p4 );   // cod funcion
+    
+    hb_itemRelease(p1);
+    hb_itemRelease(p2);
+    hb_itemRelease(p3);
+    hb_itemRelease(p4);
+    
+    PHB_ITEM pCWM = NULL;
+
+    int strOk = 1;
+
+    switch( pDim ){
+       case 2 : 
+       {
+          unsigned int n=1,m=1;
+             
+          switch( codfun ){
+             case 4 : 
+             { // AN y AN
+                long uiArrayLenB = ( long ) hb_arrayLen( pB );
+                long uiArrayLenD = ( long ) hb_arrayLen( pD );
+                if (uiArrayLenB == uiArrayLenD && uiArrayLenB > 0){
+                   long j;
+                   pCWM = hb_itemArrayNew( pRow ); // CWM 
+                   for( n=1; n<=pRow; n++){
+                      PHB_ITEM pAA = hb_itemArrayGet( pA, n);
+                      PHB_ITEM pCC = hb_itemArrayNew( pCol ); // CWM 
+                      for( m=1; m<=pCol; m++){
+                         PHB_ITEM pAAA = hb_itemArrayGet( pAA, m);
+                         const char * pLinea = hb_itemGetCPtr( pAAA );
+                         hb_itemRelease( pAAA );
+                         char * cLinea = (char *)calloc(strlen( pLinea )+1,1);
+                         strcpy(cLinea,pLinea);
+                         const char * cFuente = cLinea;
+                      
+                         for(j=1; j<=uiArrayLenB; j++){
+                            PHB_ITEM pBB = hb_itemArrayGet( pB, j);
+                            PHB_ITEM pDD = hb_itemArrayGet( pD, j);
+                         
+                            char * Str = FUNSTRTRAN((const char *)cFuente, 
+                                 (const char *) hb_itemGetCPtr( pBB ), 
+                                 (const char *)hb_itemGetCPtr( pDD ), pOcurr, pNumre);
+                         
+                            hb_itemRelease(pBB);
+                            hb_itemRelease(pDD);
+                         
+                            const char * Buff = Str;
+                            free(cLinea);
+                            if (Buff!=NULL){
+                             ////  printf("\nDATO OBTENIDO: %s\n",Buff);
+                               cLinea = (char *)calloc(strlen(Buff)+1,1);
+                               strcpy(cLinea,Buff);
+                               cFuente = cLinea;
+                            }else{
+                               strOk=0;
+                              //  printf("\nPASO POR NULL\n");
+                               hb_itemRelease(pAA);
+                               hb_itemRelease(pCC);
+                               break;
+                            }
+                            free(Str);
+                         }
+                         if ( !strOk ) {break;}
+                         hb_arraySetC( pCC, m, (const char *)cFuente);
+                         free(cLinea);
+                      }
+                     // printf("\nLEN PCC = %ld\n",(long)hb_arrayLen(pCC));
+                      if ( !strOk ) {break;}
+                      hb_arraySet( pCWM, n, pCC);
+                      hb_itemRelease(pAA);
+                      hb_itemRelease(pCC);
+                     // printf("\nLEN PCWM = %ld\n",(long)hb_arrayLen(pCWM));
+                   }
+                } else { 
+                   strOk = 0; 
+                   break;
+                }  // no hace nada. devuelve array vacio.
+                break;
+             }
+          } 
+          break;
+       } 
+    }
+    if ( !strOk ){
+       hb_itemRelease(pCWM);
+       pCWM = hb_itemArrayNew( 0 ); // CWM
+    }
+    hb_itemReturnRelease( pCWM );
+}
+*/
+//if BuscaVar(c,metodo_local,_NHASH,_hash)>0
+HB_FUNC( BUSCAVAR )
+{
+   const char * c  = hb_parc( 1 );  
+   const char * metodo_local = hb_parc( 2 );
+   unsigned int NHASH = hb_parni( 3 );
+   unsigned int inivar = hb_parni( 4 );
+   PHB_ITEM pHASH = hb_param( 5, HB_IT_ARRAY );
+
+   int ret = 0;
+   long i;
+   for (i=inivar; i<=NHASH; i++){
+      PHB_ITEM pBB = hb_itemArrayGet( pHASH, i);
+      PHB_ITEM p1  = hb_itemArrayGet( pBB, 1);
+      PHB_ITEM p3  = hb_itemArrayGet( pBB, 3);
+      PHB_ITEM p6  = hb_itemArrayGet( pBB, 6);
+      const char * pMetodo = hb_itemGetCPtr( p1 );
+      if( strcmp(pMetodo, metodo_local) == 0 ){   
+         const char * pNom = hb_itemGetCPtr( p3 );
+         if( strcmp(pNom, c) == 0 ){
+            ret = hb_itemGetNI( p3 );
+            hb_itemRelease( p1 );
+            hb_itemRelease( p3 );
+            hb_itemRelease( p6 );
+            hb_itemRelease( pBB );
+            break;
+         }
+      }
+      hb_itemRelease( p1 );
+      hb_itemRelease( p3 );
+      hb_itemRelease( p6 );
+      hb_itemRelease( pBB );
+   }
+   hb_itemClear( pHASH );
+   hb_retni( ret );
+}
+/*procedure Reempl_Ampersand()
+local i,j,k, _nl,l,_laMeto, _MAK, _MBK, _lnexe
+
+_nl := len(_lineexe)
+_laMeto:=len(_aMetod)
+
+for k:=1 to _laMeto
+  _MAK:=_aMetod[k][1]
+  _MBK:=_aMetod[k][2]
+  if _MAK>0
+     for i:=_MAK to _MBK
+        _lineexe[i][1]:=strtran(_lineexe[i][1],chr(127),"") //"@@@","")
+     next
+  end
+next
+
+return
+*/
+HB_FUNC( REEMPL_AMPERSAND )
+{
+   PHB_ITEM pLINEEXE = hb_param( 1, HB_IT_ARRAY );
+ //  PHB_ITEM pMETODOS = hb_param( 2, HB_IT_ARRAY );
+   const char * chr  = hb_parc( 2 );  // chr(127)
+   const char * nulo = hb_parc( 3 );  // ""
+   long nLenL1    = ( long ) hb_arrayLen( pLINEEXE );
+   //long nLenM1    = ( long ) hb_arrayLen( pMETODOS );
+   
+   PHB_ITEM pCWM = hb_itemArrayNew( 0 );
+   
+   long i;
+   for (i=1; i<=nLenL1; i++ ){
+            PHB_ITEM pBB = hb_itemArrayGet( pLINEEXE, i);
+            PHB_ITEM p11  = hb_itemArrayGet( pBB, 1);
+            PHB_ITEM p22  = hb_itemArrayGet( pBB, 2);
+            
+            const char * pLinea = hb_itemGetCPtr( p11 );
+            long nLen = hb_itemGetCLen( p11 );
+            char * cLineexe1 = (char *)calloc( /*strlen( pLinea )*/nLen+1,1);
+            strcpy(cLineexe1,pLinea);
+            const char * cFuente = cLineexe1;
+                      
+            unsigned int cLineexe2 = hb_itemGetNI( p22 );
+            
+            hb_itemRelease( p11 );
+            hb_itemRelease( p22 );
+            hb_itemRelease( pBB );
+            
+            
+            if( hb_strAt( chr, 1, cFuente, nLen ) > 0 ){
+               char * lineexe1 = FUNSTRTRAN(cFuente, chr, nulo, 0, 0); 
+               const char * xle1 = lineexe1;
+                PHB_ITEM pC  = hb_itemArrayNew( 2 );
+                hb_arraySetC( pC, 1, (const char *) xle1 );
+               hb_arraySetNI( pC, 2, (unsigned int)  cLineexe2 );
+               hb_arrayAdd( pCWM, pC );
+               hb_itemRelease( pC );
+               free(lineexe1);
+            }else{
+                PHB_ITEM pC  = hb_itemArrayNew( 2 );
+               hb_arraySetC( pC, 1, (const char *) cFuente );
+               hb_arraySetNI( pC, 2, (unsigned int)  cLineexe2 );
+               hb_arrayAdd( pCWM, pC );
+               hb_itemRelease( pC );
+            }
+            //const char * xle1 = lineexe1;
+            /*PHB_ITEM pC  = hb_itemArrayNew( 2 );
+            hb_arraySetC( pC, 1, (const char *) xle1 );
+            hb_arraySetNI( pC, 2, (unsigned int)  cLineexe2 );
+            hb_arrayAdd( pCWM, pC );
+            hb_itemRelease( pC );*/
+            free(cLineexe1);
+            //free(lineexe1);      
+   }
+   hb_itemClear( pLINEEXE );
+ //  hb_itemClear( pMETODOS );
+   hb_itemReturnRelease( pCWM );
+}
+
+// es_entero(cnumero)
+HB_FUNC( ES_ENTERO )
+{
+   PHB_ITEM pNUM  = hb_param( 1, HB_IT_STRING ); //numero a saber
+   const char * cNum = hb_itemGetCPtr( pNUM );
+   //long nLen = hb_itemGetCLen( pNUM );
+   HB_BOOL bGood = HB_TRUE;
+   const char * t = cNum;
+   while( *t ){
+      if ( *t < '0' || *t > '9'){
+         bGood = HB_FALSE;
+         break;
+      }
+      ++t;
+   }
+   hb_itemClear( pNUM );
+   hb_retl( bGood );   
+}
+
+// BuscaInstr(v,DICC)
+HB_FUNC( BUSCAINSTR )
+{
+   PHB_ITEM pVAR  = hb_param( 1, HB_IT_STRING ); // palabra a buscar
+   PHB_ITEM pDICC = hb_param( 2, HB_IT_ARRAY );   // DICC
+   
+   const char * pWord = hb_itemGetCPtr( pVAR );
+   long uiArrayLen1    = ( long ) hb_arrayLen( pDICC );
+   long i=1,ret=0;
+   for (i=1;i<=uiArrayLen1; i++){
+      PHB_ITEM pA = hb_itemArrayGet( pDICC, i);
+      //long uiArrayLen2    = ( long ) hb_arrayLen( pA );
+      //for (j=1;j<=uiArrayLen2; j++){
+      PHB_ITEM pAA = hb_itemArrayGet( pA, 1);
+      const char * Str = hb_itemGetCPtr( pAA );
+      if (strcmp(pWord, Str)==0){
+         ret=i;
+      }
+      hb_itemRelease( pAA );
+      hb_itemRelease( pA );
+      if( ret ) break;
+   }
+   hb_itemClear( pVAR );
+   hb_itemClear( pDICC );
+   hb_retnl( ret );
+}
+
+
+//is_noall(vtip,"NN","CC") vtip no es NN ni CC ni...
+HB_FUNC( IS_NOALL )
+{
+   int iPCount = hb_pcount();
+
+   HB_BOOL bGood = HB_TRUE;
+   if( iPCount > 0 )
+   {
+      PHB_ITEM pVAR = hb_param( 1, HB_IT_STRING );
+      const char * cVAR = hb_itemGetCPtr( pVAR );
+      int iParam;
+      for( iParam = 2; iParam <= iPCount; iParam++ )
+      {
+         PHB_ITEM pCom = hb_param( iParam, HB_IT_STRING );
+         const char * cCom = hb_itemGetCPtr( pCom );
+         if( strcmp( cVAR, cCom ) == 0 )
+         {
+            bGood = HB_FALSE;
+            //hb_itemClear( pCom );
+            break;
+         }
+         //hb_itemClear( pCom );
+      }
+      //hb_itemClear( pVAR );
+   }
+   hb_retl( bGood );
+}
+
+//isany(vtip,"NN","CC")
+HB_FUNC( IS_ANY )
+{
+   int iPCount = hb_pcount();
+
+   HB_BOOL bGood = HB_FALSE;
+   if( iPCount > 0 )
+   {
+      PHB_ITEM pVAR = hb_param( 1, HB_IT_STRING );
+      const char * cVAR = hb_itemGetCPtr( pVAR );
+      int iParam;
+      for( iParam = 2; iParam <= iPCount; iParam++ )
+      {
+         PHB_ITEM pCom = hb_param( iParam, HB_IT_STRING );
+         const char * cCom = hb_itemGetCPtr( pCom );
+         if( strcmp( cVAR, cCom ) == 0 )
+         {
+            bGood = HB_TRUE;
+           // hb_itemClear( pCom );
+            break;
+         }
+        // hb_itemClear( pCom );
+      }
+     // hb_itemClear( pVAR );
+   }
+   hb_retl( bGood );
+}
+
+HB_FUNC( POSCARACTER )  // saco el caracter a la segura
+{
+   PHB_ITEM pTEXTO = hb_param(1, HB_IT_STRING );
+   HB_SIZE nPos = hb_parni ( 2 );
+   char * cRet = (char *)calloc(2,1);
+   const char * szText = hb_itemGetCPtr( pTEXTO );
+   HB_SIZE nLen = hb_itemGetCLen( pTEXTO );
+   if ( nPos <= nLen && nPos > 0 ){
+      cRet[0] = szText[nPos-1];
+      cRet[1] = '\0';
+   }else{
+      cRet[0] = '\0';
+   }
+   const char * t = cRet;
+   hb_retc( t );
+   free(cRet);
+}
+
+HB_FUNC( ES_NULO )
+{
+   int iPCount = hb_pcount();
+
+   HB_BOOL bError = HB_FALSE;
+   if( iPCount > 0 )
+   {
+      
+      int iParam;
+      for( iParam = 1; iParam <= iPCount; iParam++ )
+      {
+         if( HB_ISNIL( iParam ) )
+         {
+            bError = HB_TRUE;
+            break;
+         }
+      }
+   }
+   hb_retl( bError );
+}
+
+
 short int fun_istnumber(const char * AX){
   int DX;
-  short int SW_M=0,SW_N=0,SW_P=0,retorne=1;
+  short int SW_M=0,SW_N=0,SW_P=0;
+  short int retorne;
+  
+  retorne = AX[0]!='\0' ? 1 : 0;
 
   while( (DX=*AX)!='\0'){
     if(DX=='-'){

@@ -51,14 +51,24 @@ numParam:=PCOUNT()
 
 SETCANCEL(.F.)
 
+PUBLIC MOUSE
+
 public MOUSEPRESENT:=.F.
     IF MPRESENT()                                                                                              
        MOUSEPRESENT:=.T.
        set( _SET_EVENTMASK, INKEY_ALL ) 
        mSetCursor( .t. ) 
+       MOUSE:=MSAVESTATE()
     ENDIF 
 
+//STANDARD ()
+//ENHANCED()
+//VGAPALETTE("BG", 60, 4, 10)
 
+public tabini:=1
+public tabfin:=1
+public activo:=1
+public tabActivo:=1
 
 SET SCOREBOARD OFF
 SET ESCAPE ON
@@ -76,15 +86,19 @@ public PATH_HELP
 public PATH_TEMP
 public SW_CLEAR_LOG
 public PATH_XU
+public PATH_MACRO  // para macros
 
 public _fileSeparator
 
 // buffer de copia de texto
-public BUFFER:={},SW_HAYBUFFER:=.F. //debe copiar en cualquier archivo
+public BUFFER:={},SW_HAYBUFFER:=.F.,cBUSCA:="",LISTAFOUND:={} //debe copiar en cualquier archivo
 public SWMARCA:=.F.
 public DEFTOKEN:=","; DEFROUND:=13
 public LISTAEXPRESION:={}  // gusrda expresiones exitosas
 public LISTABUSQUEDA:={}   // guarda palabras buscadas y reemplazadas
+public XFIL1EDIT:=0,XFIL2EDIT:=0
+public SWCTRLKJ:=.F.
+public VARTABLE:=ARRAY(20)
 
 // variables del editor
 public cEDITOR:=112  //15
@@ -94,18 +108,26 @@ public cBARRA:=11  // 2=verde 14=amarillo
 public cTITULO:=12
 public cMENU:=11  // 2
 public cSELECT:=71
-public cTABULA:=3
+public cTABULA:=6
 public cSECCION:=121
 public cKEYWORD:=120
 public cCURSORMOD:=12
 public cDESTACADO:=56
 public cCADENA:=116
+public cNUMBERS:=12
+public cSTRINGF:=120
+public cMATF:=120
+public cLOGICF:=120
 //public cEDITINC:=113
-public SWCOLORTEXTO:=0
+public SWCOLORTEXTO:=2
 public cEDITCOM:=117
 public cEDITDEF:=122
 public cHELP:=7
 public cDESPLAZAMIENTO:=5
+
+// terminal por defecto:
+public cTERMINAL:="gnome-terminal --geometry=120x30 -- bash -c "
+
 public cMAPACOLORES:=""
 public cLENMAPACOLORES:=0
 public cPAGINA:=MAXROW()-4  // menos 3 menos el encabezado
@@ -122,11 +144,16 @@ public OSSYSTEM:=OS()
 public SWBINARY:=.F.
 
 public SWCTRLJCTRKV:=.F.
+public SWCTRLKCTRLD:=.F.
 public SWTEXTOMODIFICADO:=.F.
+public SWCTRLKV:=.F.
 
 public lDEFINE:={}
 public lSECCION:={}
 public lKEYWORD:={}
+public lLOGFUNCS:={}
+public lMATFUNCS:={}
+public lSTRFUNCS:={}
 
 public RBUFFER:={}, SWRECBUFFER:=.T.  // resultados de OPE. recupera BUFFER por defecto.
 
@@ -134,7 +161,7 @@ public BUFFER_CTRLZ:={},LINBUFFCTRLZ:={}   // CTRL-Z deshacer comando anterior e
 
 ///public _ARCHIVO
 public SLINEA,TLINEA,BASELINE,HELP1,HELP2,SWLENGUAJE
-public ESEJECUTABLE,COMPILADOR, EJECUTOR, DESCRIPCION, PARAMETROS, COMENTARIOS,METADATA, cMETADATA
+public ESEJECUTABLE,COMPILADOR, EJECUTOR, DESCRIPCION, PARAMETROS, COMENTARIOS,METADATA, cMETADATA,BLOQCOMENTARIOS_I, BLOQCOMENTARIOS_F
 public LISTACOMPILA:={}
 public cCOLORES:={}
 public COMMANDS,OUTPUTCOMM,COMANDO,cCOMANDO
@@ -151,14 +178,17 @@ public SWGRMODE:=.T.   // usa gnome-terminal
 public STRSP:=""
 public cRESULTBUFFER:={}
 
+// para CTRL-KA y CTRL-KM marca de bloques
+PUBLIC XFILi:=0,XCOLi:=0,XFILf:=0,XCOLf:=0,SWMARCABLOQUE:=.F.
 
-tmp := CMDSYSTEM('gnome-terminal -- bash -c "exit" </dev/null >/dev/null 2>&1',0)
+/*tmp := CMDSYSTEM('gnome-terminal -- bash -c "exit" </dev/null >/dev/null 2>&1',0)
 if tmp!=0
    SWGRMODE:=.F.
 end
+*/
+SETMODE(36,126)
 
-SETMODE(30,110)
-
+printmsg("Loading configuration..."+_CR)
 PATH_XU:=_Carga_Configuracion()
 
 
@@ -170,6 +200,8 @@ public TEXTOTIPO:="",LENTEXTOTIPO:=0   // muestra el tipo del texto
 public HUEVO:=""
 public BUFFERKT:=""  // buffer para CTRL-KT y CTRL-KR
 
+public MULTIINS:={}  // para CTRL-s de CTRL-KV
+
 CLEAR
 SLINEA:=MAXCOL()  //-2
 TLINEA:=MAXROW()
@@ -178,8 +210,8 @@ BASELINE:=REPLICATE(" ",512)
 HELP1:="  MAIN  "+CHR(240)+"  ^O  Help      ^Q  Quit    ^T  Top      ^J  Jump   ^N  Find   ^Y  Ins Rmks   ESC  Shell Cmds  "+CHR(240)+"   Enjoy  "+CHR(1)
 HELP2:="  MENU  "+CHR(240)+"  ^P  Compile   ^W  Write   ^B  Bottom   ^K  Edit   ^L  Calc   ^V  Ins Code   F2   Open File   "+CHR(240)+"   Edit4Xu!"
 */
-     HELP1:="  MAIN  "+CHR(240)+"  ^O Help      ^Q Quit    ^J Jump       ^N Find   ^Y Ins Rmks   ^Z Undo     "
-     HELP2:="  MENU  "+CHR(240)+"  ^P Compile   ^W Write   ^U Sel File   ^K Edit   ^L Macros     ^V Ins Code "
+//HELP1:="  MAIN  "+CHR(240)+"  ^O Help      ^Q Quit    ^J Jump       ^N Find   ^Y Ins Rmks   ^Z Undo       ESC Tools   █  ▄▀▄ ▀ ▄▀▀ ▄▀▄"
+//HELP2:="  MENU  "+CHR(240)+"  ^P Compile   ^W Write   ^U Sel File   ^K Edit   ^L Macros     ^V Ins Code               █▄ █▀█ █ ▀▄▄ █▀█"
 
 
 CARGA_COMPILADORES(PATH_XU,_fileSeparator)  // lineas de compilacion y parametros.
@@ -191,6 +223,8 @@ COMPILADOR:=""
 EJECUTOR:="" 
 DESCRIPCION:=""
 COMENTARIOS:=""
+BLOQCOMENTARIOS_I:=""
+BLOQCOMENTARIOS_F:=""
 COMMANDS:={}
 OUTPUTCOMM:={}
 COMANDO:=""
@@ -208,11 +242,16 @@ if numParam>1
 
    WHILE iParam<=numParam
       ///_arr_par[iParam-1]:=hb_pValue(iParam)
-      _arr_par[iParam]:=hb_pValue(iParam)
+      _arr_par[iParam]:=hb_utf8tostr(hb_pValue(iParam))
       ++iParam
    END
 elseif numParam==1
-   _file:=hb_pValue(1)
+   _file:=hb_utf8tostr(hb_pValue(1))
+   if _file == "-h"
+      _header()
+      _modo_de_uso()
+      quit
+   end
 else
 /*   outstd(_CR+"Modo de uso:"+_CR+_CR+"  ./ed4xu archivo.ext [-t dirTemp][-b dirBak][-e dirExe]"+_CR;
           +_CR+"ED4XU aborta."+_CR)
@@ -225,6 +264,7 @@ end
 //   ebe aceptar path/*.ext, -d directorio (menos los *.ext~) XXX 
 //   pi,p,px,py,lini,lfin,cini
 //
+
 
 if numParam>1
    for i:=1 to len(_arr_par)
@@ -245,7 +285,13 @@ if numParam>1
             tmp:=CMDSYSTEM("mkdir "+STRING+" </dev/null >/dev/null 2>&1",0)
             TMPDIRECTORY:=STRING+_fileSeparator
          end
-
+      
+      /* muestra la ayuda en linea */
+      elseif STRING=="-h"
+         _header()
+         _modo_de_uso()
+         quit
+          
       elseif STRING=="-noterm"   // para entornos no gráficos. ejecuta en la misma pantalla
          SWGRMODE:=.F.
       
@@ -349,6 +395,8 @@ if numParam>1
                COMPILADOR:="" 
                EJECUTOR:="" 
                DESCRIPCION:=""
+               BLOQCOMENTARIOS_I:=""
+               BLOQCOMENTARIOS_F:=""
                for k:=1 to len(LISTACOMPILA)
                   if EXT==LISTACOMPILA[k][1]
                      COMPILADOR:=LISTACOMPILA[k][2]
@@ -356,6 +404,8 @@ if numParam>1
                      DESCRIPCION:=LISTACOMPILA[k][4]
                      COMENTARIOS:=LISTACOMPILA[k][5]
                      ESEJECUTABLE:=iif(LISTACOMPILA[k][6]=="e",.T.,.F.)
+                     BLOQCOMENTARIOS_I:=LISTACOMPILA[k][7]
+                     BLOQCOMENTARIOS_F:=LISTACOMPILA[k][8]
                      exit
                   end
                end
@@ -398,6 +448,8 @@ if numParam>1
          COMPILADOR:="" 
          EJECUTOR:="" 
          DESCRIPCION:=""
+         BLOQCOMENTARIOS_I:=""
+                     BLOQCOMENTARIOS_F:=""
          for j:=1 to len(LISTACOMPILA)
             if EXT==LISTACOMPILA[j][1]
                COMPILADOR:=LISTACOMPILA[j][2]
@@ -405,6 +457,8 @@ if numParam>1
                DESCRIPCION:=LISTACOMPILA[j][4]
                COMENTARIOS:=LISTACOMPILA[j][5]
                ESEJECUTABLE:=iif(LISTACOMPILA[j][6]=="e",.T.,.F.)
+               BLOQCOMENTARIOS_I:=LISTACOMPILA[j][7]
+                     BLOQCOMENTARIOS_F:=LISTACOMPILA[j][8]
                exit
             end
          end
@@ -443,6 +497,8 @@ else
    COMPILADOR:="" 
    EJECUTOR:="" 
    DESCRIPCION:=""
+   BLOQCOMENTARIOS_I:=""
+                     BLOQCOMENTARIOS_F:=""
    for i:=1 to len(LISTACOMPILA)
       if EXT==LISTACOMPILA[i][1]
          COMPILADOR:=LISTACOMPILA[i][2]
@@ -450,6 +506,9 @@ else
          DESCRIPCION:=LISTACOMPILA[i][4]
          COMENTARIOS:=LISTACOMPILA[i][5]
          ESEJECUTABLE:=iif(LISTACOMPILA[i][6]=="e",.T.,.F.)
+         BLOQCOMENTARIOS_I:=LISTACOMPILA[i][7]
+                     BLOQCOMENTARIOS_F:=LISTACOMPILA[i][8]
+         
          exit
       end
    end
@@ -487,6 +546,8 @@ WHILE len(alltrim(_file))>0
    COMPILADOR:="" 
    EJECUTOR:="" 
    DESCRIPCION:=""
+   BLOQCOMENTARIOS_I:=""
+                     BLOQCOMENTARIOS_F:=""
    for j:=1 to len(LISTACOMPILA)
       if EXT==LISTACOMPILA[j][1]
          COMPILADOR:=LISTACOMPILA[j][2]
@@ -494,6 +555,9 @@ WHILE len(alltrim(_file))>0
          DESCRIPCION:=LISTACOMPILA[j][4]
          COMENTARIOS:=LISTACOMPILA[j][5]
          ESEJECUTABLE:=iif(LISTACOMPILA[j][6]=="e",.T.,.F.)
+         BLOQCOMENTARIOS_I:=LISTACOMPILA[j][7]
+                     BLOQCOMENTARIOS_F:=LISTACOMPILA[j][8]
+         
          exit
       end
    end
@@ -515,6 +579,22 @@ WHILE len(alltrim(_file))>0
    ELSEIF EXT=="h"
       FILE:=_file
       STRING:="// Archivo header C"+_CR+"#define "
+      SWLENGUAJE:=2
+   ELSEIF EXT=="hh"
+      FILE:=_file
+      STRING:="// Archivo header HOPPER"+_CR+"#define "
+      SWLENGUAJE:=2
+   ELSEIF EXT=="com" .or. EXT=="hopper" .or. EXT=="hop" .or. EXT=="jambo"
+      FILE:=_file
+      STRING:="#!/usr/bin/hopper"+_CR+_CR+"// Archivo Hopper"+_CR+"#include <hopper.h>"+_CR+_CR+"main:"+_CR+_CR+"{0}return"
+      SWLENGUAJE:=2
+   ELSEIF EXT=="bas"
+      FILE:=_file
+      STRING:="#!/usr/bin/hopper"+_CR+_CR+"// Archivo Hopper-Basic"+_CR+"#include <hbasic.h>"+_CR+_CR+"Begin"+_CR+_CR+"End"
+      SWLENGUAJE:=2
+   ELSEIF EXT=="fwl"
+      FILE:=_file
+      STRING:="#!/usr/bin/hopper"+_CR+_CR+"// Archivo Hopper-FLOW"+_CR+"#include <flow.h>"+_CR+_CR+"DEF-MAIN(argv,argc)"+_CR+_CR+"END"
       SWLENGUAJE:=2
    ELSEIF EXT=="prg"
       FILE:=_file
@@ -538,6 +618,16 @@ WHILE len(alltrim(_file))>0
       STRING:="% Funcion MATLAB"+_CR+"function f()"+_CR+_CR+"end"+_CR
       SWLENGUAJE:=4
       EXTENSION:=3
+   ELSEIF EXT=="html" .or. EXT=="xml" .or. EXT=="htm"
+      FILE:=_file
+      STRING:="<!-- Documento HTML/XML -->"+_CR
+      SWLENGUAJE:=5
+      EXTENSION:=1
+   ELSEIF EXT=="py"
+      FILE:=_file
+      STRING:="# Programa PYTHON"+_CR
+      SWLENGUAJE:=6
+      EXTENSION:=1
    ELSE   
       FILE:=_file
       STRING:=" "
@@ -574,6 +664,8 @@ WHILE len(alltrim(_file))>0
                cMessage := hb_utf8tostr("El Doggy dice: No fue posible crear el archivo de respaldo")
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                   while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                clearscr()
             end
          end
@@ -588,6 +680,8 @@ WHILE len(alltrim(_file))>0
                    FILE+_CR+FILE+CHR(126)
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                   while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                clearscr()
             end
          else
@@ -602,7 +696,8 @@ WHILE len(alltrim(_file))>0
                    FILE+_CR+tARCHIVO
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   
+                   while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                clearscr()
             end
          end
@@ -631,11 +726,13 @@ WHILE len(alltrim(_file))>0
          CORDEL[j][3]:=TEXTO
          CORDEL[j][4]:=""  // parametros
          SWJET:=.T.
+         activo:=j
          exit
       end
    end
    if !SWJET  // no lo encontró: lo añade.
       AADD(CORDEL,{FILE,SIZE,TEXTO,""})
+      activo:=len(CORDEL)
    end
    
    While .T.
@@ -671,6 +768,7 @@ WHILE len(alltrim(_file))>0
             EXT:=substr(_file,rat(".",_file)+1,LEN(_file))
             CARGACOLORESTEXTO(PATH_XU,_fileSeparator,EXT)
             SWJET:=.T.
+            activo:=j
             exit
          end
       end
@@ -720,6 +818,27 @@ for i:=1 to LEN(lKEYWORD)
   RELEASE lKEYWORD[i]
 end
 RELEASE lKEYWORD
+for i:=1 to LEN(lSTRFUNCS)
+  for j:=1 to len(lSTRFUNCS[i])
+     RELEASE lSTRFUNCS[i][j]
+  end
+  RELEASE lSTRFUNCS[i]
+end
+RELEASE lSTRFUNCS
+for i:=1 to LEN(lMATFUNCS)
+  for j:=1 to len(lMATFUNCS[i])
+     RELEASE lMATFUNCS[i][j]
+  end
+  RELEASE lMATFUNCS[i]
+end
+RELEASE lMATFUNCS
+for i:=1 to LEN(lLOGFUNCS)
+  for j:=1 to len(lLOGFUNCS[i])
+     RELEASE lLOGFUNCS[i][j]
+  end
+  RELEASE lLOGFUNCS[i]
+end
+RELEASE lLOGFUNCS
 
 if len(LISTACOMPILA)>0
    FOR i:=1 to len(LISTACOMPILA)
@@ -757,6 +876,39 @@ clear
    
 RETURN NIL
 
+procedure _header()
+LOCAL msgError
+   msgError:="  LAICA TEXT EDITOR v0.1+.2020"+_CR+ ;
+             "  Mr.Dalien, 2020."+_CR+_CR
+   //fwrite(1,msgError)
+   printmsg(msgerror)
+
+return
+
+procedure _modo_de_uso()
+LOCAL msgError
+    msgError:="  Modo de Uso:"+_CR+_CR+ ;
+              "  laica [<archivo-1> [<archivo-2> ...]] [parametros]"+_CR+ ;
+              "---------------------------------------------------------------------------------------"+_CR+;
+              "  donde:"+_CR+ ;
+              "    <archivo-1>... archivos a editar."+_CR+ ;
+              "    [parametros]   Parametros, si se requieren:"+_CR+_CR+ ;
+              "         -h        muestra esta ayuda."+_CR+ ;
+              "         -t <dir>  establece un directorio para archivos temporales (arch.ext~)."+_CR+;
+              "                   Un archivo temporal es actualizado cada vez que se graba la version"+_CR+;
+              "                   editada."+_CR+;
+              "         -b <dir>  establece un directorio de respaldo. El archivo de respaldo tiene"+_CR+;
+              "                   la fecha y hora de la edicion en su nombre, y no es modificado."+_CR+;
+              "         -noterm   ejecuta un programa en la misma pantalla. Normalmente, un programa"+_CR+;
+              "                   es ejecutado abriendo una pantalla de terminal nueva. Usese cuando"+_CR+;
+              "                   usa LAICA en un terminal remoto."+_CR+;
+              "         -hex      fuerza la edicion hexadecimal de un archivo."+_CR+;
+              "         -d <dir>  edita los archivos del directorio <dir>. Usese con cuidado."+_CR+_CR+;
+              "  Bugs, dudas y aportes: daniel.stuardo@gmail.com"+_CR+_CR
+    //fwrite(1,msgError)
+    printmsg(msgerror)
+return
+
 PROCEDURE CLEARSCR
 LOCAL tCOLOR,BASE,i
 BASE:=REPLICATE(" ",SLINEA+1)
@@ -770,8 +922,9 @@ setpos(0,0)
 RETURN
 
 
-PROCEDURE VISUALIZA_TEXTO(TEXTO,INI,FIN,TCOL,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi) //,SWCTRLKG)
-LOCAL XCOLORES,STRING,pINICOL,I,XLEN,lPOS,rPOS,nLEN
+
+PROCEDURE VISUALIZA_TEXTO(TEXTO,INI,FIN,TCOL,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT) //,SWCTRLKG)
+LOCAL XCOLORES,STRING,pINICOL,I,XLEN,lPOS,rPOS,nLEN,mLEN,tINI
 LOCAL nPOS,nSIZE,j,k,pFINCOL,SWBLOQUE,cLEN,cColor
 LOCAL STRPROC
 
@@ -788,6 +941,7 @@ pINICOL:=1
 
 
 cLEN:=INI
+tINI:=INI
 
 FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
   XLEN:=LEN(TEXTO[INI]) //?? modificar o eliminar.
@@ -807,6 +961,7 @@ FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
   //setpos(I,0); outstd(" ")
     
   setpos(I,1); dispout(STRING)  //outstd(STRING)
+
   
   IF TEXTOTIPO=="BINARY"
      if SWCOLORTEXTO==2  // pinta columna 2
@@ -815,27 +970,18 @@ FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
         colorwin(I, iif(47-TCOL<=0,1,47-TCOL), I, 58-TCOL, 7 )
         colorwin(I, iif(59-TCOL<=0,1,59-TCOL), I, 70-TCOL, 15 )
         colorwin(I, iif(71-TCOL<=0,1,71-TCOL), I, 82-TCOL, 7 )
-        colorwin(I, iif(86-TCOL<=0,1,86-TCOL), I, 107-TCOL, 14 )
+        colorwin(I, iif(86-TCOL<=0,1,86-TCOL), I, 107-TCOL, 6 ) //14
      end
      setpos(I,108); dispout(chr(177)+"|")
-  ELSEIF XFIL1EDIT>0 .and. XFIL2EDIT>0
-     if INI>=XFIL1EDIT .and. INI<=XFIL2EDIT
-        COLORWIN(I, 1, I, LEN(STRING),cSELECT ) 
-     end
-  ELSEIF XFILi>0
-     if INI==XFILi
-       // if SWCTRLKG
-       //    COLORWIN(I, 1, I, SLINEA,cSELECT ) 
-       // else
-           COLORWIN(I, 1, I, SLINEA,cSELECT ) 
-       // end
-     end
+
   ELSE
   
   IF SWCOLORTEXTO>=1
      IF SWCOLORTEXTO==2  // coloreo palabras y simbolos
         if len(STRING)>0
-           PONECOLORALAHUEA(lKEYWORD,lSECCION,lDEFINE,cKEYWORD,cSECCION,cEDITDEF,I,STRING)
+           PONECOLORALAHUEA(lKEYWORD,lSECCION,lDEFINE,lSTRFUNCS,lMATFUNCS,lLOGFUNCS,cKEYWORD,cSECCION,cEDITDEF,cSTRINGF,;
+                            cMATF,cLOGICF,I,STRING,SWLENGUAJE)
+           PONENUMBERS(STRING,I,cNUMBERS)
         end
    /*     XLEN:=LEN(lKEYWORD)
         for j:=1 to XLEN
@@ -918,18 +1064,25 @@ FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
         else
            XLEN:=LEN(TEXTO[INI])
         end*/
-        XLEN:=LEN(TEXTO[INI])
-        SWBLOQUE:=.F.
-        acSTR:=""
+
         
-        if EXTENSION==1
+       /* if EXTENSION==1
            cCOM:=chr(34)   // comilla doble
         elseif EXTENSION==3   // matlab
            cCOM:="'"  // apostrofe
-        end
+        end */
         // la siguiente codificacion es necesaria porque así puedo colorear incluso si el
         // principio o fin de string están fuera de la ventana de edicion
-       // if EXTENSION!=2   // no es latex
+
+        XLEN:=LEN(TEXTO[INI])
+        
+        COLORTEXTONORMAL(TEXTO[INI],TCOL,SLINEA,XLEN,I,SWLENGUAJE,COMENTARIOS,cEDITCOM,cCADENA)
+       // if SWLENGUAJE==5
+       //    COLORTEXTONORMAL(TEXTO[INI],TCOL,SLINEA,XLEN,I,SWLENGUAJE,COMENTARIOS,34,cEDITCOM,cCADENA)
+       // end
+
+  /*      SWBLOQUE:=.F.
+        acSTR:=""
            for j:=1 to XLEN
               cSTR:=substr(TEXTO[INI],j,1)
               // veo comentarios de linea aquí:
@@ -991,8 +1144,7 @@ FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
                  end
               end
               acSTR:=cSTR
-           end
-     //  end
+           end */
         
 /*       XCOLORES:={}
 
@@ -1018,13 +1170,77 @@ FOR I:=1 TO TLINEA-3   // FILAS A MOSTRAR
     END
   END
   END
+
+/*  IF XFIL1EDIT>0 .and. XFIL2EDIT>0
+     if XFIL1EDIT <= XFIL2EDIT
+        if INI>=XFIL1EDIT  .and. INI<=XFIL2EDIT
+           COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+        end
+     else
+        if INI>=XFIL2EDIT  .and. INI<=XFIL1EDIT
+           COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+        end
+     end
+  ELSEIF SWMARCABLOQUE
+     IF INI>=XFILi .AND. INI<=XFILf
+        if XCOLi<=XCOLf
+           COLORWIN(I, XCOLi-TCOL, I, XCOLf-TCOL,cSELECT ) 
+        else
+           COLORWIN(I, XCOLf-TCOL, I, XCOLi-TCOL,cSELECT ) 
+        end
+     ELSEIF INI>=XFILf .AND. INI<=XFILi
+        if XCOLi<=XCOLf
+           COLORWIN(I, XCOLi-TCOL, I, XCOLf-TCOL,cSELECT ) 
+        else
+           COLORWIN(I, XCOLf-TCOL, I, XCOLi-TCOL,cSELECT ) 
+        end
+     END
+  ELSEIF XFILi>0 .and. XFILf>0
+     if !SWCTRLKJ
+        if XFILi<=XFILf   //INI==XFILi
+           if INI>=XFILi .and. INI<=XFILf
+              COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+           end
+        else
+           if INI>=XFILf .and. INI<=XFILi
+              COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+           end
+        end
+     else
+        if INI==XFILi
+           COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+        end
+     end
+  END
+*/
+  /* verifica si hay marcas */
+  mLEN:=len(LISTAFOUND)
+//  ? "CLEN=",cLEN ; quit
+  if mLEN>0
+     FOR j:=1 TO mLEN step 3
+        IF INI == LISTAFOUND[j]
+           COLORWIN(I, LISTAFOUND[j+1]-TCOL, I, LISTAFOUND[j+1]-TCOL+len(cBUSCA)-1,cSELECT )
+        END
+     END
+  end 
+  /* verifica si hay CTRL-KY */
+  mLEN:=len(MODMULTITEXT)
+  IF mLEN>0
+     for j:=1 to mLEN
+        if INI == MODMULTITEXT[j][1]
+           //COLORWIN(I, 1, I, SLINEA, 87)  //96
+           COLORWIN(I, MODMULTITEXT[j][2]-TCOL, I, MODMULTITEXT[j][2]-TCOL, 79)  //96 40 79
+        end
+     end
+  END
+    
   SETCOLOR (N2COLOR(cEDITOR))
   ++INI
   IF INI>TOPE
-     STRSP:=SUBSTR(BASELINE,1,SLINEA)
-     FOR J:=I+1 TO TLINEA-3
-        setpos(J,0); dispout("~"+STRSP)   //outstd("~"+STRSP)
-     END
+/*     STRSP:=SUBSTR(BASELINE,1,SLINEA)
+     FOR j:=I+1 TO TLINEA-3
+        setpos(j,0); dispout("~"+STRSP)   //outstd("~"+STRSP)
+     END*/
      EXIT
   END
 
@@ -1032,15 +1248,15 @@ END
 
 // BLOQUE de comentarios tipo / * * / hasta INI-1
 if (SWCOLORTEXTO==1 .or. SWCOLORTEXTO==2) .and. TEXTOTIPO!="BINARY"
-if SWLENGUAJE<=2 .or. SWLENGUAJE==4  //EXTENSION==1
+if SWLENGUAJE<=2 .or. SWLENGUAJE==4  
 
   // cINI variable que define desde donde comenzare a colorear la hueá.
    cINI:=1
    if cLEN>(TLINEA)*8
       cINI:=cLEN-(TLINEA)*8
    end
-   COMBLOQUEC(TEXTO,cINI,INI,cLEN,TCOL,cEDITCOM)
-   
+   COMBLOQUEC(TEXTO,cINI,INI,cLEN,TCOL,cEDITCOM,BLOQCOMENTARIOS_I, BLOQCOMENTARIOS_F)
+
 /*
    --INI
    k:=1
@@ -1093,7 +1309,16 @@ elseif EXTENSION==2    // latex!! $ como comentario
       cINI:=cLEN-(TLINEA)*5
    end
    CADBLOQUEC(TEXTO,cINI,INI,cLEN,TCOL,cCADENA)
-   
+
+elseif SWLENGUAJE==5   // HTML/XML
+  // cINI variable que define desde donde comenzare a colorear la hueá.
+   cINI:=1
+   if cLEN>(TLINEA)*8
+      cINI:=cLEN-(TLINEA)*8
+   end
+   COMBLOQUEHTML(TEXTO,cINI,INI,cLEN,TCOL,cEDITCOM)
+   // esto es por si hay codigo yabaescrip
+   COMBLOQUEC(TEXTO,cINI,INI,cLEN,TCOL,cEDITCOM, BLOQCOMENTARIOS_I, BLOQCOMENTARIOS_F)   
 /*   --INI
    k:=1
    SWBLOQUE:=.F.
@@ -1141,9 +1366,165 @@ elseif EXTENSION==2    // latex!! $ como comentario
       end
    end */
 end
-
 end
+
+// marcas... veamos si funciona:
+INI:=tINI
+FOR I:=1 TO TLINEA-3
+//  XLEN:=LEN(TEXTO[INI])
+//  STRING:=SUBSTR(TEXTO[INI],TCOL+1,XLEN-TCOL)
+  IF XFIL1EDIT>0 .and. XFIL2EDIT>0
+     if XFIL1EDIT <= XFIL2EDIT
+        if INI>=XFIL1EDIT  .and. INI<=XFIL2EDIT
+           COLORWIN(I, 1, I, SLINEA/*LEN(STRING)*/,cSELECT ) 
+        end
+     else
+        if INI>=XFIL2EDIT  .and. INI<=XFIL1EDIT
+           COLORWIN(I, 1, I, SLINEA/*LEN(STRING)*/,cSELECT ) 
+        end
+     end
+  ELSEIF SWMARCABLOQUE
+     IF INI>=XFILi .AND. INI<=XFILf
+        if XCOLi<=XCOLf
+           if XCOLi>TCOL
+              COLORWIN(I, XCOLi-TCOL, I, XCOLf-TCOL,cSELECT ) 
+           else
+              COLORWIN(I, 1, I, XCOLf-TCOL,cSELECT ) 
+           end
+        else
+           COLORWIN(I, XCOLf-TCOL, I, XCOLi-TCOL,cSELECT ) 
+        end
+     ELSEIF INI>=XFILf .AND. INI<=XFILi
+        if XCOLi<=XCOLf
+           if XCOLi>TCOL
+              COLORWIN(I, XCOLi-TCOL, I, XCOLf-TCOL,cSELECT ) 
+           else
+              COLORWIN(I, 1, I, XCOLf-TCOL,cSELECT ) 
+           end
+        else
+           COLORWIN(I, XCOLf-TCOL, I, XCOLi-TCOL,cSELECT ) 
+        end
+     END
+  ELSEIF SWCTRLKV
+     if INI>=XFILi .and. INI<=XFILf
+/*        if XFILi<XFILf   // XFILi llega hasta el final de la linea
+           if INI==XFILi
+              if XCOLi>TCOL
+                 COLORWIN(I,XCOLi-TCOL,I,SLINEA,cSELECT)
+              else
+                 COLORWIN(I,1,I,SLINEA,cSELECT)
+              end
+           elseif INI<XFILf
+              COLORWIN(I,1,I,SLINEA,cSELECT)
+           else
+              COLORWIN(I,1,I,XCOLf-TCOL,cSELECT)
+           end
+        elseif XFILi==XFILf
+           if XCOLi<=XCOLf
+              COLORWIN(I,XCOLi-TCOL,I,XCOLf-TCOL,cSELECT)
+           else
+              COLORWIN(I,XCOLf-TCOL,I,XCOLi-TCOL,cSELECT)
+           end
+        end*/
+        if XFILi==XFILf
+           if XCOLi<=XCOLf
+              COLORWIN(I,XCOLi-TCOL,I,XCOLf-TCOL,cSELECT)
+           else
+              COLORWIN(I,XCOLf-TCOL,I,XCOLi-TCOL,cSELECT)
+           end
+        else
+           if INI==XFILi
+              if XCOLi>TCOL
+                 COLORWIN(I,XCOLi-TCOL,I,SLINEA,cSELECT)
+              else
+                 COLORWIN(I,1,I,SLINEA,cSELECT)
+              end
+           elseif INI<XFILf
+              COLORWIN(I,1,I,SLINEA,cSELECT)
+           else
+              COLORWIN(I,1,I,XCOLf-TCOL,cSELECT)
+           end
+        end
+     elseif INI>=XFILf .and. INI<=XFILi
+        if XFILi==XFILf
+           if XCOLi<=XCOLf
+              COLORWIN(I,XCOLi-TCOL,I,XCOLf-TCOL,cSELECT)
+           else
+              COLORWIN(I,XCOLf-TCOL,I,XCOLi-TCOL,cSELECT)
+           end
+        else
+           if INI==XFILf
+              COLORWIN(I,XCOLf-TCOL,I,SLINEA,cSELECT)
+           elseif INI==XFILi
+              COLORWIN(I,1,I,XCOLi-TCOL,cSELECT)
+           else  // está entremedio
+              COLORWIN(I,1,I,SLINEA,cSELECT)
+           end
+        end
+     end
+  ELSEIF XFILi>0 .and. XFILf>0
+     if !SWCTRLKJ
+        if XFILi<=XFILf   //INI==XFILi
+           if INI>=XFILi .and. INI<=XFILf
+              if SWCTRLKCTRLD
+                 if XCOLi-TCOL>0
+                    if XCOLf-TCOL<SLINEA
+                       COLORWIN(I,XCOLi-TCOL,I,XCOLf-TCOL,96)//cSELECT) //xlen-cini,100)
+                    else
+                       COLORWIN(I,XCOLi-TCOL,I,SLINEA,96)//cSELECT) //xlen-cini,100)
+                    end
+                 else
+                    if XCOLf-TCOL>0
+                       COLORWIN(I,1,I,XCOLf-TCOL,96)//cSELECT) //xlen-cini,100)
+                    end
+                 end
+              else
+         //  end
+
+                 COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+              end
+           end
+        else
+           if INI>=XFILf .and. INI<=XFILi
+              if SWCTRLKCTRLD
+                 if XCOLi-TCOL>0
+                    if XCOLf-TCOL<SLINEA
+                       COLORWIN(I,XCOLi-TCOL,I,XCOLf-TCOL,96)//cSELECT) //xlen-cini,100)
+                    else
+                       COLORWIN(I,XCOLi-TCOL,I,SLINEA,96)//cSELECT) //xlen-cini,100)
+                    end
+                 else
+                    if XCOLf-TCOL>0
+                       COLORWIN(I,1,I,XCOLf-TCOL,96)//cSELECT) //xlen-cini,100)
+                    end
+                 end
+              ///end
+              
+              else
+                 COLORWIN(I, 1, I, SLINEA,cSELECT ) 
+              end
+           end
+        end
+     else
+        if INI==XFILi
+           COLORWIN(I, 1, I, SLINEA,cSELECT )
+        end
+     end
+  END
+  ++INI
+  IF INI>TOPE
+     STRSP:=SUBSTR(BASELINE,1,SLINEA)
+     FOR j:=I+1 TO TLINEA-3
+        setpos(j,0); dispout("~"+STRSP)   //outstd("~"+STRSP)
+     END
+     EXIT
+  END
+END
+
 SETCURSOR(1)
+
+//hb_shadow(0,-2,0,SLINEA-1,7)
+//hb_shadow(TLINEA-4,-2,TLINEA-4,SLINEA-1,7)
 DISPEND()
 
 
@@ -1239,26 +1620,200 @@ RELEASE XCOLORES,PY,xendlinea,cLEN,nSIZE,pINICOL,pFINCOL,cColor,j,I
 return
 */
 
+procedure recorre_menu(pKey)
+local i,x,c,s,u,ret,corlen,tot,porcion
+local lactivo,cstr,clen,tcorlen,tactivo
+lactivo:=activo
+u:=0
+x:=1
+// armo el string y luego imprimo?
+/*
+SLINEA-14 es el espacio que tengo.
+Defino un total de archivos a mostrar.
+
+Luego, realizo el calculo:
+ A=(2+len(archivo(i))*|CORDEL|
+ SLINEA-14 / A -> B
+ B=tamaño de cada pestaña.
+
+*/
+corlen:=len(CORDEL)
+tot:=0
+s:=CORDEL[activo][1]
+s:=substr(s,rat("/",s)+1)
+tot:=len(s)+4
+tcorlen:=corlen
+for i:=1 to tcorlen
+   if CORDEL[i][1]=="*"
+      --corlen
+   end
+end
+porcion:=int((SLINEA-14)/(corlen-1))+(corlen-1)+tot //tot)
+while porcion*(corlen-1)+(corlen-1)+tot>(SLINEA-14)
+   --porcion
+end
+
+//
+setcursor(0)
+hb_keyPut(pKey)
+while u!=27 .and. u!=13
+   setcolor(N2COLOR(cMENU))
+   @0,0 clear to 0,MAXCOL()-13
+   i:=1  //tabini
+   while i<=len(CORDEL) 
+
+      s:=CORDEL[i][1]
+      if s!="*"
+      s:=substr(s,rat("/",s)+1)
+      c:=s+" "
+      if len(c)>porcion
+         c:=substr(c,1,porcion-1)+chr(175)+" "
+      end
+      setcolor(N2COLOR(cMENU))
+      if i==activo
+    //     setcolor(N2COLOR(cMENU))
+    //  else  // i==activo
+         setcolor(N2COLOR(cSECCION))
+         c:=chr(176)+" "+s+" "+chr(177)   // 179
+      end
+      @ 0,x say c
+      x:=x+len(c)
+      end
+      ++i
+   end
+   u:=inkey(0)
+   if u==4 .or. u==5
+      if activo<tcorlen
+         tactivo:=activo
+         ++activo
+         s:=CORDEL[activo][1]
+         while s=="*"
+            ++activo
+            if activo<tcorlen
+               s:=CORDEL[activo][1]
+            else
+               exit
+            end
+         end
+         if s=="*"
+            activo:=tactivo
+            s:=CORDEL[activo][1]
+         end
+         s:=substr(s,rat("/",s)+1)
+         tot:=len(s)+4
+         porcion:=int((SLINEA-14)/(corlen-1))+(corlen-1)+tot //tot)
+         while porcion*(corlen-1)+(corlen-1)+tot>(SLINEA-14)
+            --porcion
+         end
+      end
+
+   elseif u==19 .or. u==24
+      if activo>1
+         tactivo:=activo
+         --activo
+         s:=CORDEL[activo][1]
+         while s=="*"
+            --activo
+            if activo>=1
+               s:=CORDEL[activo][1]
+            else
+               exit
+            end
+         end
+         if s=="*"
+            activo:=tactivo
+            s:=CORDEL[activo][1]
+         end
+         s:=substr(s,rat("/",s)+1)
+         tot:=len(s)+4
+         porcion:=int((SLINEA-14)/(corlen-1))+(corlen-1)+tot //tot)
+         while porcion*(corlen-1)+(corlen-1)+tot>(SLINEA-14)
+           --porcion
+         end
+      end
+
+   end
+   x:=1
+end
+if u==27 .or. CORDEL[activo][1]=="*"
+  activo:=lactivo
+  ret:=0
+elseif activo!=lactivo
+  ret:=activo
+else
+  ret:=0
+end
+setcursor(1)
+return activo
+
+procedure muestra_cabecera(hARCHIVO)
+local i,x,c,s
+local tot,corlen,porcion,tcorlen
+
+x:=1
+
+corlen:=len(CORDEL)
+tot:=0
+s:=CORDEL[activo][1]
+s:=substr(s,rat("/",s)+1)
+tot:=len(s)+4
+tcorlen:=corlen
+for i:=1 to tcorlen
+   if CORDEL[i][1]=="*"
+      --corlen
+   end
+end
+porcion:=int((SLINEA-14)/(corlen-1))+(corlen-1)+tot
+while porcion*(corlen-1)+(corlen-1)+tot>(SLINEA-14)
+   --porcion
+end
+
+for i:=1 to tcorlen
+      s:=CORDEL[i][1]
+      if s!="*"
+      s:=substr(s,rat("/",s)+1)
+      c:=s+" "
+      if len(c)>porcion
+         c:=substr(c,1,porcion-1)+chr(175)+" "
+      end
+      setcolor(N2COLOR(cMENU))
+
+      if i==activo
+     //    setcolor(N2COLOR(cMENU))
+     // else  //if i==activo
+         setcolor(N2COLOR(cSECCION))
+         c:=chr(176)+" "+s+" "+chr(177)  // 179
+      end
+      @ 0,x say c
+      x:=x+len(c)
+      end
+end
+
+setcolor(N2COLOR(cMENU))
+return// ret
+
 procedure BarraTitulo(ARCHIVO)
 LOCAL ytemp,xtemp,color,tARCHIVO,CABECERA
-ytemp:=ROW()
-     xtemp:=COL()
-     color:=SETCOLOR (N2COLOR(cMENU))
-   @0,0 clear to 0,MAXCOL()
-   //tARCHIVO:=".."+substr(ARCHIVO,rat(_fileSeparator,ARCHIVO),len(ARCHIVO))
+   ytemp:=ROW()
+   xtemp:=COL()
+   color:=SETCOLOR (N2COLOR(cMENU))
 
-   //CABECERA:="Edit4XU - ["+tARCHIVO+"] - Compiler: "+DESCRIPCION
-   CABECERA:=PADC(hARCHIVO,SLINEA)
+/*******/
+   @0,0 clear to 0,MAXCOL()
+   setpos( 0, SLINEA-12 ); outstd(chr(179)+" Laica v2.0")
+   muestra_cabecera(hARCHIVO)
+   
+/*   CABECERA:=PADC(hARCHIVO,SLINEA)
    CABECERA:=" Laica v1.0"+substr(CABECERA,9)
    setpos( 0,0 ); outstd( substr(CABECERA,1,SLINEA) )
    setpos( 0, SLINEA-cLENMAPACOLORES ); outstd(cMAPACOLORES)
-
+*/
+/*******/
    @TLINEA-2,0 clear to TLINEA,MAXCOL()
-
    setpos( TLINEA-1,0 ); outstd( substr(HELP1,1,SLINEA) )
    setpos( TLINEA  ,0 ); outstd( substr(HELP2,1,SLINEA) )
-     setcolor(color)
-     setpos(ytemp,xtemp)
+   setcolor(color)
+   setpos(ytemp,xtemp)
      
 return
 
@@ -1270,57 +1825,58 @@ ytemp:=ROW()
      setcursor(0)
      color:=SETCOLOR (N2COLOR(cMENU))
 
-     if SW_MODIFICADO
-        SETCOLOR (N2COLOR(cCURSORMOD))
-     end
+//     if SW_MODIFICADO
+//        SETCOLOR (N2COLOR(cCURSORMOD))
+//     end
      DISPBEGIN()
      @TLINEA-2,0 SAY SPACE(SLINEA+1)
-     setpos(TLINEA-2,0);dispout( " Auto="+iif(SW_CODESP,"OFF","ON")+" ["+hb_ntos(asc(c))+"] ")
+     setpos(TLINEA-2,0);dispout( " Auto="+iif(SW_CODESP,"OFF","ON ")+" ["+hb_ntos(asc(c),3)+"] ")
      setpos(TLINEA-2,SLINEA-LENTEXTOTIPO-1); dispout(TEXTOTIPO)
      if SLINEA>100
-        setpos(TLINEA-2,16/*SLINEA-18*/); dispout(hb_ntos(pi/TOPE*100)+"%")
+        setpos(TLINEA-2,16/*SLINEA-18*/); dispout(hb_ntos(int(pi/TOPE*100))+"%")
      end
      if !SWMARCABLOQUE .and. !SWDELELIN .and. !SWCTRLKCTRLD .and. !SWCTRLKCTRLS .and. !SWCTRLKCTRLP .and. !SWMARCADESP;
-         .and. !SWCTRLKJ .and. !SWCTRLKG .and. !SWEDITTEXT
+         .and. !SWCTRLKJ .and. !SWCTRLKG .and. !SWEDITTEXT .and. !SWCTRLKV
          //COORDS:="[ line: "+ hb_ntos(pi)+" of "+hb_ntos(TOPE)+", col: "+hb_ntos(px)+" ]"
          if TEXTOTIPO!="BINARY"
-            COORDS:="[ "+ hb_ntos(pi)+":"+hb_ntos(px)+" / "+hb_ntos(TOPE)+" ]"
+            COORDS:=/*chr(176)+*/" "+ hb_ntos(pi)+":"+hb_ntos(px)+" / "+hb_ntos(TOPE)+" "
             
-            if SWSOBREESCRIBE
-               COORDS+=" OVERWRIT "
+            if !SWSOBREESCRIBE
+               COORDS+=" INS " //+chr(177)
+           // else
+           //    COORDS+=chr(177)
             end
          else
             pos:=(pi-1)*20+(px-1)
             if pos>0
-               //COORDS:="[ LIN:"+hb_ntos(pi)+", OFFSET:"+ hb_ntos(pos)+" | "+DECTOHEXA(pos)+"h ]"
-               COORDS:="[ OFFSET:"+ hb_ntos(pos)+" | "+DECTOHEXA(pos)+"h ]"
+               COORDS:=/*chr(176)+*/" OFFSET:"+ hb_ntos(pos)+" | "+DECTOHEXA(pos)+"h "//+chr(177)
             else
-               //COORDS:="[ LIN:"+hb_ntos(pi)+", OFFSET:"+ hb_ntos(pos)+" | 0h ]"
-               COORDS:="[ OFFSET:"+ hb_ntos(pos)+" | 0h ]"
+               COORDS:=/*chr(176)+*/" OFFSET:"+ hb_ntos(pos)+" | 0h "//+chr(177)
             end
          end
      else
      //if XFILi>0 .and. XCOLi>0
-        if SWMARCABLOQUE .or. SWCTRLKG
+        if SWMARCABLOQUE .or. SWCTRLKV
           /* if SWCOPIA
               SETCOLOR (N2COLOR(63))
            else
               SETCOLOR (N2COLOR(cSELECT))
            end*/
-           SETCOLOR (N2COLOR(cSELECT))
-           COORDS:=" SEL <"+hb_ntos(XFILi)+","+hb_ntos(XCOLi)+">"
+          // SETCOLOR (N2COLOR(cSELECT))
+           COORDS:=/*chr(176)+*/" SEL <"+hb_ntos(XFILi)+","+hb_ntos(XCOLi)+"> "
    //  end
    //  if XFILf>0 .and. XCOLf>0
            COORDS+=" TO <"+hb_ntos(XFILf)+","+hb_ntos(XCOLf)+"> (^KQ=Cancel) "
         elseif SWCTRLKJ
          //  SETCOLOR (N2COLOR(62))
            SETCOLOR (N2COLOR(cSELECT))
-           COORDS:=" <"+hb_ntos(XFILi)+" <=> "+hb_ntos(XFILf)+"> (^KQ=Cancel) "
+           COORDS:=/*chr(176)+*/" <"+hb_ntos(XFILi)+" <=> "+hb_ntos(XFILf)+"> (^KQ=Cancel) "
         
         elseif SWEDITTEXT
-           SETCOLOR (N2COLOR(cSELECT))
+           //SETCOLOR (N2COLOR(cSELECT))
            //COORDS:=" I AM READY FOR OPE! (^KQ=Cancel) "
-           COORDS:="[ "+ hb_ntos(pi)+":"+hb_ntos(px)+" / "+hb_ntos(TOPE)+" ]"
+           COORDS:=/*chr(176)+*/" "+ hb_ntos(XFIL1EDIT)+":"+hb_ntos(px)+" TO "+hb_ntos(pi)+" / "+hb_ntos(TOPE)+" "+chr(176)+" MARK LIN (^KQ=Cancel) "
+
         else  // es SWDELELIN
           /* if SWDELELIN 
               SETCOLOR (N2COLOR(cSELECT))
@@ -1333,17 +1889,25 @@ ytemp:=ROW()
            elseif SWMARCADESP
               SETCOLOR (N2COLOR(48))
            end*/
-           SETCOLOR (N2COLOR(cSELECT))
-           COORDS:=" LIN <"+hb_ntos(XFILi)+" TO "+hb_ntos(XFILf)+"> (^KQ=Cancel) "
+           //SETCOLOR (N2COLOR(cSELECT))
+           COORDS:=/*chr(176)+*/" LIN <"+hb_ntos(XFILi)+" TO "+hb_ntos(XFILf)+"> (^KQ=Cancel) "
         end
-        if SWSOBREESCRIBE
-            COORDS+=" OVERWRIT "
-        //else
-        //    COORDS+="             "
+        if !SWSOBREESCRIBE
+            COORDS+="INS "//+chr(177)
+       // else
+       //     COORDS+=chr(177)
         end
      end
-     setpos( TLINEA-2,int(SLINEA/2)-(int(len(COORDS)/2))); dispout( COORDS )
-
+     setcolor(N2COLOR(cMENU))
+     setpos( TLINEA-2,int(SLINEA/2)-(int(len(COORDS)/2))); dispout(chr(177))
+     setcolor(N2COLOR(cSECCION))
+     if SW_MODIFICADO
+        SETCOLOR (N2COLOR(cCURSORMOD))
+     end
+     /*setpos( TLINEA-2,int(SLINEA/2)-(int(len(COORDS)/2)));*/ dispout( COORDS )
+ //    setcolor(cMENU)
+     setcolor(N2COLOR(cMENU))
+     dispout(chr(176))
      setcolor(color)
      setcursor(1)
      setpos(ytemp,xtemp)
@@ -1363,15 +1927,6 @@ LOCAL s,xlen,i
   end
 RETURN s
 
-/*FUNCTION LLENATEXTO(pTexto,pLen,pIni)
-LOCAL linea:="", i
-   for i:=1 to pLen+pIni
-      if i>pIni
-         linea+=pTexto[i]
-      end
-   end
-
-RETURN linea*/
 
 FUNCTION EDITFILE(TEXTO,TOPE,TIPO,ARCHIVO)
 LOCAL p:=0,s:={},px:=0,xlen:=0,m:=0,c:="",i:=0,j:=0,CX:="",SW:=.F.,SW_COMPILE:=.F.,SW_MODIFICADO:=.F.,SWMATCH:=.F.
@@ -1379,22 +1934,33 @@ LOCAL SW_BUFFER:=.F.
 local RET:="",LENMETA:=0,SW_INICIO:=.F.,STRING,pi:=0,py:=0,lini:=0,lfin:=0,cini:=0
 LOCAL SW_INSERTA:=.F.,SW_BORRA7:=.F.,SW_BORRA8:=.F.,SWF9:=.F.,SW_CTRLOF:=.F.,SWMOVPAG:=.F.,maxLen:=0,SW_EDIT:=.F.
 LOCAL cDESCRIPCOMP:={}
-LOCAL cBUSCA:="",cREEMPLAZA:="",POSY:=0,POSX:=0,OCURRENCIA:=0,cDATO:="",nDATO:=0
-LOCAL nOCURR:=0,LISTAFOUND:={},ptrLF:=0,totLF:=0,tLEN:=0
+//LOCAL cBUSCA:="",cREEMPLAZA:="",POSY:=0,POSX:=0,OCURRENCIA:=0,cDATO:="",nDATO:=0
+LOCAL cREEMPLAZA:="",POSY:=0,POSX:=0,OCURRENCIA:=0,cDATO:="",nDATO:=0
+//LOCAL nOCURR:=0,LISTAFOUND:={},ptrLF:=0,totLF:=0,tLEN:=0
+LOCAL nOCURR:=0,ptrLF:=0,totLF:=0,tLEN:=0
 LOCAL SWINDENTA:=.F.,Indenta:=0,SWINSCODE:=.F.,xCALLBACK:=0,yCALLBACK:=0,SWREPLACE:=.F.,SWCOPIA:=.F.
 LOCAL codeIndent:="",pREP:="",pKEY:="",SWA:=.F.,POS:=0,HFIL:=0,nChoice:=0,xFILE:="",aName:={},aSize:={},aDate:={},aTime:={},aAttr:={}
 LOCAL SW_BUSCADIR:=.F.,MSGTOTAL:="",HELPTOTAL:="",tARCHIVO:="",EXT:="",SWEXISTE:=.F. //,nLENOPTION:=0
-LOCAL SELECTMATCH:={},nLen:=0,cT:=0,CNTCAR:=0,XFILi:=0,XCOLi:=0,XFILf:=0,XCOLf:=0,SWINICIOLIN:=.F.
+//LOCAL SELECTMATCH:={},nLen:=0,cT:=0,CNTCAR:=0,XFILi:=0,XCOLi:=0,XFILf:=0,XCOLf:=0,SWINICIOLIN:=.F.
+LOCAL SELECTMATCH:={},nLen:=0,cT:=0,CNTCAR:=0,SWINICIOLIN:=.F.
 LOCAL tpi:=0,ECX:="",SWRAPIDA:=.F.,pELIGE:=0,cMessage:="",aOptions:=""
 LOCAL tmpPos:=0,tmp:=0,SWPALABRACOMP:=.F.,SWCOMMAND:=.F.,SWINSENSITIVE:=.F.,MENUMATCH:={}
 LOCAL SWHUEA:=.F.,SWCTRLA:=.F.
 LOCAL SWEDITACOM:=.F.,SWDELELIN:=.F.,SWREPLACECODIGO:=.F.
-LOCAL OPERA:="",SWOPEXISTE:=.F.,SWCTRLKCTRLP:=.F.,SWCTRLKCTRLS:=.F.,SWCTRLKCTRLD:=.F.,SWMARCABLOQUE:=.F.
-LOCAL SWGETLINEDESP:=.F.,SWMARCADESP:=.F.,SWSOBREESCRIBE:=.F.,SWCTRLKE:=.F.,SWCTRLKB:=.F.,SWCTRLKJ:=.F.
-LOCAL TMPTEXTO,SWCTRLKG:=.F.,        SWLOADRAPIDO:=.F.
-LOCAL PASTEFROM:=0, PASTETO:=0, SWCTRLON:=.F., SWCTRLNT:=.F.
-LOCAL HALFFILE
-LOCAL XFIL1EDIT:=0,XFIL2EDIT:=0,SWEDITTEXT:=.F.,SWRANGE:=.F.
+//LOCAL OPERA:="",SWOPEXISTE:=.F.,SWCTRLKCTRLP:=.F.,SWCTRLKCTRLS:=.F.,SWCTRLKCTRLD:=.F.,SWMARCABLOQUE:=.F.
+LOCAL OPERA:="",SWOPEXISTE:=.F.,SWCTRLKCTRLP:=.F.,SWCTRLKCTRLS:=.F.
+//LOCAL SWGETLINEDESP:=.F.,SWMARCADESP:=.F.,SWSOBREESCRIBE:=.F.,SWCTRLKE:=.F.,SWCTRLKB:=.F.,SWCTRLKJ:=.F.
+LOCAL SWGETLINEDESP:=.F.,SWMARCADESP:=.F.,SWSOBREESCRIBE:=.F.,SWCTRLKE:=.F.,SWCTRLKB:=.F.
+LOCAL TMPTEXTO,SWCTRLKG:=.F., SWCTRLKF:=.F.,       SWLOADRAPIDO:=.F. //,SWLOADNOTFOUND:=.F.
+LOCAL PASTEFROM:=0, PASTETO:=0, SWCTRLON:=.F., SWCTRLNT:=.F.,SWALTG:=.F.
+LOCAL HALFFILE,SW127,SW3,SWCTRLKN:=.F.,SWCTRLKL:=.F.
+//LOCAL XFIL1EDIT:=0,XFIL2EDIT:=0,SWEDITTEXT:=.F.,SWRANGE:=.F.
+LOCAL SWEDITTEXT:=.F.,SWRANGE:=.F.,SWCTRLK4:=.F., SWCOMPLETAHTML:=.F.,htmlCompleta:=""
+LOCAL keyPos,SWCTRLJK:=.F.
+LOCAL SWCONTEXTMENU:=.F.,MENUCONTEXT,MENUBOOL,SWMODMENUCONT:=.F.
+LOCAL SWCTRLKY:=.F.
+PUBLIC MODMULTITEXT:={}
+PUBLIC POSVENTANA,ARRVIEW
 
 
 PUBLIC INPUTFILE
@@ -1412,6 +1978,9 @@ end
 // inicializa el buffer de CTRL-Z, porque es temporal.
 BUFFER_CTRLZ:={}
 LINBUFFCTRLZ:={}
+keyPos:=array(2)
+keyPos[1]:=0
+keyPos[2]:=0
 
 public STRSP
 STRSP:=SUBSTR(BASELINE,1,SLINEA)
@@ -1482,6 +2051,7 @@ nOCURR:=1; LISTAFOUND:={};ptrLF:=0;totLF:=0
 SW_CODESP:=.F.  // bandera para codigo especial
 SWINDENTA:=.T.;Indenta:=0
 SWINSCODE:=.F.; codeIndent:=0
+XFIL1EDIT:=0;XFIL2EDIT:=0
 
 xCALLBACK:=0
 yCALLBACK:=0
@@ -1496,15 +2066,66 @@ public HELP1,HELP2
   if TEXTOTIPO=="BINARY"
      nOFFSET:=86
      p:=87; px:=87
-     HELP1:="  MAIN  "+CHR(240)+"  ^O Help   ^W Write   ^Q Quit   ^J Jump   ^N Find   ^U Sel File   ^P View"
-     HELP2:="  MENU  "+CHR(240)+"  ALT-L Calculator     ^I Edit (o=overwrite, x=del, i=insert)"
+     HELP1:="  MAIN  "+CHR(240)+"  ^O Help   ^W Write   ^Q Quit   ^J Jump   ^N Find   ^U Sel File   ^P View   ESC Tools &"
+     HELP2:="  MENU  "+CHR(240)+"  CTRL-L Calculator    ^I Edit (o=overwrite, x=del, i=insert)                    Sel window"
   else
      nOFFSET:=0
-     HELP1:="  MAIN  "+CHR(240)+"  ^O Help      ^Q Quit    ^J Jump       ^N Find   ^Y Ins Rmks   ^Z Undo     "
-     HELP2:="  MENU  "+CHR(240)+"  ^P Compile   ^W Write   ^U Sel File   ^K Edit   ^L Macros     ^V Ins Code "
+     HELP1:="  MAIN  "+CHR(240)+"  ^O Help      ^Q Quit    ^J Jump       ^N Find   ^Y Ins Rmks   ^Z Undo       ESC Tools &"
+     HELP2:="  MENU  "+CHR(240)+"  ^P Execute   ^W Write   ^U Sel File   ^K Edit   ^L Macros     ^V Ins Code       Sel window"
   end
 
-BarraTitulo(ARCHIVO)       
+/*MENUCONTEXT:={" Cut lines     (^KX) ",;
+              " Copy lines    (^KA) ",;
+              " Cut blocks    (^KM) ",;
+              " Copy block    (^KC) ",;
+              " Paste         (^KU) ",;
+              "---------------------",;
+              " Del lines     (^KF) ",;
+              " Del blocks    (^KG) ",;
+              "---------------------",;
+              " Swap lines    (^KJ) ",;
+              " Proc lines    (^K4) ",;
+              "---------------------",;
+              " Cancel        (^KQ) ",;
+              "---------------------",;
+              " Copy word     (^KT) ",;
+              " Repl word     (^KR) ",;
+              " Find word     (^NT) ",;
+              "---------------------",;
+              " Edit file     (^OL) ",;
+              " Macros        (^LO) ",;
+              " Add Params    (^PX) ",;
+              " Select Comp   (^PS) ",;
+              " Run           (^PP) "}*/
+MENUCONTEXT:={" Cut lines        (^KX) ",;
+              " Copy lines       (^KA) ",;
+              " Cut blocks       (^KM) ",;
+              " Copy block       (^KC) ",;
+              " Paste            (^KU) ",;
+              replicate(chr(196),24),;
+              " Delete lines     (^KF) ",;
+              " Delete blocks    (^KG) ",;
+              replicate(chr(196),24),;
+              " Swap lines       (^KJ) ",;
+              " Process lines    (^K4) ",;
+              " Process all lines      ",;
+              replicate(chr(196),24),;
+              " Cancel           (^KQ) ",;
+              replicate(chr(196),24),;
+              " Copy word        (^KT) ",;
+              " Replace word     (^KR) ",;
+              " Find word        (^NT) ",;
+              replicate(chr(196),24)/*"196------------------------"*/,;
+              " Edit file        (^OL) ",;
+              " Macros           (^LO) ",;
+              " Add Params       (^PX) ",;
+              " Select Compiler  (^PS) ",;
+              " Run this code    (^PP) "}
+
+MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.f.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+
+
+BarraTitulo(ARCHIVO)
 SW_EDIT:=.T.
 SWHUEA:=.F.
 MOUSE:=MSAVESTATE()
@@ -1620,7 +2241,7 @@ while SW_EDIT
   
   SW_INSERTA:=.F.;SW_BORRA7:=.F.;SW_BORRA8:=.F.
 
-  VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+  VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
 
   setpos(py,px)
   
@@ -1632,35 +2253,47 @@ while SW_EDIT
                    SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
                    XFILi,XCOLi,XFILf,XCOLf)
 
-     if cDESTACADO>0
+//     if cDESTACADO>0
         
-       // COLORWIN(py,1,py,SLINEA,cDESTACADO)
-        if SWMARCABLOQUE .or. SWDELELIN 
+       
+     /*   if SWMARCABLOQUE 
            if SWCOPIA
-              COLORWIN(py,1,py,SLINEA,cSELECT) //63)
-              if !SWDELELIN
-                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT) //63)
-                 COLORWIN(1,px,TLINEA-3,px,cSELECT) //63)
-              end
+             // COLORWIN(py,1,py,SLINEA,cSELECT) //63)
+             // if !SWDELELIN
+//                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT) //63)
+//                 COLORWIN(1,px,TLINEA-3,px,cSELECT) //63)
+                 COLORWIN(XFILi,XCOLi-cini,XFILf,XCOLi-cini,cSELECT) //63)
+                 COLORWIN(XFILi,px,XFILf,px,cSELECT) //63)
+                 // añadido:
+                 COLORWIN(XFILf,XCOLi-cini,XFILf,px,cSELECT)
+             // end
            else
-              //COLORWIN(py,1,py,xlen-cini,cSELECT) //
-              COLORWIN(py,1,py,SLINEA,cSELECT)
-              if !SWDELELIN
-                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT)
-                 COLORWIN(1,px,TLINEA-3,px,cSELECT)
-               //  COLORWIN(1,px,TLINEA-3,px,cSELECT)
-              end
+              
+             // COLORWIN(py,1,py,SLINEA,cSELECT)
+             // if !SWDELELIN
+//                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT)
+//                 COLORWIN(1,px,TLINEA-3,px,cSELECT)
+                 COLORWIN(XFILi,XCOLi-cini,XFILf,XCOLi-cini,cSELECT)
+                 COLORWIN(XFILi,px,XFILf,px,cSELECT)
+                 // añadido:
+                 COLORWIN(XFILf,XCOLi-cini,XFILf,px,cSELECT)
+             // end
            end
+
+        else */
+        if SWDELELIN
+           COLORWIN(py,1,py,SLINEA,cSELECT)
         else
-           if SWCTRLKG
+         /*  if SWCTRLKG
               //COLORWIN(py,1,py,xlen-cini,cSELECT)
               COLORWIN(py,1,py,SLINEA,cSELECT)
               COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT)
               COLORWIN(1,px,TLINEA-3,px,cSELECT)
-           elseif SWCTRLKCTRLS
+           else*/
+           if SWCTRLKCTRLS
               //COLORWIN(py,1,py,XCOLi,96) //xlen-cini,96)
               if XCOLi-cini>0 .and. XCOLi-cini<=SLINEA
-                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT) //96)
+                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,96) //cSELECT) //96)
                  
               end
               COLORWIN(py,1,py,SLINEA,cSELECT)
@@ -1668,20 +2301,20 @@ while SW_EDIT
               ///COLORWIN(py,XCOLi,py,XCOLi+XCOLf-2,cSELECT) //xlen-cini,100)
               if XCOLi-cini>0
                  if XCOLf-cini<SLINEA
-                    COLORWIN(py,XCOLi-cini,py,XCOLf-cini,cSELECT) //xlen-cini,100)
+                    COLORWIN(py,XCOLi-cini,py,XCOLf-cini,96)//cSELECT) //xlen-cini,100)
                  else
-                    COLORWIN(py,XCOLi-cini,py,SLINEA,cSELECT) //xlen-cini,100)
+                    COLORWIN(py,XCOLi-cini,py,SLINEA,96)//cSELECT) //xlen-cini,100)
                  end
               else
                  if XCOLf-cini>0
-                    COLORWIN(py,1,py,XCOLf-cini,cSELECT) //xlen-cini,100)
+                    COLORWIN(py,1,py,XCOLf-cini,96)//cSELECT) //xlen-cini,100)
                  end
               end
               //COLORWIN(py,1,py,SLINEA,cSELECT)
            elseif SWCTRLKCTRLP
               ///COLORWIN(py,1,py,xlen-cini,39)
               if XCOLi-cini>0.and. XCOLi-cini<=SLINEA
-                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,cSELECT) //39)
+                 COLORWIN(1,XCOLi-cini,TLINEA-3,XCOLi-cini,96)//cSELECT) //39)
               end
            elseif SWGETLINEDESP
               //COLORWIN(py,1,py,xlen-cini,cSELECT) //48)
@@ -1695,30 +2328,26 @@ while SW_EDIT
                  if TEXTOTIPO=="BINARY"
                     //divide el destacado en 3 partes
                     if SWCOLORTEXTO==2
-                       COLORWIN(py,1,py,18-cini, 11) //cDESTACADO)
+                       COLORWIN(py,1,py,18-cini, 14) //11cDESTACADO)
                     else
-                       COLORWIN(py,1,py,18-cini, cDESTACADO)
+                       COLORWIN(py,1,py,18-cini, 14)//cDESTACADO)
                     end
-                    COLORWIN(py,iif(22-cini<=0,1,22-cini),py,(nOFFSET-cini-4),cDESTACADO)
-                    COLORWIN(py,nOFFSET-cini,py,(nOFFSET-cini+21),cDESTACADO)
+                    COLORWIN(py,iif(22-cini<=0,1,22-cini),py,(nOFFSET-cini-4),14)//cDESTACADO)
+                    COLORWIN(py,nOFFSET-cini,py,(nOFFSET-cini+21),14) //cDESTACADO)
                     
-     //               COLORWIN(py,(iif(23-cini<=0,cini-(px-nOFFSET+cini-1)-cini , 23-cini)+(px-nOFFSET+cini-1)*3),py,;
-    //                            (iif(24-cini<=0,cini-(px-nOFFSET+cini-1)-cini , 24-cini)+(px-nOFFSET+cini-1)*3),47)
                     COLORWIN(py,23-cini+(px-nOFFSET+cini-1)*3,py,24-cini+(px-nOFFSET+cini-1)*3,47)
 
-               /* xpos:=1
-                if px>4+nOFFSET
-                   xpos:=0
-                end
-                COLORWIN(py,18+(px-nOFFSET-xpos)*3,py,19+(px-nOFFSET-xpos)*3,47)*/
-                 else  // 
-                    COLORWIN(py,1/*+nOFFSET*/,py,xlen-cini,cDESTACADO)
+               //  elseif !SWMARCABLOQUE .and. !SWEDITTEXT .and. !SWCTRLKV//else 
+               //     COLORWIN(py,1/*+nOFFSET*/,py,xlen-cini,cDESTACADO)
                  end
-             // COLORWIN(1,px,TLINEA-3,px,cDESTACADO)
+
 //              end
            end
         end
         
+//     end
+     if cDESTACADO>0
+        COLORWIN(py,1/*+nOFFSET*/,py,xlen-cini,cDESTACADO)
      end
   
      if SWPRIMERAVEZ  // marca de palabra match ^NN
@@ -1744,14 +2373,49 @@ while SW_EDIT
      end
      if p>0 .and. p<=len(s)
         if isany(s[p],"{","}")  //s[p]=="{" .or. s[p]=="}"
-           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="{",1,0),s[p])
+           //keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="{",1,0),s[p])
+           setcolor(N2COLOR(cMENU))
+           keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,TOPE,cini,pi,iif(s[p]=="{",1,0),(TLINEA-3),s[p])
+           if keyPos[1]!=0
+              setpos(TLINEA-2,21); dispout("Match '"+s[p]+"' in "+hb_ntos(keyPos[1])+", "+hb_ntos(keyPos[2]))
+           else
+              setpos(TLINEA-2,21); dispout("No match for '"+s[p]+"'!!")
+           end
+           setpos(py,px)
+           setcolor(N2COLOR(cEDITOR))
         elseif isany(s[p],"(",")")  //s[p]=="(" .or. s[p]==")"
-           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="(",1,0),s[p])
+           //keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="(",1,0),s[p])
+           keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,TOPE,cini,pi,iif(s[p]=="(",1,0),(TLINEA-3),s[p])
+           setcolor(N2COLOR(cMENU))
+           if keyPos[1]!=0
+              setpos(TLINEA-2,21); dispout("Match '"+s[p]+"' in "+hb_ntos(keyPos[1])+", "+hb_ntos(keyPos[2]))
+           else
+              setpos(TLINEA-2,21); dispout("No match for '"+s[p]+"'!!")
+           end
+           setpos(py,px)
+           setcolor(N2COLOR(cEDITOR))
         elseif isany(s[p],"[","]")  //s[p]=="[" .or. s[p]=="]"
-           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="[",1,0),s[p])
+           //keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="[",1,0),s[p])
+           keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,TOPE,cini,pi,iif(s[p]=="[",1,0),(TLINEA-3),s[p])
+           setcolor(N2COLOR(cMENU))
+           if keyPos[1]!=0
+              setpos(TLINEA-2,21); dispout("Match '"+s[p]+"' in "+hb_ntos(keyPos[1])+", "+hb_ntos(keyPos[2]))
+           else
+              setpos(TLINEA-2,21); dispout("No match for '"+s[p]+"'!!")
+           end
+           setpos(py,px)
+           setcolor(N2COLOR(cEDITOR))
         elseif isany(s[p],"<",">")  //s[p]=="<" .or. s[p]==">"
-           BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="<",1,0),s[p])
-//           BUSCAPARSIMBOLO(p,SLINEA,TEXTO[pi],py,px,cini)
+           //keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,(TLINEA-3)-py,cini,pi,iif(s[p]=="<",1,0),s[p])
+           keyPos = BUSCAPARLLAVE(p,SLINEA,TEXTO,px,py,TOPE,cini,pi,iif(s[p]=="<",1,0),(TLINEA-3),s[p])
+           setcolor(N2COLOR(cMENU))
+           if keyPos[1]!=0
+              setpos(TLINEA-2,21); dispout("Match '"+s[p]+"' in "+hb_ntos(keyPos[1])+", "+hb_ntos(keyPos[2]))
+           else
+              setpos(TLINEA-2,21); dispout("No match for '"+s[p]+"'!!")
+           end
+           setpos(py,px)
+           setcolor(N2COLOR(cEDITOR))
         end
      end
 
@@ -1882,24 +2546,244 @@ while SW_EDIT
     // setpos(py,px)
     //
     
-     c:=inkey(0,159)
+    /* REVISA MENU CONTEXTUAL */
+    if SWCONTEXTMENU
+       //SETCOLOR(N2COLOR(15))//N2COLOR(cBARRA))
+       if py+26<TLINEA-3  //py+19
+          mYDesde:=py+1
+       else
+          if py-26<1   // py-19
+             mYDesde:=2
+          else
+             mYDesde:=py-26   //19
+          end
+       end
+       if px+24>SLINEA
+          mXDesde:=px-24
+       else
+          mXDesde:=px
+       end
+       //SETCOLOR(N2COLOR(cBARRA))
+       SETCOLOR(N2COLOR(96))
+          //@ mYDesde-1,mXDesde-1 CLEAR TO mYDesde+19,mXDesde+21
+          @ mYDesde,mXDesde-1 CLEAR TO mYDesde+25,mXDesde+24
+          
+          //POSVENTANA:={mYDesde-1,mXDesde-1,mYDesde+19,mXDesde+21}
+          POSVENTANA:={mYDesde,mXDesde-1,mYDesde+25,mXDesde+24}
+
+         // @ mYDesde-1,mXDesde-1 TO mYDesde+19,mXDesde+18 DOUBLE
+
+          hb_shadow(mYDesde+1,mXDesde,mYDesde+25,mXDesde+24,7)
+          setcolor( 'W+/N,N/GR+,,,BG/N' )
+          pELIGE:=ACHOICE(mYDesde+1,mXDesde,mYDesde+24,mXDesde+23,MENUCONTEXT,MENUBOOL,"UDFAchoice")
+          while inkey(,INKEY_ALL)!=0 ; end
+          MRESTSTATE(MOUSE) 
+ 
+          // LO QUE SELECCIONE DEBE SER LO UNICO QUE DEBE QUEDAR ON, EL RESTO, APAGADO, EXCEPTO CANCEL.
+          if pELIGE>0
+             if pELIGE==1   // CTRL-KX
+                hb_keyPut(11)
+                hb_keyPut(88)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.t.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==2   // copy lines CTRL-KA
+                hb_keyPut(11)
+                hb_keyPut(65) 
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.t.,.f.,.f.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==3   // corta bloques  CTRL-KM
+                hb_keyPut(11)
+                hb_keyPut(77)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.t.,.f.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==4   // copy bloques  CTRL-KC
+                hb_keyPut(11)
+                hb_keyPut(67)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.t.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==5   // PASTE  CTRL-KU
+                hb_keyPut(11)
+                hb_keyPut(85)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.f.,.t.,.F.,.f.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==7   // del lines  CTRL-KF
+                if !SWCTRLKF
+                   SWCTRLKF:=.T.
+                end
+                hb_keyPut(11)
+                hb_keyPut(88)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.f.,.f.,.F.,.t.,.f.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==8   // del bloques  CTRL-KG
+                hb_keyPut(11)
+                hb_keyPut(71)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.f.,.f.,.F.,.f.,.t.,.F.,.f.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.f.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==10   // swap lineas  CTRL-KJ
+                hb_keyPut(11)
+                hb_keyPut(74)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.F.,.t.,.f.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.f.,.t.,.t.,.F.,.t.,.t.,.t.,.f.,.t.,.f.,.t.,.t.,.t.,.f.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==11   // proceso de lineas con macros  CTRL-K4
+                hb_keyPut(11)
+                hb_keyPut(52)
+                if !SWMODMENUCONT
+                   MENUBOOL:={.f.,.f.,.f.,.f.,.f.,.F.,.f.,.f.,.F.,.f.,.t.,.f.,.F.,.t.,.F.,.f.,.f.,.f.,.F.,.f.,.f.,.f.,.f.,.f.}
+                   SWMODMENUCONT:=.T.
+                else
+                   MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.F.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.t.,.t.,.t.,.t.}
+                   SWMODMENUCONT:=.F.
+                end
+             elseif pELIGE==12  // marca todas las lineas para procesar
+                XFIL1EDIT:=TOPE //; XFIL2EDIT:=TOPE  // inicio
+                SWEDITTEXT:=.T.
+                if OSSYSTEM=="LINUX"
+                   hb_keyPut(397)
+                else
+                   hb_keyPut(20)
+                end
+/*                if OSSYSTEM=="LINUX"
+                   hb_keyPut(401)
+                else
+                   hb_keyPut(2)
+                end   */
+                hb_keyPut(11)
+                hb_keyPut(52)
+                
+ /*
+                hb_keyPut(11)
+                hb_keyPut(52) */
+                SWMODMENUCONT:=.F.
+
+             elseif pELIGE==14  // CANCEL - CTRL-KQ
+                hb_keyPut(11)
+                hb_keyPut(81)
+                SWMODMENUCONT:=.F.
+                
+             elseif pELIGE==16   // copia una palabra  CTRL-KT
+                hb_keyPut(11)
+                hb_keyPut(84)
+                SWMODMENUCONT:=.F.
+
+             elseif pELIGE==17   // reempl una palabra  CTRL-KR
+                hb_keyPut(11)
+                hb_keyPut(82)
+                SWMODMENUCONT:=.F.
+
+             elseif pELIGE==18   // busca una palabra  CTRL-NT
+                hb_keyPut(14)
+                hb_keyPut(84)
+                SWMODMENUCONT:=.F.
+
+             elseif pELIGE==20   // busca una palabra  CTRL-OL
+                hb_keyPut(15)
+                hb_keyPut(76)
+                SWMODMENUCONT:=.F.
+             elseif pELIGE==21   // busca una palabra  CTRL-LO
+                hb_keyPut(12)
+                hb_keyPut(79)
+                SWMODMENUCONT:=.F.
+             elseif pELIGE==22   // busca una palabra  CTRL-PX
+                hb_keyPut(16)
+                hb_keyPut(88)
+                SWMODMENUCONT:=.F.
+             elseif pELIGE==23   // busca una palabra  CTRL-PS
+                hb_keyPut(16)
+                hb_keyPut(83)
+                SWMODMENUCONT:=.F.
+             elseif pELIGE==24   // busca una palabra  CTRL-PP
+                hb_keyPut(16)
+                hb_keyPut(80)
+                SWMODMENUCONT:=.F.
+             end
+          end
+
+          SETCOLOR(N2COLOR(cTEXTO))
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+          BarraTitulo(ARCHIVO)       
+       SWCONTEXTMENU:=.F.
+       setpos(py,px)
+       //
+    end
+    
+     c:=inkey(0,INKEY_ALL)//,159)
      
-     if c==1001 .and. TEXTOTIPO!="BINARY"
-        c:=inkey(0,159)
-        if c==1002     // izquierdo
-           c:=inkey(0,159)
-           if c==1003 
+     if c==K_MOUSEMOVE .and. TEXTOTIPO!="BINARY"
+        c:=inkey(0,INKEY_ALL) //159)
+        if c==K_MWFORWARD
+            c:=0
+              while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)  // restauro estado inicial para que no imprima huevadas residuales.
+           for i:=1 to 5
+                hb_keyPut(5)
+            next
+           exit
+
+        elseif c==K_MWBACKWARD
+           c:=0
+              while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)  // restauro estado inicial para que no imprima huevadas residuales.
+           for i:=1 to 5   
+              hb_keyPut(24)
+           end
+           exit
+        end
+        if c==K_LBUTTONDOWN //1002     // izquierdo
+           //c:=inkey(0,INKEY_ALL)//159)
+           //if c==K_LBUTTONUP  //1003 
               mcCol:=MCOL()
               mcRow:=MROW()
              // @ 0,40 say "IZQ->"+hb_ntos((MROW()))+" - "+hb_ntos((MCOL()))+" P="+hb_ntos(p)+" PI="+hb_ntos(pi)
               
               c:=0
-              while inkey(,159)!=0 ; end
+              while inkey(,INKEY_ALL)!=0 ; end
               MRESTSTATE(MOUSE)  // restauro estado inicial para que no imprima huevadas residuales.
               
               /* revisemos si hizo clic en el menú de abajo. */
               if mcRow>=TLINEA-1 
-                 pushkey(24,TLINEA-7); exit
+                 pushkey(24,TLINEA-7) 
+                 
+                 exit
             /*     if mcCol>=11 .and. mcCol<=23  // help
                     hb_keyPut(15);hb_keyPut(79); exit
                  elseif mcCol>=25 .and. mcCol<=35  // sale
@@ -1934,14 +2818,14 @@ while SW_EDIT
                  end*/
               elseif mcRow==TLINEA-2
                  if mcCol<=8
-                    hb_keyPut(11);hb_keyPut(78); exit
+                    hb_keyPut(27);hb_keyPut(54); exit
                  elseif mcCol>=int(SLINEA/2)-9 .and. mcCol<=int(SLINEA/2)+9
                     hb_keyPut(10);hb_keyPut(74); SWf9:=.T.; exit
                  else
                     pushkey(24,TLINEA-7); exit
                  end
               elseif mcRow==0
-                 if mcCol<=8   // acerca de...
+               /*  if mcCol<=8   // acerca de...
                     hb_keyPut(15);hb_keyPut(65); exit
 
                  elseif mcCol>=int(SLINEA/2)-HALFFILE-2 .and. mcCol<=int(SLINEA/2)+HALFFILE+2
@@ -1950,9 +2834,9 @@ while SW_EDIT
                  //   hb_keyPut(16);hb_keyPut(83); exit
                  elseif mcCol>=SLINEA-LEN(cMAPACOLORES)
                     hb_keyPut(16);hb_keyPut(77); exit
-                 else
+                 else*/
                     pushkey(5,TLINEA-7); exit
-                 end
+                 //end
               end
               
               if mcCol==0
@@ -1968,18 +2852,40 @@ while SW_EDIT
                         p:=p+(mcCol-px)
                         px:=px+(mcCol-px)
                     end
-                    if SWMARCABLOQUE .or. SWCTRLKG
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
+                       end
+                   /* if SWMARCABLOQUE .or. SWCTRLKV
                         XFILf:=pi; XCOLf:=p
-                    end
+                        ////TRANSPONECOOR()
+                    end*/
                     pCursor:=p
                  elseif mcCol<px
                     p:=p-(px-mcCol)
                     px:=px-(px-mcCol)
                     pCursor:=p
-                    if SWMARCABLOQUE .or. SWCTRLKG
+                    
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
+                       end
+                   /* if SWMARCABLOQUE .or. SWCTRLKV
                         XFILf:=pi; XCOLf:=p
-                    end
+                        //TRANSPONECOOR()
+                    end*/
                  end
+
 
               elseif mcRow<py
                  if mcRow>0
@@ -1992,15 +2898,25 @@ while SW_EDIT
                       // px:=px-(px-p-cini)
                       p:=1; px:=1; cini:=0
                       hb_keyPut(6)
-                       if SWMARCABLOQUE
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
+                       end
+                      /* if SWMARCABLOQUE.or. SWCTRLKV
                            XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
                            XFILf:=pi
 
-                       end
+                       end */
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
+                      /* c:=0
+                       while inkey(,INKEY_ALL)!=0 ; end
                        MRESTSTATE(MOUSE) */
                        exit
                     end
@@ -2012,32 +2928,53 @@ while SW_EDIT
                            p:=p+(mcCol-px)
                            px:=px+(mcCol-px)
                        end
-                       if SWMARCABLOQUE
+                       
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
+                       end
+                       /*if SWMARCABLOQUE.or. SWCTRLKV
                            XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
                            XFILf:=pi
 
-                       end
+                       end*/
                        pCursor:=p
                        setpos(py,px)
                      /*  c:=0
-                       while inkey()!=0 ; end
+                       while inkey(,INKEY_ALL)!=0 ; end
                        MRESTSTATE(MOUSE) */
                        exit
                     elseif mcCol<px
                        p:=p-(px-mcCol)
                        px:=px-(px-mcCol)
-                    
-                       if SWMARCABLOQUE
+                       
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
+                       end
+                       /*if SWMARCABLOQUE .or. SWCTRLKV
                            XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
                            XFILf:=pi
                        
-                       end
+                       end*/
                        pCursor:=p
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
+                      /* c:=0
+                       while inkey(,INKEY_ALL)!=0 ; end
                        MRESTSTATE(MOUSE) */
                        exit
                     end
@@ -2054,13 +2991,25 @@ while SW_EDIT
                       // px:=px-(px-p-cini)
                       p:=1; px:=1; cini:=0
                       hb_keyPut(6)
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                       /*if SWMARCABLOQUE.or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                       
+                       /*c:=0
+                       while inkey(,INKEY_ALL)!=0 ; end
+                       MRESTSTATE(MOUSE) */
                        exit
                     end
                     if mcCol>px
@@ -2071,30 +3020,50 @@ while SW_EDIT
                            p:=p+(mcCol-px)
                            px:=px+(mcCol-px)
                        end
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                       /*if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
+                           XFILf:=pi
+                       end*/
                        pCursor:=p
                        setpos(py,px)
-                    /*   c:=0
-                       while inkey()!=0 ; end
+                       /*c:=0
+                       while inkey(,INKEY_ALL)!=0 ; end
                        MRESTSTATE(MOUSE) */
                        exit
                     elseif mcCol<px
                        p:=p-(px-mcCol)
                        px:=px-(px-mcCol)
-                    
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                      /* if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
+                           XFILf:=pi
+                       end */
                        pCursor:=p
                        setpos(py,px)
                      /*  c:=0
-                       while inkey()!=0 ; end
+                       while inkey(,INKEY_ALL)!=0 ; end
                        MRESTSTATE(MOUSE) */
                        exit
                     end
@@ -2103,17 +3072,18 @@ while SW_EDIT
               end   
               //@ 0,40 say "IZQ->"+hb_ntos((MROW()))+" - "+hb_ntos((MCOL()))+" P="+hb_ntos(p)
               setpos(py,px)
-           end
+
+           //end
            
-        elseif c==1004  // derecho
-           c:=inkey(0,159)
-           if c==1005 
+        elseif c==K_RBUTTONDOWN  //1004  // derecho
+           c:=inkey(0,INKEY_ALL)
+          // if c==1005 
               mcCol:=MCOL()
               mcRow:=MROW()
              // @ 0,40 say "IZQ->"+hb_ntos((MROW()))+" - "+hb_ntos((MCOL()))+" P="+hb_ntos(p)+" PI="+hb_ntos(pi)
               
               c:=0
-              while inkey(,159)!=0 ; end
+              while inkey(,INKEY_ALL)!=0 ; end
               MRESTSTATE(MOUSE)  // restauro estado inicial para que no imprima huevadas residuales.
               
               if mcCol==0
@@ -2129,16 +3099,21 @@ while SW_EDIT
                         p:=p+(mcCol-px)
                         px:=px+(mcCol-px)
                     end
-                    if SWMARCABLOQUE .or. SWCTRLKG
+                    if SWMARCABLOQUE .or. SWCTRLKV
                         XFILf:=pi; XCOLf:=p
+                        //TRANSPONECOOR()
                     end
                  elseif mcCol<px
                     p:=p-(px-mcCol)
                     px:=px-(px-mcCol)
                     
-                    if SWMARCABLOQUE .or. SWCTRLKG
+                    if SWMARCABLOQUE .or. SWCTRLKV
                         XFILf:=pi; XCOLf:=p
+                        //TRANSPONECOOR()
                     end
+                 end
+                 if !SWCONTEXTMENU
+                     SWCONTEXTMENU:=.T.
                  end
               elseif mcRow<py
                  if mcRow>0
@@ -2151,15 +3126,25 @@ while SW_EDIT
                       // px:=px-(px-p-cini)
                       p:=1; px:=1; cini:=0
                       hb_keyPut(6)
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                       /*if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
-                       MRESTSTATE(MOUSE) */
+                       if !SWCONTEXTMENU
+                           SWCONTEXTMENU:=.T.
+                       end
                        exit
                     end
                     if mcCol>px
@@ -2170,29 +3155,48 @@ while SW_EDIT
                            p:=p+(mcCol-px)
                            px:=px+(mcCol-px)
                        end
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                      /* if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ 
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
-                       MRESTSTATE(MOUSE) */
+                       if !SWCONTEXTMENU
+                          SWCONTEXTMENU:=.T.
+                       end
                        exit
                     elseif mcCol<px
                        p:=p-(px-mcCol)
                        px:=px-(px-mcCol)
-                    
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+/*                       if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
-                       MRESTSTATE(MOUSE) */
+                       if !SWCONTEXTMENU
+                          SWCONTEXTMENU:=.T.
+                       end
                        exit
                     end
                     exit
@@ -2208,13 +3212,25 @@ while SW_EDIT
                       // px:=px-(px-p-cini)
                       p:=1; px:=1; cini:=0
                       hb_keyPut(6)
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+                       /*if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                       
+                       if !SWCONTEXTMENU
+                           SWCONTEXTMENU:=.T.
+                       end
                        exit
                     end
                     if mcCol>px
@@ -2225,29 +3241,49 @@ while SW_EDIT
                            p:=p+(mcCol-px)
                            px:=px+(mcCol-px)
                        end
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+/*                       if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ
+                           XFILf:=pi
+                       end*/
                        setpos(py,px)
-                    /*   c:=0
-                       while inkey()!=0 ; end
-                       MRESTSTATE(MOUSE) */
+                       if !SWCONTEXTMENU
+                           SWCONTEXTMENU:=.T.
+                       end
                        exit
                     elseif mcCol<px
                        p:=p-(px-mcCol)
                        px:=px-(px-mcCol)
-                    
-                       if SWMARCABLOQUE
-                           XFILf:=pi; XCOLf:=p
-                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
-                           XFILf:=pi
+                       
+                       if SWMARCABLOQUE .or. SWCTRLKV
+                          XFILf:=pi; XCOLf:=p
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
+                          XFILf:=pi
+                       elseif SWCTRLK4 
+                          if SWEDITTEXT
+                             XFIL2EDIT:=pi
+                          end
                        end
+/*                       if SWMARCABLOQUE .or. SWCTRLKV
+                           XFILf:=pi; XCOLf:=p
+                           //TRANSPONECOOR()
+                       elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ
+                           XFILf:=pi
+                       end */
                        setpos(py,px)
-                     /*  c:=0
-                       while inkey()!=0 ; end
-                       MRESTSTATE(MOUSE) */
+                       if !SWCONTEXTMENU
+                           SWCONTEXTMENU:=.T.
+                       end
                        exit
                     end
                     exit
@@ -2255,12 +3291,13 @@ while SW_EDIT
               end   
               //@ 0,40 say "IZQ->"+hb_ntos((MROW()))+" - "+hb_ntos((MCOL()))+" P="+hb_ntos(p)
               setpos(py,px)
-           end
+              
+           //end
       //  else
       //     @ 0,40 say "CENTRO->"+hb_ntos((MROW()))+" - "+hb_ntos((MCOL()))
         end
         c:=0
-        while inkey(,159)!=0 ; end
+        while inkey(,INKEY_ALL)!=0 ; end
         MRESTSTATE(MOUSE)
         
      end
@@ -2332,25 +3369,21 @@ while SW_EDIT
           s:=ASIGNALINEA(TEXTO[pi])
           setcursor(1)
           
-          if SWMARCABLOQUE
+          if SWMARCABLOQUE .or. SWCTRLKV
              XFILf:=pi; XCOLf:=p
+             //TRANSPONECOOR()   
 
-          elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP .or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
+          elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP .or. SWMARCADESP .or. SWCTRLKJ 
              XFILf:=pi
+             //TRANSPONECOOR()
+          elseif SWCTRLK4
+             if SWEDITTEXT
+                XFIL2EDIT:=pi
+             end
 
           end
         
-         /* if SWMARCABLOQUE
-             COLORWIN(PXFILi,PXCOLi-cini,PXFILf,PXCOLf-cini,71)
-          end*/
-          exit
-      
-      /*    xlen:=len(s)
-          setpos(py,1)
-          SHOWTEXTO(TEXTO[pi],cini)
-          setpos(py,px)
-             
-          setcursor(1)*/
+          exit      
        end
        
      elseif c==5    // flecha arriba, CTRL-E
@@ -2410,10 +3443,16 @@ while SW_EDIT
           s:=ASIGNALINEA(TEXTO[pi])
           setcursor(1)
           
-          if SWMARCABLOQUE
+          if SWMARCABLOQUE .or. SWCTRLKV
              XFILf:=pi; XCOLf:=p
-          elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ .or. SWCTRLKG
+             //TRANSPONECOOR()
+          elseif SWDELELIN .or. SWCTRLKCTRLD .or. SWCTRLKCTRLS .or. SWCTRLKCTRLP.or. SWMARCADESP .or. SWCTRLKJ //
              XFILf:=pi
+             //TRANSPONECOOR()
+          elseif SWCTRLK4 
+             if SWEDITTEXT
+                XFIL2EDIT:=pi
+             end
 
           end
           
@@ -2426,8 +3465,9 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
-                 MRESTSTATE(MOUSE)
+                 c:=0
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE) 
              loop
           end
        SW_INSERTA:=.T.
@@ -2453,6 +3493,22 @@ while SW_EDIT
        LISTAFOUND:={}  // resetea búsqueda.
        totLF:=0; ptrLF:=0; SWMATCH:=.F.
        cini:=0
+       // verificar si es un programa python
+       if SWLENGUAJE==6
+          if p>1
+             Indenta:=0
+             for i:=len(s) to 1 step -1
+                if s[i]!=":"
+                   exit
+                else
+                   ++Indenta
+                end
+             end
+             if Indenta>0 .and. !SW_CODESP
+                pushkey(32,cTABULA)
+             end
+          end
+       end
        if SWINDENTA .and. p>1
          /* detecta la indentación anterior */
           Indenta:=0
@@ -2464,7 +3520,7 @@ while SW_EDIT
              end
           end
           
-          if Indenta>0
+          if Indenta>0 .and. !SW_CODESP
              if p>=Indenta
                 pushkey(32,Indenta)
              end
@@ -2487,8 +3543,9 @@ while SW_EDIT
             --cini
             ++px
             
-            if SWMARCABLOQUE  .or. SWCTRLKG
+            if SWMARCABLOQUE .or. SWCTRLKV
                XFILf:=pi; XCOLf:=p
+               //TRANSPONECOOR()
             end
             exit
           else
@@ -2526,16 +3583,18 @@ while SW_EDIT
           end
           setcursor(1)
           
-          if SWMARCABLOQUE  .or. SWCTRLKG
+          if SWMARCABLOQUE  .or. SWCTRLKV
              XFILf:=pi; XCOLf:=p
+             //TRANSPONECOOR()
           end
           
           exit
          end
        end
        
-       if SWMARCABLOQUE .or. SWCTRLKG
+       if SWMARCABLOQUE .or. SWCTRLKV
           XFILf:=pi; XCOLf:=p
+          //TRANSPONECOOR()
           exit
        end
       
@@ -2545,9 +3604,9 @@ while SW_EDIT
        setcursor(1)
        setpos(py,px)
       /// pCURSOR:=p
-       if TEXTOTIPO=="BINARY"
+     //  if TEXTOTIPO=="BINARY"
           exit
-       end
+     //  end
        
      elseif c==4     // flecha derecha, CTRL-D
        setcursor(0)
@@ -2574,8 +3633,9 @@ while SW_EDIT
           end
           setcursor(1)
           
-          if SWMARCABLOQUE .or. SWCTRLKG
+          if SWMARCABLOQUE .or. SWCTRLKV
              XFILf:=pi; XCOLf:=p
+             //TRANSPONECOOR()
           end
           
           exit
@@ -2649,16 +3709,17 @@ while SW_EDIT
          end
          setcursor(1)
          
-         if SWMARCABLOQUE  .or. SWCTRLKG
+         if SWMARCABLOQUE .or. SWCTRLKV
              XFILf:=pi; XCOLf:=p
-             
+             //TRANSPONECOOR()
          end
          
          exit
        end
 
-       if SWMARCABLOQUE  .or. SWCTRLKG
+       if SWMARCABLOQUE .or. SWCTRLKV
           XFILf:=pi; XCOLf:=p
+          //TRANSPONECOOR()
           //setcursor(1)
           //setpos(py,px)
           exit
@@ -2670,9 +3731,9 @@ while SW_EDIT
        setcursor(1)
        setpos(py,px)
        pCURSOR:=p
-       if TEXTOTIPO=="BINARY"
+     //  if TEXTOTIPO=="BINARY"
           exit
-       end
+     //  end
      // este código puede ser salvador: si necesito otros escapes especiales,
      // agrego otros codigos luego de este.
      elseif c==256   // codigo de color de palabra encontrada
@@ -2686,8 +3747,9 @@ while SW_EDIT
           setpos(py,px)
        end
      
-     elseif c==500
+     elseif c==500    // finaliza pegado especial de CTRL-KL y CTRL-KV
        SW_CODESP:=.F.
+       exit
          
      elseif c==1 .or. (c==1 .and. OSSYSTEM=="LINUX")  // CTRL-A  BOL
       //// ? "PASA... VALOR SWCTRLA=",SWCTRLA; inkey(0)
@@ -2712,6 +3774,9 @@ while SW_EDIT
              p:=1+nOFFSET; cini:=0; px:=1+nOFFSET
       ///    pCURSOR:=p
              SWCTRLA:=.T.
+             if SWMARCABLOQUE .or. SWCTRLKV
+                XFILf:=pi; XCOLf:=p
+             end
           end
        else
           if len(s)>0
@@ -2767,7 +3832,7 @@ while SW_EDIT
            SWCTRLA:=.F.
         end
         */
-        VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+        VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
         setpos(py,px)
 
      elseif c==6 .or. (c==2 .and. OSSYSTEM=="LINUX")  //  CTRL-F EOL
@@ -2789,8 +3854,11 @@ while SW_EDIT
               ++px;++p
            end
         end
-       
-        VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+         if SWMARCABLOQUE .or. SWCTRLKV
+             XFILf:=pi; XCOLf:=p
+         end
+
+        VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
         setpos(py,px)
 
      elseif c==20 .or. (c==397 .and. OSSYSTEM=="LINUX")   // CTRL-T  va al principio del texto
@@ -2798,10 +3866,1087 @@ while SW_EDIT
        lfin:=TLINEA
        cini:=0
        px:=1+nOFFSET;  py:=1; p:=1+nOFFSET; pi:=1
-       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+       if SWMARCABLOQUE .or. SWCTRLKV
+             XFILf:=pi; XCOLf:=p
+       end
+       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
        exit
-     
+
+     elseif (c==2.and.OSSYSTEM=="DARWIN") .or. (c==401 .and. OSSYSTEM=="LINUX")   // CTRL-B va al final del texto  
+       lfin:=TOPE
+       lini:=TOPE
+       cini:=0
+       px:=1+nOFFSET;  py:=1; p:=1+nOFFSET; pi:=TOPE
+         if SWMARCABLOQUE .or. SWCTRLKV
+             XFILf:=pi; XCOLf:=p
+             //TRANSPONECOOR()
+         end
+       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+       exit
        
+
+     elseif c==27   // ESC: menú de herramientas.
+       // limpio la lista de busqueda, por si acaso.
+       /*if TEXTOTIPO=="BINARY"
+          cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
+                 aOptions := { hb_utf8tostr("Será...") }
+                 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+          loop
+       end*/
+       if SWCOMPLETAHTML
+          SWCOMPLETAHTML:=.F.
+          htmlCompleta:=""
+       end
+         
+       SETCOLOR(N2COLOR(cBARRA))
+       @ TLINEA-3,0 CLEAR TO TLINEA,MAXCOL()
+       
+       setpos(TLINEA-3,1);outstd(substr(" ESC...    1=View BUFFER | 2=Calc  | 3=Change Base | 4=ASCII table | 5=Parentization | 6=Autocomplete | Arrows=Sel Window",1,SLINEA-3))
+       setpos(TLINEA-2,1);outstd(substr(" TOOLS     7=Del BUFFER  | 8=Shell | 9=Refresh scr | A=HighLight   | B=Sel colour    | C=Table Colors | D=About it",1,SLINEA-3))
+       setpos(TLINEA-1,1);outstd(substr("           E=Exec macro  | F=SYS table colors",1,SLINEA-3))
+       
+       c:=inkey(0,INKEY_ALL)
+       while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
+
+       
+       if len(CORDEL)>1
+       if c==4 .or. c==19 .or. c==5 .or. c==24
+          @ TLINEA-3,0 CLEAR TO TLINEA,MAXCOL()
+          MSGBARRA("SELECT A WINDOW WITH ARROW KEYS, AND PRESS RETURN OR ESC",ARCHIVO,2)
+          cTMP:=recorre_menu(c)
+          if cTMP==0
+             exit
+          else
+             STRING:=CORDEL[cTMP][1] 
+             if STRING!="*"            
+             pELIGE:=cTMP
+             EXT:=substr(STRING,rat(".",STRING)+1,len(STRING))
+             if EXT=="xu" .or. EXT=="def"
+                    RET:=STRING
+                    SWLENGUAJE:=1
+             else
+                    if EXT=="c" .or. EXT=="cpp" .or. EXT=="h".or. EXT=="hh" .or. EXT=="prg" .or. EXT=="ch".or. EXT=="com".or. EXT=="hopper" .or. EXT=="hop".or.EXT=="bas".or.EXT=="flw" .or. EXT=="jambo"
+                       SWLENGUAJE:=2
+                    elseif EXT=="html" .or. EXT=="xml" .or. EXT=="htm"
+                       SWLENGUAJE:=5
+                    elseif EXT=="py"
+                       SWLENGUAJE:=6
+                    else
+                       SWLENGUAJE:=3
+                    end
+                    RET:=STRING
+             end
+             if EXT=="tex"
+                   EXTENSION:=2
+             elseif EXT=="m"
+                   EXTENSION:=3
+             else
+                   EXTENSION:=1
+             end
+             SWEXISTE:=.F.
+             for i:=1 to len(METADATA)
+                      if METADATA[i]==ARCHIVO    ///tARCHIVO
+                         SWEXISTE:=.T.
+                         exit
+                      end
+             end
+             lfin:=TOPE
+             if !SWEXISTE    // no existe en la lista: lo añado
+                      AADD(METADATA,ARCHIVO)   ////tARCHIVO)
+                      STRING:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))
+                      AADD(cMETADATA,{STRING,pi,p,px,py,lini,lfin,cini,SW_COMPILE,SW_MODIFICADO,COMPILADOR,EJECUTOR,DESCRIPCION,;
+                                      ESEJECUTABLE,COMENTARIOS,PARAMETROS,TEXTOTIPO,LENTEXTOTIPO})
+             else  // esta en la lista, actualizo su metadata
+                      cMETADATA[i][2]:=pi
+                      cMETADATA[i][3]:=p
+                      cMETADATA[i][4]:=px
+                      cMETADATA[i][5]:=py
+                      cMETADATA[i][6]:=lini
+                      cMETADATA[i][7]:=lfin
+                      cMETADATA[i][8]:=cini
+                      cMETADATA[i][9]:=SW_COMPILE
+                      cMETADATA[i][10]:=SW_MODIFICADO
+                      cMETADATA[i][11]:=COMPILADOR
+                      cMETADATA[i][12]:=EJECUTOR
+                      cMETADATA[i][13]:=DESCRIPCION
+                      cMETADATA[i][14]:=ESEJECUTABLE
+                      cMETADATA[i][15]:=COMENTARIOS
+                      cMETADATA[i][16]:=PARAMETROS
+                      cMETADATA[i][17]:=TEXTOTIPO
+                      cMETADATA[i][18]:=LENTEXTOTIPO
+             end
+             SW_CTRLOF:=.T.
+             hb_keyPut(17)   // sale.
+             loop
+             end
+          end
+       end
+       end
+
+       c:=asc(upper(chr(c)))
+       VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+       BarraTitulo(ARCHIVO)
+       SETCOLOR(N2COLOR(cTEXTO))
+       setpos(py,px)
+              
+       if c==49    // ESC-1 visualiza el contenido del buffer
+          _CTRL_KV(@BUFFER,@TEXTO,TLINEA,lini,lfin,cini,TOPE,ARCHIVO,@PASTEFROM,@PASTETO,XFIL1EDIT,XFIL2EDIT,XFILi,;
+                   ESEJECUTABLE,SWGRMODE,COMPILADOR)
+          // no sirve poner flush, además que evita que se ejecuten comandos.
+          if len(MULTIINS)==0
+             setpos(py,px)
+          else
+             exit  // para que funcionen CTRL-KU
+          end
+       
+       elseif c==50   // ESC-2 Calculadora
+          RBUFFER:=_CALCULADORA(ARCHIVO)
+          if len(RBUFFER)>0
+             AADD(BUFFER,RBUFFER[1])  // añade último resultado al BUFFER
+             SW_HAYBUFFER:=.T.
+             RBUFFER:={}
+          end
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+          BarraTitulo(ARCHIVO)
+          setpos(py,px)
+          exit
+       
+       elseif c==51     // ESC-3 Change Base
+          TEXTO[pi]:=LLENATEXTO(s,len(s),0)
+          c:=""
+          //wSTR:=""
+          for i:=p to 1 step -1
+             c:=substr(TEXTO[pi],i,1)
+             if !isalpha(c) .and. !isdigit(c)
+                exit
+             end
+          end
+          for j:=p to len(s)
+             c:=substr(TEXTO[pi],j,1)
+             if !isalpha(c) .and. !isdigit(c)
+                exit
+             end
+          end
+          if i!=j
+             STRING:=upper(substr(TEXTO[pi],i+1,j-(i+1)))
+             EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
+                 
+             if EXT=="xu" .or. EXT=="def"
+                cEXT:="xu"
+             elseif EXT=="com" .or. EXT=="hopper" .or. EXT=="hop".or. EXT=="bas".or.EXT=="flw" .or. EXT=="jambo"
+                cEXT:="com"
+
+             elseif EXT=="c" .or. EXT=="cpp" .or. c=="h"
+                cEXT:="c"
+             else
+                cEXT:=""
+             end
+             c:=0
+             MSGCONTROL(" CTRL-K+F... NUMBER TO CONVERT = "+STRING,;
+                        " BASE        B=Dec to Bin | H=Dec to Hex | O=Dec to Octal",;
+                        " CHANGE      1=Bin to Dec | 2=Hex to Dec | 3=Octal to Dec | 4=ASCII char")
+             c:=inkey(0)
+             c:=asc(upper(chr(c)))
+             BarraTitulo(ARCHIVO)
+             setpos(py,px)
+             // debo ver la extensión del archivo para correcta conversion
+             if c==66.or.c==72.or.c==79
+                baseSW:=.T.
+                for k:=1 to len(STRING)
+                   xt:=substr(STRING,k,1)
+                   if asc(xt)<48 .or. asc(xt)>57
+                      baseSW:=.F.
+                      exit
+                   end
+                end
+                if baseSW
+                   cPREFIX:=""; cSUFIX:=""
+                   if c==66   // to binario
+                      if cEXT=="xu" .or. cEXT=="com" .or. cEXT=="bas".or.cEXT=="flw".or.cEXT=="jambo".or.cEXT=="hopper".or.cEXT=="hop"
+                         cPREFIX:="0x"
+                         cSUFIX:="b"
+                      end
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOBIN(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   elseif c==72   // hexa
+                      if cEXT=="xu" .or. cEXT=="c" .or. cEXT=="com" .or. cEXT=="bas".or.cEXT=="flw";
+                         .or.cEXT=="jambo".or.cEXT=="hopper".or.cEXT=="hop"
+                         cPREFIX:="0x"
+                      end
+                      if cEXT=="xu" .or. cEXT=="com" .or. cEXT=="bas".or.cEXT=="flw";
+                         .or.cEXT=="jambo".or.cEXT=="hopper".or.cEXT=="hop"
+                         cSUFIX:="h"
+                      end
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOHEXA(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   elseif c==79   // octal
+                      if cEXT=="xu" .or. cEXT=="com" .or. cEXT=="bas".or.cEXT=="flw";
+                         .or.cEXT=="jambo".or.cEXT=="hopper".or.cEXT=="hop"
+                         cPREFIX:="0x"
+                         cSUFIX:="o"
+                      end
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOOCTAL(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   end
+                   SW_COMPILE:=.F.
+                   SW_MODIFICADO:=.T.
+                   if p>len(TEXTO[pi])
+                      p:=p-(p-len(TEXTO[pi])-1)
+                      px:=px-(px-len(TEXTO[pi])-1)
+                      if p<=0
+                         p:=1; px:=1
+                      end
+                   end
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
+                   setpos(py,px)
+                   c:=0
+                   exit
+                end
+             elseif c==49.or.c==50.or.c==51
+                xt:=substr(STRING,1,2)
+                   if xt=="0X"
+                      STRING:=substr(STRING,3,len(STRING))
+                   end
+                   xt:=lower(substr(STRING,len(STRING),1))
+                   if xt $ "bho" .and. (cEXT=="xu" .or. cEXT=="com" .or. cEXT=="bas".or.cEXT=="flw";
+                                        .or.cEXT=="jambo".or.cEXT=="hopper".or.cEXT=="hop")
+                      STRING:=substr(STRING,1,len(STRING)-1)
+                end
+                if c==49   // bin to dec
+                   baseSW:=.T.
+                   for k:=1 to len(STRING)
+                      xt:=substr(STRING,k,1)
+                      if xt!="0" .and. xt!="1"
+                         baseSW:=.F.
+                         exit
+                      end
+                   end
+                   if baseSW
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(BINTODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   end
+                elseif c==50  // hexa to dec
+                   baseSW:=.T.
+                   for k:=1 to len(STRING)
+                      xt:=substr(STRING,k,1)
+                      if !(xt $ "0123456789ABCDEF")
+                         baseSW:=.F.
+                         exit
+                      end
+                   end
+                   if baseSW
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(HEXATODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   end
+                elseif c==51  // octal to dec
+                   baseSW:=.T.
+                   for k:=1 to len(STRING)
+                      xt:=substr(STRING,k,1)
+                      if !(xt $ "01234567")
+                         baseSW:=.F.
+                         exit
+                      end
+                   end
+                   if baseSW
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(OCTALTODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                   end
+                end
+                if baseSW
+                   SW_COMPILE:=.F.
+                   SW_MODIFICADO:=.T.
+                   if p>len(TEXTO[pi])
+                      p:=p-(p-len(TEXTO[pi])-1)
+                      px:=px-(px-len(TEXTO[pi])-1)
+                      if p<=0
+                         p:=1; px:=1
+                      end
+                   end
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
+                   setpos(py,px)
+                   c:=0
+                   exit
+                end
+             elseif c==52   // ascii char
+                if ISTNUMBER(STRING)==1
+                   if val(STRING)>=32 .and. val(STRING)<256 .and. val(STRING)!=127
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      SW_COMPILE:=.F.
+                      SW_MODIFICADO:=.T.
+                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+chr(val(STRING))+substr(TEXTO[pi],j,len(TEXTO[pi]))
+                      if len(TEXTO[pi])<p     //hb_utf8tostr(
+                         p:=p-(p-len(TEXTO[pi])-1)
+                         px:=px-(px-len(TEXTO[pi])-1)
+                      end
+                      if len(LISTAFOUND)>0 
+                         RELEASE LISTAFOUND
+                         LISTAFOUND:={}
+                         SWMATCH:=.F.
+                         ptrLF:=0; totLF:=0
+                      end
+                      setpos(py,px)
+                      c:=0
+                      exit
+                   else
+                      SETCOLOR(N2COLOR(cBARRA))
+                      @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+                      setpos(TLINEA-1,int(SLINEA/2)-17);outstd("ASCII CODE INVALID FOR THIS EDITOR")
+                      setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
+                      inkey(0,INKEY_ALL)
+                      while inkey(,INKEY_ALL)!=0 ; end
+                      MRESTSTATE(MOUSE)
+                      BarraTitulo(ARCHIVO)
+             
+                      SETCOLOR(N2COLOR(cTEXTO))
+                      setpos(py,px)
+                   end
+                end
+             end
+          end
+
+       elseif c==52    // ESC-4  ASCII table
+          MENUMATCH:=ARRAY(254)
+          SELECTMATCH:=ARRAY(254)
+          for i:=1 to 254
+             MENUMATCH[i] := "     "+chr(255-i)+" = "+strzero(255-i,3)+"    "
+             if 255-i!=127 .and. 255-i>31
+                SELECTMATCH[i]:=.T.
+             else
+                SELECTMATCH[i]:=.F.
+             end
+          end
+          POSVENTANA:={1,SLINEA-18,TLINEA-3,SLINEA}
+          SETCOLOR(N2COLOR(cBARRA))
+          @ 1,SLINEA-18 CLEAR TO TLINEA-3,SLINEA
+             
+          MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,2)
+          //SETCOLOR(N2COLOR(6))
+          setcolor( 'GR+/N,N/GR+,,,W/N' )
+          pELIGE:=ACHOICE(1,SLINEA-17,TLINEA-3,SLINEA-1,MENUMATCH,SELECTMATCH,"UDFASCAchoice")
+          if lastkey()!=127 .and. lastkey()!=1 .and. lastkey()!=13
+             while inkey(,INKEY_ALL)!=0 ; end
+             MRESTSTATE(MOUSE) 
+          end
+          
+          SETCOLOR(N2COLOR(cTEXTO))
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+          BarraTitulo(ARCHIVO)
+             
+          if pELIGE>0
+
+             i:=lastkey() //inkey() //,INKEY_ALL)
+           //  while inkey(,INKEY_ALL)!=0 ; end
+           //   MRESTSTATE(MOUSE)
+             if i==127
+                // CTRl-Z
+                AADD(BUFFER_CTRLZ,TEXTO[pi])
+                AADD(LINBUFFCTRLZ,pi)
+                TEXTO[pi]:=substr(TEXTO[pi],1,p-1)+"chr("+alltrim(str(255-pELIGE))+")"+substr(TEXTO[pi],p,len(TEXTO[pi]))
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
+             elseif i==1
+                SW_HAYBUFFER:=.T.
+                AADD(BUFFER,chr(255-pELIGE)+chr(127))
+             else
+                // CTRl-Z
+                AADD(BUFFER_CTRLZ,TEXTO[pi])
+                AADD(LINBUFFCTRLZ,pi)
+                TEXTO[pi]:=substr(TEXTO[pi],1,p-1)+chr(255-pELIGE)+substr(TEXTO[pi],p,len(TEXTO[pi]))
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
+             end             
+             SW_COMPILE:=.F.
+             SW_MODIFICADO:=.T.
+          end
+          MENUMATCH:={}
+          SELECTMATCH:={}
+          setpos(py,px)
+          exit
+       
+       elseif c==53     // ESC-5  parentizacion
+          if XFIL1EDIT==0  // analiza todo
+             XFIL1EDIT:=1; XFIL2EDIT:=TOPE
+             cTMP:= BUSCAPARENTIZACION(@TEXTO,XFIL1EDIT, XFIL2EDIT,COMENTARIOS,iif(EXTENSION==3,"'",'"'))
+             XFIL1EDIT:=0; XFIL2EDIT:=0
+          else   // analiza porción
+             SWPARE:=.F.
+             if XFIL2EDIT==0
+                XFIL2EDIT:=TOPE
+                SWPARE:=.T.
+             end
+             cTMP:=BUSCAPARENTIZACION(@TEXTO,XFIL1EDIT, XFIL2EDIT,COMENTARIOS,iif(EXTENSION==3,"'",'"'))
+             if SWPARE
+                XFIL2EDIT:=0
+             end
+          end
+          //? "LEN = ",len(cTMP); inkey(0)
+          if !cTMP[1][1]
+             cMessage := hb_utf8tostr("Símbolo '"+cTMP[1][2]+"' "+cTMP[1][5]+" en posición "+hb_ntos(cTMP[1][3])+;
+                         ", "+hb_ntos(cTMP[1][4]))
+             aOptions := { hb_utf8tostr("Ok") }
+             nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+             while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+             hb_keyPut(10)
+             hb_keyPut(74)
+             cTMP[1][3]:=hb_ntos((cTMP[1][3]))
+             
+             for i:=1 to len(cTMP[1][3])
+                c:=asc(substr(cTMP[1][3],i,1))
+                if c!=3 .and. c!=127
+                   hb_keyPut(c)
+                else
+                   exit
+                end
+             end
+             hb_keyPut(13)  // el enter
+           //  pushkey(4,cTMP[1][4])
+            /* for i:=1 to cTMP[1][4]
+                hb_keyPut(4)  // la flecha hacia la izquierda
+             end*/
+             SWCTRLJCTRKV:=.T.
+          else
+             cMessage := hb_utf8tostr("Todo bien!")
+             aOptions := { hb_utf8tostr("Ok") }
+             nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+             while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+          end
+          setpos(py,px)
+
+       elseif c==54   // ESC-6  habilita-inhabilita autocompletacion
+          if !SW_CODESP
+             SW_CODESP:=.T.
+             SWINDENTA:=.F.
+          else
+             SW_CODESP:=.F.
+             SWINDENTA:=.T.
+          end
+          setpos(py,px)
+          exit
+          
+       elseif c==55   // ESC-7  Borra el BUFFER
+          SW_HAYBUFFER:=.F.
+        
+          _ELIMINA_BUFFER(@BUFFER)
+          
+          SETCOLOR(N2COLOR(cBARRA))
+          @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+          setpos(TLINEA-1,int(SLINEA/2)-12);outstd("BUFFER HAS BEEN CLEANED")
+          setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
+           inkey(0,INKEY_ALL)
+           while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
+          BarraTitulo(ARCHIVO)
+             
+          SETCOLOR(N2COLOR(cTEXTO))
+          setpos(py,px)
+          hb_keyPut(11)
+          hb_keyPut(81)
+          setpos(py,px)
+       
+       elseif c==56   // ESC-8  Shell
+           SETCOLOR(N2COLOR(cBARRA))
+           @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+           @ TLINEA-9,0 CLEAR TO TLINEA-3,SLINEA
+
+           setpos(TLINEA-9,2); outstd("COMMAND? ")
+           MSGBARRA("^W=DO ESC=CANCEL ^P=PASTE | *=LIST !=LOOK '<str>=EDIT ^<str>=INSERT $=FILENAME @<str>=REPLACE ALL",ARCHIVO,0)
+           //SETCOLOR(N2COLOR(6))
+           setcolor( 'GR+/N,N/GR+,,,W/N' )
+           
+           readinsert(.T.)
+           REEMPTEXTCAR(@COMANDO)
+           COMANDO:=hb_utf8tostr(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
+           ///COMANDO:=(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
+           readinsert(.F.)
+           REEMPCARTEXT(@COMANDO)
+          
+          COMANDO:=alltrim(COMANDO)
+          COMANDO:=STRTRAN(COMANDO,_CR," ")
+          if "$" $ COMANDO
+             COMANDO:=strtran(COMANDO,"$",ARCHIVO)
+          end
+          
+          if COMANDO=="*"
+             if len(COMMANDS)>0
+                SETCOLOR(N2COLOR(cBARRA))
+                @ 10,10 CLEAR TO TLINEA-3,SLINEA-10
+
+                setpos(10,int(SLINEA/2)-10); outstd("List System Command")
+   
+                MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
+                //setcolor("B/GR+,I/GR+")
+                //SETCOLOR(N2COLOR(6))
+                setcolor( 'GR+/N,N/GR+,,,W/N' )
+                pELIGE:=ACHOICE(11,11,TLINEA-3,SLINEA-11,COMMANDS, .T.)
+                while inkey(,INKEY_ALL)!=0 ; end
+                MRESTSTATE(MOUSE)
+                if pELIGE>0
+                   COMANDO:=COMMANDS[pELIGE]
+                   hb_keyPut(27)
+                   hb_keyPut(56)
+                end
+             end
+          elseif COMANDO=="!"
+             if len(OUTPUTCOMM)>0
+                SHOWOUTPUT()
+             end             
+          else   // ejecuta el comando
+             if len(COMANDO)>0
+                // verificar si quiere que lo edite o solo lo muestre ('): ej: 'ls -l
+                SWEDITACOM:=.F.
+                SWINSCODIGO:=.F.
+                SWREPLACECODIGO:=.F.
+                SWOUTTOBUFFER:=.F.
+                if substr(COMANDO,1,1)=="'"  // edita la salida en un archivo temporal
+                   SWEDITACOM:=.T.
+                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
+                elseif substr(COMANDO,1,1)=="^"  // inserta la salida en edicion actual
+                   SWINSCODIGO:=.T.
+                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
+                elseif substr(COMANDO,1,1)=="@"  // reemplaza la edición actual por la salida.
+                   SWREPLACECODIGO:=.T.
+                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
+                elseif substr(COMANDO,1,1)=="="  // mete todo al BUFFER
+                   SWOUTTOBUFFER:=.T.
+                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
+                end 
+                SWCOMMAND:=.F.
+                for i:=1 to len(COMMANDS)
+                   if COMANDO==COMMANDS[i]
+                      SWCOMMAND:=.T.
+                      exit
+                   end
+                end
+                if !SWCOMMAND
+                   AADD(COMMANDS,COMANDO)
+                end
+                OUTPUTCOMM:=FUNFSHELL(COMANDO,4)
+                if OUTPUTCOMM=="<error>"
+                   SWEDITACOM:=.F.
+                   SWINSCODIGO:=.F.
+                   SWREPLACECODIGO:=.F.
+                end
+                ///OUTPUTCOMM:=hb_utf8tostr(OUTPUTCOMM)
+                IF SWEDITACOM
+                   
+                   //SALE Y EDITA ARCHIVO TEMPORAL
+                   //SW_CTRLOF:=.T.
+                   RET:=PATH_TEMP+_fileSeparator+"output_"+hb_ntos(int(hb_random(1000000)))+".temp"
+                   //tmp:=StrFile(OUTPUTCOMM, RET)
+                   //tmp:=MEMOWRIT(RET,hb_strtoutf8(OUTPUTCOMM))
+                   xfp:=fcreate(RET,0)
+                   if ferror()==0
+                      fwrite(xfp,hb_strtoutf8(OUTPUTCOMM))
+                      fclose(xfp)
+                   else
+                      cMessage := hb_utf8tostr("No tiene permiso para crear un archivo en directorio temporal")
+                      aOptions := { hb_utf8tostr("Será") }
+                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                      while inkey(,INKEY_ALL)!=0 ; end
+                      MRESTSTATE(MOUSE)
+                      exit
+                   end
+                   SWLOADRAPIDO:=.T.
+                   SWCTRLON:=.T.
+                   hb_keyPut(15)
+                   hb_keyPut(70)
+                   loop
+                   //hb_keyPut(17)  // CTRL-Q sin preguntar por grabar. Solo graba
+                   //loop
+                ELSEIF SWINSCODIGO
+                   
+                   // INSERTA LA SALIDA EN EDICION TEMPORAL
+                   cLen:=mlcount(OUTPUTCOMM,1200)
+                   TOPE:=len(TEXTO)+cLen
+                   asize(TEXTO,TOPE)
+                   for i:=cLen to 1 step -1
+                      ains(TEXTO,pi)
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,chr(6))  // tope: indica que no hay linea para rescatar
+                      AADD(LINBUFFCTRLZ,pi)
+                      AADD(BUFFER_CTRLZ,chr(4))
+                      AADD(LINBUFFCTRLZ,pi)
+                      TEXTO[pi]:=rtrim(memoline(OUTPUTCOMM,1200,i))
+                   end
+                   SW_COMPILE:=.F.
+                   SW_MODIFICADO:=.T.
+                ELSEIF SWOUTTOBUFFER
+                   cLen:=mlcount(OUTPUTCOMM,1200)
+                   SW_HAYBUFFER:=.T.
+
+                   for i:=1 to cLen
+                      AADD(BUFFER,rtrim(memoline(OUTPUTCOMM,1200,i))) 
+                   end
+                ELSEIF SWREPLACECODIGO
+                   
+                   cMessage := hb_utf8tostr("¿Está seguro de que desea reemplazar el texto completo?"+_CR+;
+                                            "(Esta acción no tiene vuelta atrás)")
+                   aOptions := { hb_utf8tostr("Sí"), "No" }
+                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                   while inkey(,INKEY_ALL)!=0 ; end
+                   MRESTSTATE(MOUSE)
+
+                   if nChoice==2
+                      exit
+                   end
+                 
+                   // elimina CTRL-Z buffer
+                   
+                   BUFFER_CTRLZ:={};LINBUFFCTRLZ:={}
+                   
+                      NL:=mlcount(OUTPUTCOMM,2048)  //numtoken(OUTPUTCOMM,HB_OSNEWLINE())
+                      NUMCAR:=len(hb_strtoutf8(OUTPUTCOMM))
+                      MAXLONG:=3200
+                      TMPTEXTO:=GETLINEAS(OUTPUTCOMM,NL,NUMCAR,MAXLONG)
+                      XLEN1:=len(TMPTEXTO)
+                     /// ? XLEN1, XLEN2 ; inkey(0)
+                      ASIZE(TEXTO,XLEN1)
+                      ACOPY(TMPTEXTO,TEXTO)
+                   TOPE:=XLEN1
+                   for i:=1 to TOPE
+                      RELEASE TMPTEXTO[i]
+                   end
+                   RELEASE TMPTEXTO
+
+                   p:=1; px:=1; py:=1; pi:=1; lini:=1;cini:=0
+                   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+                   setpos(py,px)
+                   SW_COMPILE:=.F.
+                   SW_MODIFICADO:=.T.
+                   exit
+                ELSE
+                   SHOWOUTPUT()
+                END
+             end 
+          end
+
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+          BarraTitulo(ARCHIVO)
+          SETCOLOR(N2COLOR(cTEXTO))
+          setpos(py,px)
+          exit
+
+       elseif c==57   // ESC-9  Refresh screen 
+
+           SLINEA:=MAXCOL() //-2
+           TLINEA:=MAXROW()
+           if TEXTOTIPO=="BINARY"
+              if SLINEA<108
+                 SLINEA:=110  // minimo para edicion de binarios
+                 setmode(TLINEA,SLINEA)
+                 hb_keyPut(16);hb_keyPut(79)
+              end
+           end
+
+           clear
+           setcursor(0)
+           
+           color:=SETCOLOR (N2COLOR(cEDITOR))
+
+           while py>TLINEA-3
+              ++lini; --py
+           end
+           px:=1+nOFFSET; p:=1+nOFFSET; cini:=0
+           encabezado(pi,p-nOFFSET,TOPE,SW_MODIFICADO,iif(p<=len(s),s[p],""),SWMARCABLOQUE,SWDELELIN,SWCOPIA,;
+                     SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
+                     XFILi,XCOLi,XFILf,XCOLf) 
+
+           STRSP:=SUBSTR(BASELINE,1,SLINEA)
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+        /*   encabezado(pi,p-nOFFSET,TOPE,SW_MODIFICADO,iif(p<=len(s),s[p],""),SWMARCABLOQUE,SWDELELIN,SWCOPIA,;
+                     SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
+                     XFILi,XCOLi,XFILf,XCOLf)*/
+           BarraTitulo(ARCHIVO)
+
+           cPAGINA:=MAXROW()-4   // numero de lineas que salta av y re pag.
+
+           setcolor(color)
+           setcursor(1)
+
+           setpos(py,px)
+           exit
+
+       elseif c==65   // ESC-A  highLight
+           if SWCOLORTEXTO==2
+              SWCOLORTEXTO:=0
+           else
+              SWCOLORTEXTO:=2
+           end
+           setpos(py,px)
+           exit
+           
+       elseif c==66   // ESC-B  Cambia Color edit
+           RELEASE cSELCOLOURS
+           cSELCOLOURS:={}
+           maxLen:=0
+           for i:=1 to len(cCOLORES)
+              AADD(cSELCOLOURS,padc(cCOLORES[i][1],32))
+           end
+           maxLen:=16
+           XCLEAR:=int(TLINEA/2)
+           if LEN(cSELCOLOURS)<XCLEAR
+              XCLEAR:=LEN(cSELCOLOURS)
+           end
+           SETCOLOR(N2COLOR(cBARRA))
+           //@ TLINEA-XCLEAR,int(SLINEA/2)-(maxLen+1) CLEAR TO TLINEA-3,int(SLINEA/2)+(maxLen+1)
+           @ 1,SLINEA-33 CLEAR TO XCLEAR+1,SLINEA
+
+         //  setpos(TLINEA-XCLEAR,int(SLINEA/2)-11); outstd(" Select a color map ")
+           MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
+           //SETCOLOR(N2COLOR(6))
+           setcolor( 'GR+/N,N/GR+,,,W/N' )
+         //  pELIGE:=ACHOICE(TLINEA-XCLEAR+1,int(SLINEA/2)-maxLen,TLINEA-3,int(SLINEA/2)+maxLen,;
+         //          cSELCOLOURS, .T.)
+           pELIGE:=ACHOICE(1,SLINEA-32,XCLEAR,SLINEA-1,;
+                   cSELCOLOURS, .T.)
+          while inkey(,INKEY_ALL)!=0 ; end
+          MRESTSTATE(MOUSE)
+              
+           RELEASE cSELCOLOURS
+           IF pELIGE>0
+              cMAPACOLORES:=cCOLORES[pELIGE][1]
+              cLENMAPACOLORES:=LEN(cMAPACOLORES)
+              cHELP:=cCOLORES[pELIGE][2]
+              cTEXT:=cCOLORES[pELIGE][3]
+              cEDITOR:=cTEXT
+              cCADENA:=cCOLORES[pELIGE][5]
+              cMENU:=cCOLORES[pELIGE][6]
+              cBARRA:=cMENU
+              cCURSORMOD:=cCOLORES[pELIGE][8]
+              cSECCION:=cCOLORES[pELIGE][9]
+              cKEYWORD:=cCOLORES[pELIGE][10]
+              cEDITDEF:=cCOLORES[pELIGE][11]
+              cEDITCOM:=cCOLORES[pELIGE][12]
+              cDESTACADO:=cCOLORES[pELIGE][13]
+              cSELECT:=cCOLORES[pELIGE][14]
+              cNUMBERS:=cCOLORES[pELIGE][15]
+              cSTRINGF:=cCOLORES[pELIGE][16]
+              cMATF:=cCOLORES[pELIGE][17]
+              cLOGICF:=cCOLORES[pELIGE][18]
+           END
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+           BarraTitulo(ARCHIVO)
+           SETCOLOR(N2COLOR(cTEXTO))
+           setpos(py,px)
+       
+       elseif c==70   // ESC-F  tabla de colores programacion 256
+
+           //MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS ESC TO EXIT",ARCHIVO,0)
+
+           XCLEAR:=TLINEA-3
+           maxLen:=0  // reciclo esta variable: ahora define un color
+           setcursor(0)
+           while .T.
+              SETCOLOR(N2COLOR(7))
+              //@ 1,SLINEA-14 CLEAR TO XCLEAR,SLINEA
+              /*j:=1
+              for i:=maxLen to 255
+                 if i<256 .and. j<TLINEA-3
+                    SETCOLOR(N2COLOR(i))
+                    @ j++,SLINEA-13 SAY " color # "+padl(hb_ntos(i),3)+" "
+                 else
+                    exit
+                 end
+              end*/
+              CLEAR_TABLE_COLORS(TLINEA-2,SLINEA-13)
+              PRINT_TABLE_COLORS(maxLen,TLINEA-2,SLINEA-13)
+              
+              cTMP:=0
+              while (cTMP:=inkey(0)) == 0
+                 ;
+              end
+              if cTMP==24 .or. cTMP==4
+                 ++maxLen
+                 if maxLen>255
+                    maxLen:=255
+                 end
+              elseif cTMP==19 .or. cTMP==5
+                 --maxLen
+                 if maxLen<1
+                    maxLen:=1
+                 end
+              elseif cTMP==3
+                 maxLen:=maxLen+10
+                 if maxLen>255
+                    maxLen:=255
+                 end
+              elseif cTMP==18
+                 maxLen:=maxLen-10
+                 if maxLen<1
+                    maxLen:=1
+                 end
+              elseif cTMP==27 .or. cTMP==13
+                 CLEAR_TABLE_COLORS(TLINEA-2,SLINEA-13)
+                 SETCOLOR(N2COLOR(7))
+                 @ 1,SLINEA-14 CLEAR TO XCLEAR,SLINEA
+                 exit
+              end   
+           end
+           cTMP:=0
+           setcursor(1)
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+           BarraTitulo(ARCHIVO)
+           SETCOLOR(N2COLOR(cTEXTO))
+           setpos(py,px)
+       
+       elseif c==67    // ESC-C  color table LAICA
+           XCLEAR:=TLINEA-3
+           maxLen:=0  // reciclo esta variable: ahora define un color
+           setcursor(0)
+           while .T.
+              SETCOLOR(N2COLOR(7))
+              @ 1,SLINEA-14 CLEAR TO XCLEAR,SLINEA
+              j:=1
+              for i:=maxLen to 255
+                 if i<256 .and. j<TLINEA-3
+                    SETCOLOR(N2COLOR(i))
+                    @ j++,SLINEA-13 SAY " color # "+padl(hb_ntos(i),3)+" "
+                 else
+                    exit
+                 end
+              end
+              
+              cTMP:=0
+              while (cTMP:=inkey(0)) == 0
+                 ;
+              end
+              if cTMP==24 .or. cTMP==4
+                 ++maxLen
+                 if maxLen>255
+                    maxLen:=255
+                 end
+              elseif cTMP==19 .or. cTMP==5
+                 --maxLen
+                 if maxLen<1
+                    maxLen:=1
+                 end
+              elseif cTMP==3
+                 maxLen:=maxLen+10
+                 if maxLen>255
+                    maxLen:=255
+                 end
+              elseif cTMP==18
+                 maxLen:=maxLen-10
+                 if maxLen<1
+                    maxLen:=1
+                 end
+              elseif cTMP==27 .or. cTMP==13
+                 exit
+              end   
+           end
+           cTMP:=0
+           setcursor(1)
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+           BarraTitulo(ARCHIVO)
+           SETCOLOR(N2COLOR(cTEXTO))
+           setpos(py,px)
+             
+       elseif c==69   // ESC-E  repeat last ope
+           if XFIL1EDIT>0 .and. XFIL2EDIT>0
+              XLEN:=len(LISTAEXPRESION)
+              OPERA:=""
+              if XLEN>0
+                 MATCH:={}
+                 FOR i:=1 to XLEN
+                    AADD(MATCH,strtran(LISTAEXPRESION[i],chr(10)," "))
+                 END
+                 SETCOLOR(N2COLOR(cBARRA))
+                 @ TLINEA-(4+iif(XLEN>5,5,XLEN)),10 CLEAR TO TLINEA-3,SLINEA-10
+
+                 setpos(TLINEA-(4+iif(XLEN>5,5,XLEN)),int(SLINEA/2)-11); outstd("List used expresions")
+
+                 MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
+                 setcolor( 'GR+/N,N/GR+,,,W/N' )
+
+                 pELIGE:=ACHOICE(TLINEA-(3+iif(XLEN>5,5,XLEN)),11,TLINEA-3,SLINEA-11,MATCH, .T.,"CTRLKVUSERFUNCTION")
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+                 
+                 if pELIGE>0
+                    if lastkey()==7 .or. lastkey()==8
+                       adel(LISTAEXPRESION,pELIGE)
+                       asize(LISTAEXPRESION,len(LISTAEXPRESION)-1)
+                    else
+                       OPERA:=LISTAEXPRESION[pELIGE]
+                    end
+                 end
+                 VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+              end
+              if len(OPERA)>0
+                   // REEMPTEXTCAR(@OPERA)
+                   // OPERA:=hb_utf8tostr(MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
+                   // REEMPCARTEXT(@OPERA)
+                       cTMP:=_CTRL_L_TEXTOPE(@TEXTO,(STRTRAN(OPERA,_CR,"")),@XFIL1EDIT,@XFIL2EDIT)
+                       if !cTMP
+                          _CTRLLERROR()
+                          if XFIL1EDIT==0 .and. XFIL2EDIT==0
+                              SWEDITTEXT:=.F.
+                             ///XFIL1EDIT:=0; XFIL2EDIT:=0
+                          else
+                              hb_keyPut(12)
+                              hb_keyPut(asc("O"))
+                          end
+                       else
+                          cMessage := hb_utf8tostr("Comando ejecutado con éxito")
+                          aOptions := { "Veamos..." }
+                          nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                          while inkey(,INKEY_ALL)!=0 ; end
+                          MRESTSTATE(MOUSE)
+                          if len(BUFFER)>0
+                             SW_HAYBUFFER:=.T.
+                          end
+                          if SWTEXTOMODIFICADO
+                             SW_COMPILE:=.F.
+                             SW_MODIFICADO:=.T.
+                             SWTEXTOMODIFICADO:=.F.
+                          end
+                          SWOPEXISTE:=.F.
+                          for i:=1 to len(LISTAEXPRESION)
+                             if OPERA == LISTAEXPRESION[i]
+                                SWOPEXISTE:=.T.
+                                exit
+                             end
+                          end
+                          if !SWOPEXISTE
+                             AADD(LISTAEXPRESION,OPERA)
+                          end
+                         // hb_keyPut(12)
+                         // hb_keyPut(asc("O"))
+                       end
+              else
+                 cMessage := hb_utf8tostr("No encuentro macros a ejecutar."+_CR+"Introduce una con CTRL-LO.")
+                 aOptions := { "Okay" }
+                 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+              end
+           else
+              cMessage := hb_utf8tostr("Debes marcar líneas con CTRL-K4/ALT-0")
+              aOptions := { "Okay" }
+              nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+              while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+           end
+         /* if len(OPERA)>0
+             RBUFFER:=ARRAY(LEN(BUFFER))
+             ACOPY(BUFFER,RBUFFER)
+             SWRECBUFFER:=.T.
+             nSetDecimal:=set(3,DEFROUND)
+             BUFFER:=_CTRL_L_OPE(BUFFER,hb_utf8tostr(STRTRAN(OPERA,_CR,"")))  // LLAMA A LA CALCULADORA
+             if LEN(BUFFER)>0
+                if BUFFER[1]=="<command-success>"
+                             _CTRLOK()
+                             BUFFER:=ARRAY(LEN(RBUFFER))
+                             ACOPY(RBUFFER,BUFFER)
+                             RBUFFER:={}
+                             
+                             SW_HAYBUFFER:=.T.
+                             OPERA:=""
+                             hb_keyPut(12)
+                             hb_keyPut(asc("O"))
+                             exit
+                elseif BUFFER[1]=="<error>"
+                             _CTRLLERROR()
+                             BUFFER:=ARRAY(LEN(RBUFFER))
+                             ACOPY(RBUFFER,BUFFER)
+                             RBUFFER:={}
+                             hb_keyPut(12)
+                             hb_keyPut(asc("O"))
+                             exit
+                end
+             //   SW_PASTE:=.T.
+                hb_keyPut(11)
+                hb_keyPut(85)
+                // busca por si no existe, para añadirlo a la lista
+                SWOPEXISTE:=.F.
+                for i:=1 to len(LISTAEXPRESION)
+                   if OPERA == LISTAEXPRESION[i]
+                      SWOPEXISTE:=.T.
+                      exit
+                   end
+                end
+                if !SWOPEXISTE
+                   AADD(LISTAEXPRESION,OPERA)
+                end
+             else
+                _CTRLLVOID()
+                BUFFER:=ARRAY(LEN(RBUFFER))
+                ACOPY(RBUFFER,BUFFER)
+                RBUFFER:={}
+             end
+             set(3,nSetDecimal)
+          end
+          */
+          setpos(py,px)
+          exit
+          
+       elseif c==68   // ESC-D  Abaut it
+          cMessage := hb_utf8tostr("                    LAICA  v.2.0                   "+_CR+;
+                      "                                                   "+_CR+;
+                      "Actual compilation line: "+_CR+DESCRIPCION+_CR+;
+                      "                                                   "+_CR+;
+                      "System: "+OS()+_CR+;
+                      "Shell: "+getenv("SHELL")+_CR+;
+                      "   _____________________________________________   "+_CR+;
+                      "   Editor de textos para XU & sus primos mayores   "+_CR+;
+                      "   para uso en consola Linux basado en Debian.     "+_CR+;
+                      "       (Compilado en Harbour 3.0 / gcc 7.3.0)      "+_CR+;
+                      "                                                   "+_CR+;
+                      "                ~ Nov. 2018 - 2019 ~               "+_CR+;
+                      "                                                   "+_CR+;
+                      "        = Este programa es de uso gratuito =       "+_CR+;
+                      "   Se entrega 'As Is', con la única garantía que   "+_CR+;
+                      "   no voy a lucrar indebidamente con su uso.       "+_CR+;
+                      "                                                   "+_CR+;
+                      "   Bugs y aportaciones, comunicarse con el autor   "+_CR+;
+                      "   al correo: daniel.stuardo@gmail.com             ")
+
+          aOptions := { hb_utf8tostr("Volver") }
+          nChoice := Alert( cMessage, aOptions, N2COLOR(112) )
+          c:=0
+          while inkey(,INKEY_ALL)!=0 ; end
+          MRESTSTATE(MOUSE)
+          loop
+
+       end
+              
      elseif (c==282 .and. OSSYSTEM=="LINUX")  // SHIFT-CTRL-...
        c:=inkey(0)
        if c==49
@@ -2813,7 +4958,7 @@ while SW_EDIT
                 if c==67    // ubica el cursor en el siguiente string de izquierda a derecha
                    SWBUSCAPAR:=.F.
                    for i:=p+1 to len(s)
-                      if s[i]==chr(34) .or. s[i]==chr(39)
+                      if s[i]==chr(34) .or. s[i]==chr(39) .or. s[i]==chr(61)
                          SWBUSCAPAR:=.T.
                          exit
                       end
@@ -2826,7 +4971,7 @@ while SW_EDIT
                 elseif c==68  // ubica el cursor en el final del string de derecha a izquierda.
                    SWBUSCAPAR:=.F.
                    for i:=p-1 to 1 step -1
-                      if s[i]==chr(34) .or. s[i]==chr(39)
+                      if s[i]==chr(34) .or. s[i]==chr(39) .or. s[i]==chr(61)
                          SWBUSCAPAR:=.T.
                          exit                          
                       end
@@ -2842,7 +4987,7 @@ while SW_EDIT
                 if c==67  // busca (, [ y {
                    SWBUSCAPAR:=.F.
                    for i:=p+1 to len(s)
-                       if s[i]=="(" .or. s[i]=="[" .or. s[i]=="{"
+                       if s[i]=="(" .or. s[i]=="[" .or. s[i]=="{" .or. s[i]==")" .or. s[i]=="]" .or. s[i]=="}"
                           SWBUSCAPAR:=.T.
                           exit                          
                        end
@@ -2855,7 +5000,7 @@ while SW_EDIT
                 elseif c==68  // busca ), ] y }
                    SWBUSCAPAR:=.F.
                    for i:=p-1 to 1 step -1
-                       if s[i]=="(" .or. s[i]=="[" .or. s[i]=="{"
+                       if s[i]=="(" .or. s[i]=="[" .or. s[i]=="{" .or. s[i]==")" .or. s[i]=="]" .or. s[i]=="}"
                           SWBUSCAPAR:=.T.
                           exit                          
                        end
@@ -2870,19 +5015,10 @@ while SW_EDIT
           end
        end
        
-     
-     elseif (c==2.and.OSSYSTEM=="DARWIN") .or. (c==401 .and. OSSYSTEM=="LINUX")   // CTRL-B va al final del texto  
-       lfin:=TOPE
-       lini:=TOPE
-       cini:=0
-       px:=1+nOFFSET;  py:=1; p:=1+nOFFSET; pi:=TOPE
-       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-       exit
-       
      elseif c==3 .or. (c==416 .and. OSSYSTEM=="LINUX")  // CTRL-C avance pagina. Donde está parado, se queda. la pagina se mueve
        if pi<TOPE-cPAGINA
           POSY := pi+cPAGINA
-          POSX := 0+nOFFSET+1
+          POSX := 0+nOFFSET+1          
           SWMATCH:=.T.
           SWMOVPAG:=.T.
           hb_keyPut(10) // salto de línea
@@ -2931,29 +5067,31 @@ while SW_EDIT
 
      elseif c==16  // CTRL-P ejecuta el programa
        if TEXTOTIPO=="BINARY"
-       MSGCONTROL(" CTRL-P... O=Refresh Scrn   | H=HighLighting    | M=Change Colour Edit",;
-                  " EXEC      ",;
-                  " & VIEW    ")
-       else
-       MSGCONTROL(" CTRL-P... P=Compile & Run | L=Compile Lib XU | S=Select Compiler | C=Load Set File",;
-                  " EXEC     F5=Compile & Run | O=Refresh Scrn   | H=HighLighting    | M=Change Colour Edit",;
-                  " & VIEW    X=Ins Params and/or environment vars ")
-       end
-       c:=inkey(0)
-       c:=asc(upper(chr(c)))
-       BarraTitulo(ARCHIVO)
-       if TEXTOTIPO=="BINARY"
           if c!=77 .and. c!=79 .and. c!=72 .and. c!=27
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                 while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
+       else
+       MSGCONTROL(" CTRL-P... P=Build & Run | L=Compile Lib XU | S=Select Compiler     | QUICK: F5=Build & Run",;
+                  " EXEC      X=Ins Params/environment vars    | C=Apply Configuration | R=Run code buffer",;
+                  " & CONFIGURATION ")
        end
-       while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+       c:=inkey(0,INKEY_ALL)
+       while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
+       c:=asc(upper(chr(c)))
+       BarraTitulo(ARCHIVO)
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
+
+      // while inkey(,159)!=0 ; end
+      //    MRESTSTATE(MOUSE)
        /* agregar xCOMPILADOR y xPARAMETROS 
           gcc %name%.c -ldssdff -o %name% 
           seleccionar con achoice*/
@@ -2978,8 +5116,8 @@ while SW_EDIT
            pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,int(SLINEA/2)-maxLen,TLINEA-3,int(SLINEA/2)+maxLen,;
                    cDESCRIPCOMP, .T.)
            
-           while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
+          while inkey(,INKEY_ALL)!=0 ; end
+          MRESTSTATE(MOUSE)
 
            RELEASE cDESCRIPCOMP
            IF pELIGE>0
@@ -2988,9 +5126,11 @@ while SW_EDIT
               DESCRIPCION:=LISTACOMPILA[pELIGE][4]
               COMENTARIOS:=LISTACOMPILA[pELIGE][5]
               ESEJECUTABLE:=iif(LISTACOMPILA[pELIGE][6]=="e",.T.,.F.)
+              BLOQCOMENTARIOS_I:=LISTACOMPILA[pELIGE][7]
+                     BLOQCOMENTARIOS_F:=LISTACOMPILA[pELIGE][8]
               SW_COMPILE:=.F.
            END
-           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
            BarraTitulo(ARCHIVO)
            SETCOLOR(N2COLOR(cTEXTO))
        
@@ -3010,59 +5150,68 @@ while SW_EDIT
            readinsert(.F.)
            
            PARAMETROS:=ALLTRIM(PARAMETROS)
-           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
            BarraTitulo(ARCHIVO)
            SETCOLOR(N2COLOR(cTEXTO))
-           
-       elseif c==77   //.or. c==13   // CTRL-PM    cambia el mapa de colores.
-           RELEASE cSELCOLOURS
-           cSELCOLOURS:={}
-           maxLen:=0
-           for i:=1 to len(cCOLORES)
-              AADD(cSELCOLOURS,padc(cCOLORES[i][1],32))
-           end
-           maxLen:=16
-           XCLEAR:=int(TLINEA/2)
-           if LEN(cSELCOLOURS)<XCLEAR
-              XCLEAR:=LEN(cSELCOLOURS)
-           end
-           SETCOLOR(N2COLOR(cBARRA))
-           //@ TLINEA-XCLEAR,int(SLINEA/2)-(maxLen+1) CLEAR TO TLINEA-3,int(SLINEA/2)+(maxLen+1)
-           @ 1,SLINEA-33 CLEAR TO XCLEAR+1,SLINEA
+       
+       elseif c==82   //  CTRL-PR    ejecuta codigo del buffer
+           XLEN:=len(BUFFER)
+           if XLEN>0
+              STR:=""
+              for j:=1 to XLEN
+                 STR+=BUFFER[j]+_CR
+              end
+              EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
+              if lower(EXT)=="com".or. lower(EXT)=="hopper" .or. lower(EXT)=="hop"
+                 STR+="{0}return"+_CR
+              elseif lower(EXT)=="bas" .or. lower(EXT)=="jambo"
+                 STR+="End"+_CR
+              elseif lower(EXT)=="flw"
+                 STR+="END"+_CR
+              elseif lower(EXT)=="xu"
+                 STR+="stop"+_CR
+              end
+              if len(COMPILADOR)>0
+                 if !ESEJECUTABLE
+                    // arma archivo temporal
+                    fileTemporal:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))
+                    FILERAND:=hb_ntos(int(hb_random(1000000000)))
 
-         //  setpos(TLINEA-XCLEAR,int(SLINEA/2)-11); outstd(" Select a color map ")
-           MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
-           //SETCOLOR(N2COLOR(6))
-           setcolor( 'GR+/N,N/GR+,,,W/N' )
-         //  pELIGE:=ACHOICE(TLINEA-XCLEAR+1,int(SLINEA/2)-maxLen,TLINEA-3,int(SLINEA/2)+maxLen,;
-         //          cSELCOLOURS, .T.)
-           pELIGE:=ACHOICE(1,SLINEA-32,XCLEAR,SLINEA-1,;
-                   cSELCOLOURS, .T.)
-           while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
-              
-           RELEASE cSELCOLOURS
-           IF pELIGE>0
-              cMAPACOLORES:=cCOLORES[pELIGE][1]
-              cLENMAPACOLORES:=LEN(cMAPACOLORES)
-              cHELP:=cCOLORES[pELIGE][2]
-              cTEXT:=cCOLORES[pELIGE][3]
-              cEDITOR:=cTEXT
-              cCADENA:=cCOLORES[pELIGE][5]
-              cMENU:=cCOLORES[pELIGE][6]
-              cBARRA:=cMENU
-              cCURSORMOD:=cCOLORES[pELIGE][8]
-              cSECCION:=cCOLORES[pELIGE][9]
-              cKEYWORD:=cCOLORES[pELIGE][10]
-              cEDITDEF:=cCOLORES[pELIGE][11]
-              cEDITCOM:=cCOLORES[pELIGE][12]
-              cDESTACADO:=cCOLORES[pELIGE][13]
-              cSELECT:=cCOLORES[pELIGE][14]
-           END
-           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-           BarraTitulo(ARCHIVO)
-           SETCOLOR(N2COLOR(cTEXTO))
-           
+                    fileTemporal:="/tmp/"+fileTemporal
+                    fileTemporal:=strtran(fileTemporal,".","_"+FILERAND+".")
+//                    @ 12,10 say fileTemporal
+                    fd:=fcreate(fileTemporal,0)
+                    fwrite(fd,STR,len(str))
+                    fclose(fd)
+
+                    fileEXETemporal:=substr(fileTemporal,1,at(".",fileTemporal)-1)
+                    
+                    EJECUTA1:=strtran(COMPILADOR,"%name%",fileEXETemporal)
+                    EJECUTA1:=strtran(EJECUTA1,"%path%","")
+                    EJECUTA1:=strtran(EJECUTA1,"%params%","")
+                    
+//                    @ 13,10 say EJECUTA1
+//                    inkey(0)
+                    if SWGRMODE   // puede abrir una terminal
+                       FUNEXECTEMP(EJECUTA1)
+                    else
+                       SETCOLOR (N2COLOR(7))
+                       clear
+                       FUNEXECTEMP(EJECUTA1)
+                       while inkey()!=0
+                          ;
+                       end
+                       
+                       clearterm()
+                       clear
+                    end
+                    ferase(fileTemporal)
+                    
+                 end
+              end
+           end
+       elseif c==77   //.or. c==13   // CTRL-PM   DISPONIBLE
+
        elseif c==67 //.or. c==3   // CTRL-PC   recarga el archivo de configuración
            
            TMPcMAPACOLORES:=cMAPACOLORES
@@ -3091,78 +5240,21 @@ while SW_EDIT
                  cEDITCOM:=cCOLORES[i][12]
                  cDESTACADO:=cCOLORES[i][13]
                  cSELECT:=cCOLORES[i][14]
+                 cNUMBERS:=cCOLORES[i][15]
+                 cSTRINGF:=cCOLORES[i][16]
+                 cMATF:=cCOLORES[i][17]
+                 cLOGICF:=cCOLORES[i][18]
               end
            end
            tTEXTO:=cTEXTO
            BarraTitulo(ARCHIVO)
+           hb_keyPut(16)
+           hb_keyPut(83)
            exit
        
-       elseif c==79 // .or. c==15    // CTRL-PO  refresca la pantalla
-
-      //  if SLINEA!=MAXCOL() .OR. TLINEA!=MAXROW()
-           SLINEA:=MAXCOL() //-2
-           TLINEA:=MAXROW()
-           if TEXTOTIPO=="BINARY"
-              if SLINEA<108
-                 SLINEA:=110  // minimo para edicion de binarios
-                 setmode(TLINEA,SLINEA)
-                 hb_keyPut(16);hb_keyPut(79)
-              end
-           end
-
-           clear
-           setcursor(0)
-           
-           color:=SETCOLOR (N2COLOR(cEDITOR))
-
-           while py>TLINEA-3
-              ++lini; --py
-           end
-           px:=1+nOFFSET; p:=1+nOFFSET; cini:=0
-           encabezado(pi,p-nOFFSET,TOPE,SW_MODIFICADO,iif(p<=len(s),s[p],""),SWMARCABLOQUE,SWDELELIN,SWCOPIA,;
-                     SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
-                     XFILi,XCOLi,XFILf,XCOLf) 
-
-           STRSP:=SUBSTR(BASELINE,1,SLINEA)
-           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-        /*   encabezado(pi,p-nOFFSET,TOPE,SW_MODIFICADO,iif(p<=len(s),s[p],""),SWMARCABLOQUE,SWDELELIN,SWCOPIA,;
-                     SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
-                     XFILi,XCOLi,XFILf,XCOLf)*/
-           BarraTitulo(ARCHIVO)
-
-           cPAGINA:=MAXROW()-4   // numero de lineas que salta av y re pag.
-
-           setcolor(color)
-           setcursor(1)
-
-           setpos(py,px)
-           exit
-       // end
+       elseif c==79 // .or. c==15    // CTRL-PO  DISPONIBLE
        
-       elseif c==72  //.or. c==8     // CTRL-PH   habilita, inhabilita coloreado de texto
-           
-           if SWCOLORTEXTO==2
-              SWCOLORTEXTO:=0
-           else
-              SWCOLORTEXTO:=2
-           end
-           exit
-       ///elseif c==7    // CTRL-PG libre
-       
-/*       elseif c==88  // .or. c==24    // CTRL-PX inserta parametros
-           SETCOLOR(N2COLOR(cBARRA))
-           @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-           setpos(TLINEA-2,2);outstd(" PARAMETERS? ")
-           MSGINPUT("^KU=PASTE")
-              
-           PARAMETROS:=INPUTLINE(PARAMETROS,SLINEA-15,TLINEA-2,15,"s")
-           
-           PARAMETROS:=alltrim(PARAMETROS)
-
-           BarraTitulo(ARCHIVO)
-           SETCOLOR(N2COLOR(cTEXTO))
-           setpos(py,px)
-           setcursor(1)*/
+       elseif c==72  //.or. c==8     // CTRL-PH   DISPONIBLE
 
        elseif c==76  //.or. c==12   // CTRL-PL  crea la librería
            EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
@@ -3182,7 +5274,7 @@ while SW_EDIT
               loop
            end
            EJECUTA:=strtran(COMPILADOR,"%name%",TMPARCHIVO)
-           FUNEXEXU(EJECUTA,"<none>")
+           FUNEXEXU(EJECUTA,"<none>","")
 
        elseif c==80   // CTRL-PP
           if len(COMPILADOR)==0
@@ -3363,7 +5455,7 @@ while SW_EDIT
        
        BarraTitulo(ARCHIVO)
        SETCOLOR(N2COLOR(cTEXTO))
-       VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+       VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
        setpos(py,px)
        setcursor(1)
        exit
@@ -3371,6 +5463,10 @@ while SW_EDIT
        //setcursor(1)
        
      elseif c==17    // CTRL-Q
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        STRING:=""
        for i:=1 to len(METADATA)
           tmp:=substr(METADATA[i],rat("/",METADATA[i])+1,len(METADATA[i]))
@@ -3388,7 +5484,7 @@ while SW_EDIT
                             "Deseas salir de LAICA de todas maneras?"
              aOptions := { hb_utf8tostr("Sí"),"No" }
              nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-             while inkey(,159)!=0 ; end
+             while inkey(,INKEY_ALL)!=0 ; end
              MRESTSTATE(MOUSE)
              if nChoice==1
                    SW_EDIT:=.F.
@@ -3409,8 +5505,8 @@ while SW_EDIT
           exit
        end
        c:=0
-       while inkey(,159)!=0 ; end
-       MRESTSTATE(MOUSE)
+      // while inkey(,159)!=0 ; end
+      // MRESTSTATE(MOUSE)
 
      elseif c==-5   // F6   comando ^NN
         hb_keyPut(14)
@@ -3426,18 +5522,25 @@ while SW_EDIT
 
      elseif c==14   // CTRL-N  buscar y reemplazar
 //       if TEXTOTIPO=="BINARY"
-       MSGCONTROL(" CTRL-N...  N=Search      |  O=Next Match   |  R=Replace Match | V=View Matches List",;
-                  " SEARCH     T=Search Word |  B=Before Match |  A=Replace All   | Q=Del Matches List",;
-                  " & REPLACE F6=Search      | F8=Next Match   | F7=Before Match")
+       MSGCONTROL(" CTRL-N...  N=Search      |  O=Next Match   |  R=Replace Match | V=View Matches List | QUICK: F6=Search",;
+                  " SEARCH     T=Search Word |  B=Before Match |  A=Replace All   | Q=Del Matches List  |        F7=Before Match",;
+                  " & REPLACE                                                                           |        F8=Next Match")
 /*       else
        MSGCONTROL(" CTRL-N...  N=Search  |  O=Next Match   |  R=Replace Match | V=View Matches List",;
                   " SEARCH               |  B=Before Match |  A=Replace All   | Q=Del Matches List",;
                   " & REPLACE F6=Search  | F8=Next Match   | F7=Before Match")
        end*/
-       c:=inkey(0)
+       
+       c:=inkey(0,INKEY_ALL)
+     //  while inkey(,INKEY_ALL)!=0 ; end
+     //         MRESTSTATE(MOUSE)
+              
        c:=asc(upper(chr(c)))
        BarraTitulo(ARCHIVO)
-
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        /*if TEXTOTIPO=="BINARY"
           if c==65 .or. c==82
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
@@ -3451,8 +5554,8 @@ while SW_EDIT
        //SETCOLOR(N2COLOR(cBARRA))
        //@ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
        if !SWCTRLNT
-          while inkey(,159)!=0 ; end
-             MRESTSTATE(MOUSE)  
+         // while inkey(,159)!=0 ; end
+         //    MRESTSTATE(MOUSE)  
        else
           SWCTRLNT:=.F.
           cBUSCA:=""
@@ -3479,7 +5582,9 @@ while SW_EDIT
              cBUSCA:=alltrim(cBUSCA)
              REEMPCARTEXT(@cBUSCA)
              cBUSCA:=strtran(cBUSCA,_CR,"")
-             c:=inkey()
+             c:=inkey(,INKEY_ALL)
+             while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
              if lastkey()==27
                 if LEN(cBUSCA)==0
                    exit
@@ -3500,13 +5605,13 @@ while SW_EDIT
                         setcolor( 'GR+/N,N/GR+,,,W/N' )
                         pELIGE:=ACHOICE(TLINEA-(3+LEN(LISTABUSQUEDA)),11,TLINEA-3,SLINEA-11,LISTABUSQUEDA, .T.)
                         
-                        while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
+                        while inkey(,INKEY_ALL)!=0 ; end
+                        MRESTSTATE(MOUSE)
 
                         if pELIGE>0
                            cBUSCA:=LISTABUSQUEDA[pELIGE]
                         end
-                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                      else
                         cBUSCA:=""
                      end
@@ -3521,7 +5626,7 @@ while SW_EDIT
              end
           END
           readinsert(.F.)
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
          // setpos(TLINEA-2,2);outstd(" SEARCH? ")
          // MSGINPUT("^KU=PASTE, <!,*> BEFORE TEXT=CASE INSENS/FULL WORD, #NUM;=ASCII")
 
@@ -3565,7 +5670,7 @@ while SW_EDIT
                             cMessage := hb_utf8tostr("OPCODE no válido."+_CR+"Intenta con números hexadecimales reales")
                             aOptions := { hb_utf8tostr("Será...") }
                             nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                            while inkey(,159)!=0 ; end
+                            while inkey(,INKEY_ALL)!=0 ; end
                             MRESTSTATE(MOUSE)
                             setpos(py,px)
                             exit
@@ -3851,9 +5956,10 @@ while SW_EDIT
              //SETCOLOR(N2COLOR(6))
              setcolor( 'GR+/N,N/GR+,,,W/N' )
              pELIGE:=ACHOICE(TLINEA-XCLEAR+1,1,TLINEA-3,SLINEA-1,MENUMATCH, .T.)
-             while inkey(,159)!=0 ; end
+             while inkey(,INKEY_ALL)!=0 ; end
              MRESTSTATE(MOUSE) 
-             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+             
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              BarraTitulo(ARCHIVO)
              SETCOLOR(N2COLOR(cTEXTO))
              setpos(py,px)
@@ -3872,13 +5978,13 @@ while SW_EDIT
              setpos(py,px)
           end
   
-       elseif c==65 // .or. c==1   // CTRL-NA  reemplaza todas las ocurrencias
+       elseif c==65 // .or. c==1   // CTRL-NA  reemplaza todas las ocurrencias, o todas las de una marca
          if SWMATCH // .and. !SWRANGE
           if TEXTOTIPO=="BINARY"
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                 while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
@@ -3923,13 +6029,13 @@ while SW_EDIT
                         setcolor( 'GR+/N,N/GR+,,,W/N' )
                         pELIGE:=ACHOICE(TLINEA-(3+LEN(LISTABUSQUEDA)),11,TLINEA-3,SLINEA-11,LISTABUSQUEDA, .T.)
                         
-                        while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
+                        while inkey(,INKEY_ALL)!=0 ; end
+                        MRESTSTATE(MOUSE)
 
                         if pELIGE>0
                            cREEMPLAZA:=LISTABUSQUEDA[pELIGE]
                         end
-                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                      else
                         cREEMPLAZA:=""
                      end
@@ -3944,7 +6050,7 @@ while SW_EDIT
              end
           END
           readinsert(.F.)
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
            
            SETCOLOR(N2COLOR(cTEXTO))
            if lastkey()!=27  //len(alltrim(cREEMPLAZA))>0 //.or. lastkey()==13 se usa #13
@@ -3974,26 +6080,70 @@ while SW_EDIT
                   // ? cBUSCA; inkey(0)
                    end
                 end
-              for i:=1 to len(LISTAFOUND) step 3
-                 POSY:=LISTAFOUND[i]    // fila
-                 if TEXTOTIPO!="BINARY"
-                    AADD(BUFFER_CTRLZ,TEXTO[POSY])
-                    AADD(LINBUFFCTRLZ,POSY)
+             // MARCA PARA REEMPLAZAR
+              if XFIL1EDIT>0 .and. XFIL2EDIT>0
+                 for i:=1 to len(LISTAFOUND) step 3
+                    POSY:=LISTAFOUND[i]    // fila
+                    if POSY>=XFIL1EDIT .and. POSY<=XFIL2EDIT
+                       if TEXTOTIPO!="BINARY"
+                          AADD(BUFFER_CTRLZ,TEXTO[POSY])
+                          AADD(LINBUFFCTRLZ,POSY)
+                       end
+                       TEXTO[POSY]:=STRTRAN(TEXTO[POSY],cBUSCA,"__2FtR3__")
+                    end
                  end
-                 TEXTO[POSY]:=STRTRAN(TEXTO[POSY],cBUSCA,"__2FtR3__")
+              else   // marca todo!!
+                 for i:=1 to len(LISTAFOUND) step 3
+                    POSY:=LISTAFOUND[i]    // fila
+                    if TEXTOTIPO!="BINARY"
+                          AADD(BUFFER_CTRLZ,TEXTO[POSY])
+                          AADD(LINBUFFCTRLZ,POSY)
+                    end
+                    TEXTO[POSY]:=STRTRAN(TEXTO[POSY],cBUSCA,"__2FtR3__")
+                 end
               end
-              for i:=1 to len(LISTAFOUND) step 3
-                 POSY:=LISTAFOUND[i]    // fila
-                 TEXTO[POSY]:=STRTRAN(TEXTO[POSY],"__2FtR3__",cREEMPLAZA)
+            // REEMPLAZA!
+              if XFIL1EDIT>0 .and. XFIL2EDIT>0
+                 STACKDELETEFIND:={}
+                 for i:=1 to len(LISTAFOUND) step 3
+                    POSY:=LISTAFOUND[i]    // fila
+                    if POSY>=XFIL1EDIT .and. POSY<=XFIL2EDIT
+                       TEXTO[POSY]:=STRTRAN(TEXTO[POSY],"__2FtR3__",cREEMPLAZA)
+                       AADD(STACKDELETEFIND,i)                       
+                    end
+                 end
+                 if len(STACKDELETEFIND)>0
+                    for i:=len(STACKDELETEFIND) to 1 step -1
+                       adel(LISTAFOUND,STACKDELETEFIND[i])
+                       adel(LISTAFOUND,STACKDELETEFIND[i])
+                       adel(LISTAFOUND,STACKDELETEFIND[i])
+                       totLF-=3
+                       asize(LISTAFOUND,totLF)
+                    end
+                    ptrLF:=1
+                    if len(LISTAFOUND)==0
+                       ptrLF:=0; totLF:=0 
+                       SWMATCH:=.F.
+                    end
+                    RELEASE STACKDELETEFIND
+                 end
+              else  // reemplaza todo!!
+                 for i:=1 to len(LISTAFOUND) step 3
+                    POSY:=LISTAFOUND[i]    // fila
+                    TEXTO[POSY]:=STRTRAN(TEXTO[POSY],"__2FtR3__",cREEMPLAZA)
+                 end
+                 SWMATCH:=.F. 
+                 RELEASE LISTAFOUND
+                 LISTAFOUND:={}
+                 ptrLF:=0; totLF:=0 
               end
               RELEASE s
               s:=ASIGNALINEA(TEXTO[POSY])
               SW_COMPILE:=.F.
               SW_MODIFICADO:=.T.
-              SWMATCH:=.F. 
-              RELEASE LISTAFOUND
-              ptrLF:=0; totLF:=0; cini:=0; p:=1+nOFFSET;px:=1+nOFFSET
-              VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+              cini:=0
+              p:=1+nOFFSET;px:=1+nOFFSET
+              VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
            end
            BarraTitulo(ARCHIVO)
            exit
@@ -4013,7 +6163,7 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                 while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
@@ -4059,13 +6209,13 @@ while SW_EDIT
                         setcolor( 'GR+/N,N/GR+,,,W/N' )
                         pELIGE:=ACHOICE(TLINEA-(3+LEN(LISTABUSQUEDA)),11,TLINEA-3,SLINEA-11,LISTABUSQUEDA, .T.)
                         
-                        while inkey(,159)!=0 ; end
+                        while inkey(,INKEY_ALL)!=0 ; end
                         MRESTSTATE(MOUSE) 
 
                         if pELIGE>0
                            cREEMPLAZA:=LISTABUSQUEDA[pELIGE]
                         end
-                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                      else
                         cREEMPLAZA:=""
                      end
@@ -4080,7 +6230,7 @@ while SW_EDIT
              end
           END
           readinsert(.F.)
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
 
           SETCOLOR(N2COLOR(cTEXTO))
           
@@ -4133,7 +6283,7 @@ while SW_EDIT
              xlen:=len(s)+1
              SW_COMPILE:=.F.
              SW_MODIFICADO:=.T.
-             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              BarraTitulo(ARCHIVO)
 
              if ptrLF>=totLF
@@ -4205,7 +6355,7 @@ while SW_EDIT
        hb_keyPut(10)
        hb_keyPut(74)
  
-     elseif c==10    // CTRL-J   // SALTA a linea
+     elseif c==10  // CTRL-J   // SALTA a linea
        SWRAPIDA:=.F.
        if !SWMATCH .or. SWF9  // usa el comando aunque este ocupado con SWMATCH
           SWF9:=.F.
@@ -4215,31 +6365,50 @@ while SW_EDIT
                      " JUMP ",;
                      "")
           else
-          MSGCONTROL(" CTRL-J...  J=Jump to Line | V=to 'VARS:' (XU) | A=To 'ALGORITHM:' (XU) | F=To 'FUNCTIONS:' (XU)",;
-                     " JUMP      F9=Jump to Line | B=Back (only for ^J+J)",;
+          MSGCONTROL(" CTRL-J...  J=Jump to Line  | V=to 'VARS:' (XU)      | A=To 'ALGORITHM:' (XU) | QUICK: F9=Jump to Line ",;
+                     " JUMP       K=Go to (,{,[,< | F=To 'FUNCTIONS:' (XU) | B=Back (only for ^J+J)",;
                      "")
           end
-          c:=inkey(0)
+          c:=inkey(0,INKEY_ALL)
+          while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
           c:=asc(upper(chr(c)))
           BarraTitulo(ARCHIVO)
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
           if TEXTOTIPO=="BINARY"
              if c!=74 .and. c!=27
                 cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                 while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
                 loop
              end
           end
           setpos(py,px)
           if !SWCTRLJCTRKV
-             while inkey(,159)!=0 ; end  // si coloco esto, no puedo hacer ^J en BUFFER
-             MRESTSTATE(MOUSE)
+            // while inkey(,159)!=0 ; end  // si coloco esto, no puedo hacer ^J en BUFFER
+            // MRESTSTATE(MOUSE)
           else
              SWCTRLJCTRKV:=.F.
           end
-          if c==74 // .or. c==10
+          if c==75    // CTRL-JK va hacia la marca recien encontrada de (,{,[ y <
+             if keyPos[1]>0
+                SWCTRLJK:=.T.
+                POSY:=keyPos[1]
+                ECX:=POSY
+                cini:=0
+                POSX:=keyPos[2]
+             else
+                BarraTitulo(ARCHIVO)
+                SETCOLOR(N2COLOR(cTEXTO))
+                exit
+             end
+             
+          elseif c==74 // CTRL-JJ
              SETCOLOR(N2COLOR(cBARRA))
              ECX:="      "
              @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
@@ -4247,10 +6416,10 @@ while SW_EDIT
              if TEXTOTIPO=="BINARY"
                  setpos(TLINEA-2,2);outstd(" POS. TO JUMP? ")
                  ECX:=""
-                 ECX:=ALLTRIM(INPUTLINE(ECX,9,TLINEA-2,17,"s"))
+                 ECX:=ALLTRIM(INPUTLINE(ECX,9,TLINEA-2,17,"s",.F.))
              else
                  setpos(TLINEA-2,2);outstd(" LINE TO JUMP? ")
-                 ECX:=val(INPUTLINE(ECX,7,TLINEA-2,17,"N"))
+                 ECX:=val(INPUTLINE(ECX,7,TLINEA-2,17,"N",.F.))
              end
 
              if TEXTOTIPO=="BINARY"
@@ -4264,8 +6433,8 @@ while SW_EDIT
                          cMessage := hb_utf8tostr("Posición no válida."+_CR+"Intenta con números hexadecimales reales")
                          aOptions := { hb_utf8tostr("Será...") }
                          nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                         while inkey(,159)!=0 ; end
-                         MRESTSTATE(MOUSE)
+                         while inkey(,INKEY_ALL)!=0 ; end
+                           MRESTSTATE(MOUSE)
                          setpos(py,px)
                          exit
                       end
@@ -4370,13 +6539,20 @@ while SW_EDIT
                    SWHUEA:=.T.
                 end
              end
+          elseif SWCTRLJK
+             SWCTRLJK:=.F.
+             //SWF9:=.T.
+             //hb_keyPut(1)
+             pushkey(4,POSX-1)
           end
           if SWMOVPAG
              SWMOVPAG:=.F.
-             SWMATCH:=.F.
+             if len(LISTAFOUND)==0
+                SWMATCH:=.F.
+             end
           end
           
-          VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
           
           BarraTitulo(ARCHIVO)
 
@@ -4393,14 +6569,18 @@ while SW_EDIT
      elseif c==12   // CTRL-L calculo de vectores numericos.
        // if len(BUFFER)>0
        if TEXTOTIPO=="BINARY"
-          while inkey(,159)!=0 ; end  // por si viene de ALT-L
+         // while inkey(,159)!=0 ; end  // por si viene de ALT-L
           
           RBUFFER:=_CALCULADORA(ARCHIVO)  // no hará nada con RBUFFER aquí.
 
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
           BarraTitulo(ARCHIVO)
           exit
        else
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
           // limpio la lista de busqueda, por si acaso.
            if len(LISTAFOUND)>0 
                     RELEASE LISTAFOUND
@@ -4408,7 +6588,8 @@ while SW_EDIT
                     SWMATCH:=.F.
                     ptrLF:=0; totLF:=0
            end
-           @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+           SETCOLOR(N2COLOR(cBARRA))
+           @ TLINEA-3,0 CLEAR TO TLINEA,MAXCOL()
            MSGBARRA("SELECT AN OPTION WITH LEFT|RIGHT ARROW, AND PRESS RETURN",ARCHIVO,2)
            nChoice:=1
            setcursor(1)
@@ -4502,7 +6683,10 @@ while SW_EDIT
                     REEMPTEXTCAR(@OPERA)
                     OPERA:=hb_utf8tostr(MEMOEDIT(OPERA,TLINEA-10,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF"))
                     REEMPCARTEXT(@OPERA)
-                    c:=inkey()
+                    //c:=inkey()
+                    c:=inkey(,INKEY_ALL)
+                     while inkey(,INKEY_ALL)!=0 ; end
+                        MRESTSTATE(MOUSE)
                     if lastkey()==27
                        if LEN(ALLTRIM(OPERA))==0
                           exit
@@ -4547,6 +6731,10 @@ while SW_EDIT
                     // busca menú
                     XLEN:=len(LISTAEXPRESION)
                     if XLEN>0
+                        while .T.
+                        if XLEN==0   // se añade por wl while .t.
+                           exit
+                        end
                         MATCH:={}
                         FOR i:=1 to XLEN
                            AADD(MATCH,strtran(LISTAEXPRESION[i],chr(10)," "))
@@ -4561,18 +6749,28 @@ while SW_EDIT
 
                         pELIGE:=ACHOICE(TLINEA-(3+iif(XLEN>5,5,XLEN)),11,TLINEA-3,SLINEA-11,MATCH, .T.,"CTRLKVUSERFUNCTION")
                         
-                        while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
-
+                        while inkey(,INKEY_ALL)!=0 ; end
+                        MRESTSTATE(MOUSE)
+                        
+                        SETCOLOR(N2COLOR(cBARRA))
+                        @ TLINEA-(4+iif(XLEN>5,5,XLEN)),10 CLEAR TO TLINEA-3,SLINEA-10
+                        
+                        if lastkey()==27
+                           exit
+                        end
                         if pELIGE>0
                            if lastkey()==7 .or. lastkey()==8
                               adel(LISTAEXPRESION,pELIGE)
                               asize(LISTAEXPRESION,len(LISTAEXPRESION)-1)
+                              --XLEN
                            else
                               OPERA:=LISTAEXPRESION[pELIGE]
+                              exit
                            end
                         end
-                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                        end
+                        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+                        
                      end
                  elseif upper(OPERA)=="HELP"
                      hb_keyPut(15);hb_keyPut(79)
@@ -4656,9 +6854,9 @@ while SW_EDIT
                           end
                        else
                           cMessage := hb_utf8tostr("Comando ejecutado con éxito")
-                          aOptions := { chr(1) }
+                          aOptions := { "Veamos..." }
                           nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                          while inkey(,159)!=0 ; end
+                          while inkey(,INKEY_ALL)!=0 ; end
                           MRESTSTATE(MOUSE)
                           if len(BUFFER)>0
                              SW_HAYBUFFER:=.T.
@@ -4670,7 +6868,7 @@ while SW_EDIT
                           end
                           SWOPEXISTE:=.F.
                           for i:=1 to len(LISTAEXPRESION)
-                             if OPERA == LISTAEXPRESION[i]
+                             if alltrim(OPERA) == alltrim(LISTAEXPRESION[i])
                                 SWOPEXISTE:=.T.
                                 exit
                              end
@@ -4688,14 +6886,14 @@ while SW_EDIT
                  SETCOLOR(N2COLOR(cBARRA))
                  @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
                  setpos(TLINEA-2,2); dispout("NEW TOKEN-SEP? ")
-                 DEFTOKEN:=INPUTLINE(DEFTOKEN,SLINEA-1,TLINEA-2,17,"s")
+                 DEFTOKEN:=INPUTLINE(DEFTOKEN,SLINEA-1,TLINEA-2,17,"s",.F.)
                  exit
               elseif nChoice==12  // def round
                  SETCOLOR(N2COLOR(cBARRA))
                  @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
                  setpos(TLINEA-2,2); dispout("NEW ROUND? ")
                  DEFROUND:=hb_ntos(DEFROUND)
-                 DEFROUND:=VAL(INPUTLINE(DEFROUND,2,TLINEA-2,13,"s"))
+                 DEFROUND:=VAL(INPUTLINE(DEFROUND,2,TLINEA-2,13,"s",.F.))
                  if DEFROUND>13 .or. DEFROUND<0
                     DEFROUND:=13
                  end
@@ -4814,6 +7012,10 @@ while SW_EDIT
        end
 
      elseif c>=376 .and. c<=384   // ALT-1 .. ALT-9
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
              pELIGE:=9-(384-c)
              IF pELIGE<=LEN(METADATA)
                 STRING:=METADATA[pELIGE]
@@ -4824,8 +7026,12 @@ while SW_EDIT
                     RET:=STRING
                     SWLENGUAJE:=1
                 else
-                    if EXT=="c" .or. EXT=="cpp" .or. EXT=="h"
+                    if EXT=="c" .or. EXT=="cpp" .or. EXT=="h" .or. EXT=="hh".or. EXT=="prg" .or. EXT=="ch".or. EXT=="com".or. EXT=="hopper" .or. EXT=="hop".or. EXT=="bas".or. EXT=="flw" .or. EXT=="jambo"
                        SWLENGUAJE:=2
+                    elseif EXT=="html" .or. EXT=="xml" .or. EXT=="htm"
+                       SWLENGUAJE:=5
+                    elseif EXT=="py"
+                       SWLENGUAJE:=6
                     else
                        SWLENGUAJE:=3
                     end
@@ -4953,7 +7159,7 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
@@ -4996,14 +7202,14 @@ while SW_EDIT
                       SW_COMPILE:=.F.
                       SW_MODIFICADO:=.T.
                       SW_HAYBUFFER:=.T.
-                      VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                      VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                    end
      elseif (c==308   .and. OSSYSTEM=="LINUX") // ALT - punto
         if TEXTOTIPO=="BINARY"
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
@@ -5046,20 +7252,33 @@ while SW_EDIT
                       SW_COMPILE:=.F.
                       SW_MODIFICADO:=.T.
                       SW_HAYBUFFER:=.T.
-                      VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                      VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                    end
 
-
-     elseif c==270 .and. OSSYSTEM=="LINUX"   // ALT-BACKSPACE // quita una tabulación, o borra hacia atrás
-        pushkey(8,cTABULA-(p%cTABULA)-1)
         
-     elseif c==284 .and. OSSYSTEM=="LINUX"   // ALT - ENTER 
+     elseif c==284 .and. OSSYSTEM=="LINUX"   // ALT-ENTER
+         if TEXTOTIPO=="BINARY"
+             cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
+                 aOptions := { hb_utf8tostr("Será...") }
+                 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+             loop
+          end
+        hb_keyPut(13)
+        for i:=1 to len(s)
+          hb_keyPut(asc(s[i]))
+        end
+        if !SW_CODESP
+           hb_keyPut(500)  // código de cambio de SW_CODESP
+           SW_CODESP:=.T.
+        end
+        
+        loop
+     elseif c==387 .and. OSSYSTEM=="LINUX"   // SHIFT-ALT-= (igual) 
 
-     elseif c==387 .and. OSSYSTEM=="LINUX"   // SHIFT - ALT - = (igual) 
-
-     elseif c==309 .and. OSSYSTEM=="LINUX"   // SHIFT - ALT - /
-
-     elseif c==27   // escape: Nada por ahora
+     elseif c==309 .and. OSSYSTEM=="LINUX"   // SHIFT-ALT-/
+     
      elseif c==378 .and. OSSYSTEM=="LINUX"   // ALT - 3   Nada por ahora
      elseif c==379 .and. OSSYSTEM=="LINUX"   // ALT - 4   Nada por ahora.
      
@@ -5068,12 +7287,13 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
         if !SWEDITTEXT
            SWEDITTEXT:=.T.
+           SWCTRLK4:=.T.
            XFIL1EDIT:=pi; XFIL2EDIT:=pi  // inicio
         else
            XFIL2EDIT:=pi  // fin
@@ -5082,16 +7302,15 @@ while SW_EDIT
               XFIL1EDIT:=XFIL2EDIT
               XFIL2EDIT:=cTMP
            end
-           exit
-        end
-        
-     elseif c==271 .and. OSSYSTEM=="LINUX"   // SHIFT - TAB CTRL-PH  colorea
-        if SWCOLORTEXTO==2
-              SWCOLORTEXTO:=0
-        else
-              SWCOLORTEXTO:=2
+           SWCTRLK4:=.F.
         end
         exit
+ 
+     elseif c==270 .and. OSSYSTEM=="LINUX"   // ALT-BACKSPACE // 
+        
+               
+     elseif c==271 .and. OSSYSTEM=="LINUX"   // SHIFT - TAB   quita una tabulación, o borra hacia atrás
+        pushkey(8,cTABULA-(p%cTABULA)-1)
         
      elseif c==279 .and. OSSYSTEM=="LINUX"   // ALT - I CTRL-JJ
         SWf9:=.T.
@@ -5099,15 +7318,20 @@ while SW_EDIT
         hb_keyPut(74)
  
 
-     elseif c==277 .and. OSSYSTEM=="LINUX"   // ALT - Y   Repite el ultimo comando OPE
-         nSetDecimal:=set(3,DEFROUND)
-         hb_keyPut(15)
-         hb_keyPut(80)
-         set(3,nSetDecimal)
-         
-     elseif c==294 .and. OSSYSTEM=="LINUX"   // ALT - L   Llama a OPE
+     elseif c==277 .and. OSSYSTEM=="LINUX"   // ALT - Y   Llama a comando OPE CTRL-LO
          hb_keyPut(12)
          hb_keyPut(79)  // O
+/*         nSetDecimal:=set(3,DEFROUND)
+         hb_keyPut(15)
+         hb_keyPut(80)
+         set(3,nSetDecimal) */
+         
+     elseif c==294 .and. OSSYSTEM=="LINUX"   // ALT - L   atajo para CTRL-KL copia segmento.
+          if !SWCTRLKL
+             SWCTRLKL:=.T.
+          end
+          hb_keyPut(11)
+          hb_keyPut(86)
 
      elseif c==280 .and. OSSYSTEM=="LINUX"   // ALT - O   carga archivo desde editor
          hb_keyPut(15)
@@ -5120,14 +7344,17 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
        SW_BUFFER:=.T.
        SW_COMPILE:=.F.
        SW_MODIFICADO:=.T.
-
+       if SWCOMPLETAHTML
+          SWCOMPLETAHTML:=.F.
+          htmlCompleta:=""
+       end
        if yCALLBACK>0
           --yCALLBACK
        end
@@ -5207,7 +7434,7 @@ while SW_EDIT
        hb_keyPut(11)
        hb_keyPut(74)
 
-     elseif c==289   .and. OSSYSTEM=="LINUX"  // ALT - F   ctrl-KF
+     elseif c==289   .and. OSSYSTEM=="LINUX"  // ALT - F   DISPONIBLE
        hb_keyPut(11)
        hb_keyPut(70)
        
@@ -5246,11 +7473,31 @@ while SW_EDIT
        hb_keyPut(11)
        hb_keyPut(75)
 
-     elseif c==290   .and. OSSYSTEM=="LINUX"  // ALT - G   ctrl-KG
+     elseif c==290   .and. OSSYSTEM=="LINUX"  // ALT - G
+       // alt-g  Marca un bloque para ser eliminado
+ /*      if SWDELELIN
+           XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+           SWMARCABLOQUE:=.F.; SWDELELIN:=.F.
+           SWCOPIA:=.F.
+       end
+       SWALTG:=.T.
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
+       hb_keyPut(11)  // ^K
+       hb_keyPut(77)  // ^KM
+*/
        hb_keyPut(11)
        hb_keyPut(71)
 
-     elseif c==303   .and. OSSYSTEM=="LINUX"  // ALT - V   ctrl-KV
+     elseif c==305   .and. OSSYSTEM=="LINUX"  // ALT - N   DISPONIBLE
+       hb_keyPut(11)
+       hb_keyPut(78)
+       
+     elseif c==303   .and. OSSYSTEM=="LINUX"  // ALT - V   DISPONIBLE
+//       hb_keyPut(27)
+//       hb_keyPut(49)
        hb_keyPut(11)
        hb_keyPut(86)
 
@@ -5259,30 +7506,32 @@ while SW_EDIT
        hb_keyPut(87)
 
      elseif c==226 .and. OSSYSTEM=="DARWIN"   // ALT-D,ALT-E,ALT-H,ALT-S,ALT-T,ALT-V,ALT-X
-       c:=inkey(0,159)
+       c:=inkey(0) //,159)
        if c==136
-          c:=inkey(0,159)
+          c:=inkey(0)//,159)
           if c==130   // ALT-D
              hb_keyPut(11)
              hb_keyPut(68)
           elseif c==171  // ALT-S
              hb_keyPut(11)
              hb_keyPut(83)
-          elseif c==154   // ALT-V
+          elseif c==154   // ALT-V   DISPONIBLE
              hb_keyPut(11)
              hb_keyPut(86)
+//             hb_keyPut(11)
+//             hb_keyPut(86)
           elseif c==145    // ALT-X
              hb_keyPut(11)
              hb_keyPut(88)
           end
        elseif c==130   // ALT-E
-          c:=inkey(0,159)
+          c:=inkey(0)//,159)
           if c==172
              hb_keyPut(11)
              hb_keyPut(69)
           end
        elseif c==128   // ALT-T
-          c:=inkey(0,159)
+          c:=inkey(0)//,159)
           if c==160
              hb_keyPut(11)
              hb_keyPut(84)
@@ -5291,7 +7540,7 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
              end
@@ -5318,14 +7567,14 @@ while SW_EDIT
                 SW_COMPILE:=.F.
                 SW_MODIFICADO:=.T.
                 SW_HAYBUFFER:=.T.
-                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              end
           elseif c==147   // ALT-guion
              if TEXTOTIPO=="BINARY"
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
              end
@@ -5353,45 +7602,58 @@ while SW_EDIT
                 SW_COMPILE:=.F.
                 SW_MODIFICADO:=.T.
                 SW_HAYBUFFER:=.T.
-                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              end
           elseif c==158   // ALT-coma
           
           end
        elseif c==132   // ALT-H
-          c:=inkey(0,159)
+          c:=inkey(0)//,159)
           if c==162
              hb_keyPut(11)
              hb_keyPut(72)
           end
        end
      
-     elseif c==198 .and. OSSYSTEM=="DARWIN"   // ALT-F
-       c:=inkey(0,159)
+     elseif c==198 .and. OSSYSTEM=="DARWIN"   // ALT-F  DISPONIBLE
+       c:=inkey(0)//,159)
        if c==146
           hb_keyPut(11)
           hb_keyPut(70)
        end
      
      elseif c==239 .and. OSSYSTEM=="DARWIN"   // ALT-G
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==163
-          c:=inkey(0,159)
-          if c==191
+          c:=inkey(0)//,159)
+          if c==191    // alt-g  Marca un bloque para ser eliminado
+      /*       if SWDELELIN
+                XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+                SWMARCABLOQUE:=.F.; SWDELELIN:=.F.
+                SWCOPIA:=.F.
+             end
+             SWALTG:=.T.
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
+             hb_keyPut(11)  // ^K
+             hb_keyPut(77)  // ^KM
+             */
              hb_keyPut(11)
              hb_keyPut(71)
           end
        end
      
      elseif c==207 .and. OSSYSTEM=="DARWIN"   // ALT-P
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==128
           hb_keyPut(11)
           hb_keyPut(80)
        end
      
      elseif c==197 .and. OSSYSTEM=="DARWIN"   // ALT-Q
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==147
           hb_keyPut(11)
           hb_keyPut(81)
@@ -5402,29 +7664,33 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==169
-          SW_BUFFER:=.T.
+          //SW_BUFFER:=.T.
           SW_COMPILE:=.F.
           SW_MODIFICADO:=.T.
 
           if yCALLBACK>0
              --yCALLBACK
           end 
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,chr(5))
-                      AADD(LINBUFFCTRLZ,pi)
+          if SWCOMPLETAHTML
+             SWCOMPLETAHTML:=.F.
+             htmlCompleta:=""
+          end
+          AADD(BUFFER_CTRLZ,TEXTO[pi])
+          AADD(LINBUFFCTRLZ,pi)
+          // CTRl-Z
+          AADD(BUFFER_CTRLZ,chr(5))
+          AADD(LINBUFFCTRLZ,pi)
           exit
        end
      
      elseif c==195 .and. OSSYSTEM=="DARWIN"   // ALT-A, ALT-B, ALT-O, ALT-W
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==165    // ALT-A
           hb_keyPut(11)
           hb_keyPut(65)
@@ -5439,7 +7705,7 @@ while SW_EDIT
           hb_keyPut(87)
        end
      elseif c==194  .and. OSSYSTEM=="DARWIN"   // ALT-C,ALT-J,ALT-K,ALT-M,ALT-R
-       c:=inkey(0,159)
+       c:=inkey(0)//,159)
        if c==169   // ALT-C
           hb_keyPut(11)
           hb_keyPut(67)
@@ -5460,124 +7726,43 @@ while SW_EDIT
           hb_keyPut(83)
        end
 
+     
      elseif c==11   //CTRL-K   // borra una linea, pero la deja en el buffer
        // limpio la lista de busqueda, por si acaso.
        if TEXTOTIPO=="BINARY"
           cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
           loop
        end
-       if len(LISTAFOUND)>0 
-          RELEASE LISTAFOUND
-          LISTAFOUND:={}
-          SWMATCH:=.F.
-          ptrLF:=0; totLF:=0
+       if SWCOMPLETAHTML
+          SWCOMPLETAHTML:=.F.
+          htmlCompleta:=""
        end
-       
+         
        SETCOLOR(N2COLOR(cBARRA))
-       @ TLINEA-4,0 CLEAR TO TLINEA,MAXCOL()
+       @ TLINEA-5,0 CLEAR TO TLINEA,MAXCOL()
        
-       setpos(TLINEA-4,1);outstd(substr(" CTRL-K... K|F3=Cut line | U|F4=Paste line | G=Del Segment | X=Del Lines  | I=Pos Ini line |  P=Indent line",1,SLINEA-3)+chr(175))
-       setpos(TLINEA-3,1);outstd(substr(" EDIT      E=Del to EOL  | C=Copy Sqr Blk  | S=Sangria(+)  | D=Sangria(-) | N=AutoComplete | ^P=Indent Lines",1,SLINEA-3)+chr(175))
-       setpos(TLINEA-2,1);outstd(substr("           B=Del to BOL  | M=Cut Sqr Blk   | Q=Cancel Mark | L=Del BUFFER | V=View BUFFER  |  H=Copy Blk & Clear",1,SLINEA-3)+chr(175))
-       setpos(TLINEA-1,1);outstd(substr("           W=Move lines  | T=Copy Word     | R=Repl. Word  | F=Conv. Base | J=Swap lines   |  A=Copy Line & Clear",1,SLINEA-3)+chr(175))
-       setpos(TLINEA,  1);outstd(substr("           Z=Reload file | 0=Calculator    | 1=Del to EOF  | 2=Del to BOF | 4=Mark lines   |  5=Parentization",1,SLINEA-3)+chr(175))
+       setpos(TLINEA-5,1);outstd(substr(" CTRL-K: K=Cut line   | U=Paste line   | X=Cut Lines   | S=Sangria(+)  | P=Indent line   | 1=Del to EOF  | G=Del Blk ",1,SLINEA-3))
+       setpos(TLINEA-4,1);outstd(substr(" EDIT    E=Del to EOL | C=Copy Sqr Blk | A=Copy Lines  | D=Sangria(-)  | ^P=Indent Lines | 2=Del to BOF  | F=Del lines",1,SLINEA-3))
+       setpos(TLINEA-3,1);outstd(substr("         B=Del to BOL | M=Cut Sqr Blk  | 4=Mark lines  | T=Copy Word   | W=Move lines    | Z=Reload file | V=Cut segment",1,SLINEA-3))
+       setpos(TLINEA-2,1);outstd(substr("         I=Go Ini lin | H=Cpy/Clr Blk  | Q=Cancel Mark | R=Repl. Word  | J=Swap lines    | L=Copy segmnt & N=Del segment", 1,SLINEA-3))
+       setpos(TLINEA-1,1);outstd(substr("         O=Ins BlkSpc | Y=Mark Ins Txt -> ^Y=Ins Txt -> ^T=Ins Cur Spc",1,SLINEA-3)) 
+////       setpos(TLINEA,  1);outstd(substr("            |     |   |  ",1,SLINEA-3))
        
-       c:=inkey(0)
+       c:=inkey(0,INKEY_ALL)
+       while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
        c:=asc(upper(chr(c)))
-       VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+       VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
        BarraTitulo(ARCHIVO)
        SETCOLOR(N2COLOR(cTEXTO))
        setpos(py,px)
-       if c==71 //.or. c==7        // CTRL-KG
-          if !SWCTRLKG
-             SWCTRLKG:=.T.
-             XFILi:=pi; XCOLi:=p
-          else
-             SWCTRLKG:=.F.
-             XFILf:=pi; XCOLf:=p
-             if XFILi>XFILf  // invierte ini y fin si estan al verre
-                cTMP:=XFILi
-                XFILi:=XFILf
-                XFILf:=cTMP
-                cTMP:=XCOLi
-                XCOLi:=XCOLf
-                XCOLf:=cTMP
-                SWBORRA7:=.T.
-                SWBORRA8:=.F.
-             elseif XFILi==XFILf 
-                if XCOLi<=XCOLf
-                   SWBORRA7:=.F.
-                   SWBORRA8:=.T.
-                else
-                   cTMP:=XCOLi; XCOLi:=XCOLf;XCOLf:=cTMP
-                   SWBORRA7:=.T.
-                   SWBORRA8:=.F.
-                end
-             else
-                SWBORRA7:=.F.
-                SWBORRA8:=.T.
-             end
-            // _ELIMINA_BUFFER(@BUFFER)
-             CNT:=0
-             ctBUFF:=len(BUFFER)
-             if XFILi==XFILf
-                 AADD(BUFFER,substr(TEXTO[XFILi],XCOLi,XCOLf-XCOLi+1)+chr(127))
-                //// ctBUFF:=len(BUFFER[1])-1
-                 ++ctBUFF
-                 CNT:=CNT+len(BUFFER[ctBUFF])
-                 ///TEXTO[XFILi]:=substr(TEXTO[XFILi],1,XCOLi-1) + substr(TEXTO[XFILi],XCOLf+1,len(TEXTO[XFILi))
-             else
-                 AADD(BUFFER,substr(TEXTO[XFILi],XCOLi,len(TEXTO[XFILi]))+chr(3) )
-                 ++ctBUFF
-                 CNT:=CNT+len(BUFFER[ctBUFF])
-
-                 for i:=XFILi+1 to XFILf-1
-                    AADD(BUFFER,substr(TEXTO[i],1,len(TEXTO[i]))+chr(3) )
-                    ctBUFF++
-                    CNT:=CNT+len(BUFFER[ctBUFF])
-                 end
-                 if XCOLf < len(TEXTO[XFILf])
-                    AADD(BUFFER,substr(TEXTO[XFILf],1,XCOLf)+chr(127) )
-                    ctBUFF++
-                    CNT:=CNT+len(BUFFER[ctBUFF])
-                 else
-                    AADD(BUFFER,substr(TEXTO[XFILf],1,XCOLf)+chr(3) )
-                    ctBUFF++
-                    CNT:=CNT+len(BUFFER[ctBUFF])
-                 end
-             end
-             if SWBORRA7 .and. !SWBORRA8
-                pushkey(7,CNT-1) 
-             else
-                hb_keyPut(4)
-                pushkey(8,CNT-1)
-             end
-             SW_HAYBUFFER:=.T.
-             SW_COMPILE:=.F.
-             SW_MODIFICADO:=.T.
-            // XFIL1EDIT:=0;XFIL2EDIT:=0
-            // BUFFER_CTRLZ:={}
-            // LINBUFFCTRLZ:={}
-             XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
-             exit
-          end
-        /*   */
        
-       elseif c==48   // CTRL-K0  llama a calculadora
-          
-          RBUFFER:=_CALCULADORA(ARCHIVO)
-          if len(RBUFFER)>0
-             AADD(BUFFER,RBUFFER[1])  // añade último resultado al BUFFER
-             SW_HAYBUFFER:=.T.
-             RBUFFER:={}
-          end
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-          BarraTitulo(ARCHIVO)
-          exit
+       
+       if c==48   // CTRL-K0   autocompleta palabra según el match.
           
        elseif c==74   //  CTRL-KJ intercambia lineas
           if !SWCTRLKJ
@@ -5600,199 +7785,18 @@ while SW_EDIT
              XFILi:=0; XFILf:=0
              SW_COMPILE:=.F.
              SW_MODIFICADO:=.T.
-             setpos(py,px)
+             if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+             end
+             
+             //setpos(py,px)
+             hb_keyPut(1)
              exit
           end
 
-       elseif c==70    // CTRL-KF  convierte base numerica. Con menú.
-          TEXTO[pi]:=LLENATEXTO(s,len(s),0)
-             c:=""
-             //wSTR:=""
-             for i:=p to 1 step -1
-                c:=substr(TEXTO[pi],i,1)
-                if !isalpha(c) .and. !isdigit(c)
-                   exit
-                end
-             end
-             for j:=p to len(s)
-                c:=substr(TEXTO[pi],j,1)
-                if !isalpha(c) .and. !isdigit(c)
-                   exit
-                end
-             end
-          if i!=j
-             STRING:=upper(substr(TEXTO[pi],i+1,j-(i+1)))
-             EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
-                 
-             if EXT=="xu" .or. EXT=="def"
-                cEXT:="xu"
-             elseif EXT=="c" .or. EXT=="cpp" .or. c=="h"
-                cEXT:="c"
-             else
-                cEXT:=""
-             end
-             c:=0
-             MSGCONTROL(" CTRL-K+F... NUMBER TO CONVERT = "+STRING,;
-                        " BASE        B=Dec to Bin | H=Dec to Hex | O=Dec to Octal",;
-                        " CHANGE      1=Bin to Dec | 2=Hex to Dec | 3=Octal to Dec | 4=ASCII char")
-             c:=inkey(0)
-             c:=asc(upper(chr(c)))
-             BarraTitulo(ARCHIVO)
-             setpos(py,px)
-             // debo ver la extensión del archivo para correcta conversion
-             if c==66.or.c==72.or.c==79
-                baseSW:=.T.
-                for k:=1 to len(STRING)
-                   xt:=substr(STRING,k,1)
-                   if asc(xt)<48 .or. asc(xt)>57
-                      baseSW:=.F.
-                      exit
-                   end
-                end
-                if baseSW
-                   cPREFIX:=""; cSUFIX:=""
-                   if c==66   // to binario
-                      if cEXT=="xu"
-                         cPREFIX:="0x"
-                         cSUFIX:="b"
-                      end
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOBIN(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   elseif c==72   // hexa
-                      if cEXT=="xu" .or. cEXT=="c"
-                         cPREFIX:="0x"
-                      end
-                      if cEXT=="xu"
-                         cSUFIX:="h"
-                      end
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOHEXA(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   elseif c==79   // octal
-                      if cEXT=="xu"
-                         cPREFIX:="0x"
-                         cSUFIX:="o"
-                      end
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+cPREFIX+DECTOOCTAL(val(STRING))+cSUFIX+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   end
-                   SW_COMPILE:=.F.
-                   SW_MODIFICADO:=.T.
-                   if p>len(TEXTO[pi])
-                      p:=p-(p-len(TEXTO[pi])-1)
-                      px:=px-(px-len(TEXTO[pi])-1)
-                      if p<=0
-                         p:=1; px:=1
-                      end
-                   end
-                   setpos(py,px)
-                   c:=0
-                   exit
-                end
-             elseif c==49.or.c==50.or.c==51
-                xt:=substr(STRING,1,2)
-                   if xt=="0X"
-                      STRING:=substr(STRING,3,len(STRING))
-                   end
-                   xt:=lower(substr(STRING,len(STRING),1))
-                   if xt $ "bho" .and. cEXT=="xu"
-                      STRING:=substr(STRING,1,len(STRING)-1)
-                end
-                if c==49   // bin to dec
-                   baseSW:=.T.
-                   for k:=1 to len(STRING)
-                      xt:=substr(STRING,k,1)
-                      if xt!="0" .and. xt!="1"
-                         baseSW:=.F.
-                         exit
-                      end
-                   end
-                   if baseSW
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(BINTODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   end
-                elseif c==50  // hexa to dec
-                   baseSW:=.T.
-                   for k:=1 to len(STRING)
-                      xt:=substr(STRING,k,1)
-                      if !(xt $ "0123456789ABCDEF")
-                         baseSW:=.F.
-                         exit
-                      end
-                   end
-                   if baseSW
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(HEXATODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   end
-                elseif c==51  // octal to dec
-                   baseSW:=.T.
-                   for k:=1 to len(STRING)
-                      xt:=substr(STRING,k,1)
-                      if !(xt $ "01234567")
-                         baseSW:=.F.
-                         exit
-                      end
-                   end
-                   if baseSW
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+hb_ntos(int(OCTALTODEC(STRING)))+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                   end
-                end
-                if baseSW
-                   SW_COMPILE:=.F.
-                   SW_MODIFICADO:=.T.
-                   if p>len(TEXTO[pi])
-                      p:=p-(p-len(TEXTO[pi])-1)
-                      px:=px-(px-len(TEXTO[pi])-1)
-                      if p<=0
-                         p:=1; px:=1
-                      end
-                   end
-                   setpos(py,px)
-                   c:=0
-                   exit
-                end
-             elseif c==52   // ascii char
-                if ISTNUMBER(STRING)==1
-                   if val(STRING)>=32 .and. val(STRING)<256 .and. val(STRING)!=127
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[pi])
-                      AADD(LINBUFFCTRLZ,pi)
-                      SW_COMPILE:=.F.
-                      SW_MODIFICADO:=.T.
-                      TEXTO[pi]:=substr(TEXTO[pi],1,i)+chr(val(STRING))+substr(TEXTO[pi],j,len(TEXTO[pi]))
-                      if len(TEXTO[pi])<p     //hb_utf8tostr(
-                         p:=p-(p-len(TEXTO[pi])-1)
-                         px:=px-(px-len(TEXTO[pi])-1)
-                      end
-                      setpos(py,px)
-                      c:=0
-                      exit
-                   else
-                      SETCOLOR(N2COLOR(cBARRA))
-                      @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-                      setpos(TLINEA-1,int(SLINEA/2)-17);outstd("ASCII CODE INVALID FOR THIS EDITOR")
-                      setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
-                      inkey(0)
-                      BarraTitulo(ARCHIVO)
-             
-                      SETCOLOR(N2COLOR(cTEXTO))
-                      setpos(py,px)
-                   end
-                end
-             end
-          end
        elseif c==84     // CTRL-KT toma una palabra y la deja en el BUFFER.
           TEXTO[pi]:=LLENATEXTO(s,len(s),0)
              c:=""
@@ -5820,7 +7824,7 @@ while SW_EDIT
              BUFFERKT:=""
           end
        elseif c==82     // CTRL-KR   reemplaza la palabra donde cursor por el contenido del BUFFER, que es otra palabra.
-          
+
              // busco la palabra que contiene guión bajo
              TEXTO[pi]:=LLENATEXTO(s,len(s),0)
              c:=""
@@ -5858,6 +7862,12 @@ while SW_EDIT
                 else
                    pushkey(19,p-i-1)
                 end
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
                 //setpos(py,px)
                 c:=0
                 exit
@@ -5867,22 +7877,38 @@ while SW_EDIT
           if p<len(s)
              SW_COMPILE:=.F.
              SW_MODIFICADO:=.T.
-             SW_HAYBUFFER:=.T.
-            // SW_PASTE:=.T.
+
              SWCTRLKE:=.T.
-             _CTRL_KE(@BUFFER,@s,p)
+             if _CTRL_KE(@BUFFER,@s,p)
+                SW_HAYBUFFER:=.T.
+             end
+             if len(LISTAFOUND)>0 
+                RELEASE LISTAFOUND
+                LISTAFOUND:={}
+                SWMATCH:=.F.
+                ptrLF:=0; totLF:=0
+             end
+
           end
           
        elseif c==66  // .or. c==2 // CTRL-KB    elimina desde la posicion del cursor hasta el principio
           if p>1
              SW_COMPILE:=.F.
              SW_MODIFICADO:=.T.
-             SW_HAYBUFFER:=.T.
-            // SW_PASTE:=.T.
-             _CTRL_KB(@BUFFER,@s,@p,@px)
+
+             if _CTRL_KB(@BUFFER,@s,@p,@px)
+                SW_HAYBUFFER:=.T.
+             end
              // borra
              SWCTRLKB:=.T.
-             pushkey(8,p-1) //-1)
+             hb_keyput(4)
+             pushkey(8,p) //-1)
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
 
              //cini:=0
              //VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE)
@@ -5891,12 +7917,69 @@ while SW_EDIT
              
              //p:=1; px:=1
           end
+       
+       elseif c==79   // CTRL-KO   // inserta un bloque de espacio entre el texto
+          if !SWMARCABLOQUE
+             SWMARCABLOQUE:=.T.
+//          end
+//          if !SWMARCA
+             XFILi:=pi; XCOLi:=p
 
+             if XCOLi>len(s)
+                XCOLi:=len(s)
+             end
+             //SWMARCA:=.T.
+          else
+             SWMARCABLOQUE:=.F.
+             XFILf:=pi; XCOLf:=p //XCOLi
+             if XFILi>XFILf  // invierte ini y fin si estan al verre
+                cTMP:=XFILi
+                XFILi:=XFILf
+                XFILf:=cTMP
+             end
+             if XCOLi>XCOLf  // invierte ini y fin si estan al verre
+                cTMP:=XCOLi
+                XCOLi:=XCOLf
+                XCOLf:=cTMP
+             end
+             
+             for i:=XFILi to XFILf
+                SWINICIOLIN:=.F.
+                if XCOLi>=1 .and. len(TEXTO[i])>1 .and. XCOLi<len(TEXTO[i])
+                   s:=ASIGNALINEA(TEXTO[i])
+
+                   // CTRl-Z
+                   AADD(BUFFER_CTRLZ,TEXTO[i])
+                   AADD(LINBUFFCTRLZ,i)
+                   if XCOLi<=len(s)
+                      TEXTO[i]:=substr(TEXTO[i],1,XCOLi-1)+space(XCOLf-XCOLi)+substr(TEXTO[i],XCOLi,len(TEXTO[i]))
+                   end
+                   SW_COMPILE:=.F.
+                   SW_MODIFICADO:=.T.
+                end
+             end
+             s:=ASIGNALINEA(TEXTO[pi])
+             setpos(py,px)
+             XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
+             if len(LISTAFOUND)>0 
+                RELEASE LISTAFOUND
+                LISTAFOUND:={}
+                SWMATCH:=.F.
+                ptrLF:=0; totLF:=0
+             end
+             exit
+          end
+        
        elseif c==80 // CTRL-KP   pone inicio de línea donde está el cursor, y baja una línea
           // busca principio de la líena
           if p>=1 .and. p<=len(s) .and. len(s)>1
              _CTRL_KP(@s,p)
-
+             if len(LISTAFOUND)>0 
+                RELEASE LISTAFOUND
+                LISTAFOUND:={}
+                SWMATCH:=.F.
+                ptrLF:=0; totLF:=0
+             end
           end
        elseif c==16   // ^K-^P  ( mantiene presionado CTRL y sigue con P
           if !SWCTRLKCTRLP
@@ -5914,8 +7997,8 @@ while SW_EDIT
                 
                 SWINICIOLIN:=.F.
                 if XCOLi>=1 /*.and. XCOLi<=len(s)*/ .and. len(TEXTO[i])>1
-                   for j:=1 to len(TEXTO[i])
-                      s:=ASIGNALINEA(TEXTO[i])
+                   s:=ASIGNALINEA(TEXTO[i])
+                   for j:=1 to len(TEXTO[i])   
                       if s[j]!=" "
                          SWINICIOLIN:=.T.
                          exit
@@ -5940,17 +8023,19 @@ while SW_EDIT
              s:=ASIGNALINEA(TEXTO[pi])
              setpos(py,px)
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
              exit
           end
           
        elseif c==73  //.or. c==9   // CTRL-KI   ubica el inicio de la linea
           if len(s)>0
              _CTRL_KI(@s,p)
-          end 
-          
-       elseif c==86 //.or. c==22    // CTRL-KV   // visualiza el contenido del buffer
-          _CTRL_KV(@BUFFER,@TEXTO,TLINEA,lini,lfin,cini,TOPE,ARCHIVO,@PASTEFROM,@PASTETO,XFIL1EDIT,XFIL2EDIT,XFILi)
-          setpos(py,px)
+          end
 
        elseif c==75 //.or. c==11  // CTRL-KK
         /*  if LEN(BUFFER)>0
@@ -5975,33 +8060,15 @@ while SW_EDIT
           if yCALLBACK>0
              --yCALLBACK
           end
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
 /*          XFIL1EDIT:=0;XFIL2EDIT:=0
           BUFFER_CTRLZ:={}
           LINBUFFCTRLZ:={} */
-          exit
-       elseif c==76 //.or. c==12    // CTRL-KL   limpia el buffer
-          SW_HAYBUFFER:=.F.
-        
-          _ELIMINA_BUFFER(@BUFFER)
-          
-          SETCOLOR(N2COLOR(cBARRA))
-          @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-          setpos(TLINEA-1,int(SLINEA/2)-12);outstd("BUFFER HAS BEEN CLEANED")
-          setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
-          inkey(0)
-          BarraTitulo(ARCHIVO)
-             
-          SETCOLOR(N2COLOR(cTEXTO))
-          setpos(py,px)
-             
-       elseif c==78  //.or. c==14  // CTRL-KN   habilita/inhabilita opcion de autocompletar
-          if !SW_CODESP
-             SW_CODESP:=.T.
-             SWINDENTA:=.F.
-          else
-             SW_CODESP:=.F.
-             SWINDENTA:=.T.
-          end
           exit
 
        elseif c==72       // CTRL-KH   igual que CTRL-KX, pero deja el espacio.
@@ -6059,6 +8126,12 @@ while SW_EDIT
          //       end
          //    end
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
              exit
           END
        
@@ -6125,6 +8198,12 @@ while SW_EDIT
                   end
                end
             end
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
         //    if SWEDITTEXT
         /*       SWEDITTEXT:=.F.
                XFIL1EDIT:=0; XFIL2EDIT:=0
@@ -6157,6 +8236,12 @@ while SW_EDIT
              else
                 p:=1; pi:=1; px:=1; py:=1; cini:=0; lini:=1
              end
+                if len(LISTAFOUND)>0 
+                   RELEASE LISTAFOUND
+                   LISTAFOUND:={}
+                   SWMATCH:=.F.
+                   ptrLF:=0; totLF:=0
+                end
         //     if SWEDITTEXT
         /*        SWEDITTEXT:=.F.
                 XFIL1EDIT:=0; XFIL2EDIT:=0
@@ -6168,6 +8253,7 @@ while SW_EDIT
        elseif c==52    // CTRL-K4   marca lineas para su edicion OPE
           if !SWEDITTEXT
              SWEDITTEXT:=.T.
+             SWCTRLK4:=.T.
              XFIL1EDIT:=pi; XFIL2EDIT:=pi  // inicio
           else
              XFIL2EDIT:=pi  // fin
@@ -6176,53 +8262,20 @@ while SW_EDIT
                 XFIL1EDIT:=XFIL2EDIT
                 XFIL2EDIT:=cTMP
              end
-             exit
+             SWCTRLK4:=.F.
+             hb_keyPut(12)
+             hb_keyPut(79)
           end
-       elseif c==53   // CTRL-K5 verifica parentizacion
-          if XFIL1EDIT==0  // analiza todo
-             XFIL1EDIT:=1; XFIL2EDIT:=TOPE
-             cTMP:= BUSCAPARENTIZACION(@TEXTO,XFIL1EDIT, XFIL2EDIT,COMENTARIOS,iif(EXTENSION==3,"'",'"'))
-             XFIL1EDIT:=0; XFIL2EDIT:=0
-          else   // analiza porción
-             SWPARE:=.F.
-             if XFIL2EDIT==0
-                XFIL2EDIT:=TOPE
-                SWPARE:=.T.
-             end
-             cTMP:=BUSCAPARENTIZACION(@TEXTO,XFIL1EDIT, XFIL2EDIT,COMENTARIOS,iif(EXTENSION==3,"'",'"'))
-             if SWPARE
-                XFIL2EDIT:=0
-             end
+          exit
+       
+       elseif c==53   // CTRL-K5   DISPONIBLE
+
+       elseif c==70    // CTRL-KF  Elimina un grupo de líneas. no las deja en el buffer
+          if !SWCTRLKF
+             SWCTRLKF:=.T.
           end
-          //? "LEN = ",len(cTMP); inkey(0)
-          if !cTMP[1][1]
-             cMessage := hb_utf8tostr("Símbolo '"+cTMP[1][2]+"' "+cTMP[1][5]+" en posición "+hb_ntos(cTMP[1][3])+;
-                         ", "+hb_ntos(cTMP[1][4]))
-             aOptions := { hb_utf8tostr("Ok") }
-             nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-             hb_keyPut(10)
-             hb_keyPut(74)
-             cTMP[1][3]:=hb_ntos((cTMP[1][3]))
-             
-             for i:=1 to len(cTMP[1][3])
-                c:=asc(substr(cTMP[1][3],i,1))
-                if c!=3 .and. c!=127
-                   hb_keyPut(c)
-                else
-                   exit
-                end
-             end
-             hb_keyPut(13)  // el enter
-           //  pushkey(4,cTMP[1][4])
-            /* for i:=1 to cTMP[1][4]
-                hb_keyPut(4)  // la flecha hacia la izquierda
-             end*/
-             SWCTRLJCTRKV:=.T.
-          else
-             cMessage := hb_utf8tostr("Todo bien!")
-             aOptions := { hb_utf8tostr("Ok") }
-             nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-          end
+          hb_keyPut(11)
+          hb_keyPut(88)
 
        elseif c==88  //.or. c==24  // CTRL-KX  borra una porcion de lineas de texto
           
@@ -6262,14 +8315,20 @@ while SW_EDIT
 */             
              
              for i:=XFILi to XFILf
-                AADD(BUFFER,TEXTO[XFILi])
-                                // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[XFILi])
-                      AADD(LINBUFFCTRLZ,XFILi)
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,chr(5))
-                      AADD(LINBUFFCTRLZ,XFILi)
+                if !SWCTRLKF
+                     AADD(BUFFER,TEXTO[XFILi])
+                end
+                // CTRl-Z
+                AADD(BUFFER_CTRLZ,TEXTO[XFILi])
+                AADD(LINBUFFCTRLZ,XFILi)
+                // CTRl-Z
+                AADD(BUFFER_CTRLZ,chr(5))
+                AADD(LINBUFFCTRLZ,XFILi)
+                
                 ADEL(TEXTO,XFILi)
+             end
+             if SWCTRLKF
+                SWCTRLKF:=.F.
              end
              TOPE:=TOPE-(XFILf-XFILi+1)
              ASIZE(TEXTO,TOPE)
@@ -6311,16 +8370,31 @@ while SW_EDIT
          //       end
          //    end
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+             if len(LISTAFOUND)>0 
+                RELEASE LISTAFOUND
+                LISTAFOUND:={}
+                SWMATCH:=.F.
+                ptrLF:=0; totLF:=0
+             end
              exit 
           END
 
        elseif c==81 //.or. c==17  // CTRL-KQ  Elimina marcas de CRTL-KC, KM y KX
           XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
           SWMARCABLOQUE:=.F.; SWDELELIN:=.F.
-          SWCOPIA:=.F.; SWCTRLKG:=.F.
+          SWCOPIA:=.F.; SWCTRLKF:=.F.
           SWCTRLKCTRLD:=.F.;SWCTRLKCTRLS:=.F.;SWCTRLKCTRLP:=.F.
           SWGETLINEDESP:=.F.;SWMARCADESP:=.F.;SWCTRLKJ:=.F.
+          SWALTG:=.F.;SWCTRLKV:=.F.;SWCTRLKN:=.F.;SWCTRLKL:=.F.
           SWEDITTEXT:=.F.;XFIL1EDIT:=0;XFIL2EDIT:=0
+          PASTEFROM:=0
+          PASTETO:=0
+          MULTIINS:={}
+          SWCTRLK4:=.F.;SWCTRLJK:=.F.
+          MENUBOOL:={.t.,.t.,.t.,.t.,.t.,.F.,.t.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.F.,.t.,.t.,.t.,.F.,.t.,.t.,.t.,.t.,.t.}
+          MODMULTITEXT:={}  // anula la seleccion de puntos.
+          ARRVIEW:={}
+          SWCTRLKY:=.F.
           //BUFFER_CTRLZ:={}
           //LINBUFFCTRLZ:={}
           exit
@@ -6341,8 +8415,153 @@ while SW_EDIT
              end
              
           end
+
+       elseif c==76 //.or. c==12    // CTRL-KL  copia segmento
+          if !SWCTRLKL
+             SWCTRLKL:=.T.
+          end
+          hb_keyPut(11)
+          hb_keyPut(86)
+                    
+       elseif c==78  //.or. c==14  // CTRL-KN   Borra segmento
+          if !SWCTRLKN
+             SWCTRLKN:=.T.
+          end
+          hb_keyPut(11)
+          hb_keyPut(86)
           
+       elseif c==86    // CTRL-KV   Corta segmento
+         if len(s)>0
+            if SWDELELIN
+             /// XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; 
+               SWMARCA:=.F.
+               SWMARCABLOQUE:=.F.; SWDELELIN:=.F.
+               SWCOPIA:=.F.
+            end
+            if !SWMARCA
+                XFILi:=pi; XCOLi:=p
+
+                if XCOLi>len(s)
+                   XCOLi:=len(s)
+                end
+                SWMARCA:=.T.
+                SWCTRLKV:=.T.
+            else
+                XFILf:=pi; XCOLf:=p
+                SWFINALLINEA:=.F.
+                if XCOLf>len(s)
+                   XCOLf:=len(s)
+                   SWFINALLINEA:=.T.
+                end
+                // VALIDACIONES:
+                if XFILi>XFILf  // invierte ini y fin si estan al verre
+                    cTMP:=XFILi
+                    XFILi:=XFILf
+                    XFILf:=cTMP
+                    cTMP:=XCOLi
+                    XCOLi:=XCOLf
+                    XCOLf:=cTMP
+                    SWBORRA7:=.T.
+                    SWBORRA8:=.F.
+                elseif XFILi==XFILf 
+                    if XCOLi<=XCOLf
+                       SWBORRA7:=.F.
+                       SWBORRA8:=.T.
+                    else
+                       cTMP:=XCOLi; XCOLi:=XCOLf;XCOLf:=cTMP
+                       SWBORRA7:=.T.
+                       SWBORRA8:=.F.
+                    end
+                else
+                    SWBORRA7:=.F.
+                    SWBORRA8:=.T.
+                end
+                CNT:=0
+                if XFILi==XFILf
+                    cSTR:=substr(TEXTO[XFILi],XCOLi,XCOLf-XCOLi+1)
+                    if !SWCTRLKN
+                       AADD(BUFFER,cSTR+chr(127))
+                    end
+                    CNT:=CNT+len(cSTR)+1
+                else
+                    cSTR:=substr(TEXTO[XFILi],XCOLi,len(TEXTO[XFILi]))
+                    if !SWCTRLKN
+                       //AADD(BUFFER,cSTR)//+chr(127))
+                       AADD(BUFFER,cSTR+chr(13)+chr(3))
+                    end
+                    CNT:=CNT+len(cSTR)+1
+   
+                    for i:=XFILi+1 to XFILf-1
+                       cSTR:=substr(TEXTO[i],1,len(TEXTO[i]))
+                       if !SWCTRLKN
+                         //AADD(BUFFER,cSTR)//+chr(127))
+                          AADD(BUFFER,cSTR+chr(13))
+                       end
+                       CNT:=CNT+len(cSTR)+1
+                    end
+                    if XCOLf < len(TEXTO[XFILf])
+                       cSTR:=substr(TEXTO[XFILf],1,XCOLf)
+                       if !SWCTRLKN
+                          //AADD(BUFFER,cSTR)//+chr(127))
+                          AADD(BUFFER,cSTR+chr(127))
+                       end
+                       CNT:=CNT+len(cSTR)+1
+                    else
+                       cSTR:=TEXTO[XFILf] //substr(TEXTO[XFILf],1,XCOLf)
+                       if !SWCTRLKN
+                          //AADD(BUFFER,cSTR)//+chr(127))
+                          AADD(BUFFER,cSTR+chr(127))
+                       end
+                       CNT:=CNT+len(cSTR)+1
+                    end
+                end
+                if !SWCTRLKL
+                   if SWBORRA7 .and. !SWBORRA8
+                      pushkey(7,CNT-1) 
+                   else
+                      if !SWFINALLINEA
+                         hb_keyPut(4)
+                      end
+                      pushkey(8,CNT-1)
+                   end
+                end
+                if SWCTRLKL
+                   SWCTRLKL:=.F.
+                end
+                if SWCTRLKN
+                   SWCTRLKN:=.F.
+                end
+                SW_HAYBUFFER:=.T.
+                SW_COMPILE:=.F.
+                SW_MODIFICADO:=.T.
+                SWMARCA:=.F.
+                SWCTRLKV:=.F.
+                XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
+                exit
+            end
+         else
+             MSGBARRA("CUT IS NOT VALID",ARCHIVO,1)
+             XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+             SWCTRLKV:=.F.
+             //SWALTG:=.F.
+         end
+
        
+       elseif c==71    // CTRL-KG  DISPONIBLE
+         // alt-g  Marca un bloque para ser eliminado
+         if SWDELELIN
+            XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+            SWMARCABLOQUE:=.F.; SWDELELIN:=.F.
+            SWCOPIA:=.F.
+         end
+         SWALTG:=.T.
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
+         hb_keyPut(11)  // ^K
+         hb_keyPut(77)  // ^KM
+         
        elseif c==67 //.or. c==3   // CTRL-KC  copia una porción de texto sin cortarlo: linea o bloque
           if SWDELELIN
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
@@ -6359,7 +8578,7 @@ while SW_EDIT
              if !SWMARCABLOQUE
                 SWMARCABLOQUE:=.T.
              end
-           //  SW_PASTE:=.T. 
+             //  SW_PASTE:=.T. 
              if !SWMARCA
                 XFILi:=pi; XCOLi:=p
 
@@ -6399,24 +8618,20 @@ while SW_EDIT
                    XCOLf:=cTMP
                    
                 end
-                //? XFILi,XFILf ; inkey(0)
                 //
                 SWMARCA:=.F.
-                ///CNTCAR:=0
                 if XFILi<XFILf      // es un bloque
                    SW_HAYBUFFER:=.T.
                
-               //    _ELIMINA_BUFFER(@BUFFER)
                    for i:=XFILi to XFILf
                       STRING:=""
                       tmp:=TEXTO[i]
-                      /*for j:=XCOLi to XCOLf  //tFIN
-                         STRING+=substr(tmp,j,1)
-                         ++CNTCAR
-                      end*/
+
                       STRING:=substr(tmp,XCOLi,XCOLf-XCOLi+1)
                       STRING+=chr(127)
-                      AADD(BUFFER,STRING)
+                      if !SWALTG
+                         AADD(BUFFER,STRING)
+                      end
                       // borra el texto:
                       if !SWCOPIA
                          // CTRl-Z
@@ -6424,8 +8639,8 @@ while SW_EDIT
                          AADD(LINBUFFCTRLZ,i)
                          TEXTO[i]:=substr(TEXTO[i],1,XCOLi-1)+substr(TEXTO[i],XCOLf+1,len(TEXTO[i]))
                       end
-                   end 
-                   if !SWCOPIA
+                   end
+                   if !SWCOPIA .or. SWALTG
                       SW_COMPILE:=.F.
                       SW_MODIFICADO:=.T.
                       if p>len(TEXTO[pi])
@@ -6433,6 +8648,13 @@ while SW_EDIT
                       end
                       // resetea, porque ya está en el buffer
                       XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
+                      SWALTG:=.F.
+                      if len(LISTAFOUND)>0 
+                         RELEASE LISTAFOUND
+                         LISTAFOUND:={}
+                         SWMATCH:=.F.
+                         ptrLF:=0; totLF:=0
+                      end
                       exit
                    end
 
@@ -6442,11 +8664,14 @@ while SW_EDIT
                    // CTRl-Z
                       AADD(BUFFER_CTRLZ,TEXTO[XFILi])
                       AADD(LINBUFFCTRLZ,XFILi)
+
                    STRING:=SUBSTR(TEXTO[XFILi],XCOLi,XCOLf-XCOLi+1)
                    STRING+=chr(127)
-                   AADD(BUFFER,STRING)
+                   if !SWALTG
+                      AADD(BUFFER,STRING)
+                   end
                    // borra el texto:
-                   if !SWCOPIA
+                   if !SWCOPIA .or. SWALTG
                       if !SW_INVERT
                          if p<=len(TEXTO[XFILi])
                             hb_keyPut(4)
@@ -6466,6 +8691,21 @@ while SW_EDIT
                 XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
                 if SWCOPIA
                    SWCOPIA:=.F.
+                elseif SWALTG
+                   SWALTG:=.F.
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
+                else
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
                 end
                 exit
              end
@@ -6473,6 +8713,7 @@ while SW_EDIT
              MSGBARRA("COPY/CUT IS NOT VALID",ARCHIVO,1)
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0; SWMARCA:=.F.
              SWCOPIA:=.F.
+             SWALTG:=.F.
           end
           setpos(py,px)
        
@@ -6506,11 +8747,18 @@ while SW_EDIT
              end
              for i:=XFILi to XFILf //step -1
                 if XCOLf>=1 .and. XCOLf<len(TEXTO[i])
-                   ///TEXTO[i]:=substr(TEXTO[i],XCOLf,len(TEXTO[i]))
                    // CTRl-Z
                       AADD(BUFFER_CTRLZ,TEXTO[i])
                       AADD(LINBUFFCTRLZ,i)
+                   cTMP:=XCOLf
+                   for j:=XCOLi to XCOLf
+                      if substr(TEXTO[i],j,1)!=" "
+                         XCOLf:=j-1
+                         exit
+                      end
+                   end
                    TEXTO[i]:=substr(TEXTO[i],1,XCOLi-1)+substr(TEXTO[i],XCOLf+1,len(TEXTO[i]))
+                   XCOLf:=cTMP
                    SW_COMPILE:=.F.
                    SW_MODIFICADO:=.T.
                 end
@@ -6522,9 +8770,120 @@ while SW_EDIT
              end
              setpos(py,px)
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
+             if len(LISTAFOUND)>0 
+                RELEASE LISTAFOUND
+                LISTAFOUND:={}
+                SWMATCH:=.F.
+                ptrLF:=0; totLF:=0
+             end
              exit
           end
-               
+
+       elseif c==89   // CTRL-KY    Marca líneas para escribir texto
+          if len(MODMULTITEXT)>0
+             sw_existe_marca:=.F.
+             for i:=1 to len(MODMULTITEXT)
+                if pi == MODMULTITEXT[i][1]
+                   MODMULTITEXT[i][2]:=p
+                   sw_existe_marca:=.T.
+                   exit
+                end
+             end
+             if !sw_existe_marca
+                AADD(MODMULTITEXT,{pi,p})
+             end
+          else
+             AADD(MODMULTITEXT,{pi,p})
+             SWCTRLKY:=.T.
+          end
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+          setpos(py,px)
+
+       elseif c==21     // CTRL-K-CTRL-U 
+       elseif c==20     // CTRL-K-CTRL-T    inserta un espacio relativo a la posición del cursor.
+          if SWCTRLKY
+             for i:=1 to len(MODMULTITEXT)
+                if p>MODMULTITEXT[i][2]
+                   insspace:=space(p-MODMULTITEXT[i][2])
+                   TEXTO[MODMULTITEXT[i][1]]:=substr(TEXTO[MODMULTITEXT[i][1]],1,MODMULTITEXT[i][2]-1)+insspace+;
+                                      substr(TEXTO[MODMULTITEXT[i][1]],MODMULTITEXT[i][2],len(TEXTO[MODMULTITEXT[i][1]]))
+                end
+             end
+             SW_COMPILE:=.F.
+             SW_MODIFICADO:=.T.
+             RET:=""
+             MODMULTITEXT:={}  // anula la seleccion de puntos.
+             ARRVIEW:={}
+             SWCTRLKY:=.F.
+          
+             SETCOLOR(N2COLOR(cTEXTO))
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+             BarraTitulo(ARCHIVO)
+             setpos(py,px)
+             loop
+          else
+             SETCOLOR(N2COLOR(cBARRA))
+             @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+             setpos(TLINEA-1,int(SLINEA/2)-21);outstd("PLEASE SELECT INSERT'S POINT WITH CTRL-KY")
+             setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
+             inkey(0,INKEY_ALL)
+             while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
+             BarraTitulo(ARCHIVO)
+             
+             SETCOLOR(N2COLOR(cTEXTO))
+             exit
+          end          
+       elseif c==25   // CTRL-K-CTRL-Y    Llama a inputline para escribir texto
+          if SWCTRLKY
+             //VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+             ARRVIEW:={@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT}//,@MODMULTITEXT}
+
+             for i:=1 to len(MODMULTITEXT)
+                AADD(BUFFER_CTRLZ,TEXTO[MODMULTITEXT[i][1]])
+                AADD(LINBUFFCTRLZ,MODMULTITEXT[i][1])
+             end
+                   
+             SETCOLOR(N2COLOR(cBARRA))
+             @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+             ///setpos(TLINEA-1,2);outstd(alltrim(str(cini)))
+             MSGINPUT("")
+             setpos(TLINEA-2,2);outstd("INSERT TEXT? ")
+             RET:=""
+             RET:=INPUTLINE(RET,SLINEA-14,TLINEA-2,15,"s",.T.)
+             if RET=="CANCEL"  // retira buffer ctrl-z
+                for i:=1 to len(MODMULTITEXT)
+                   ASIZE(BUFFER_CTRLZ,len(BUFFER_CTRLZ)-1)
+                   ASIZE(LINBUFFCTRLZ,len(LINBUFFCTRLZ)-1)
+                end
+             else
+                SW_COMPILE:=.F.
+                SW_MODIFICADO:=.T.
+             end
+             RET:=""
+             MODMULTITEXT:={}  // anula la seleccion de puntos.
+             ARRVIEW:={}
+             SWCTRLKY:=.F.
+          
+             SETCOLOR(N2COLOR(cTEXTO))
+             //VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+             BarraTitulo(ARCHIVO)
+             setpos(py,px)
+             loop
+          else
+             SETCOLOR(N2COLOR(cBARRA))
+             @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+             setpos(TLINEA-1,int(SLINEA/2)-21);outstd("PLEASE SELECT INSERT'S POINT WITH CTRL-KY")
+             setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
+             inkey(0,INKEY_ALL)
+             while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
+             BarraTitulo(ARCHIVO)
+             
+             SETCOLOR(N2COLOR(cTEXTO))
+             exit
+          end
+           
        elseif c==83  ///.or. c==19   // CTRL-KS  inserta la primer linea y baja una linea
 
           if !SWCTRLKCTRLS
@@ -6538,12 +8897,18 @@ while SW_EDIT
                 XFILi:=XFILf
                 XFILf:=cTMP
              end
+             // detectar donde empieza la primera linea
+             XLEN := STRPCHAR(" ",TEXTO[XFILi],1)
+             XCOLi := ABS(XLEN - XCOLi)+1
+             
              for i:=XFILi to XFILf // step -1
                 if XCOLi>=1 .and. len(TEXTO[i])>1
                    // CTRl-Z
-                      AADD(BUFFER_CTRLZ,TEXTO[i])
-                      AADD(LINBUFFCTRLZ,i)
+                   AADD(BUFFER_CTRLZ,TEXTO[i])
+                   AADD(LINBUFFCTRLZ,i)
+                   
                    TEXTO[i]:=space(XCOLi-1)+TEXTO[i]
+                   
                    SW_COMPILE:=.F.
                    SW_MODIFICADO:=.T.
                 end
@@ -6551,6 +8916,12 @@ while SW_EDIT
              s:=ASIGNALINEA(TEXTO[pi])
              setpos(py,px)
              XFILi:=0; XFILf:=0; XCOLi:=0; XCOLf:=0
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
              exit
           end
        
@@ -6560,8 +8931,8 @@ while SW_EDIT
                                 "¿Está seguro de querer continuar?")
           aOptions := { hb_utf8tostr("Sí"), hb_utf8tostr("No sé...") }
           nChoice := Alert( cMessage, aOptions ) //, N2COLOR(cMENU) )
-          while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+         while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
           if nChoice==1
              // carga
              tARCHIVO:=TMPDIRECTORY+substr(ARCHIVO,rat(_fileSeparator,ARCHIVO)+1,len(ARCHIVO))+CHR(126)
@@ -6576,7 +8947,7 @@ while SW_EDIT
                 RELEASE TMPTEXTO
                 TOPE:=XLEN1
                 p:=1; px:=1; py:=1; pi:=1; lini:=1;cini:=0
-                VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                 setpos(py,px)
                 SW_COMPILE:=.F.
                 SW_MODIFICADO:=.T.
@@ -6585,6 +8956,12 @@ while SW_EDIT
                 XFIL1EDIT:=0; XFIL2EDIT:=0
                 BUFFER_CTRLZ:={}
                 LINBUFFCTRLZ:={}
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
 
                 exit
              else
@@ -6593,8 +8970,8 @@ while SW_EDIT
                                 "(Qué mala cuea, comparito!!)")
                 aOptions := { hb_utf8tostr("Será...") }
                 nChoice := Alert( cMessage, aOptions )
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE)
+               while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
              end
           end
           
@@ -6603,8 +8980,102 @@ while SW_EDIT
              SW_COMPILE:=.F.
              SW_MODIFICADO:=.T.
            //  SW_PASTE:=.T.    // ya lo usé. queda disponible
+             if len(MULTIINS)>0   // pega líneas multiples.
+                cLen:=len(MULTIINS)
+                if MULTIINS[1]<0
+                   //adel(MULTIINS,1)
+                   //asize(MULTIINS,len(MULTIINS)-1)
+                   strLinea:=""
+                   //cLen:=len(MULTIINS)
+                   for i:=2 to cLen  // desde 2 porqu me salto el codigo
+                      strLinea+=BUFFER[MULTIINS[i]]+" " //substr(BUFFER[MULTIINS[i]],1,len(BUFFER[MULTIINS[i]])-1)+" "
+                   end
+                   strLinea:=strtran(strLinea,chr(127),"")
+                   strLinea:=strtran(strLinea,chr(3),"")
+                   strLinea:=strtran(strLinea,chr(13),"")
+                   //cLen:=len(BUFFER[j])
+                      if p>len(s)
+                         tLen:=len(s)
+                         for i:=tLen to tLen+(p-tLen)-2
+                            asize(s,len(s)+1)
+                            ains(s,len(s))
+                            s[len(s)]:=" "
+                         end
+                      end
+                      cLen:=len(strLinea)
+                      asize(s,len(s)+cLen-1)
+                      for i:=cLen-1 to 1 step -1
+                         ains(s,p)
+                         s[p]:=substr(strLinea,i,1)
+                         
+                      end
+                      
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,TEXTO[pi])
+                      AADD(LINBUFFCTRLZ,pi)
+                      
+                      TEXTO[pi]:=LLENATEXTO(s,len(s),0)
+                      
+                   setpos(py,px)
+                else   
+                TOPE:=len(TEXTO)+ cLen
+                asize(TEXTO,TOPE)
+                //tPI:=pi
+                for i:=cLen to 1 step -1
+                   ains(TEXTO,pi)
+                   // CTRl-Z
+                   AADD(BUFFER_CTRLZ,chr(6))  // tope: indica que no hay linea para rescatar
+                   AADD(LINBUFFCTRLZ,pi)
+                   AADD(BUFFER_CTRLZ,chr(4))
+                   AADD(LINBUFFCTRLZ,pi)
+                   if chr(3) $ BUFFER[MULTIINS[i]] 
+                      TEXTO[pi]:=strtran(BUFFER[MULTIINS[i]],chr(3),"")
+                      TEXTO[pi]:=strtran(TEXTO[pi],chr(13),"")
+                   elseif chr(127) $ BUFFER[MULTIINS[i]] 
+                      TEXTO[pi]:=strtran(BUFFER[MULTIINS[i]],chr(127),"")
+                   elseif chr(13) $ BUFFER[MULTIINS[i]]
+                      TEXTO[pi]:=strtran(BUFFER[MULTIINS[i]],chr(13),"")
+                      //TEXTO[pi]:=substr(BUFFER[MULTIINS[i]],1,len(BUFFER[MULTIINS[i]])-1)
+                   else
+                      TEXTO[pi]:=BUFFER[MULTIINS[i]]
+                   //++pi
+                   end
+                   ///end
+                end
+                //pi:=tPI
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
+                setpos(py,1)
+                end
+                exit
+             else
              cLen:=len(BUFFER)
+             
              if cLen>0
+                /* debo verificar si el contenido es del mismo origen: si no lo es, debo mostrar CTRL-KV */
+               /* SW127:=.F.
+                SW3:=.F.
+                for j=1 to cLen
+                   if asc(substr(BUFFER[j],len(BUFFER[j]),1))==127
+                      SW127:=.T.
+                   end
+                   if asc(substr(BUFFER[j],len(BUFFER[j]),1))==3
+                      SW3:=.T.
+                   end
+                end
+                if SW127 .and. SW3
+                   hb_keyPut(27)
+                   hb_keyPut(49)
+                   exit
+                end
+              // continua.
+                SW127:=.F.
+                SW3:=.F. */
+
                /* if SWEDITTEXT
                    if pi<=XFIL2EDIT
                       SWEDITTEXT:=.F.
@@ -6630,6 +9101,9 @@ while SW_EDIT
                             ains(s,len(s))
                             s[len(s)]:=" "
                          end
+                      end
+                      if asc(substr(BUFFER[j],len(BUFFER[j]),1))!=127 // se salió del rango a copiar
+                         exit
                       end
                       asize(s,len(s)+cLen-1)
                       for i:=cLen-1 to 1 step -1
@@ -6669,35 +9143,61 @@ while SW_EDIT
                          end
                       end
                    end
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
                    pi:=tPI
+
                 elseif asc(substr(BUFFER[PASTEFROM],len(BUFFER[PASTEFROM]),1))==3  // pegado especial
                    // determinar el total de caracteres:
-                   cnt:=0
+                  /* cnt:=0
                    for i:=PASTEFROM to PASTETO
                       cnt+=len(BUFFER[i])
                    end
-                   
+                   */
                    for i:=PASTEFROM to PASTETO
                       XLEN:=len(BUFFER[i])
                       for j:=1 to XLEN
                          c:=substr(BUFFER[i],j,1)
-                         if asc(c)==3
-                            hb_keyPut(13)
-                         elseif asc(c)!=127
-                            hb_keyPut(asc(c))
+                         if asc(c)==127  //!=127
+                            exit
                          end
+                         hb_keyPut(asc(c))
+                      end
+                      if asc(c)==127
+                         exit
                       end
                    end
                    if !SW_CODESP
                       hb_keyPut(500)  // código de cambio de SW_CODESP
                       SW_CODESP:=.T.
+                      hb_keyPut(27)  // debo insertarlo, porque por alguna razón se cuela un 10 (CTRL-J) !!
                    end
-                  // for i:=1 to len(STRING)
-                  //    c:=substr(STRING,i,1)
-                  //    hb_keyPut(asc(c))
-                  // end
                 else
-                   TOPE:=len(TEXTO)+ (PASTETO-PASTEFROM+1)
+                   for i:=PASTETO to PASTEFROM step -1
+                      if chr(3) $ BUFFER[i] .or. chr(127) $ BUFFER[i]
+                         exit
+                      else 
+                         cSTR:=BUFFER[i]
+                      end
+                      asize(TEXTO,++TOPE)
+                      ains(TEXTO,pi)
+                      TEXTO[pi]:=cSTR
+                      // CTRl-Z
+                      AADD(BUFFER_CTRLZ,chr(6))  // tope: indica que no hay linea para rescatar
+                      AADD(LINBUFFCTRLZ,pi)
+                      AADD(BUFFER_CTRLZ,chr(4))
+                      AADD(LINBUFFCTRLZ,pi)
+                   end
+                   s:=ASIGNALINEA(TEXTO[pi])
+                   if p>len(s)
+                      hb_keyPut(1)
+                      hb_keyPut(6)
+                   end
+                   /*TOPE:=len(TEXTO)+ (PASTETO-PASTEFROM+1)
                    asize(TEXTO,TOPE)
                    for i:=PASTETO to PASTEFROM step -1
                       ains(TEXTO,pi)
@@ -6708,10 +9208,10 @@ while SW_EDIT
                       AADD(LINBUFFCTRLZ,pi)
                       if chr(3) $ BUFFER[i] .or. chr(127) $ BUFFER[i]
                          TEXTO[pi]:=substr(BUFFER[i],1,len(BUFFER[i])-1)
-                      else
+                      else 
                          TEXTO[pi]:=BUFFER[i]
                       end
-                   end
+                   end*/
                 end
                 if SWRECBUFFER .and. LEN(RBUFFER)>0
                    _ELIMINA_BUFFER(@BUFFER)
@@ -6720,9 +9220,17 @@ while SW_EDIT
                    _ELIMINA_BUFFER(@RBUFFER)
                    SWRECBUFFER:=.F.
                 end
-                PASTEFROM:=0
-                PASTETO:=0
+                   if len(LISTAFOUND)>0 
+                      RELEASE LISTAFOUND
+                      LISTAFOUND:={}
+                      SWMATCH:=.F.
+                      ptrLF:=0; totLF:=0
+                   end
+                // ESTO DEBE SER ANULADO CON CTRL-KQ ALT-Q
+//                PASTEFROM:=0
+//                PASTETO:=0
                 exit
+             end
              end
           end
        else   // presiono otra cosa: bajo banderas y dejo valores en cero, si uso ^KC o ^KM
@@ -6731,7 +9239,17 @@ while SW_EDIT
        end
           
      elseif c==25   //CTRL-Y   // Añade comentarios en multiples lineas
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        if len(s)>0
+          if len(LISTAFOUND)>0 
+             RELEASE LISTAFOUND
+             LISTAFOUND:={}
+             SWMATCH:=.F.
+             ptrLF:=0; totLF:=0
+          end
           CLEN:=LEN(COMENTARIOS)
           if CLEN==1
              if s[1]!=COMENTARIOS
@@ -6773,6 +9291,12 @@ while SW_EDIT
              end
           end
        else
+          if len(LISTAFOUND)>0 
+             RELEASE LISTAFOUND
+             LISTAFOUND:={}
+             SWMATCH:=.F.
+             ptrLF:=0; totLF:=0
+          end
           CLEN:=LEN(COMENTARIOS)
           if CLEN==1
              asize(s,len(s)+1)
@@ -6795,6 +9319,10 @@ while SW_EDIT
   
      elseif c==26   // CTRL-Z para lineas marcadas
 //         if SWEDITTEXT
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
             XLEN:=LEN(BUFFER_CTRLZ)
             if XLEN>0
                // limpio la lista de busqueda, por si acaso.
@@ -6863,11 +9391,11 @@ while SW_EDIT
                      lini:=pi; py:=1
                   end
                   p:=1+nOFFSET; px:=1+nOFFSET; cini:=0
-                  if len(BUFFER_CTRLZ)>1
+                 /* if len(BUFFER_CTRLZ)>1
                      if BUFFER_CTRLZ[XLEN-1]==chr(5)
                         hb_keyPut(26)
                      end
-                  end
+                  end */
 
                elseif BUFFER_CTRLZ[XLEN]==chr(10)
                   ADEL(BUFFER_CTRLZ,XLEN)
@@ -6970,6 +9498,10 @@ while SW_EDIT
 //         end
      
      elseif c==21   // CTRL-U   Carga un nuevo archivo de la lista de edicion
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
           LENMETA:=LEN(METADATA)
 
           IF LENMETA>0
@@ -7020,6 +9552,7 @@ while SW_EDIT
           //   nLENOPTION:=int(nLENOPTION/2)
              SETCOLOR(N2COLOR(cBARRA))
            //  @ TLINEA-(int(TLINEA/2)),0 CLEAR TO TLINEA-3,SLINEA
+             POSVENTANA:={1,2,XCLEAR+1,SLINEA-2}
              @ 1,2 CLEAR TO XCLEAR+1,SLINEA-2
              
              //setpos(TLINEA-(int(TLINEA/2)),int(SLINEA/2)-8); outstd(" Select a file ")
@@ -7029,17 +9562,19 @@ while SW_EDIT
             //                 TLINEA-3,int(SLINEA/2)+16,MENUMATCH,SELECTMATCH)
              
              //setcolor( 'GB+/B,GR+/R,,,W/N' )
+             hb_shadow(1,3,XCLEAR+1,SLINEA-2,7)
+             
              setcolor( 'GR+/N,N/GR+,,,W/N' )
              
            //  pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,;
            //                  TLINEA-3,SLINEA-1,MENUMATCH,SELECTMATCH,"UDFAchoice")
              pELIGE:=ACHOICE(1,3,XCLEAR,SLINEA-3,MENUMATCH,SELECTMATCH,"UDFAchoice")
                          
-             while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
+             while inkey(,INKEY_ALL)!=0 ; end
+             MRESTSTATE(MOUSE) 
                   
              SETCOLOR(N2COLOR(cTEXTO))
-             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              BarraTitulo(ARCHIVO)
              
              if pELIGE>0 .and. SWELIMINATAB   // elimina una pestaña
@@ -7101,8 +9636,12 @@ while SW_EDIT
                     RET:=STRING
                     SWLENGUAJE:=1
                 else
-                    if EXT=="c" .or. EXT=="cpp" .or. EXT=="h" .or. EXT=="prg" .or. EXT=="ch"
+                    if EXT=="c" .or. EXT=="cpp" .or. EXT=="h".or. EXT=="hh" .or. EXT=="prg" .or. EXT=="ch".or. EXT=="com" .or. EXT=="hopper" .or. EXT=="hop".or. EXT=="bas".or. EXT=="flw" .or. EXT=="jambo"
                        SWLENGUAJE:=2
+                    elseif EXT=="html" .or. EXT=="xml" .or. EXT=="htm"
+                       SWLENGUAJE:=5
+                    elseif EXT=="py"
+                       SWLENGUAJE:=6
                     else
                        SWLENGUAJE:=3
                     end
@@ -7158,6 +9697,7 @@ while SW_EDIT
                       cMETADATA[i][18]:=LENTEXTOTIPO
                 end
               //  ? "CTRL-U. CARGO=",RET; inkey(0)
+                
                 SW_CTRLOF:=.T.
                 hb_keyPut(17)   // sale.
                 loop
@@ -7176,30 +9716,36 @@ while SW_EDIT
 
      elseif c==15    // CTRL-O   HELP
        if TEXTOTIPO=="BINARY"
-       MSGCONTROL(" CTRL-O... O=Help Laica | F=Open File | A=Details",;
-     hb_utf8tostr(" HELP      X=Help XU    | N=New file  | C=Configuration"),;
-                  " & FILE   F2=Open File")
+       MSGCONTROL(" CTRL-O... O=Help Laica            | F=Open File | A=Details             | QUICK: F2=Open File",;
+     hb_utf8tostr(" HELP      H=Help HOPPER,X=Help XU | N=New file  | C=load LAICA.COMPILER | "),;
+                  " & FILE   ")
        else
-       MSGCONTROL(" CTRL-O... O=Help Laica    |  F=Open File |            | P=Repeat last OPE command",;
-     hb_utf8tostr(" HELP      X=Help XU       |  N=New file  | A=Details  | S=Execute Shell Command"),;
-                  " & FILE    C=Configuration | F2=Open File |            | L=Search & Load Program from current directory")
+       MSGCONTROL(" CTRL-O... O=Help Laica            | F=Open File | C=Load LAICA.COMPILER          | QUICK: F2=Open File",;
+     hb_utf8tostr(" HELP      H=Help HOPPER,X=Help XU | N=New file  | L=Search & Load file from text | "),;
+                  " & FILE    ")
        end
-       c:=inkey(0)
+       c:=inkey(0,INKEY_ALL)
+       while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
        c:=asc(upper(chr(c)))
        BarraTitulo(ARCHIVO)
        if TEXTOTIPO=="BINARY"
-          if c!=65 .and. c!=79 .and. c!=70 .and. c!=78 .and. c!=88 .and. c!=27
+          if c!=79 .and. c!=70 .and. c!=78 .and. c!=88 .and. c!=27
              cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
        end
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        setpos(py,px)
-       while inkey(,159)!=0 ; end
-                 MRESTSTATE(MOUSE)
+      // while inkey(,159)!=0 ; end
+      //           MRESTSTATE(MOUSE)
        if c==76   // CTRL-OL busca la palabra como si fuese un archivo.
           STRING:=LLENATEXTO(s,len(s),0)
              c:=""
@@ -7226,6 +9772,7 @@ while SW_EDIT
            /// ? RET; inkey(0)
              if FILE(RET)
                 SWLOADRAPIDO:=.T.
+               // SWLOADNOTFOUND:=.F.
                 hb_keyPut(15)
                 hb_keyPut(70)
                 //for i:=1 to len(RET)
@@ -7233,12 +9780,53 @@ while SW_EDIT
                // end
              else
                 SWLOADRAPIDO:=.F.
-                RET:=""
-                cMessage := hb_utf8tostr("El archivo solicitado no pudo ser encontrado")
-                aOptions := { hb_utf8tostr("Será...") }
-                nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE)
+               // SWLOADNOTFOUND:=.T.
+                
+                /* usar:
+                  ls -t -R | awk '{if(substr($0,1,2)=="./") printf("%s/\n",substr($0,3,length($0)-3));}'
+                  para capturar los directorios al principio, para buscar archivos con ALT-O 
+                  Si existe, carga SWLOADRAPIDO:=.T. y RET el path completo con archivo
+                  Si no existe, manda el mensaje y termina.
+                  
+                  DISTINGUIR SI SE TRATA DEUN ARCHIVO XU O DEF: BUSCAR EN EL PATH POR DEFAULT.
+                  en otros casos funciona. igual hay que probar todo.
+                  Sí: funciona :)
+                */
+                if ".xu" $ RET .or. ".def" $ RET
+                   SWLOADRAPIDO:=.T.
+                   hb_keyPut(15)
+                   hb_keyPut(70)
+                else
+                STRPATH:=FUNFSHELL("ls -t -R | awk '{if(substr($0,1,2)=="+'"./"'+") printf("+'"%s/\n"'+", substr($0,3,length($0)-3));}'",3)
+                
+                LENPATH:=MLCOUNT(STRPATH)
+              //  ? "STRPATH=",STRPATH
+              //  ? "LEN=",LENPATH; inkey(0)
+             //   MATPATH:=ARRAY(LENPATH)
+                MATPATH:=""
+                for i:=1 to LENPATH
+                   MATPATH:=alltrim(MEMOLINE(STRPATH,200,i))+RET
+                   //? MATPATH; inkey(0)
+                   if FILE(MATPATH)
+                      RET:=MATPATH
+                      SWLOADRAPIDO:=.T.
+                      exit
+                   end
+                end
+                ///RET:="*/"+RET
+                if !SWLOADRAPIDO
+                   cMessage := hb_utf8tostr("El archivo solicitado no pudo ser encontrado"+_CR+;
+                                            "en todas las rutas desde la ruta actual.")
+                   aOptions := { hb_utf8tostr("Será...") }
+                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
+                else
+                   
+                   hb_keyPut(15)
+                   hb_keyPut(70)
+                end
+                end
              end
           end
           loop
@@ -7252,276 +9840,26 @@ while SW_EDIT
           hb_keyPut(70)
           loop
 
-       elseif c==65   // CTRL-OA   detalles del acerca de
-          cMessage := hb_utf8tostr("                    LAICA  v.1.0                   "+_CR+;
-                      "                                                   "+_CR+;
-                      "Actual Compiler: "+_CR+DESCRIPCION+_CR+;
-                      "                                                   "+_CR+;
-                      "System: "+OS()+_CR+;
-                      "Shell: "+getenv("SHELL")+_CR+;
-                      "   _____________________________________________   "+_CR+;
-                      "   Editor de textos para XU & sus primos mayores   "+_CR+;
-                      "   destinado a la consola Linux Debian based.      "+_CR+;
-                      "       (Compilado en Harbour 3.0 / gcc 7.3.0)      "+_CR+;
-                      "                                                   "+_CR+;
-                      "                ~ Nov. 2018 - 2019 ~               "+_CR+;
-                      "                                                   "+_CR+;
-                      "        = Este programa es de uso gratuito =       "+_CR+;
-                      "   Se entrega 'As Is', con la única garantía que   "+_CR+;
-                      "   no voy a lucrar indebidamente con su uso.       "+_CR+;
-                      "                                                   "+_CR+;
-                      "   Bugs y aportaciones, comunicarse con el autor   "+_CR+;
-                      "   al correo: daniel.stuardo@gmail.com             ")
+     //  elseif c==65   // CTRL-OA   DISPONIBLE
 
-          aOptions := { hb_utf8tostr("Volver") }
-          nChoice := Alert( cMessage, aOptions, N2COLOR(112) )
-          c:=0
-          while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
-          loop
-       elseif c==83   // ejecuta un comando del shell CTRL-OS
-           SETCOLOR(N2COLOR(cBARRA))
-           @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-           @ TLINEA-9,0 CLEAR TO TLINEA-3,SLINEA
-
-           setpos(TLINEA-9,2); outstd("COMMAND? ")
-           MSGBARRA("^W=EXEC ESC=CANCEL ^P=PASTE | *=LIST COMM !=LOOK '<str>=EDIT $<str>=INSERT @<str>=REPLACE EDITION",ARCHIVO,0)
-           //SETCOLOR(N2COLOR(6))
-           setcolor( 'GR+/N,N/GR+,,,W/N' )
-           
-           readinsert(.T.)
-           REEMPTEXTCAR(@COMANDO)
-           COMANDO:=hb_utf8tostr(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
-           ///COMANDO:=(MEMOEDIT(COMANDO,TLINEA-8,1,TLINEA-3,SLINEA-1,.T.,"MemoUDF",1024))
-           readinsert(.F.)
-           REEMPCARTEXT(@COMANDO)
-          
-          
-/*          SETCOLOR(N2COLOR(cBARRA))
-          @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
-          setpos(TLINEA-2,2);outstd(" COMMAND? ")
-          MSGINPUT("^KU=PASTE, *=LIST COMMANDS OUTPUT !=LOOK '<str>=EDIT $<str>=INSERT @<str>=REPLACE EDITION")
-
-          COMANDO:=INPUTLINE(COMANDO,SLINEA-12,TLINEA-2,12,"s")
-*/
-          COMANDO:=alltrim(COMANDO)
-          COMANDO:=STRTRAN(COMANDO,_CR," ")
-          if "$" $ COMANDO
-             COMANDO:=strtran(COMANDO,"$",ARCHIVO)
-          end
-          
-          if COMANDO=="*"
-             if len(COMMANDS)>0
-                SETCOLOR(N2COLOR(cBARRA))
-                @ 10,10 CLEAR TO TLINEA-3,SLINEA-10
-
-                setpos(10,int(SLINEA/2)-10); outstd("List System Command")
-   
-                MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
-                //setcolor("B/GR+,I/GR+")
-                //SETCOLOR(N2COLOR(6))
-                setcolor( 'GR+/N,N/GR+,,,W/N' )
-                pELIGE:=ACHOICE(11,11,TLINEA-3,SLINEA-11,COMMANDS, .T.)
-                
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE) 
-              
-                if pELIGE>0
-                   COMANDO:=COMMANDS[pELIGE]
-                   hb_keyPut(15)
-                   hb_keyPut(83)
-                end
-             end
-          elseif COMANDO=="!"
-             if len(OUTPUTCOMM)>0
-                SHOWOUTPUT()
-             end
-          else   // ejecuta el comando
-             if len(COMANDO)>0
-                // verificar si quiere que lo edite o solo lo muestre ('): ej: 'ls -l
-                SWEDITACOM:=.F.
-                SWINSCODIGO:=.F.
-                SWREPLACECODIGO:=.F.
-                if substr(COMANDO,1,1)=="'"  // edita la salida en un archivo temporal
-                   SWEDITACOM:=.T.
-                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
-                elseif substr(COMANDO,1,1)=="^"  // inserta la salida en edicion actual
-                   SWINSCODIGO:=.T.
-                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
-                elseif substr(COMANDO,1,1)=="@"  // reemplaza la edición actual por la salida.
-                   SWREPLACECODIGO:=.T.
-                   COMANDO:=substr(COMANDO,2,LEN(COMANDO))
-                end 
-                SWCOMMAND:=.F.
-                for i:=1 to len(COMMANDS)
-                   if COMANDO==COMMANDS[i]
-                      SWCOMMAND:=.T.
-                      exit
-                   end
-                end
-                if !SWCOMMAND
-                   AADD(COMMANDS,COMANDO)
-                end
-                OUTPUTCOMM:=FUNFSHELL(COMANDO,4)
-                if OUTPUTCOMM=="<error>"
-                   SWEDITACOM:=.F.
-                   SWINSCODIGO:=.F.
-                   SWREPLACECODIGO:=.F.
-                end
-                ///OUTPUTCOMM:=hb_utf8tostr(OUTPUTCOMM)
-                IF SWEDITACOM
-                   
-                   //SALE Y EDITA ARCHIVO TEMPORAL
-                   //SW_CTRLOF:=.T.
-                   RET:=PATH_TEMP+_fileSeparator+"output_"+hb_ntos(int(hb_random(1000000)))+".temp"
-                   //tmp:=StrFile(OUTPUTCOMM, RET)
-                   //tmp:=MEMOWRIT(RET,hb_strtoutf8(OUTPUTCOMM))
-                   xfp:=fcreate(RET,0)
-                   if ferror()==0
-                      fwrite(xfp,hb_strtoutf8(OUTPUTCOMM))
-                      fclose(xfp)
-                   else
-                      cMessage := hb_utf8tostr("No tiene permiso para crear un archivo en directorio temporal")
-                      aOptions := { hb_utf8tostr("Será") }
-                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                      while inkey(,159)!=0 ; end
-                      MRESTSTATE(MOUSE)
-                      exit
-                   end
-                   SWLOADRAPIDO:=.T.
-                   SWCTRLON:=.T.
-                   hb_keyPut(15)
-                   hb_keyPut(70)
-                   loop
-                   //hb_keyPut(17)  // CTRL-Q sin preguntar por grabar. Solo graba
-                   //loop
-                ELSEIF SWINSCODIGO
-                   
-                   // INSERTA LA SALIDA EN EDICION TEMPORAL
-                   cLen:=mlcount(OUTPUTCOMM,1200)
-                   TOPE:=len(TEXTO)+cLen
-                   asize(TEXTO,TOPE)
-                   for i:=cLen to 1 step -1
-                      ains(TEXTO,pi)
-                      // CTRl-Z
-                      AADD(BUFFER_CTRLZ,chr(6))  // tope: indica que no hay linea para rescatar
-                      AADD(LINBUFFCTRLZ,pi)
-                      AADD(BUFFER_CTRLZ,chr(4))
-                      AADD(LINBUFFCTRLZ,pi)
-                      TEXTO[pi]:=rtrim(memoline(OUTPUTCOMM,1200,i))
-                   end
-                   SW_COMPILE:=.F.
-                   SW_MODIFICADO:=.T.
-                ELSEIF SWREPLACECODIGO
-                   
-                   cMessage := hb_utf8tostr("¿Está seguro de que desea reemplazar el texto completo?"+_CR+;
-                                            "(Esta acción no tiene vuelta atrás)")
-                   aOptions := { hb_utf8tostr("Sí"), "No" }
-                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
-
-                   if nChoice==2
-                      exit
-                   end
-                 
-                   // elimina CTRL-Z buffer
-                   
-                   BUFFER_CTRLZ:={};LINBUFFCTRLZ:={}
-                   
-                      NL:=mlcount(OUTPUTCOMM,2048)  //numtoken(OUTPUTCOMM,HB_OSNEWLINE())
-                      NUMCAR:=len(hb_strtoutf8(OUTPUTCOMM))
-                      MAXLONG:=3200
-                      TMPTEXTO:=GETLINEAS(OUTPUTCOMM,NL,NUMCAR,MAXLONG)
-                      XLEN1:=len(TMPTEXTO)
-                     /// ? XLEN1, XLEN2 ; inkey(0)
-                      ASIZE(TEXTO,XLEN1)
-                      ACOPY(TMPTEXTO,TEXTO)
-                   TOPE:=XLEN1
-                   for i:=1 to TOPE
-                      RELEASE TMPTEXTO[i]
-                   end
-                   RELEASE TMPTEXTO
-
-                   p:=1; px:=1; py:=1; pi:=1; lini:=1;cini:=0
-                   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-                   setpos(py,px)
-                   SW_COMPILE:=.F.
-                   SW_MODIFICADO:=.T.
-                   exit
-                ELSE
-                   SHOWOUTPUT()
-                END
-             end 
-          end
-
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-          BarraTitulo(ARCHIVO)
-          SETCOLOR(N2COLOR(cTEXTO))
-          setpos(py,px)
-          exit
+     //  elseif c==83   // CTRL-OS   DISPONIBLE
           
        elseif c== 79  //.or. c==15    // CTRL-OO  Ayuda del editor
-          HELPTOTAL:=CARGAINTROXU() ///hb_utf8tostr(MEMOREAD(PATH_HELP+_fileSeparator+"LAICA.help"))
+          HELPTOTAL:=CARGAINTROXU("introxu.bin") ///hb_utf8tostr(MEMOREAD(PATH_HELP+_fileSeparator+"LAICA.help"))
           MSGTOTAL:="AYUDA DE LAICA          ^C=Av Pag.  ^R=Re Pag. "
           hb_keyPut(27)
        elseif c==1
           HELPTOTAL:=hb_utf8tostr(OUTPUTCOMM)
           MSGTOTAL:="Output Shell Command    ^C=Av Pag.  ^R=Re Pag. "
-       elseif c==80       // CTRL-OP    repite comando de OPE, si existe.
-          if len(OPERA)>0
-             RBUFFER:=ARRAY(LEN(BUFFER))
-             ACOPY(BUFFER,RBUFFER)
-             SWRECBUFFER:=.T.
-             nSetDecimal:=set(3,DEFROUND)
-             BUFFER:=_CTRL_L_OPE(BUFFER,hb_utf8tostr(STRTRAN(OPERA,_CR,"")))  // LLAMA A LA CALCULADORA
-             if LEN(BUFFER)>0
-                if BUFFER[1]=="<command-success>"
-                             _CTRLOK()
-                             BUFFER:=ARRAY(LEN(RBUFFER))
-                             ACOPY(RBUFFER,BUFFER)
-                             RBUFFER:={}
-                             
-                             SW_HAYBUFFER:=.T.
-                             OPERA:=""
-                             hb_keyPut(12)
-                             hb_keyPut(asc("O"))
-                             exit
-                elseif BUFFER[1]=="<error>"
-                             _CTRLLERROR()
-                             BUFFER:=ARRAY(LEN(RBUFFER))
-                             ACOPY(RBUFFER,BUFFER)
-                             RBUFFER:={}
-                             hb_keyPut(12)
-                             hb_keyPut(asc("O"))
-                             exit
-                end
-             //   SW_PASTE:=.T.
-                hb_keyPut(11)
-                hb_keyPut(85)
-                // busca por si no existe, para añadirlo a la lista
-                SWOPEXISTE:=.F.
-                for i:=1 to len(LISTAEXPRESION)
-                   if OPERA == LISTAEXPRESION[i]
-                      SWOPEXISTE:=.T.
-                      exit
-                   end
-                end
-                if !SWOPEXISTE
-                   AADD(LISTAEXPRESION,OPERA)
-                end
-             else
-                _CTRLLVOID()
-                BUFFER:=ARRAY(LEN(RBUFFER))
-                ACOPY(RBUFFER,BUFFER)
-                RBUFFER:={}
-             end
-             set(3,nSetDecimal)
-          end
-          exit
-                 
+       elseif c==80       // CTRL-OP    DISPONIBLE
+       
+       elseif c==72       // CTRL-OH    CTRL-OH ayuda HOPPER
+          HELPTOTAL:=CARGAINTROXU("introxu.bin")
+          MSGTOTAL:="AYUDA DE HOPPER(vm)         ^C=Av Pag.  ^R=Re Pag. "
+          hb_keyPut(27)
+          
        elseif c==88 // .or. c==16   // CTRL-OX  Ayuda rápida del lenguaje
-          HELPTOTAL:=CARGAINTROXU()//"" //hb_utf8tostr(MEMOREAD(PATH_HELP+_fileSeparator+"xu.help"))
+          HELPTOTAL:=CARGAINTROXU("introxu.bin")//"" //hb_utf8tostr(MEMOREAD(PATH_HELP+_fileSeparator+"xu.help"))
           MSGTOTAL:="AYUDA DE XU(vm)         ^C=Av Pag.  ^R=Re Pag. "
           hb_keyPut(27)
 
@@ -7540,10 +9878,14 @@ while SW_EDIT
           setpos(TLINEA-2,2);outstd("FILE TO LOAD? ")
           
           if !SWLOADRAPIDO
-             RET:="" 
+             //if !SWLOADNOTFOUND
+                RET:=""
+             //else
+             //   SWLOADNOTFOUND:=.F. 
+             //end
           
              MSGINPUT("^KU=PASTE, INSERT PATH: ^IH=HOME ^IP=CURRENT ^IR=RELATIVE ^IS=SOURCE XU ^II=INCLUDE XU")
-             RET:=INPUTLINE(RET,SLINEA-16,TLINEA-2,16,"s")
+             RET:=INPUTLINE(RET,SLINEA-16,TLINEA-2,16,"s",.F.)
           else
              SWLOADRAPIDO:=.F.  // resetea para futuras budquedas
           end
@@ -7594,13 +9936,13 @@ while SW_EDIT
                       outstd(RET)
                    end
                    setcolor( 'GR+/N,N/GR+,,,W/N' )
-                   pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,TLINEA-3,SLINEA-1,MENUMATCH,.T.)
+                   pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,TLINEA-3,SLINEA-1,MENUMATCH)//,.T.)
                    
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE) 
+                   while inkey(,INKEY_ALL)!=0 ; end
+                   MRESTSTATE(MOUSE)
               
                    SETCOLOR(N2COLOR(cTEXTO))
-                   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                    BarraTitulo(ARCHIVO)
                    RELEASE MENUMATCH
 
@@ -7645,8 +9987,8 @@ while SW_EDIT
                    cMessage := hb_utf8tostr("El directorio está vacío")
                    aOptions := { "Okay" }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
+                  while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                    RET:=substr(RET,1,rat(_fileSeparator,RET)-1)  // quito "/*"
                    RET:=substr(RET,1,rat(_fileSeparator,RET)-1)+_fileSeparator+"*"
                 end
@@ -7681,8 +10023,8 @@ while SW_EDIT
                       "Aceptas crear este archivo?"
                    aOptions := { "Acepto", "No, gracias" }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
+                  while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                    if nChoice==2 
                       RET:=""
                       setpos(py,px)
@@ -7739,6 +10081,7 @@ while SW_EDIT
              SW_CTRLOF:=.T.
             /// ? "CARGARE=",RET;inkey(0)
              hb_keyPut(17)   // sale.
+             //activo:=len(CORDEL)+1
              if SWCTRLON
                 SWCTRLON:=.F.
                 TEXTOTIPO:="UTF8"
@@ -7767,6 +10110,8 @@ while SW_EDIT
        
        if c==88 // .or. c==16  // Ayuda XU: activa el menu.
           CALLMENUXU(@HELPTOTAL,ARCHIVO)
+       elseif c==72
+          CALLMENUHOPPER(@HELPTOTAL,ARCHIVO)
        elseif c==79   // ayuda LAICA
           CALLLAICAMENU(@HELPTOTAL,ARCHIVO)
        else
@@ -7780,7 +10125,7 @@ while SW_EDIT
        encabezado(pi,p-nOFFSET,TOPE,SW_MODIFICADO,iif(p<=len(s),s[p],""),SWMARCABLOQUE,SWDELELIN,SWCOPIA,;
                    SWCTRLKCTRLD,SWCTRLKCTRLS,SWCTRLKCTRLP,SWMARCADESP,SWSOBREESCRIBE,SWCTRLKJ,SWCTRLKG,SWEDITTEXT,;
                    XFILi,XCOLi,XFILf,XCOLf)
-       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+       VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
        BarraTitulo(ARCHIVO)
        SETCOLOR(N2COLOR(cTEXTO))
        setpos(py,px)
@@ -7791,19 +10136,21 @@ while SW_EDIT
           cMessage := hb_utf8tostr("Este comando no puede ser usado"+_CR+"en una edición hexadecimal")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
           loop
        end
         MSGCONTROL(" CTRL-V... D=DateTime | E=Name Env Var | V=Value Env Var | Y=Block Remarks /* */ (Only C/C++ & XU)",;
-                   " INSERT    C, A, F=Programing Code for C/C++, XU & LaTex | I=Overwrite mode",;
+                   " INSERT    I=Insert ON/OFF",;
                    " CODE")
-        c:=inkey(0)
+        c:=inkey(0,INKEY_ALL)
+        while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
         c:=asc(upper(chr(c)))
         BarraTitulo(ARCHIVO)
         setpos(py,px)
-        while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+       // while inkey(,159)!=0 ; end
+       //   MRESTSTATE(MOUSE)
         SWA:=.F.
         if c==68  // .or. c==4        // CTRL-VD  inserta fecha y hora
           STRING:=PONEFECHA()
@@ -7841,7 +10188,7 @@ while SW_EDIT
              end
              STRING:=""
           end
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
           BarraTitulo(ARCHIVO)
         elseif c==86  .or. c==22     // CTRL-VV  insertar contenido de variable de entorno.
           STRING:=_SELECTENVVAR(TLINEA,ARCHIVO,1)
@@ -7851,134 +10198,14 @@ while SW_EDIT
              end
              STRING:=""
           end
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
           BarraTitulo(ARCHIVO)
         elseif c==67 // .or. c==3       // CTRL-VC inserta controles
-          MENUCTRL:=INSERTMENU(1)
-          SWA:=.T.
+
         elseif c==65 //.or. c==1   // CTRL-VA inserta asignaciones especiales
-          MENUCTRL:=INSERTMENU(2)
-          SWA:=.T.
+
         elseif c==70 //.or. c==6   // CTRL-VF inserta función
-          MENUCTRL:=INSERTMENU(4)
-          SWA:=.T.
-        end
-        if SWA
-           // limpio la lista de busqueda, por si acaso.
-           if len(LISTAFOUND)>0 
-              RELEASE LISTAFOUND
-              LISTAFOUND:={}
-              SWMATCH:=.F.
-              ptrLF:=0; totLF:=0
-           end
-    
-           MENUMATCH:=MENUCTRL[1]
-           MENU:=MENUCTRL[2]
 
-           SETCOLOR(N2COLOR(cBARRA))
-           @ TLINEA-(int(TLINEA/2)),0 CLEAR TO TLINEA-3,SLINEA
-
-           setpos(TLINEA-(int(TLINEA/2)),int(SLINEA/2)-6); outstd(" Ins Code ")
-           MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
-           //SETCOLOR(N2COLOR(6))
-           setcolor( 'GR+/N,N/GR+,,,W/N' )
-           pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,TLINEA-3,SLINEA-1,MENUMATCH, .T.)
-           
-           while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
-              
-           SETCOLOR(N2COLOR(cBARRA))
-           VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-           BarraTitulo(ARCHIVO)
-           SETCOLOR(N2COLOR(cTEXTO))
-         
-           STRING:=""
-           IF pELIGE>0
-              STRING:=hb_utf8tostr(MENU[pELIGE][1])
-              pKEY:=MENU[pELIGE][2]
-              pREP:=MENU[pELIGE][3]
-           END
-
-           nLen:=LEN(STRING)
-           mLen:=mlcount(STRING,216)
-           if nLen!=0
-              codeIndent:=p-1
-              STRING1:=""
-              if mLen>1
-                 ++TOPE
-                 asize(TEXTO,TOPE)
-                 ++pi
-                 ains(TEXTO,pi)
-                 ++py 
-                 if yCALLBACK>0
-                    ++yCALLBACK
-                 end
-                 if py>TLINEA-3
-                    ++lini; ++lfin
-                    --py
-                 end
-              end
-              for j:=1 to nLen
-                 CX:=substr(STRING,j,1)
-                 if asc(CX)==13
-                    loop
-                 end
-                 if asc(CX)!=10
-                    STRING1+=CX
-                 else
-                    
-                    TEXTO[pi]:=SPACE(codeIndent) + STRING1
-                    ++TOPE
-                    asize(TEXTO,TOPE)
-                    ++pi
-                    ains(TEXTO,pi)
-                    
-                    ++py  //;p:=1;px:=1
-                    if yCALLBACK>0
-                       ++yCALLBACK
-                    end
-                    if py>TLINEA-3
-                       ++lini; ++lfin
-                       --py
-                      // if yCALLBACK>0
-                      //    --yCALLBACK
-                      // end
-                    end
-                    STRING1:=""
-                 end
-              end
-              if len(STRING1)>0
-                 if mLen>1
-                    TEXTO[pi]:=SPACE(codeIndent) + STRING1
-                 else
-                    TEXTO[pi]:=substr(TEXTO[pi],1,codeIndent) + STRING1 + ;
-                               substr(TEXTO[pi],codeIndent+1,len(TEXTO[pi]))
-                 end
-                 STRING1:=""
-              end
-              codeIndent:=0
-              SW_COMPILE:=.F.
-              SW_MODIFICADO:=.T.
-
-              SETCOLOR(N2COLOR(cTEXTO))
-              VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
-              BarraTitulo(ARCHIVO)
-              if pREP>0
-                 pushkey(pKEY,pREP)
-                 exit
-              elseif pKEY>0
-                 hb_keyPut(pKEY)
-                 exit
-              else
-                 exit
-              end
-           else
-              BarraTitulo(ARCHIVO)
-              setpos(py,px)
-           end
-        else
-           BarraTitulo(ARCHIVO)
-           setpos(py,px)
         end
        
      elseif c==23   //CTRL-W
@@ -7992,7 +10219,10 @@ while SW_EDIT
        end*/
        tARCHIVO:=ARCHIVO   // guardo temporal para comparar
        //ECX:=ARCHIVO
-       
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        WHILE .T.
        SETCOLOR(N2COLOR(cBARRA))
        EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
@@ -8014,7 +10244,7 @@ while SW_EDIT
        setpos(TLINEA-2,2);outstd(" FILE NAME TO WRITE? ")
 
        MSGINPUT("^KU=PASTE, INSERT PATH: ^IH=HOME ^IP=CURRENT ^IR=RELATIVE ^IS=SOURCE XU ^II=INCLUDE XU")
-       ECX:=INPUTLINE(ECX,SLINEA-23,TLINEA-2,23,"s")
+       ECX:=INPUTLINE(ECX,SLINEA-23,TLINEA-2,23,"s",.F.)
 
        BarraTitulo(ARCHIVO)
        SETCOLOR(N2COLOR(cTEXTO))
@@ -8040,7 +10270,7 @@ while SW_EDIT
                  cMessage := hb_utf8tostr("No puede usar '*' de esta forma. Use '*/archivo' para navegar")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              end
           
@@ -8085,11 +10315,11 @@ while SW_EDIT
                 setcolor( 'GR+/N,N/GR+,,,W/N' )
                 pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,TLINEA-3,SLINEA-1,MENUMATCH,.T.)
                 
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE) 
+                while inkey(,INKEY_ALL)!=0 ; end
+                MRESTSTATE(MOUSE)
               
                 SETCOLOR(N2COLOR(cTEXTO))
-                VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                 BarraTitulo(ARCHIVO)
                 RELEASE MENUMATCH
 
@@ -8114,10 +10344,10 @@ while SW_EDIT
                 ARCHIVO:=PATH+ECX  // rearmo el path del archivo
              end
           end
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
        else
           BarraTitulo(ARCHIVO)
-          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+          VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
           SW_BUSCADIR:=.F.
           ARCHIVO:=tARCHIVO
           RET:=""
@@ -8141,6 +10371,14 @@ while SW_EDIT
                 else
                    tmp:=SAVEFILE(TEXTO,ARCHIVO,TOPE)
                 end
+                // CARGA EL ARCHIVO GUARDADO EN UNA VENTANA NUEVA
+                RET:=ARCHIVO
+                if FILE(RET)
+                   SWLOADRAPIDO:=.T.
+                   hb_keyPut(15)
+                   hb_keyPut(70)
+                end
+                
              elseif ARCHIVO==tARCHIVO   // es el mismo editado
                // @ 0,0 say "  ARCHIVO EXISTE Y ES EL MISMO  "+ARCHIVO; inkey(0)
                 //tmp:=SAVEFILE(TEXTO,ARCHIVO,TOPE)
@@ -8155,8 +10393,8 @@ while SW_EDIT
                          hb_utf8tostr("Deseas sobreescribirlo?")
                 aOptions := { hb_utf8tostr("Sí"),"No" }
                 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE)
+                while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                 if nChoice==1
                    if TEXTOTIPO=="BINARY"
                       tmp:=SAVEBIN(TEXTO,ARCHIVO,TOPE,nOFFSET+1)
@@ -8171,7 +10409,7 @@ while SW_EDIT
                 ARCHIVO:=tARCHIVO
              end
              BarraTitulo(ARCHIVO)
-             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
 
              if !tmp
                 cMessage := hb_utf8tostr("Archivo no pudo ser guardado")
@@ -8180,8 +10418,8 @@ while SW_EDIT
 
                 // show message and let end user select panic level
                 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                while inkey(,159)!=0 ; end
-                MRESTSTATE(MOUSE)
+                while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
              else
                 SW_COMPILE:=.F.
                 SW_MODIFICADO:=.F.
@@ -8200,11 +10438,15 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Use CTRL-I para sobreescribir datos")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
        xlen:=len(s) 
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
        if xlen>=p
          AADD(BUFFER_CTRLZ,LLENATEXTO(s,xlen,0))
          AADD(LINBUFFCTRLZ,pi)
@@ -8220,8 +10462,11 @@ while SW_EDIT
                 end
             end
          end*/
+         if SWMARCABLOQUE
+             XFILf:=pi; XCOLf:=p
+         end
          
-         VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+         VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
          
          ++xlen
          
@@ -8249,6 +10494,9 @@ while SW_EDIT
             AADD(BUFFER_CTRLZ,LLENATEXTO(s,xlen,0))
             AADD(LINBUFFCTRLZ,pi)
          end
+         if SWMARCABLOQUE
+             XFILf:=pi; XCOLf:=p
+         end
          exit
        end
      elseif c==8   // RETROCESO, CTRL-H
@@ -8256,12 +10504,15 @@ while SW_EDIT
              cMessage := hb_utf8tostr("Use CTRL-I para sobreescribir datos")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+               while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
              loop
           end
        if p>1
-         
+         if SWCOMPLETAHTML
+            SWCOMPLETAHTML:=.F.
+            htmlCompleta:=""
+         end
          AADD(BUFFER_CTRLZ,LLENATEXTO(s,xlen,0))
          AADD(LINBUFFCTRLZ,pi)
          
@@ -8291,8 +10542,10 @@ while SW_EDIT
                end
             end
          end
-
-         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+         if SWMARCABLOQUE
+             XFILf:=pi; XCOLf:=p
+         end
+         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
 
          ++xlen
          
@@ -8322,7 +10575,9 @@ while SW_EDIT
             AADD(BUFFER_CTRLZ,LLENATEXTO(s,xlen,0))
             AADD(LINBUFFCTRLZ,pi)
          end
-
+         if SWMARCABLOQUE
+             XFILf:=pi; XCOLf:=p
+         end
          exit
        end
 
@@ -8331,13 +10586,16 @@ while SW_EDIT
           AADD(BUFFER_CTRLZ,LLENATEXTO(s,len(s),0))
           AADD(LINBUFFCTRLZ,pi)
           pushkey(32,cTABULA-(p%cTABULA))
+          if SWMARCABLOQUE
+             XFILf:=pi; XCOLf:=p
+          end
        else   // sobreescribe archivo binario.
           SETCOLOR(N2COLOR(cBARRA))
           ECX:=""
           @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
           MSGINPUT("")
           setpos(TLINEA-2,2);outstd(" READY! ")
-          ECX:=ALLTRIM(INPUTLINE(ECX,SLINEA-10,TLINEA-2,10,"s"))
+          ECX:=ALLTRIM(INPUTLINE(ECX,SLINEA-10,TLINEA-2,10,"s",.F.))
           if lastkey()!=3 .or. len(ECX)>0
              c1:=substr(ECX,2,len(ECX))
              ECX:=upper(substr(ECX,1,1))
@@ -8364,8 +10622,8 @@ while SW_EDIT
                    cMessage := hb_utf8tostr("Número no válido."+_CR+"Intenta con números reales")
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                    setpos(py,px)
                 end
              elseif ECX=="I"    // inserta posiciones con caracteres
@@ -8380,8 +10638,8 @@ while SW_EDIT
                              "Si es un solo caracter, usa '#nn;'"+_CR+"También intenta con opcode hexadecimal.")
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
+                  while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                    setpos(py,px)
                 end
              elseif ECX=="O"    // sobreescribe
@@ -8396,14 +10654,14 @@ while SW_EDIT
                              "Si es un solo caracter, usa '#nn;'"+_CR+"También intenta con opcode hexadecimal.")
                    aOptions := { hb_utf8tostr("Será...") }
                    nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                   while inkey(,159)!=0 ; end
-                   MRESTSTATE(MOUSE)
+                 while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                    setpos(py,px)
                 end
                /// p:=c3; pi:=c1
              end // if
              BarraTitulo(ARCHIVO)
-             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+             VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
              setpos(px,py)
              setcursor(1)
              exit
@@ -8417,7 +10675,7 @@ while SW_EDIT
           cMessage := hb_utf8tostr("Use CTRL-I para sobreescribir datos")
                  aOptions := { hb_utf8tostr("Será...") }
                  nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-                 while inkey(,159)!=0 ; end
+                while inkey(,INKEY_ALL)!=0 ; end
                  MRESTSTATE(MOUSE)
           loop
         end
@@ -8442,12 +10700,10 @@ while SW_EDIT
               ///  @0,60 say "XLEN="+hb_ntos(xlen)+" P="+hb_ntos(p)+"   "
                 if SWSOBREESCRIBE
                    if p<=xlen
-                 //     AADD(CTRLZ,{lini,cini,pi,p,py,px,TEXTO[pi]})
                       s[p]:=chr(c)
                       ++p; ++px
                       
                    else    // es mayor
-                 //     AADD(CTRLZ,{lini,cini,pi,p,py,px,TEXTO[pi]})
                       asize(s,xlen+1)
                       ains(s,p)
                       ++xlen; ++px
@@ -8455,12 +10711,73 @@ while SW_EDIT
                       ++p
                       
                    end
-                else       
+                else
+                                  // verifico HTML:
+                  if SWLENGUAJE==5
+                     if chr(c)=="<"
+                        SWCOMPLETAHTML:=.T.
+                        htmlCompleta:="</"
+                     elseif chr(c)==">" .and. SWCOMPLETAHTML
+                        SWCOMPLETAHTML:=.F.
+                        if p<xlen
+                           TEXTO[pi]:=substr(TEXTO[pi],1,p-1)+">"+htmlCompleta+">"+substr(TEXTO[pi],p,len(TEXTO[pi]))
+                        else   
+                           TEXTO[pi]:=TEXTO[pi]+">"+htmlCompleta+">"
+                        end
+                        htmlCompleta:=""
+                        hb_keyPut(4)
+                        exit
+                     elseif chr(c)==" " .and. SWCOMPLETAHTML
+                        SWCOMPLETAHTML:=.F.
+                        if p<xlen
+                           TEXTO[pi]:=substr(TEXTO[pi],1,p-1)+" >"+htmlCompleta+">"+substr(TEXTO[pi],p,len(TEXTO[pi]))
+                        else   
+                           TEXTO[pi]:=TEXTO[pi]+" >"+htmlCompleta+">"
+                        end
+                        htmlCompleta:=""
+                        hb_keyPut(4)
+                        exit
+                     else
+                        if SWCOMPLETAHTML
+                           if chr(c)=="!" .and. s[p-1]=="<"
+                              SWCOMPLETAHTML:=.F.
+                              htmlCompleta:=""
+                           elseif chr(c)=="/"
+                              if s[p-1]=="<"
+                                 SWCOMPLETAHTML:=.F.
+                                 htmlCompleta:=""
+                              else
+                                 if p<len(s)
+                                    TEXTO[pi]:=substr(TEXTO[pi],1,p-1)+" />"+substr(TEXTO[pi],p)
+                                 else
+                                    TEXTO[pi]:=TEXTO[pi]+" />"
+                                 end
+                                 SWCOMPLETAHTML:=.F.
+                                 htmlCompleta:=""
+                                 hb_keyPut(4)
+                                 exit                             
+                              end
+                           else
+                              htmlCompleta+=chr(c)
+                           end
+                        else
+                           if p>1
+                              if s[p-1]=="<"
+                                 if chr(c)!="/"
+                                    SWCOMPLETAHTML:=.T.
+                                    htmlCompleta:="</"+chr(c)
+                                 end
+                              end
+                           end
+                        end
+                     end
+////                     @ TLINEA-1,10 say htmlCompleta
+                  end
                 if p<xlen // px<xlen
-              ///    AADD(CTRLZ,{lini,cini,pi,p,py,px,TEXTO[pi]})
                   asize(s,xlen+1)
                   ains(s,p)
                   ++xlen; ++px
+
                   s[p]:=chr(c)
                   
                   ++p
@@ -8469,38 +10786,41 @@ while SW_EDIT
                     if s[p-1]=='"'
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:='"'
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                    //  if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+='"'
+                    //  end
+
                     elseif s[p-1]=="("
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:=")"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+=')'
+                   //   end
                     elseif s[p-1]=="{"
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="}"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+='}'
+                   //   end
                     elseif s[p-1]=="["
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="]"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+=']'
+                   //   end
                     elseif s[p-1]=="|"
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="|"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+='|'
+                   //   end
                     elseif s[p-1]=="$" .and. EXTENSION==2
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="$"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
                     end
                   end
                 elseif p==xlen
                   if p==1
-                  ///   AADD(CTRLZ,{lini,cini,pi,p,py,px,TEXTO[pi]})
                      if s[p]==""
                         s[p]:=chr(c)
                         ++p;++px
@@ -8511,14 +10831,9 @@ while SW_EDIT
                         ++xlen; ++p; ++px
                      end
                   else
-                     //if p>1   // >=
-                 ///    AADD(CTRLZ,{lini,cini,pi,p,py,px,TEXTO[pi]})
-                        asize(s,xlen+1)
-                        ains(s,p)
-                     //end
+                     asize(s,xlen+1)
+                     ains(s,p)
                      s[p]:=chr(c)
-                     // aguega anticomando:
-                     //AADD(CTRLZ,{pi,p,7})
                      ++xlen; ++p; ++px
                   end
                   
@@ -8527,33 +10842,36 @@ while SW_EDIT
                     if s[p-1]=='"'
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:='"'
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+='"'
+                   //   end
                     elseif s[p-1]=="("
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:=")"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+=')'
+                   //   end
                     elseif s[p-1]=="{"
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="}"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+='}'
+                   //   end
                     elseif s[p-1]=="["
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="]"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+=']'
+                   //   end
                     elseif s[p-1]=="|"
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="|"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
+                   //   if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                   //      htmlCompleta+='|'
+                   //   end
                     elseif s[p-1]=="$" .and. EXTENSION==2
                       ++xlen;asize(s,xlen);ains(s,p)
                       s[p]:="$"
-                      // aguega anticomando:
-                    //  AADD(CTRLZ,{pi,p,7})
                     end
                   end
                 /*  */
@@ -8569,39 +10887,42 @@ while SW_EDIT
                      if s[p-1]=='"'
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:=chr(c)
-                        // aguega anticomando:
-                       // AADD(CTRLZ,{pi,p,7})
+                    //    if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+='"'
+                    //  end
                      elseif s[p-1]=='('
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:=")"
-                        // aguega anticomando:
-                       // AADD(CTRLZ,{pi,p,7})
+                    //    if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+=')'
+                    //  end
                      elseif s[p-1]=='['
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:="]"
-                        // aguega anticomando:
-                      //  AADD(CTRLZ,{pi,p,7})
+                    //    if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+=']'
+                    //  end
                      elseif s[p-1]=='{'
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:="}"
-                        // aguega anticomando:
-                      //  AADD(CTRLZ,{pi,p,7})
+                    //    if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+='}'
+                    //  end
                      elseif s[p-1]=='|'
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:="|"
-                        // aguega anticomando:
-                      //  AADD(CTRLZ,{pi,p,7})
+                    //    if SWLENGUAJE==5 .and. SWCOMPLETAHTML
+                    //     htmlCompleta+='|'
+                    //  end
                      elseif s[p-1]=='$' .and. EXTENSION==2
                         asize(s,xlen+1);ains(s,p) 
                         s[p]:="$"
-                        // aguega anticomando:
-                      //  AADD(CTRLZ,{pi,p,7})
                      end
                   end
 
                 end
                 end   // SWSOBREESCRIBE
-                
+                                
                 // se asegura de que deba compilar después de una modificacion
                 SW_COMPILE:=.F.
                 SW_MODIFICADO:=.T.
@@ -8612,11 +10933,13 @@ while SW_EDIT
                    px:=px-20
                    
                 end
-
+                if SWMARCABLOQUE
+                  XFILf:=pi; XCOLf:=p
+                end
                 TEXTO[pi]:=LLENATEXTO(s,len(s),0)
                // @ py+1, px say TEXTO[pi] + hb_ntos((len(TEXTO[pi]))) ; inkey(0)
                 setcursor(0)
-                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,XFILi)
+                VISUALIZA_TEXTO(TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
                 
                 setcursor(1)
                 setpos(py,px)
@@ -8785,10 +11108,10 @@ LOCAL msg:="",swcom:=.F.
   end
 return TARGET
 
-FUNCTION CARGAINTROXU()
+FUNCTION CARGAINTROXU(archivo)
 local feggs,fp,_nl,sw:=.F.,c,j, HELPTOTAL
 
-feggs:=PATH_XU+_fileSeparator+"binary"+_fileSeparator+"introxu.bin"
+feggs:=PATH_XU+_fileSeparator+"binary"+_fileSeparator+archivo//"introxu.bin"
 sw:=.T.
 if file(feggs)
    fp:=fopen(feggs,0)
@@ -8817,17 +11140,18 @@ while nChoice>0
    //   hb_keyPut(27)
   // end
    MEMOEDIT(HELPTOTAL,2,2,TLINEA-4,SLINEA-2, .F.)
+
    setcursor(1)
    POS:=12
    HFIL:=2 //int(SLINEA/2)-33  //28
-   setcolor( 'GR+/N,N/GR+,,,W/N' )
+   setcolor( 'N/W,GR+/N,,,W/N' )
    @ TLINEA-2, HFIL    PROMPT "INTRO"
    @ TLINEA-2, HFIL+8  PROMPT "MACROS"  
                 
    MENU TO nChoice
    if nChoice==1
       TOPICO:="PRIMEROS PASOS"
-      MATCH:={"Introduccion LAICA","Uso del BUFFER","Comandos de movimiento de cursor","Edicion basica",;
+      MATCH:={"Introduccion LAICA","Uso del BUFFER","Comandos de movimiento de cursor","Herramientas del Editor","Edicion basica",;
               "Menu ^O (ayuda y archivos)","Menu ^P (Compilacion y vista)","Menu ^V (Insercion de codigo)",;
               "Menu ^J (Saltos a lineas)",;
               "Menu ^K (Edicion avanzada)","Menu ^N (Busqueda y reemplazo)","Menu ^L (Procesamiento avanzado de texto)",;
@@ -8857,8 +11181,9 @@ while nChoice>0
 
       pELIGE:=ACHOICE(TLINEA-XLEN-4,11,TLINEA-4,SLINEA-11,MATCH, .T.)
 
-      while inkey(,159)!=0 ; end
-      MRESTSTATE(MOUSE) 
+      while inkey(,INKEY_ALL)!=0 ; end
+      MRESTSTATE(MOUSE)
+     
       MREAD:=hb_utf8tostr(MEMOREAD(FILEHELP))
       if pELIGE>0
          hCADI:=at("$$BEGIN "+MATCH[pELIGE],MREAD)
@@ -8875,6 +11200,96 @@ end
 //hb_utf8tostr(MEMOREAD(PATH_HELP+_fileSeparator+"ed4xu.help"))
 RETURN
 
+FUNCTION CALLMENUHOPPER(HELPTOTAL,ARCHIVO)
+local nChoice, POS, HFIL,pELIGE,MATCH, MREAD, hCADI,lCADI,hCADF,XLEN,FILEHELP,TOPICO,MENS
+
+nChoice:=1
+while nChoice>0 
+   setcursor(0)
+   //if sw
+   //   hb_keyPut(27)
+  // end
+   MEMOEDIT(HELPTOTAL,2,2,TLINEA-4,SLINEA-2, .F.)
+
+   setcursor(1)
+   POS:=12
+   HFIL:=2 //int(SLINEA/2)-33  //28
+   setcolor( 'N/W,GR+/N,,,W/N' )
+   @ TLINEA-2, HFIL     PROMPT "INTRO"
+   @ TLINEA-2, HFIL+8   PROMPT "EL STACK"
+   @ TLINEA-2, HFIL+18  PROMPT "BASICAS"
+   @ TLINEA-2, HFIL+27  PROMPT "AVANZADAS"
+   @ TLINEA-2, HFIL+38  PROMPT "PREPROCESADOR"
+                
+   MENU TO nChoice
+   if nChoice==1
+      TOPICO:="UNA INTRODUCCION"
+      MATCH:={"Introduccion","Compilacion y ejecucion","Un programa simple","Uso del Stack de trabajo",;
+               "Detalles de la programacion HOPPER","Manejo de datos","Operadores matematicos y logicos",;
+               "Parametros","Estructura de un programa HOPPER","Contexto y pseudofunciones",;
+               "Codigo insertado de alto nivel","Precision numerica"}
+      FILEHELP:=PATH_HELP+_fileSeparator+"hopper.help"
+      XLEN:=len(MATCH)
+
+   elseif nChoice==2
+      TOPICO:="REVISANDO EL STACK DE TRABAJO"
+      MATCH:={"Apilar datos en el stack","Instrucciones del stack de trabajo"}
+      FILEHELP:=PATH_HELP+_fileSeparator+"hopper.help"
+      XLEN:=len(MATCH)
+   elseif nChoice==3
+      TOPICO:="INSTRUCCIONES BASICAS"
+      MATCH:={"Condicionales y saltos","Instrucciones de conversion","Instrucciones de cadena",;
+              "Instrucciones matematicas"}
+      FILEHELP:=PATH_HELP+_fileSeparator+"hopper.help"
+      XLEN:=len(MATCH)
+   elseif nChoice==4
+      TOPICO:="INSTRUCCIONES AVANZADAS"
+      MATCH:={"Expresiones regulares","Fechas, horas y control de tiempo","Sockets","Tokens","Terminal y sistema",;
+              "Intervalos y rangos","Estadistica","Conjuntos","Bits y cambio de base","Atrapamiento de errores",;
+              "Parser XML","Archivos","Pilas, colas y recursividad","Arrays","Mensajeria System V","Teclado y captura",;
+              "Instrucciones miscelaneas"}
+      FILEHELP:=PATH_HELP+_fileSeparator+"hopper.help"
+      XLEN:=len(MATCH)
+   elseif nChoice==5
+      TOPICO:="EL PREPROCESADOR DE HOPPER"
+      MATCH:={"Preprocesamiento y metalenguaje","Directivas principales","Directivas inline para #defn",;
+              "Directivas de estructuras"}
+      FILEHELP:=PATH_HELP+_fileSeparator+"hopper.help"
+      XLEN:=len(MATCH)
+   end
+   if nChoice>0
+      SETCOLOR(N2COLOR(cBARRA))
+      @ TLINEA-XLEN-5,10 CLEAR TO TLINEA-4,SLINEA-10
+      MENS:="MENU DEL TOPICO ["+TOPICO+"]"
+      setpos(TLINEA-XLEN-5,int(SLINEA/2)-int(len(MENS)/2)); outstd(MENS)
+
+     // MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
+     // setcolor( 'GR+/N,N/GR+,,,W/N' )
+      setcolor( 'W/N,N/W,,,W/N' )
+
+      pELIGE:=ACHOICE(TLINEA-XLEN-4,11,TLINEA-4,SLINEA-11,MATCH, .T.)
+
+      while inkey(,INKEY_ALL)!=0 ; end
+      MRESTSTATE(MOUSE)
+     
+      MREAD:=hb_utf8tostr(MEMOREAD(FILEHELP))
+      if pELIGE>0
+         hCADI:=at("$$BEGIN "+MATCH[pELIGE],MREAD)
+         lCADI:=len("$$BEGIN "+MATCH[pELIGE])
+         HELPTOTAL:=substr(MREAD,hCADI+lCADI,len(MREAD))
+         hCADF:=at("$$END "+MATCH[pELIGE],HELPTOTAL)
+         HELPTOTAL:=substr(HELPTOTAL,1,hCADF-1)
+         HELPTOTAL:=substr(MREAD,1,at("$$END INTRO",MREAD)-1)+HELPTOTAL
+      else
+         nChoice:=1 ; hb_keyPut(27)//MREAD
+      end
+   end
+end
+
+RETURN
+
+
+
 FUNCTION CALLMENUXU(HELPTOTAL,ARCHIVO)
 local nChoice, POS, HFIL,pELIGE,MATCH, MREAD, hCADI,lCADI,hCADF,XLEN,FILEHELP,TOPICO,MENS
 
@@ -8888,7 +11303,8 @@ while nChoice>0
    setcursor(1)
    POS:=12
    HFIL:=2 //int(SLINEA/2)-33  //28
-   setcolor( 'GR+/N,N/GR+,,,W/N' )
+   //setcolor( 'GR+/N,N/GR+,,,W/N' )
+   setcolor( 'N/W,GR+/N,,,W/N' )
    @ TLINEA-2, HFIL    PROMPT "INTRO"
    @ TLINEA-2, HFIL+8  PROMPT "PREPROC"  //+9 CASTOR
    @ TLINEA-2, HFIL+16 PROMPT "CONTROL"    //+8
@@ -8936,7 +11352,7 @@ while nChoice>0
    elseif nChoice==5
       TOPICO:="MATRICES"
       MATCH:={"Dimensiones y declaraciones","Redimension",hb_utf8tostr("Tamaño de una matriz"),"Sentencia USE","Acceso a una matriz",;
-              "Declaracion de rangos","Uso de rangos","Busqueda","Unir matrices","Cortar matrices","Copiar submatrices",;
+              "Declaracion de mapas","Uso de mapas","Busqueda","Unir matrices","Cortar matrices","Copiar submatrices",;
               "Archivos","Operaciones estadisticas","Despliegue","Generar secuencias","Ordenacion","Maximo y minimo",;
               "Funciones IS...","Funcion JOIN"}
       FILEHELP:=PATH_HELP+_fileSeparator+"xu-funmatrix.help"
@@ -8999,8 +11415,9 @@ while nChoice>0
       
       pELIGE:=ACHOICE(TLINEA-XLEN-4,11,TLINEA-4,SLINEA-11,MATCH, .T.)
 
-      while inkey(,159)!=0 ; end
-      MRESTSTATE(MOUSE) 
+      while inkey(,INKEY_ALL)!=0 ; end
+      MRESTSTATE(MOUSE)
+     
       MREAD:=hb_utf8tostr(MEMOREAD(FILEHELP))
       if pELIGE>0
          hCADI:=at("$$BEGIN "+MATCH[pELIGE],MREAD)
@@ -9209,8 +11626,9 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
                 hb_keyPut(27)
                 setcolor( 'W+/N,N/W+,,,W+/N' )
                 pELIGE:=ACHOICE((TLINEA-12)-iif(XLEN>5,5,XLEN),1,TLINEA-13,SLINEA-1,cRESULTBUFFER, .T.)
-                   while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
+                while inkey(,INKEY_ALL)!=0 ; end
+                MRESTSTATE(MOUSE)
+                
              end
              readinsert(.T.)
              setcolor( 'GR+/N,N/GR+,,,W+/N' )
@@ -9251,8 +11669,8 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
                    setcolor( 'GR+/N,N/GR+,,,W/N' )
                    pELIGE:=ACHOICE(TLINEA-(3+iif(XLEN>5,6,XLEN)),11,TLINEA-3,SLINEA-11,MATCH, .T.,"CTRLKVUSERFUNCTION")
                         
-                   while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
+                   while inkey(,INKEY_ALL)!=0 ; end
+                   MRESTSTATE(MOUSE)
 
                    if pELIGE>0
                       if lastkey()==7 .or. lastkey()==8
@@ -9260,7 +11678,8 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
                          ASIZE(LISTAEXPRESION,len(LISTAEXPRESION)-1)
                          loop
                       else
-                         cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+LISTAEXPRESION[pELIGE]
+                         //cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+LISTAEXPRESION[pELIGE]
+                         OPERA:=substr(OPERA,1,len(OPERA)-1)+LISTAEXPRESION[pELIGE]
                       end
                    else
                       loop
@@ -9283,11 +11702,12 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
                    setcolor( 'GR+/N,N/GR+,,,W/N' )
                    pELIGE:=ACHOICE(TLINEA-(3+iif(XLEN>5,6,XLEN)),11,TLINEA-3,SLINEA-11,MATCH, .T.,"CTRLKVUSERFUNCTION")
                         
-                   while inkey(,159)!=0 ; end
-                        MRESTSTATE(MOUSE) 
+                   while inkey(,INKEY_ALL)!=0 ; end
+                   MRESTSTATE(MOUSE)
 
                    if pELIGE>0
-                      cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+cRESULTBUFFER[pELIGE]
+                      //cOPERA:=substr(cOPERA,1,len(cOPERA)-1)+cRESULTBUFFER[pELIGE]
+                      OPERA:=substr(OPERA,1,len(OPERA)-1)+cRESULTBUFFER[pELIGE]
                    else
                       loop
                    end
@@ -9304,7 +11724,7 @@ LOCAL XLEN,pELIGE,OPERA:="",BUFFER:={},SWOPEXISTE:=.F.,MATCH,cOPERA:=""
                 if LEN(BUFFER)>0
                   // if BUFFER[1]!="<error>"
                       AADD(cRESULTBUFFER,strtran(BUFFER[1],chr(127),""))
-                      AADD(LISTAEXPRESION,cOPERA)
+                      AADD(LISTAEXPRESION,OPERA)
                      /* SWOPEXISTE:=.F.
                       for i:=1 to len(LISTAEXPRESION)
                          if OPERA == LISTAEXPRESION[i]
@@ -9421,24 +11841,76 @@ BUFFER:={}  // lo borro.
 RETURN
 
 FUNCTION _CTKVLLENABUFF(BUFFER)
-LOCAL XNUMLIN:=0,XLEN:=0,i,XNUMCAR:=0,STRING:={}
+LOCAL XNUMLIN:=0,XLEN:=0,i,XNUMCAR:=0,STRING:={},YLEN:=0
 XNUMLIN:=LEN(BUFFER)
 XLEN:=LEN(hb_ntos((XNUMLIN)))
 
 for i:=1 to XNUMLIN
    XNUMCAR+=len(alltrim(BUFFER[i]))
    //STRING+=BUFFER[i]+_CR
-   if LEN(BUFFER[i])==0
+   YLEN:=len(BUFFER[i])
+   if YLEN==0
       AADD(STRING,strzero(i,XLEN)+" : ")
    else
-      AADD(STRING,strzero(i,XLEN)+" : "+BUFFER[i])
+      if asc(substr(BUFFER[i],YLEN,1))==127
+         if YLEN>SLINEA-12
+            AADD(STRING,strzero(i,XLEN)+" B: "+substr(BUFFER[i],1,SLINEA-12)+"...")
+         else
+            AADD(STRING,strzero(i,XLEN)+" B: "+substr(BUFFER[i],1,YLEN-1))
+         end
+      else
+         if YLEN<SLINEA-12
+            AADD(STRING,strzero(i,XLEN)+" L: "+BUFFER[i])
+         else
+            AADD(STRING,strzero(i,XLEN)+" L: "+substr(BUFFER[i],1,SLINEA-12)+"...")
+         end
+      end
    end
 end
 
 RETURN {STRING,XNUMLIN,XNUMCAR}
 
-PROCEDURE _CTRL_KV(BUFFER,TEXTO,TLINEA,lini,lfin,cini,TOPE,ARCHIVO,PASTEFROM,PASTETO,XF1,XF2,XFILi)
-LOCAL STRING,RECEPT,i,XCLEAR,XNUMLIN:=0,XNUMCAR:=0,XLEN,pELIGE:=0,c,FIRST,cTMP,SW:=.F.,MULTIINS:={}
+/*  PROCEDURE FUNEXECTRLV(EJECUTA,STR)
+  local DX,RX,BX,EX,LINEA
+    FILERAND:=hb_ntos(int(hb_random(1000000000)))
+    FILETMP:="file_"+FILERAND
+    FD:=FCREATE()
+    // prepara respuesta
+    BX:=PATH_LOG+_fileSeparator+"XU_"+FILERAND+".sh"
+    DX:=FCREATE (BX)
+    FWRITE (DX,"#!/bin/bash"+_CR)
+    FWRITE (DX,AX+_CR)
+    FWRITE (DX,'if [ "$?" != "0" ]; then'+_CR)
+    FWRITE (DX,'echo "Press any key to continue..."'+_CR)
+    FWRITE (DX,"read -rsp $'Press any key to continue...\n' -n 1 key"+_CR)
+    FWRITE (DX,"else"+_CR)
+    if TX!="<none>"
+       
+       FWRITE (DX,"clear"+_CR)
+       FWRITE (DX,TX+_CR)
+    end
+    FWRITE (DX,"read -rsp $'Press any key to continue...\n' -n 1 key"+_CR)
+    FWRITE (DX,"fi"+_CR)
+ //   FWRITE (DX,"rm "+BX+_CR)
+    FCLOSE (DX)
+    RX:=CMDSYSTEM("chmod 755 "+BX,0)
+//
+    if SWGRMODE
+       LINEA:='gnome-terminal -- bash -c "'+BX+'"'
+    else
+       LINEA:=BX
+    end
+    // Ejecuta el Batch
+    RX:=CMDSYSTEM(LINEA,0)
+    HB_IDLESLEEP( 1 )
+    if SW_CLEAR_LOG
+       FERASE (BX)
+    end
+  RETURN */
+
+
+PROCEDURE _CTRL_KV(BUFFER,TEXTO,TLINEA,lini,lfin,cini,TOPE,ARCHIVO,PASTEFROM,PASTETO,XF1,XF2,XFILi,ESEJECUTABLE,SWGRMODE,COMPILADOR)
+LOCAL STRING,RECEPT,i,XCLEAR,XNUMLIN:=0,XNUMCAR:=0,XLEN,pELIGE:=0,c,FIRST,cTMP,SW:=.F. //,MULTIINS:={}
 LOCAL STR:="",j
 //STRING:=""
 STRING:={}
@@ -9449,6 +11921,9 @@ XNUMLIN:=RECEPT[2]
 XNUMCAR:=RECEPT[3]
 FIRST:=1
 if len(STRING)>0
+   if len(MULTIINS)>0
+      MULTIINS:={}   // limpia para recibir un nuevo set de marcas.
+   end
    WHILE .T.
    SETCOLOR(N2COLOR(cBARRA))
 
@@ -9461,19 +11936,19 @@ if len(STRING)>0
    
    @ TLINEA-XCLEAR,0 CLEAR TO TLINEA-3,SLINEA
    setpos(TLINEA-XCLEAR,2); outstd("TOTAL LINE BUFFER="+hb_ntos(XNUMLIN)+" #CARS="+hb_ntos(XNUMCAR))
-   MSGBARRA("^V=INS LINES  ^S=SEL LINES  ^J=JUMP TO LINE  BKSP|SUPR=DEL LINES  RETURN=INS 1 LINE",ARCHIVO,2)
+   MSGBARRA("^V=INS GROUP  ^S=SEL LINES  ^L=JOIN LINES  ^J=RUN LINES  BKSP|SUPR=DEL LINES  RETURN=INS 1 LINE",ARCHIVO,2)
    setcolor( 'GR+/N,N/GR+,,,W/N' )
   // MEMOEDIT(STRING,TLINEA-XCLEAR+1,0,TLINEA-3,SLINEA, .T.)
    
 
    pELIGE:=ACHOICE(TLINEA-XCLEAR+1,1,TLINEA-3,SLINEA-1,STRING,.T.,"CTRLKVUSERFUNCTION",FIRST)
    
-   while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
+   while inkey(,INKEY_ALL)!=0 ; end
+   MRESTSTATE(MOUSE)
               
    if pELIGE!=0
       if lastkey()==13
-         inkey()
+        /* inkey()
          for i:=1 to len(BUFFER[pELIGE])
             c:=asc(substr(BUFFER[pELIGE],i,1))
             if c!=3 .and. c!=127
@@ -9488,10 +11963,14 @@ if len(STRING)>0
          if !SW_CODESP
             hb_keyPut(500)  // código de cambio de SW_CODESP
             SW_CODESP:=.T.
-         end
+         end*/
+         PASTEFROM:=pELIGE
+         PASTETO:=pELIGE
+         hb_keyPut(11)
+         hb_keyPut(85)
          exit
       elseif lastkey()==10   // ctrl-j
-         hb_keyPut(10)
+/*         hb_keyPut(10)
          hb_keyPut(74)
          for i:=1 to len(BUFFER[pELIGE])
             c:=asc(substr(BUFFER[pELIGE],i,1))
@@ -9504,6 +11983,82 @@ if len(STRING)>0
          hb_keyPut(13)  // el enter
          SWCTRLJCTRKV:=.T.
          exit
+         
+       elseif c==16   //  CTRL-T    ejecuta codigo del buffer
+       */
+           XLEN:=len(MULTIINS)
+           if XLEN>0
+              STR:=""
+              for j:=1 to XLEN
+                 STR+=BUFFER[MULTIINS[j]]+_CR
+              end
+              EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
+              if lower(EXT)=="com".or. lower(EXT)=="hopper" .or. lower(EXT)=="hop"
+                 STR+="{0}return"+_CR
+              elseif lower(EXT)=="bas" .or. lower(EXT)=="jambo"
+                 STR+="End"+_CR
+              elseif lower(EXT)=="flw"
+                 STR+="END"+_CR
+              elseif lower(EXT)=="xu"
+                 STR+="stop"+_CR
+              end
+           else
+              XLEN:=len(BUFFER)
+              STR:=""
+              for j:=1 to XLEN
+                 STR+=BUFFER[j]+_CR
+              end
+              EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
+              if lower(EXT)=="com".or. lower(EXT)=="hopper" .or. lower(EXT)=="hop"
+                 STR+="{0}return"+_CR
+              elseif lower(EXT)=="bas" .or. lower(EXT)=="jambo"
+                 STR+="End"+_CR
+              elseif lower(EXT)=="flw"
+                 STR+="END"+_CR
+              elseif lower(EXT)=="xu"
+                 STR+="stop"+_CR
+              end
+           end
+              if len(COMPILADOR)>0
+                 if !ESEJECUTABLE
+                    // arma archivo temporal
+                    fileTemporal:=substr(ARCHIVO,rat("/",ARCHIVO)+1,len(ARCHIVO))
+                    FILERAND:=hb_ntos(int(hb_random(1000000000)))
+
+                    fileTemporal:="/tmp/"+fileTemporal
+                    fileTemporal:=strtran(fileTemporal,".","_"+FILERAND+".")
+//                    @ 12,10 say fileTemporal
+                    fd:=fcreate(fileTemporal,0)
+                    fwrite(fd,STR,len(str))
+                    fclose(fd)
+
+                    fileEXETemporal:=substr(fileTemporal,1,at(".",fileTemporal)-1)
+                    
+                    EJECUTA1:=strtran(COMPILADOR,"%name%",fileEXETemporal)
+                    EJECUTA1:=strtran(EJECUTA1,"%path%","")
+                    EJECUTA1:=strtran(EJECUTA1,"%params%","")
+                    
+//                    @ 13,10 say EJECUTA1
+//                    inkey(0)
+                    if SWGRMODE   // puede abrir una terminal
+                       FUNEXECTEMP(EJECUTA1)
+                    else
+                       SETCOLOR (N2COLOR(7))
+                       clear
+                       FUNEXECTEMP(EJECUTA1)
+                       while inkey()!=0
+                          ;
+                       end
+                       
+                       clearterm()
+                       clear
+                    end
+                    ferase(fileTemporal)
+                    
+                 end
+              end
+
+         
       elseif lastkey()==19   // ctrl-s
          inkey()
          XLEN:=len(MULTIINS)
@@ -9523,6 +12078,31 @@ if len(STRING)>0
          end
          FIRST:=pELIGE
          loop
+      elseif lastkey()==12  // ctrl-12 pega todo como una sola linea
+         inkey()
+         XLEN:=len(MULTIINS)
+         if XLEN==0   // pongo marca para pegar como una línea donde está el cursor
+            AADD(MULTIINS,-1)
+         end
+         PASTEFROM:=0
+         SW:=.T.
+         for i:=2 to XLEN
+            if MULTIINS[i]==pELIGE
+               STRING[pELIGE]:=substr(STRING[pELIGE],4,len(STRING[pELIGE]))
+               ADEL(MULTIINS,i)
+               ASIZE(MULTIINS,--XLEN)
+               SW:=.F.
+               if MULTIINS[len(MULTIINS)]==-1
+                  MULTIINS:={}
+               end
+            end
+         end
+         if SW
+            STRING[pELIGE]:=">>>"+STRING[pELIGE]
+            AADD(MULTIINS,pELIGE)
+         end
+         FIRST:=pELIGE
+         loop
       elseif lastkey()==22  // ctrl v
          inkey()
          IF len(MULTIINS)==0
@@ -9534,11 +12114,12 @@ if len(STRING)>0
             loop
          else
             SW:=.F.
-            if pELIGE==PASTEFROM
-               STRING[pELIGE]:=substr(STRING[pELIGE],4,len(STRING[pELIGE]))
-               FIRST:=pELIGE
-               loop
-            end
+            /* si marca la misma linea, ejecuta la accion sobre una linea */
+            //if pELIGE==PASTEFROM
+               //STRING[pELIGE]:=substr(STRING[pELIGE],4,len(STRING[pELIGE]))
+               //FIRST:=pELIGE
+               //loop
+            //end
             PASTETO:=pELIGE
             if PASTETO<PASTEFROM
                cTMP:=PASTEFROM
@@ -9550,7 +12131,10 @@ if len(STRING)>0
             exit
          end
          ELSE
-            XLEN:=len(MULTIINS)
+           // dejar que CTRL-KU pegue estas líneas.
+            hb_keyPut(11)
+            hb_keyPut(85)
+            /*XLEN:=len(MULTIINS)
             for j:=1 to XLEN
                STR:=BUFFER[MULTIINS[j]]
                for i:=1 to len(STR) 
@@ -9570,7 +12154,7 @@ if len(STRING)>0
             if !SW_CODESP
                hb_keyPut(500)  // código de cambio de SW_CODESP
                SW_CODESP:=.T.
-            end
+            end */
             exit
          END
    /*      
@@ -9658,7 +12242,7 @@ if len(STRING)>0
             STRING[PASTEFROM]:=">>>"+STRING[PASTEFROM]
          end
          
-         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2,XFILi)
+         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2)
       //   PASTEFROM:=0
       //   PASTETO:=0 
       elseif lastkey()==7 // ctrl-g ctrl-h
@@ -9713,7 +12297,7 @@ if len(STRING)>0
             STRING[PASTEFROM]:=">>>"+STRING[PASTEFROM]
          end
             
-         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2,XFILi)
+         VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2)
         /* SETCOLOR(N2COLOR(cBARRA))
          @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
          setpos(TLINEA-2,2); outstd(" DEL FROM "+hb_ntos(pELIGE))
@@ -9738,10 +12322,22 @@ if len(STRING)>0
         // PASTETO:=0 
       end
    else
+/*      SETCOLOR(N2COLOR(cBARRA))
+      @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
+      setpos(TLINEA-1,int(SLINEA/2)-8);outstd("BUFFER IS CLEAN")
+      setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
+      
+      while inkey()!=0
+         ;
+      end
+      inkey(0)
+      BarraTitulo(ARCHIVO)
+             
+      SETCOLOR(N2COLOR(cTEXTO)) */
       exit
    end
    END
-   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2,XFILi)
+   VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XF1,XF2)
    BarraTitulo(ARCHIVO)
    SETCOLOR(N2COLOR(cTEXTO))
    ///setpos(py,px)
@@ -9751,7 +12347,9 @@ else
    @ TLINEA-2,0 CLEAR TO TLINEA,MAXCOL()
    setpos(TLINEA-1,int(SLINEA/2)-8);outstd("BUFFER IS CLEAN")
    setpos(TLINEA  ,int(SLINEA/2)-15);outstd("(Press any key to continue...)")
-   inkey(0)
+   inkey(0,INKEY_ALL)
+   while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
    BarraTitulo(ARCHIVO)
              
    SETCOLOR(N2COLOR(cTEXTO))
@@ -9786,9 +12384,15 @@ CASE nMode == AC_EXCEPT // Key Exception
       case nKey == 19
          nRetVal := AC_SELECT
          hb_keyPut(19)
+      case nKey == 12
+         nRetVal := AC_SELECT
+         hb_keyPut(12)
       case nKey == 10  // CTRL-J va a la línea
          nRetVal := AC_SELECT
          hb_keyPut(10)
+      case nKey == 16  // CTRL-P ejecuta codigo
+         nRetVal := AC_SELECT
+         hb_keyPut(16)
       OTHERWISE
          nRetVal := AC_GOTO // Otherwise, go to item
    ENDCASE
@@ -9841,80 +12445,73 @@ if SWINICIOLIN
 end
 RETURN
 
-PROCEDURE _CTRL_KB(BUFFER,s,p,px)
-LOCAL STRING,j
-
-/*IF LEN(BUFFER)>0
-   FOR j:=1 to LEN(BUFFER)
-      RELEASE BUFFER[j]
-   END
-   //// RELEASE BUFFER
-END
-BUFFER:={} */  // borra el contenido del buffer.
+FUNCTION _CTRL_KB(BUFFER,s,p,px)
+LOCAL STRING,j,ret:=.F.
 // guarda caracteres en el buffer, y
 // borra.
 STRING:=""
-/*if p>len(s)
-   --p;--px
-end*/
-for j:=1 to p-1
-   STRING+=s[j]
+for j:=1 to p  //-1
+   if len(s)>=j
+      STRING+=s[j]
+   end
 end
-STRING+=chr(127)  // avisa para que no autocomplete con ^KU
-AADD(BUFFER,STRING)
+if len(alltrim(STRING))>0
+   STRING+=chr(127)  // avisa para que no autocomplete con ^KU
+   AADD(BUFFER,STRING)
+   ret:=.T.
+end
 
 // borra
 //pushkey(8,p-1) //-1)
 
-RETURN
+RETURN ret
 
-PROCEDURE _CTRL_KE(BUFFER,s,p)
-LOCAL j,STRING
-/*IF LEN(BUFFER)>0
-   FOR j:=1 to LEN(BUFFER)
-      RELEASE BUFFER[j]
-   END
-END
-BUFFER:={} */   // borra el contenido del buffer.
+FUNCTION _CTRL_KE(BUFFER,s,p)
+LOCAL j,STRING,ret:=.F.
+
 // guarda caracteres en el buffer, y
 // borra.
 STRING:=""
 for j:=p to len(s)
    STRING+=s[j]
 end
-STRING+=chr(127)  // avisa para que no autocomplete con ^KU
-AADD(BUFFER,STRING)
+if len(alltrim(STRING))>0
+   STRING+=chr(127)  // avisa para que no autocomplete con ^KU
+   AADD(BUFFER,STRING)
+   ret:=.T.
+end
 // borra
 pushkey(7,len(s)-p+1)
 
-RETURN
+RETURN ret
 
 
 FUNCTION _CTRL_LMENU(TLINEA)
 LOCAL POS,HFIL,cCOLOR
 POS:=12
 HFIL:=2 
-@ TLINEA-2, HFIL    PROMPT "1:SUM"
-@ TLINEA-2, HFIL+8  PROMPT "2:MEAN"
-@ TLINEA-2, HFIL+15 PROMPT "3:STD"
-@ TLINEA-2, HFIL+21 PROMPT "4:VAR"
-cCOLOR:=SETCOLOR(N2COLOR(cMENU))
-@ TLINEA-2, HFIL+27 SAY "|"
-SETCOLOR(cCOLOR)
-@ TLINEA-2, HFIL+29 PROMPT "5:SQRT"
-@ TLINEA-2, HFIL+36 PROMPT "6:SQR"
-@ TLINEA-2, HFIL+42 PROMPT "7:LOG"
-@ TLINEA-2, HFIL+48 PROMPT "8:LN"
-@ TLINEA-2, HFIL+53 PROMPT "9:ABS"
-@ TLINEA-2, HFIL+59 PROMPT "O:OPE"
-@ TLINEA-2, HFIL+65 PROMPT "T:DEFTOK"
-@ TLINEA-2, HFIL+74 PROMPT "R:DEFROUND ("+hb_ntos(DEFROUND)+")"
-cCOLOR:=SETCOLOR(N2COLOR(cMENU))
-@ TLINEA-2, HFIL+90 SAY "|"
-SETCOLOR(cCOLOR)
-@ TLINEA-2, HFIL+92 PROMPT "L:LINSPC"  // añadir pad:
-@ TLINEA-2, HFIL+101 PROMPT "S:SEQ"
-@ TLINEA-2, HFIL+107 PROMPT "H:HEADER"
+setcolor( 'N/W,GR+/N,,,W/N' )
+@ TLINEA-3, HFIL    PROMPT "1:SUM"
+@ TLINEA-3, HFIL+8  PROMPT "2:MEAN"
+@ TLINEA-3, HFIL+15 PROMPT "3:STD"
+@ TLINEA-3, HFIL+21 PROMPT "4:VAR"
+//cCOLOR:=SETCOLOR(N2COLOR(cMENU))
+@ TLINEA-3, HFIL+27 SAY "|"
+//SETCOLOR(cCOLOR)
+@ TLINEA-3, HFIL+29 PROMPT "5:SQRT"
+@ TLINEA-3, HFIL+36 PROMPT "6:SQR"
+@ TLINEA-3, HFIL+42 PROMPT "7:LOG"
+@ TLINEA-3, HFIL+48 PROMPT "8:LN"
+@ TLINEA-3, HFIL+53 PROMPT "9:ABS"
+@ TLINEA-3, HFIL+59 PROMPT "O:OPE"
+@ TLINEA-3, HFIL+65 PROMPT "T:DEFTOK"
+@ TLINEA-3, HFIL+74 PROMPT "R:DEFROUND ("+hb_ntos(DEFROUND)+")"
+//cCOLOR:=SETCOLOR(N2COLOR(cMENU))
+@ TLINEA-3, HFIL+90 SAY "|"
+//SETCOLOR(cCOLOR)
+@ TLINEA-3, HFIL+92 PROMPT "L:LINSPC"  // añadir pad:
+@ TLINEA-3, HFIL+101 PROMPT "S:SEQ"
+@ TLINEA-3, HFIL+107 PROMPT "H:HEADER"
 //  cCOLOR:=SETCOLOR(N2COLOR(cTEXTO))
 //  @ TLINEA-2, HFIL+40 SAY "|"
 //  SETCOLOR(cCOLOR)
@@ -9948,8 +12545,8 @@ MSGBARRA("SELECT A POSITION WITH UP|DOWN ARROW, AND PRESS RETURN",ARCHIVO,0)
 setcolor( 'GR+/N,N/GR+,,,W/N' )
 pELIGE:=ACHOICE(TLINEA-(int(TLINEA/2))+1,1,TLINEA-3,SLINEA-1,MENUMATCH,.T.)
 
-while inkey(,159)!=0 ; end
-              MRESTSTATE(MOUSE) 
+while inkey(,INKEY_ALL)!=0 ; end
+          MRESTSTATE(MOUSE)
               
 SETCOLOR(N2COLOR(cTEXTO))
 
@@ -9984,7 +12581,7 @@ IF LEN(BUFFER)>0
 END
 BUFFER:={}
 EXT:=substr(ARCHIVO,rat(".",ARCHIVO)+1,len(ARCHIVO))
-if EXT=="c" .or. EXT=="cpp" .or. EXT=="h" .or. EXT=="def" .or. EXT=="xu"
+if EXT=="c" .or. EXT=="cpp" .or. EXT=="h".or. EXT=="hh" .or. EXT=="def" .or. EXT=="xu".or. EXT=="com".or. EXT=="hopper" .or. EXT=="hop".or. EXT=="bas".or. EXT=="flw" .or. EXT=="jambo"
    sCOM:="/**************************************************"
    COM:=" *"
 elseif EXT=="m" .or. EXT=="tex"
@@ -10028,19 +12625,19 @@ setpos(TLINEA-1,2); dispout("FROM:")
 setpos(TLINEA-1,18); dispout("INC:")
 setpos(TLINEA-1,33); dispout("#ELEMENTS:")
 setpos(TLINEA-1,54); dispout("PAD:")
-CX:=val(INPUTLINE(CX,9,TLINEA-1,8,"N"))
+CX:=val(INPUTLINE(CX,9,TLINEA-1,8,"N",.F.))
 if lastkey()==3
    RETURN
 end
-BX:=val(INPUTLINE(BX,9,TLINEA-1,23,"N"))
+BX:=val(INPUTLINE(BX,9,TLINEA-1,23,"N",.F.))
 if lastkey()==3
    RETURN
 end
-AX:=val(INPUTLINE(AX,9,TLINEA-1,44,"N"))
+AX:=val(INPUTLINE(AX,9,TLINEA-1,44,"N",.F.))
 if lastkey()==3
    RETURN
 end
-DX:=INPUTLINE(DX,9,TLINEA-1,59,"s")
+DX:=INPUTLINE(DX,9,TLINEA-1,59,"s",.F.)
 if lastkey()==3
    RETURN
 end
@@ -10086,19 +12683,19 @@ setpos(TLINEA-1,18); dispout("TO:")
 setpos(TLINEA-1,32); dispout("#ELEMENTS:")
 setpos(TLINEA-1,54); dispout("PAD:")
 //cCOLOR:=SETCOLOR(N2COLOR(cTEXTO))
-CX:=val(INPUTLINE(CX,9,TLINEA-1,8,"N"))
+CX:=val(INPUTLINE(CX,9,TLINEA-1,8,"N",.F.))
 if lastkey()==3
    RETURN
 end
-BX:=val(INPUTLINE(BX,9,TLINEA-1,22,"N"))
+BX:=val(INPUTLINE(BX,9,TLINEA-1,22,"N",.F.))
 if lastkey()==3
    RETURN
 end
-AX:=val(INPUTLINE(AX,9,TLINEA-1,43,"N"))
+AX:=val(INPUTLINE(AX,9,TLINEA-1,43,"N",.F.))
 if lastkey()==3
    RETURN
 end
-DX:=INPUTLINE(DX,9,TLINEA-1,59,"s")
+DX:=INPUTLINE(DX,9,TLINEA-1,59,"s",.F.)
 if lastkey()==3
    RETURN
 end
@@ -10764,7 +13361,7 @@ while i <= long
         num:=""
         while i<=LEN(DX)
            c:=substr(DX,++i,1)
-           if isdigit(c) .or. c=="A".or.c=="B".or.c=="C".or.c=="D".or.c=="E".or.c=="F"
+           if isdigit(c) .or. isany(c,"A","B","C","D","E","F") // c=="A".or.c=="B".or.c=="C".or.c=="D".or.c=="E".or.c=="F"
               num+=c
            else
               exit
@@ -10921,7 +13518,14 @@ while i <= long
          AADD(Q,"NOP"); AADD(R,"NOP")
          AADD(Q,"("); AADD(R,"(")
          AADD(Q,")"); AADD(R,")")
-
+      elseif fun=="BEGIN"
+         AADD(Q,"BEGIN"); AADD(R,"BEGIN")
+         AADD(Q,"("); AADD(R,"(")
+         AADD(Q,")"); AADD(R,")")
+      elseif fun=="END"
+         AADD(Q,"END"); AADD(R,"END")
+         AADD(Q,"("); AADD(R,"(")
+         AADD(Q,")"); AADD(R,")")
       else
          AADD(Q,fun)
          AADD(R,fun)
@@ -10944,7 +13548,8 @@ while i <= long
       AADD(R,"INT")
       DX:=substr(DX,1,i)+"("+substr(DX,i+1,len(DX))
       long:=LEN(DX)
-   elseif c=="+" .or. c=="-" .or. c=="*" .or. c=="/" .or. c=="^".or.c=="%".or.c=="\".or.c=="&".or.c=="|".or.c=="!".or.c=="="
+   elseif isany(c,"+","-","*","/","^","%","\","&","|","!","=")
+      ///c=="+" .or. c=="-" .or. c=="*" .or. c=="/" .or. c=="^".or.c=="%".or.c=="\".or.c=="&".or.c=="|".or.c=="!".or.c=="="
       AADD(Q,c)
       AADD(R,c)
    end
@@ -10977,7 +13582,7 @@ cFUN:={"FNA","FNA","FNA","FNA","FNA","FNA",;
        "FNM","FNM","FNM","FNM","FNM","FNM","FNM",;
        "FNN","FNN","FNN","FNN","FNN","FNN",;
        "FNO","FNO","FNO","FNO","FNO","FNO","FNO","FNO","FNO","FNO","FNO","FNO",;
-       "FNP","FNP","FNP","FNP","FNP","FNP","FNP"}
+       "FNP","FNP","FNP","FNP","FNP","FNP","FNP","FNP","FNP"}
 
 nFUN:={"FNA","FNB","FNC","FND","FNE","FNF","FNG","FNH","FNI","FNJ","FNK","FNL","FNM","FNN","FNO","FNP"}  // "FNA-FNP"
 
@@ -10996,7 +13601,7 @@ DICC:={"NT","I","VAR","MOV","~","L",;   // A 1-6
        "LN","LOG","SQRT","ABS","INT","CEIL","EXP",;  // M  79-85
        "FLOOR","SGN","SIN","COS","TAN","INV",;       // N  86-91
        "+","-","*","/","\","^","%","|","&",">>","<<","!",;   // O   92-103
-       "<=",">=","<>","=","<",">","TPC"}  // P  104-109
+       "<=",">=","<>","=","<",">","TPC","END","BEGIN"}  // P  104-111
        
 /*   */
 pila:={}; pila2:={}
@@ -11056,7 +13661,7 @@ aadd(pila2,"(")
 
               
                   elseif l=="*" 
-                    if m =="^" .or. m=="*" .or. m=="/" .or. m=="%" .or. m=="\"
+                    if isany(m,"^","*","/","%","\")   ///m =="^" .or. m=="*" .or. m=="/" .or. m=="%" .or. m=="\"
                        aadd(p,m)   //mete m en p
                        aadd(p2,m2)
                     else
@@ -11074,8 +13679,8 @@ aadd(pila2,"(")
                        sw:=.T.
                     end
 
-                  elseif l=="/" .or. l=="\" .or. l=="%"
-                    if m=="*".or.m=="^".or.m=="/" .or. m=="%" .or. m=="\"
+                  elseif isany(l,"/","%","\")  //l=="/" .or. l=="\" .or. l=="%"
+                    if isany(m,"^","*","/","%","\")   //m=="*".or.m=="^".or.m=="/" .or. m=="%" .or. m=="\"
                        aadd(p,m)     //mete l en p
                        aadd(pila,l) //mete m en pila
                        aadd(p2,m2)
@@ -11096,7 +13701,8 @@ aadd(pila2,"(")
                        sw:=.T.
                     end
                 
-                  elseif l=="+" .or. l=="-" .or. l==">>" .or. l=="<<" .or. l=="&".or.l=="|".or. l=="!".or. es_Lsimbolo(l)
+                  elseif isany(l,"+","-",">>","<<","&","|","!").or. es_Lsimbolo(l) 
+                     //l=="+" .or. l=="-" .or. l==">>" .or. l=="<<" .or. l=="&".or.l=="|".or. l=="!".or. es_Lsimbolo(l)
                      aadd(p,m)       //mete m en p
                      aadd(pila,l)    //mete l en pila
                      aadd(p2,m2)
@@ -11232,7 +13838,7 @@ aadd(pila2,"(")
             end
             aadd(pila,"C")
             
-         elseif m=="TR".or. m=="TPC"
+         elseif isany(m,"TR","TPC")  //m=="TR".or. m=="TPC"
             h:=SDP(pila)
             n:=SDP(pila)
             o:=SDP(pila)
@@ -11313,8 +13919,9 @@ aadd(pila2,"(")
             end
             aadd(pila,"N")
          
-         elseif m=="SUB".or. m=="INS" .or. m=="RPC".or. m=="IF".or. m=="IFLE".or.;
-                m=="IFGE" .or.m=="TKLET"
+         elseif isany(m,"SUB","INS","RPC","IF","IFLE","IFGE","TKLET")
+            //m=="SUB".or. m=="INS" .or. m=="RPC".or. m=="IF".or. m=="IFLE".or.;
+            //    m=="IFGE" .or.m=="TKLET"
             h:=SDP(pila)
             n:=SDP(pila)
             o:=SDP(pila)
@@ -11333,8 +13940,9 @@ aadd(pila2,"(")
             else
                aadd(pila,"N")
             end
-         elseif m=="CAT" .or. m=="CP".or.m=="PTRP".or.m=="PTRM" .or. m=="ONE";
-                .or. m=="PL".or.m=="PC".or.m=="PR".or.m=="MSK".or.m=="SAT" .or.m=="DC"
+         elseif isany(m,"CAT","CP","PTRP","PTRM","ONE","PL","PC","PR","MSK","SAT","DC") 
+             //m=="CAT" .or. m=="CP".or.m=="PTRP".or.m=="PTRM" .or. m=="ONE";
+             //   .or. m=="PL".or.m=="PC".or.m=="PR".or.m=="MSK".or.m=="SAT" .or.m=="DC"
             o:=SDP(pila)
             n:=SDP(pila)
             
@@ -11345,8 +13953,9 @@ aadd(pila2,"(")
                aadd(pila,"C")
             end
             
-         elseif m=="MATCH" .or. m=="AND" .or. m=="OR".or.m=="XOR".or.m=="RAT".or.;
-                m=="BIT".or.m=="ON".or.m=="OFF"
+         elseif isany(m,"MATCH","AND","OR","XOR","RAT","BIT","ON","OFF")
+           //m=="MATCH" .or. m=="AND" .or. m=="OR".or.m=="XOR".or.m=="RAT".or.;
+           //     m=="BIT".or.m=="ON".or.m=="OFF"
             o:=SDP(pila)
             n:=SDP(pila)
             
@@ -11356,7 +13965,7 @@ aadd(pila2,"(")
             else
                aadd(pila,"N")
             end
-         elseif m=="UP".or.m=="LO".or.m=="TRI".or.m=="LTRI".or.m=="RTRI".or.m=="BIN".or.m=="HEX"
+         elseif isany(m,"UP","LOW","TRI","LTRI","RTRI","BIN","HEX") //m=="UP".or.m=="LO".or.m=="TRI".or.m=="LTRI".or.m=="RTRI".or.m=="BIN".or.m=="HEX"
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
@@ -11370,7 +13979,7 @@ aadd(pila2,"(")
                RETURN .F.
             end
   ///          aadd(pila,"C") // solo para que pase el analisis
-         elseif m=="LET" .or. m=="MOV"
+         elseif isany(m,"LET","MOV") //m=="LET" .or. m=="MOV"
             h:=SDP(pila)
             n:=SDP(pila)
             if esnulo(n,h) //h==NIL .or. n==NIL
@@ -11378,30 +13987,30 @@ aadd(pila2,"(")
                RETURN .F.
             end
          
-         elseif m=="LOAD" .or. m=="SAVE"
+         elseif isany(m, "LOAD","SAVE") //m=="LOAD" .or. m=="SAVE"
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: ESPERO UN NOMBRE DE ARCHIVO ("+m+")")
                RETURN .F.
             end
-         elseif m=="DEFT" .or. m=="UNTIL".or.m=="SEED".or.m=="RP".or. m=="JNZ" 
+         elseif isany(m,"DEFT","UNTIL","SEED","RP","JNZ"  ) //m=="DEFT" .or. m=="UNTIL".or.m=="SEED".or.m=="RP".or. m=="JNZ" 
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: ESPERO UN ARGUMENTO VALIDO PARA ("+m+")")
                RETURN .F.
             end
          
-         elseif m=="DO" .or. m=="CLEAR" .or. m=="ELSE" .or. m=="ENDIF"
+         elseif isany(m, "DO","CLEAR","ELSE","ENDIF") //m=="DO" .or. m=="CLEAR" .or. m=="ELSE" .or. m=="ENDIF"
             ;
             
-         elseif m=="CH" .or. m=="STR".or. m=="GLOSS"
+         elseif isany(m,"CH","STR","GLOSS")  //m=="CH" .or. m=="STR".or. m=="GLOSS"
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: ESPERO UN ARGUMENTO ("+m+")")
                RETURN .F.
             end
             aadd(pila,"C") // solo para que pase el analisis
-         elseif m=="LEN".or. m=="ASC" .or.m=="DEC" .or. m=="VAR" .or. m=="NOT"
+         elseif isany(m,"LEN","ASC","DEC","VAR","NOT")  //m=="LEN".or. m=="ASC" .or.m=="DEC" .or. m=="VAR" .or. m=="NOT"
             n:=SDP(pila)
             if n==NIL
                _ERROR("EL BOBY DICE: EXPRESION MAL FORMADA. FALTA ARGUMENTO ("+m+")")
@@ -11436,7 +14045,8 @@ aadd(pila2,"(")
             end
            
             
-         elseif m=="I" .or. m=="NT".or.m=="L"
+         elseif isany(m,"I","NT","L","END","BEGIN") 
+           //m=="I" .or. m=="NT".or.m=="L" .or. m=="EOM"
             aadd(pila,"N")
          else
             m:=SDP(pila)
@@ -11523,13 +14133,12 @@ aadd(pila2,"(")
 RETURN p2
 
 
-FUNCTION _EVALUA_EXPR(p,par,ITERACION,SWEDIT)
+FUNCTION _EVALUA_EXPR(p,par,ITERACION,SWEDIT,INITFIL,LASTFIL)
 LOCAL res,pila,m,n,o,h,k,x,y,i,j,id:=0,ids:=0,c1,c2,c3,fp,str,nLength,xvar,NUMTOK:=0,ope:=0,vtip
-LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound,tmpo,tmpn,sw
+LOCAL JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound,tmpo,tmpn,sw
    pila:={}
    pilaif:={}
    tmpPos:=0   // guarda la ultima posicion de RANGE, para busquedas iterativas, por linea
-   afill(VARTABLE,"")
    NUMTOK:=numtoken(par,DEFTOKEN)
 //   if pcount()==4
     //  tBUFFER:=array(len(BUFFER))
@@ -11926,6 +14535,12 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                   o:=strtran(o,chr(0),"")
                end
                AADD(pila, POSCHAR(o,n,h)+chr(0))
+               loop
+            elseif m == 111    // EOM
+               AADD(pila, LASTFIL-ITERACION)
+               loop
+            elseif m == 112    // BOM
+               AADD(pila, INITFIL-ITERACION)
                loop
             end   
             
@@ -13644,7 +16259,7 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                end
                n:=strtran(n,chr(0),"")
                
-               fp:=fcreate(n,0)
+               fp:=fcreate(PATH_MACRO+_fileSeparator+n,0)
                if ferror()!=0
                   _ERROR("LA MONA DICE: EL NOMBRE DE ARCHIVO NO ES VALIDO (SAVE):"+n)
                   RETURN .F.
@@ -13670,12 +16285,12 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                end
                n:=strtran(n,chr(0),"")
                
-               if !file(n)  //ferror()!=0
-                  _ERROR("LA MONA DICE: EL NOMBRE DE ARCHIVO NO ES VALIDO (LOAD):"+n)
+               if !file(PATH_MACRO+_fileSeparator+n)  //ferror()!=0
+                  _ERROR("LA MONA DICE: EL NOMBRE DE ARCHIVO NO ES VALIDO O NO EXISTE (LOAD):"+n)
                   RETURN .F.
                end
                ///LISTAEXPRESION:=XREADLINE(n,@nLength)
-               fp:=fopen(n,0)
+               fp:=fopen(PATH_MACRO+_fileSeparator+n,0)
                if ferror()==0
                   c1:=fseek(fp,0,2)
                   fseek(fp,0,0)
@@ -13789,6 +16404,10 @@ LOCAL VARTABLE:=ARRAY(10),JMP:={},LENJMP:=0,vn,vo,num,LENP,pilaif,tmpPos,swFound
                if valtype(o)!="N"
                   o:=strtran(o,chr(0),"")
                   o:=val(o)
+               end
+               if o<0
+                  _ERROR("LA MONA DICE: POSICION NEGATIVA EN BIT")
+                  RETURN .F.
                end
                AADD(pila,XGETBIT(n,o,1))
                exit
@@ -14287,8 +16906,8 @@ local cMessage, aOptions,nChoice
 cMessage := hb_utf8tostr("La operación no es válida"+HB_OSNEWLINE()+"(Mira abajo...)")
 aOptions := { "Okay" }
 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
 return
 
 PROCEDURE _CTRLLVOID()
@@ -14296,8 +16915,8 @@ local cMessage, aOptions,nChoice
 cMessage := hb_utf8tostr("No hay resultados registrados")
 aOptions := { "Okay" }
 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
 return
 
 PROCEDURE _CTRLOK()
@@ -14305,8 +16924,8 @@ local cMessage, aOptions,nChoice
 cMessage := hb_utf8tostr("Supongo que la operación fue realizada"+HB_OSNEWLINE()+"con éxito")
 aOptions := { "Okay" }
 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
 return
 
 FUNCTION _CTRL_L_TEXTOPE(TEXTO,DX,XFIL1EDIT,XFIL2EDIT)
@@ -14331,6 +16950,9 @@ end
 XLEN:=len(TEXTO)
 lenBUF:=len(BUFFER)
 TMPTOKEN:=DEFTOKEN
+
+afill(VARTABLE,"")
+
 FOR I:=XFIL1EDIT TO XFIL2EDIT
   if I==0 .or. I>XFIL2EDIT .or. I>XLEN
      /*cMessage := hb_utf8tostr("Lapsus intrauterino digital: Vuelve a marcar el texto, por favor")
@@ -14347,7 +16969,7 @@ FOR I:=XFIL1EDIT TO XFIL2EDIT
   end
 
 //   ? "ENTRA: ",cDATO; inkey(0)
-   RX:=_EVALUA_EXPR(@R,cDATO,I,.T.)
+   RX:=_EVALUA_EXPR(@R,cDATO,I,.T.,XFIL1EDIT,XFIL2EDIT)
    if valtype(RX)=="L"
       DEFTOKEN:=TMPTOKEN
       RETURN .F.
@@ -14428,6 +17050,9 @@ inkey(0)
 // si no es un valor logico, debe ser el array de expresion
 cLEN:=len(BUFFER)
 TMPTOKEN:=DEFTOKEN
+
+afill(VARTABLE,"")
+
 //if "#" $ DX .or. "{" $ DX .or. "$" $ DX
 if cLEN>0 .and. !SWNOBUFFER
       for i:=1 to cLEN
@@ -14453,7 +17078,7 @@ if cLEN>0 .and. !SWNOBUFFER
             
          end
          //AX:=strtran(DX,"#",cDATO)
-         RX:=_EVALUA_EXPR(@R,cDATO,i,.F.)
+         RX:=_EVALUA_EXPR(@R,cDATO,i,.F.,1,cLEN)
          if valtype(RX)=="L"
             DEFTOKEN:=TMPTOKEN
             RETURN {"<error>"}  //{}
@@ -14492,7 +17117,7 @@ if cLEN>0 .and. !SWNOBUFFER
    end*/
 else
    //BUFFER:={}
-   RX:=_EVALUA_EXPR(@R,"",1,.F.)
+   RX:=_EVALUA_EXPR(@R,"",1,.F.,1,1)
    if valtype(RX)=="L"
       DEFTOKEN:=TMPTOKEN
     //  ? "SALIO ",RX; inkey(0) 
@@ -14544,7 +17169,7 @@ DICC:={"LN","LOG","SQRT","ABS","INT","CEIL","FLOOR","SGN","ROUND","SIN","COS","T
        "EXP","INV","RP","CAT","LEN","SUB","AT","AF","RAT","PTRP","PTRM","CP","TR","TK","VAL","CH","LIN","PC","PL","PR","IF",;
        "TRE","INS","DC","RPC","ONE","ASC","TRI","LTRI","RTRI","I","INC","DEC","IFLE","IFGE","TKLET","MATCH","LET","DEFT",;
        "NT","DO","UNTIL","MOV","VAR","NOP","COPY","AND","OR","XOR","NOT","BIT","ON","OFF","BIN","HEX","OCT","~",;
-       "JNZ","ELSE","ENDIF","CLEAR","RANGE","STR","GLOSS","RND","L","TRA","TRB","AFA","ATA","TREA","TREB","TPC",;
+       "JNZ","ELSE","ENDIF","CLEAR","RANGE","STR","GLOSS","RND","L","TRA","TRB","AFA","ATA","TREA","TREB","TPC","END","BEGIN",;
        "FNA","FNB","FNC","FND","FNE","FNF",;
        "FNH","FNI","FNJ","FNK","FNL","FNM","FNN","FNO","FNP"}
        
@@ -14884,8 +17509,8 @@ local cMessage, aOptions,nChoice
 cMessage := hb_utf8tostr("¿Cómo deseas la operación?")
 aOptions := { "Vertical","Horizontal","Total" }
 nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
 return nChoice
 
 function VERIFICAMODIFICADO(STRING,cMETADATA)
@@ -14899,17 +17524,18 @@ local i,j
 
 return .F.
 
-function UDFAchoice( nMode, nCurElement, nRowPos )
+function UDFASCAchoice( nMode, nCurElement, nRowPos )
 
 local nRetVal := AC_CONT                // Default, Continue
 local nKey    := lastkey()
 
 local nRow := Row()
 local nCol := Col()
+local mcRow := MROW()
+local mcCol := MCOL()
 
 HB_SYMBOL_UNUSED( nRowPos )
 
-///@ 0, 20 SAY Str( nRow, 3 ) + " " + Str( nCol, 3 )
 
 do case
    // After all pending keys are processed, display message
@@ -14924,8 +17550,89 @@ case nMode == AC_HITBOTTOM              // Attempt to go past Bottom
 // tone( 100, 3 )
 case nMode == AC_EXCEPT                 // Key Exception
    ///@  0,  0 say "Exception "
+   
    do case
    case nKey == K_RETURN                // If RETURN key, select
+      nRetVal := AC_SELECT
+         
+   case nKey == 284                     // If ALT-RETURN key, select CHR(key)
+      hb_keyPut(127)
+      nRetVal := AC_SELECT
+   case nKey == 301                     // If RETURN key, select key y mueve al BUFFER
+      hb_keyPut(1)
+      nRetVal := AC_SELECT
+   case nKey == K_ESC                   // If ESCAPE key, abort
+      nRetVal := AC_ABORT
+   case nKey == K_DEL
+      nRetVal := AC_SELECT
+      SWELIMINATAB:=.T.
+
+   otherwise
+      nRetVal := AC_GOTO                // Otherwise, go to item
+   endcase
+endcase
+return nRetVal
+
+function UDFAchoice( nMode, nCurElement, nRowPos )
+local nRetVal := AC_CONT                // Default, Continue
+local nKey    := lastkey()
+//local mkey    := inkey(,INKEY_ALL)
+
+local nRow := Row()
+local nCol := Col()
+local mcRow := MROW()
+local mcCol := MCOL()
+
+HB_SYMBOL_UNUSED( nRowPos )
+
+///@ 0, 20 SAY Str( nRow, 3 ) + " " + Str( nCol, 3 )
+
+//switch mKey
+/*   case nKey == K_LDBLCLK
+      if mcRow>POSVENTANA[1] .and.mcRow<POSVENTANA[3] .and.mcCol>POSVENTANA[2].and.mcCol<POSVENTANA[4] 
+         
+         nRetVal := AC_SELECT
+      end
+  */    
+//   case K_LBUTTONDOWN
+/*    if nKey == K_MWFORWARD .or. nKey== K_MWBACKWARD
+       mKey := inkey(,INKEY_ALL)
+       if mKey == K_LBUTTONDOWN
+          return AC_SELECT
+       end
+    end */
+    if nKey == K_LBUTTONDOWN
+      if mcRow>POSVENTANA[3] .or. mcRow<POSVENTANA[1] .or. mcCol<POSVENTANA[2] .or. mcCol>POSVENTANA[4]
+          nRetVal := AC_ABORT
+          return nRetVal
+      end
+    end
+  // case mKey == K_LBUTTONUP
+//end
+
+do case
+   // After all pending keys are processed, display message
+case nMode == AC_IDLE
+   ///@  0,  0 say padr( ltrim( str( nCurElement ) ), 10 )
+   nRetVal := AC_CONT                   // Continue ACHOICE()
+case nMode == AC_HITTOP                 // Attempt to go past Top
+   ///@  0,  0 say "Hit Top   "
+// tone( 100, 3 )
+case nMode == AC_HITBOTTOM              // Attempt to go past Bottom
+   ///@  0,  0 say "Hit Bottom"
+// tone( 100, 3 )
+case nMode == AC_EXCEPT                 // Key Exception
+   ///@  0,  0 say "Exception "
+   
+   do case
+   case nKey == K_RETURN                // If RETURN key, select
+      nRetVal := AC_SELECT
+         
+   case nKey == 284                     // If ALT-RETURN key, select CHR(key)
+      hb_keyPut(127)
+      nRetVal := AC_SELECT
+   case nKey == 301                     // If RETURN key, select key y mueve al BUFFER
+      hb_keyPut(1)
       nRetVal := AC_SELECT
    case nKey == K_ESC                   // If ESCAPE key, abort
       nRetVal := AC_ABORT
@@ -14940,278 +17647,17 @@ endcase
 return nRetVal
 
 PROCEDURE SHOWOUTPUT()
+
    hb_keyPut(15)
    hb_keyPut(1)
+  //FUNFSHELL
+  ///RX:=CMDSYSTEM("less -z-4 "+OUTPUTCOMM,0)
 RETURN
 
-FUNCTION INSERTMENU(CTRL)
-
-MCONTROL:=ARRAY(2)
-
-MENUMATCH:={}
-MENU:={}
-if SWLENGUAJE==1
-  if CTRL==1  // Estructuras de control  ^VC
-    AADD(MENUMATCH,"for to / next         ")
-    AADD(MENUMATCH,"for to step / next    ")
-    AADD(MENUMATCH,"for downto / next     ")
-    AADD(MENUMATCH,"for downto step / next")
-    AADD(MENUMATCH,"while / wend          ")
-    AADD(MENUMATCH,"do / until            ")
-    AADD(MENUMATCH,"if / endif            ")
-    AADD(MENUMATCH,"if / else / endif     ")
-    AADD(MENUMATCH,"if / elseif... / endif")
-    AADD(MENUMATCH,"for each in / next    ")
-    AADD(MENUMATCH,"for each inlist / next")
-    AADD(MENUMATCH,"try / exception       ")
-    AADD(MENUMATCH,"sub / back            ")
-     
-    AADD(MENU,{"for <- to "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"for <- to  step "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"for <- downto "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"for <- downto  step "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"while "+_CR+"   "+_CR+"wend",5,0})
-    AADD(MENU,{"do"+_CR+"   "+_CR+"until ",5,0})
-    AADD(MENU,{"if "+_CR+"   "+_CR+"endif",5,0})
-    AADD(MENU,{"if "+_CR+"   "+_CR+"else"+_CR+"   "+_CR+"endif",5,3})
-    AADD(MENU,{"if "+_CR+"   "+_CR+"elseif "+_CR+"   "+_CR+"else"+_CR+"   "+_CR+"endif",5,5})
-    AADD(MENU,{"for each  in "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"for each  inlist "+_CR+"   "+_CR+"next",5,0})
-    AADD(MENU,{"try"+_CR+"   "+_CR+"   //raise(n)"+_CR+"exception"+_CR+"   //write whatsup()"+_CR+"   //again"+_CR+"tend",5,5})
-    AADD(MENU,{'sub "<label>"'+_CR+"   "+_CR+"back"+_CR+_CR+'//gosub "<label>"',5,3})
-
-  elseif CTRL==2
-    AADD(MENUMATCH," Asignación agrupada            {a,b,...} <- {v,w,...}   (a<-v; b<-w; ...)           ")
-    AADD(MENUMATCH," Bifurcación en línea           { ? : }   (Usar dentro de otra bifurcación en línea)")
-    AADD(MENUMATCH," Asignación democrática         var <- {v,w,...}                                     ")
-    AADD(MENUMATCH," Asignación bifurcada           var <- {{ <expr-L> ? !{v,w,...} :  }}                ")
-    AADD(MENUMATCH," Asignación selectiva           !{  ?  :  } <- Var/valor                             ")
-    AADD(MENUMATCH," Asignación selectiva agrupada  !{  ?  :  } <- {a,b,...}  ")
-    AADD(MENUMATCH," Asignación selectiva bifurcada !{  ?  :  } <- {  ?  :  } ")
-    AADD(MENUMATCH," Macro matriz de 1 dimensión    var <- _(( dim ) { v,w,... })")
-    AADD(MENUMATCH," Macro matriz de 1 dimensiones  var <- _(( dim ) { ...,!{  ? : },... })")
-    AADD(MENUMATCH," Macro matriz de 2 dimensiones  var <- _(( dim1,dim2 ) {{,},{,},...}) ")
-    AADD(MENUMATCH," Macro matriz de 3 dimensiones  var <- _((dim1,dim2,dim3) {{{,},{,}},{{,},{,}},...}) ")
-    
-    AADD(MENU,{"{  } <- {  }",0,0})
-    AADD(MENU,{"{ ? : }",0,0})
-    AADD(MENU,{"  <- {  }",0,0})
-    AADD(MENU,{"  <- {{  ? !{  } :  }}",0,0})
-    AADD(MENU,{"!{  ?  :  } <- ",0,0})
-    AADD(MENU,{"!{  ?  :  } <- {  }",0,0})
-    AADD(MENU,{"!{  ?  :  } <- {  ?  :  }",0,0})
-    AADD(MENU,{" <- _((  ) {  })",0,0})
-    AADD(MENU,{" <- _((  ) { !{  ? : } })",0,0})
-    AADD(MENU,{" <- _((,) {{,},{,}})",0,0})
-    AADD(MENU,{" <- _((,,) {{{,},{,}},{{,},{,}}})",0,0})
-
-  elseif CTRL==4
-    AADD(MENUMATCH,hb_utf8tostr(" function string        : declara una función que devuelve un string"))
-    AADD(MENUMATCH,hb_utf8tostr(" function matriz string : declara una función que devuelve una matriz de string"))
-    AADD(MENUMATCH,hb_utf8tostr(" function number        : declara una función que devuelve un número"))
-    AADD(MENUMATCH,hb_utf8tostr(" function matriz number : declara una función que devuelve una matriz de números"))
-    AADD(MENUMATCH,hb_utf8tostr(" function booleana      : declara una función que devuelve un valor booleano"))
-    AADD(MENUMATCH,hb_utf8tostr(" function matriz bool   : declara una función que devuelve una matriz de booleanos"))
-    AADD(MENUMATCH,hb_utf8tostr(" function stack         : declara una función que devuelve un stack"))
-    AADD(MENUMATCH,hb_utf8tostr(" procedure              : declara una función que no devuelve nada"))
-    
-    AADD(MENU,{"F([param:type[,...]]):string"+_CR+"r:=string"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):^string"+_CR+"r:=^string"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):number"+_CR+"r:=number"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):^number"+_CR+"r:=^number"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):boolean"+_CR+"r:=boolean"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):^boolean"+_CR+"r:=^boolean"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):stack"+_CR+"r:=stack"+_CR+"begin:"+_CR+"   "+_CR+"   return r"+_CR+"end",5,2})
-    AADD(MENU,{"F([param:type[,...]]):void"+_CR+"begin:"+_CR+"   "+_CR+"end",5,0})
-  end
-elseif SWLENGUAJE==2
-  if CTRL==1
-    AADD(MENUMATCH," for            ")
-    AADD(MENUMATCH," while          ")
-    AADD(MENUMATCH," do/while       ")
-    AADD(MENUMATCH," if             ")
-    AADD(MENUMATCH," if/else        ")
-    AADD(MENUMATCH," if/else if     ")
-    AADD(MENUMATCH," switch/case    ")
-    
-    AADD(MENU,{"for(  ;  ;  )"+_CR+"{"+_CR+"   "+_CR+"}",5,1})
-    AADD(MENU,{"while(  )"+_CR+"{"+_CR+"   "+_CR+"}",5,1})
-    AADD(MENU,{"do"+_CR+"{"+_CR+"   "+_CR+"}while(  );",5,1})
-    AADD(MENU,{"if(  )"+_CR+"{"+_CR+"   "+_CR+"}",5,1})
-    AADD(MENU,{"if(  )"+_CR+"{"+_CR+"   "+_CR+"}else{"+_CR+"   "+_CR+"}",5,3})
-    AADD(MENU,{"if(  )"+_CR+"{"+_CR+"   "+_CR+"}else if(  ){"+_CR+"   "+_CR+"}",5,3})
-    AADD(MENU,{"switch( )"+_CR+"{"+_CR+"   case  : {"+_CR+"      "+_CR+"   }"+_CR+"   default:{"+_CR+"      "+_CR+"   }"+_CR+"}",5,4})
-  elseif CTRL==2
-    //
-    AADD(MENUMATCH,hb_utf8tostr(" Setea string malloc (no recomendado)  "))
-    AADD(MENUMATCH,hb_utf8tostr(" Setea string calloc                   "))
-    AADD(MENUMATCH,hb_utf8tostr(" bifurcación inline                    "))
-    AADD(MENUMATCH,hb_utf8tostr(" Abrir o crear un archivo              "))
-    AADD(MENUMATCH,hb_utf8tostr(" Macro mínimo entre 2 enteros          "))
-    AADD(MENUMATCH,hb_utf8tostr(" Macro máximo entre 2 enteros          "))
-    AADD(MENUMATCH,hb_utf8tostr(" Macro intercambio entre 2 enteros     "))
-    
-    AADD(MENU,{"sVAR=(char *)malloc(sizeof(char *));"+_CR+"if( sVAR== NULL ){"+_CR+"   return NULL;"+_CR+"}",5,3})
-    AADD(MENU,{"sVAR=(char *)calloc( <N>,sizeof(char *));"+_CR+"if( sVAR== NULL ){"+_CR+"   return NULL;"+_CR+"}",5,3})
-    AADD(MENU,{"( ? : )",0,0})
-    AADD(MENU,{'//MODO: "r"=lee; "w"=escribe/crea; "a"=añade; "<rwa>b"=archivo binario'+_CR+'FILE *fp;'+_CR+;
-               'if ( (fp=fopen("file","MODO"))==NULL){'+_CR+'   printf("No puedo abrir el archivo\n");'+_CR+;
-               '   return 1;'+_CR+'} else {'+_CR+'   /* instrucciones */'+_CR+'   fclose(fp);'+_CR+'}',1,1})
-    AADD(MENU,{"#define MIN(A,B)  ( (A) < (B) ? (A) : (B) )",0,0})
-    AADD(MENU,{"#define MAX(A,B)  ( (A) > (B) ? (A) : (B) )",0,0})
-    AADD(MENU,{"#define SWAP(A,B)  ( { A^=B; B^=A; A^=B; } )",0,0})
-    
-  elseif CTRL==4
-    AADD(MENUMATCH,hb_utf8tostr("stdlib.h : atof,atoi,malloc,free,abs...   "))
-    AADD(MENUMATCH,hb_utf8tostr("string.h : strcpy,strcat,strtok,strcmp... "))
-    AADD(MENUMATCH,hb_utf8tostr("math.h   : sqrt,log,exp,fabs,pow,sin...   "))
-    AADD(MENUMATCH,hb_utf8tostr("time.h   : time,asctime,mktime,strftime..."))
-    AADD(MENUMATCH,hb_utf8tostr("ctype.h  : isalpha,isdigit,isupper,is...  "))
-    AADD(MENUMATCH,hb_utf8tostr("assert.h : assert                         "))
-    AADD(MENUMATCH,hb_utf8tostr("stdarg.h : va_list,va_start,va_end,va_arg "))
-    AADD(MENUMATCH,hb_utf8tostr("setjmp.h : setjmp,longjmp                 "))
-    AADD(MENUMATCH,hb_utf8tostr("signal.h : signal,raise                   "))
-    AADD(MENUMATCH,hb_utf8tostr("limits.h : CHAR_BIT,CHAR_MAX,INT_MAX...   "))
-    AADD(MENUMATCH,hb_utf8tostr("float.h  : FLT_DIG,DBL_DIG,DBL_MAX...     "))
-    
-    AADD(MENU,{"#include <stdlib.h>",0,0})
-    AADD(MENU,{"#include <string.h>",0,0})
-    AADD(MENU,{"#include <math.h>",0,0})
-    AADD(MENU,{"#include <time.h>",0,0})
-    AADD(MENU,{"#include <ctype.h>",0,0})
-    AADD(MENU,{"#include <assert.h>",0,0})
-    AADD(MENU,{"#include <stdarg.h>",0,0})
-    AADD(MENU,{"#include <setjmp.h>",0,0})
-    AADD(MENU,{"#include <signal.h>",0,0})
-    AADD(MENU,{"#include <limits.h>",0,0})
-    AADD(MENU,{"#include <float.h>",0,0})
-  end
-elseif SWLENGUAJE==3   // latex
-  if CTRL==1   // ^VC
-    AADD(MENUMATCH," Agrega preambulo para enumerate ")
-    AADD(MENUMATCH," Lista simple (itemize)          ")
-    AADD(MENUMATCH," Lista enumerada (enumerate)     ")
-    AADD(MENUMATCH," Pasos de algoritmo              ")
-    AADD(MENUMATCH," Entorno de descripcion          ")
-    AADD(MENUMATCH," Tabla simple                    ")
-    AADD(MENUMATCH," Tabla multicolumna (ejemplo)    ")
-    AADD(MENUMATCH," Agrega preambulo para graficos  ")
-    AADD(MENUMATCH," Inserta grafico                 ")
-    AADD(MENUMATCH," Escalar grafico                 ")
-    AADD(MENUMATCH," Rotar grafico                   ")
-    
-    AADD(MENU,{"\usepackage{enumerate}",0,0})
-    AADD(MENU,{"\begin{itemize}"+_CR+"  \item ..."+_CR+"\end{itemize}",5,1})
-    AADD(MENU,{"\begin{enumerate}"+_CR+"  \item ..."+_CR+"\end{enumerate}",5,1})
-    AADD(MENU,{"\begin{enumerate}[\hspace*{0.5cm}\bfseries P{a}so 1]"+_CR+;
-               "  \item ..."+_CR+"  \begin{enumerate}[(a)]"+"    \item ..."+_CR+;
-               "  \end{enumerate}"+_CR+"\end{enumerate}",5,3})
-    AADD(MENU,{"\begin{description}"+_CR+"  \item[*your tip*] ..."+_CR+"\end{description}",5,1})
-    AADD(MENU,{"\begin{tabular}{|c|c|c|}"+_CR+"\hline"+_CR+"head1 & head2 & head3 \\"+_CR+;
-               "\hline"+_CR+"dato1 & dato2 & dato3 \\"+_CR+"\hline"+_CR+"\end{tabular}",5,4})
-    AADD(MENU,{"\begin{tabular}{|l|r|r|}"+_CR+"\hline"+_CR+"        & \multicolumn{2}{c|}{Distancia al Sol} \\"+_CR+;
-               "Planeta & \multicolumn{2}{c|}{(millones de km)} \\"+_CR+"\cline{2-3}"+_CR+;
-               "        & Máxima & Mínima \\"+_CR+"\hline"+_CR+"Mercurio & 69.4 & 46.8 \\"+_CR+;
-               "Venus & 109.0 & 107.6 \\"+_CR+"Tierra & 152.6 & 147.4 \\"+_CR+"\hline"+_CR+"\end{tabular}",0,0})
-    AADD(MENU,{"\usepackage{graphicx}",0,0})
-    AADD(MENU,{"\includegraphics[width=<N>cm,height=<M>cm] {archivo.jpg}",0,0})
-    AADD(MENU,{"\includegraphics[scale=<N0..1>]{archivo.jpg}",0,0})
-    AADD(MENU,{"\includegraphics[angle=<A>]{archivo.jpg}",0,0})
-    
-  elseif CTRL==2   // ^VA
-    //
-    AADD(MENUMATCH,hb_utf8tostr(" Agregar preámbulo para Maths  "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz con () {pmatrix}       "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz con [] {bmatrix}       "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz con {} {Bmatrix}       "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz con || {vmatrix}       "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz con |||| {Vmatrix}     "))
-    AADD(MENUMATCH,hb_utf8tostr(" Matriz en línea {smalltrix}   "))
-    AADD(MENUMATCH,hb_utf8tostr(" Determ. en línea {smalltrix}  "))
-    
-    AADD(MENU,{"\usepackage{amsmath}"+_CR+"\usepackage{amssymb}",0,0})
-
-    AADD(MENU,{"\[\begin{pmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{pmatrix}\]",0,0})
-    AADD(MENU,{"\[\begin{bmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{bmatrix}\]",0,0})
-    AADD(MENU,{"\[\begin{Bmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{Bmatrix}\]",0,0})
-    AADD(MENU,{"\[\begin{vmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{vmatrix}\]",0,0})
-    AADD(MENU,{"\[\begin{Vmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{Vmatrix}\]",0,0})
-    AADD(MENU,{"$\left(\begin{smallmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{smallmatrix}\right)$",0,0})
-    AADD(MENU,{"$\left|\begin{smallmatrix}"+_CR+"A_1 & A_2 & A_3 \\"+_CR+;
-               "B_1 & B_2 & B_3 \\"+_CR+;
-               "C_1 & C_2 & C_3 \\"+_CR+"\end{smallmatrix}\right|$",0,0})
-
-  elseif CTRL==4   // ^VF
-    AADD(MENUMATCH,hb_utf8tostr(" Agregar preámbulo para Maths  "))
-    AADD(MENUMATCH,hb_utf8tostr(" Raiz cuadrada                 "))
-    AADD(MENUMATCH,hb_utf8tostr(" Raiz enesima                  "))
-    AADD(MENUMATCH,hb_utf8tostr(" Fracciones                    "))
-    AADD(MENUMATCH,hb_utf8tostr(" Binomios                      "))
-    AADD(MENUMATCH,hb_utf8tostr(" Parentesis ajustados          "))
-    AADD(MENUMATCH,hb_utf8tostr(" Productoria subíndice abajo   "))
-    AADD(MENUMATCH,hb_utf8tostr(" Productoria subíndice lado    "))
-    AADD(MENUMATCH,hb_utf8tostr(" Productoria varios subíndices "))
-    AADD(MENUMATCH,hb_utf8tostr(" Sumatoria subíndice abajo     "))
-    AADD(MENUMATCH,hb_utf8tostr(" Sumatoria subíndice lado      "))
-    AADD(MENUMATCH,hb_utf8tostr(" Ecuación                      "))
-    AADD(MENUMATCH,hb_utf8tostr(" Lista de ecuaciones (ejemplo) "))
-    AADD(MENUMATCH,hb_utf8tostr(" Límite infinito               "))
-    AADD(MENUMATCH,hb_utf8tostr(" Integral simple               "))
-    AADD(MENUMATCH,hb_utf8tostr(" Derivada parcial              "))
-    AADD(MENUMATCH,hb_utf8tostr(" Integral doble                "))
-    AADD(MENUMATCH,hb_utf8tostr(" Integral triple               "))
-    AADD(MENUMATCH,hb_utf8tostr(" Integral circular             "))
-    AADD(MENUMATCH,hb_utf8tostr(" Integral n-dimensional        "))
-    
-    AADD(MENU,{"\usepackage{amsmath}"+_CR+"\usepackage{amssymb}",0,0})
-    AADD(MENU,{"\sqrt{}",0,0})
-    AADD(MENU,{"\sqrt[]{}",0,0})
-    AADD(MENU,{"\frac{}{}",0,0})
-    AADD(MENU,{"\binom{n}{k}",0,0})
-    AADD(MENU,{"\left( ... \right)",0,0})
-    AADD(MENU,{"\prod\limits_{}^{}",0,0})
-    AADD(MENU,{"\prod\nolimits_{}^{}",0,0})
-    AADD(MENU,{"\prod_{\substack{i=1\\i\ne k}}^n\left( ... \right)",0,0})
-    AADD(MENU,{"\sum\limits_{}^{}",0,0})
-    AADD(MENU,{"\sum\nolimits_{}^{}",0,0})
-    AADD(MENU,{"\begin{equation}"+_CR+"   "+_CR+"\end{equation}",0,0})
-    AADD(MENU,{"\begin{equation}"+_CR+" \left."+_CR+"  \begin{aligned}"+_CR+"    x_0 & = 0 \\"+;
-               _CR+"     y_0 & = 0"+_CR+"  \end{aligned}"+_CR+" \right\}"+_CR+"\quad\text{texto expicativo}"+_CR+;
-               "\end{equation}",0,0})
-    AADD(MENU,{"\lim\limits_{x\to\infty}",0,0})
-    AADD(MENU,{"\int_a^b f(x)\,\mathrm{d}x",0,0})
-    AADD(MENU,{"\frac{\partial x}{\partial t}",0,0})
-    AADD(MENU,{"\iint f(x,y)\,\mathrm{d}x\,\mathrm{d}y",0,0})
-    AADD(MENU,{"\iiint f(x,y,z)\,\mathrm{d}x\,\mathrm{d}y\,\mathrm{d}z",0,0})
-    AADD(MENU,{"\oint_a^b f(x)\,\mathrm{d}x",0,0})
-    AADD(MENU,{"\idotsint_M \mathrm{d}x_1\dots \mathrm{d}x_n",0,0})
-    
-  end
-end
-
-MCONTROL[1]:=ACLONE(MENUMATCH)
-MCONTROL[2]:=ACLONE(MENU)
-
-RELEASE MENUMATCH
-RELEASE MENU
-
-RETURN MCONTROL
 
 PROCEDURE MSGOPE(TIP)
 LOCAL MSG
-MSG:=" ^W=FINISH ^Y=DEL LINE ^V=INS ^P=PASTE ESC=CLEAN/CANCEL"
+MSG:=" ^W=DO ^Y=DEL LINE ^V=INS ^P=PASTE ESC=CLEAN/CANCEL"
 if pCount()>0
    if len(TIP)>0
       MSG+=" | "+TIP
@@ -15255,7 +17701,9 @@ else
    setpos(TLINEA  ,int(SLINEA/2)-14);outstd("(Press ESC to continue...)")
 end
 if SALIDA==1
-   inkey(0)
+   inkey(0,INKEY_ALL)
+   while inkey(,INKEY_ALL)!=0 ; end
+              MRESTSTATE(MOUSE)
    BarraTitulo(ARCHIVO)
 end
 RETURN
@@ -15298,7 +17746,7 @@ RETURN .T.
 FUNCTION SAVEFILE(TEXTO,ARCHIVO,TOPE)
 LOCAL I,FP,STRING,J,LIN,EXT
 
-  IF (FP:=FCREATE(ARCHIVO))==F_ERROR
+  IF (FP:=FCREATE(hb_strtoutf8(ARCHIVO)))==F_ERROR
      RETURN .F.
   END
   LIN:=0
@@ -15459,7 +17907,7 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
    STRING:={}
    
 
-   FP:=FOPEN(AX,0)
+   FP:=FOPEN(hb_strtoutf8(AX),0)
    IF FERROR()==0
       
       // si no concuerda el tamaño del archivo con lo leido, opcion binaria ON.
@@ -15478,9 +17926,12 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
          
       else
          EXT:="binary"
-         SWBINARY:=.F.
+         
+         STRING:=LEEBINARIO(FP)
+         NL:=LEN(STRING)
       end
        //  ? "EXT=",EXT ; inkey(0)
+      if !SWBINARY
          if EXT=="utf-8" .or. EXT=="us-ascii"
             READFILE:=CUENTALINEAS(AX)
             NUMCAR:=READFILE[2]
@@ -15508,6 +17959,8 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                             "cargando el archivo con opción '-hex' desde la consola")
                      aOptions := { "Okay" }
                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                     while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                   end
                   NUMCAR:=LEN(cBUFF)
                   STRING:=GETLINEAS(cBUFF,NL,NUMCAR,MAXLONG)
@@ -15519,7 +17972,8 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                             "(Nota: no se puedes usar ^Z en esta edición)")
                   aOptions := { "Okay" }
                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-
+                  while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                   EXT:="binary"
                   STRING:=LEEBINARIO(FP)
                   NL:=LEN(STRING)
@@ -15555,6 +18009,8 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                             "cargando el archivo con opción '-hex' desde la consola")
                      aOptions := { "Okay" }
                      nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
+                     while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                   end
                   NUMCAR:=LEN(cBUFF)
                   STRING:=GETLINEAS(cBUFF,NL,NUMCAR,MAXLONG)
@@ -15563,7 +18019,8 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
                   cMessage := hb_utf8tostr("Este archivo tiene un formato no reconocido"+_CR+"Se cargará como HEXADECIMAL")
                   aOptions := { "Okay" }
                   nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-
+                  while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
                   EXT:="binary"
                   STRING:=LEEBINARIO(FP)
                   NL:=LEN(STRING)
@@ -15577,53 +18034,20 @@ LOCAL STRING,cBUFF,FP,NL,I,J,NUMCAR:=0,EXT,SW,S,LINEA,READFILE,CNT,cBUFHEX,OFFSE
             STRING:=LEEBINARIO(FP)
             NL:=LEN(STRING) */
          end
-         FCLOSE(FP)
+      end  // SWBINARY
+      SWBINARY:=.F.  // porsia
+      FCLOSE(FP)
          
 
-         TEXTOTIPO:=UPPER(EXT)
-         LENTEXTOTIPO:=LEN(TEXTOTIPO)
-      /*   IF NUMCAR!=LEN(cBUFF)
-            FP:=FOPEN(AX,0)
-            cBUFF:=FREADSTR(FP,NUMCAR)
-            FCLOSE(FP)
-            IF NUMCAR!=LEN(cBUFF)
-               cMessage := hb_utf8tostr("No puedo leer este archivo"+_CR+" Me la ganó...")
-               aOptions := { hb_utf8tostr("Será...") }
-               nChoice := Alert( cMessage, aOptions )
-               SIZE:=1
-               AADD(STRING,"8=D")
-               RETURN STRING
-            ELSE
-               cMessage := hb_utf8tostr("Archivo no puede ser maquillado"+_CR+;
-                                        "Será editado tal como se levantó"+_CR+"(Me la ganó...)")
-               aOptions := { hb_utf8tostr("Será...") }
-               nChoice := Alert( cMessage, aOptions )
-            END
-         END */
+      TEXTOTIPO:=UPPER(EXT)
+      LENTEXTOTIPO:=LEN(TEXTOTIPO)
 
-//         NUMCAR:=LEN(cBUFF)
-//         STRING:=GETLINEAS(cBUFF,NL,NUMCAR,MAXLONG)
-      /*   STRING:=ARRAY(NL)
-         for i:=1 to NL
-            STRING[i]:=rtrim(memoline(cBUFF,1200,i))
-           // LINEA:=substr(LINEA,1,at(chr(13),LINEA)-2)
-           // LINEA:=strtran(LINEA,chr(10),"")
-           // LINEA:=strtran(LINEA,chr(13),"")
-           // LINEA:=strtran( rtrim(memoline(cBUFF,1200,i)), chr(10),"") // quito los NL de otros sistemas ASCII
-           // LINEA:=strtran( rtrim(memoline(cBUFF,1200,i)), chr(13),"")
-           // AADD(STRING, LINEA )
-         end*/
-/*      else
-         FCLOSE(FP)
-         NL:=1
-         AADD(STRING,"")
-      end*/
    ELSE
       cMessage := hb_utf8tostr("El archivo está corrupto:"+_CR+AX+_CR+"Revísalo con un editor de verdad")
       aOptions := { hb_utf8tostr("Será...") }
       nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-      while inkey(,159)!=0 ; end
-      MRESTSTATE(MOUSE)
+   while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
       NL:=1
       AADD(STRING,"")
    END
@@ -15798,7 +18222,12 @@ RETURN nRetVal
     RX:=CMDSYSTEM("chmod 755 "+BX,0)
 //
     if SWGRMODE
-       LINEA:='gnome-terminal -- bash -c "'+BX+'"'
+       //LINEA:='gnome-terminal --geometry=110x25  -- bash -c "'+BX+'"'
+       if "gnome-terminal" $ cTERMINAL
+           LINEA:=cTERMINAL + '"' +BX+ '"'
+       else
+           LINEA:=cTERMINAL + BX
+       end
     else
        LINEA:=BX
     end
@@ -15810,6 +18239,47 @@ RETURN nRetVal
     end
   RETURN
 
+  PROCEDURE FUNEXECTEMP(EJECUTA)
+  local DX,RX,BX,EX,LINEA
+    EX:=hb_ntos(int(hb_random(1000000000)))
+    // prepara respuesta
+    BX:=PATH_LOG+_fileSeparator+"XU_"+EX+".sh"
+    DX:=FCREATE (BX)
+    FWRITE (DX,"#!/bin/bash"+_CR)
+    FWRITE (DX,EJECUTA+_CR)
+/*    FWRITE (DX,'if [ "$?" != "0" ]; then'+_CR)
+    FWRITE (DX,'echo "Press any key to continue..."'+_CR)
+    FWRITE (DX,"read -rsp $'Press any key to continue...\n' -n 1 key"+_CR)
+    FWRITE (DX,"else"+_CR)
+    if TX!="<none>"
+       
+       FWRITE (DX,"clear"+_CR)
+       FWRITE (DX,TX+_CR)
+    end */
+    FWRITE (DX,"read -rsp $'Press any key to continue...\n' -n 1 key"+_CR)
+//    FWRITE (DX,"fi"+_CR)
+ //   FWRITE (DX,"rm "+BX+_CR)
+    FCLOSE (DX)
+    RX:=CMDSYSTEM("chmod 755 "+BX,0)
+    
+    if SWGRMODE
+       //LINEA:='gnome-terminal --geometry=110x25  -- bash -c "'+BX+'"'
+       if "gnome-terminal" $ cTERMINAL
+           LINEA:=cTERMINAL + '"' +BX+ '"'
+       else
+           LINEA:=cTERMINAL + BX
+       end
+    else
+       LINEA:=BX
+    end
+    // Ejecuta el Batch
+    RX:=CMDSYSTEM(LINEA,0)
+    HB_IDLESLEEP( 1 )
+    if SW_CLEAR_LOG
+       FERASE (BX)
+    end
+  RETURN
+  
   PROCEDURE FUNEXEOTHERS(AX,TX,ENVVARS)
   local DX,RX,BX,EX,LINEA
     EX:=hb_ntos(int(hb_random(1000000000)))
@@ -15835,7 +18305,12 @@ RETURN nRetVal
     RX:=CMDSYSTEM("chmod 755 "+BX,0)
 //
     if SWGRMODE
-       LINEA:='gnome-terminal -- bash -c "'+BX+'"'
+       //LINEA:='gnome-terminal --geometry=110x25  -- bash -c "'+BX+'"'
+       if "gnome-terminal" $ cTERMINAL
+           LINEA:=cTERMINAL + '"' +BX+ '"'
+       else
+           LINEA:=cTERMINAL + BX
+       end
     else
        LINEA:=BX
     end
@@ -15877,8 +18352,8 @@ RETURN nRetVal
                                    "antes de proceder.")
           aOptions := { hb_utf8tostr("Será...") }
           nChoice := Alert( cMessage, aOptions, N2COLOR(cMENU) )
-          while inkey(,159)!=0 ; end
-          MRESTSTATE(MOUSE)
+         while inkey(,INKEY_ALL)!=0 ; end
+                 MRESTSTATE(MOUSE)
           RX:="<error>"
           RELEASE EAX,BX,DX,EX,CX
           RETURN RX
@@ -15935,7 +18410,29 @@ for i:=1 to LEN(lKEYWORD)
   RELEASE lKEYWORD[i]
 end
 
-lDEFINE:={}; lSECCION:={}; lKEYWORD:={}
+for i:=1 to LEN(lSTRFUNCS)
+  for j:=1 to len(lSTRFUNCS[i])
+     RELEASE lSTRFUNCS[i][j]
+  end
+  RELEASE lSTRFUNCS[i]
+end
+
+for i:=1 to LEN(lMATFUNCS)
+  for j:=1 to len(lMATFUNCS[i])
+     RELEASE lMATFUNCS[i][j]
+  end
+  RELEASE lMATFUNCS[i]
+end
+
+for i:=1 to LEN(lLOGFUNCS)
+  for j:=1 to len(lLOGFUNCS[i])
+     RELEASE lLOGFUNCS[i][j]
+  end
+  RELEASE lLOGFUNCS[i]
+end
+
+
+lDEFINE:={}; lSECCION:={}; lKEYWORD:={}; lLOGFUNCS:={}; lMATFUNCS:={}; lSTRFUNCS:={}
 
 if !FILE(PATH_XU+_fileSeparator+"laica.compiler")
    DEFINEKEYWORDS(LANGUAJE)
@@ -15972,6 +18469,22 @@ else
                   for j:=1 to nTok
                      AADD(lSECCION,token(_p,",",j))
                   end
+               case _w=="strfuncs" .and. swDefColor
+                  nTok:=numtoken(_p,",")
+                  for j:=1 to nTok
+                     AADD(lSTRFUNCS,token(_p,",",j))
+                  end
+               case _w=="matfuncs" .and. swDefColor
+                  nTok:=numtoken(_p,",")
+                  for j:=1 to nTok
+                     AADD(lMATFUNCS,token(_p,",",j))
+                  end
+               case _w=="logfuncs" .and. swDefColor
+                  nTok:=numtoken(_p,",")
+                  for j:=1 to nTok
+                     AADD(lLOGFUNCS,token(_p,",",j))
+                  end
+
                case _w=="keywords" .and. swDefColor
                   if _p=="\"
                      exit
@@ -16004,6 +18517,7 @@ public cSELECT
 public cTABULA
 public cDESPLAZAMIENTO
 public cPAGINA
+public cTERMINAL
 
 if len(LISTACOMPILA)>0
    FOR i:=1 to len(LISTACOMPILA)
@@ -16020,10 +18534,10 @@ end
 
 if !FILE(PATH_XU+_fileSeparator+"laica.compiler")
    outstd(_CR,hb_UTF8tostr("Atención: no encuentro el archivo LAICA.COMPILER"),_CR)
-   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -x -m -v -sys","xu %name%","XU - Ejecutable","//","e"})
-   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -l -sys","",hb_utf8tostr("XU - Librería (.lib)"),"//","e"})
-   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -m -v -sys","",hb_utf8tostr("XU - Información de debugueo"),"//","e"})
-   AADD(LISTACOMPILA,{"c","gcc %name%.c -o %name%","%name%","GCC - Ejecutable","//","e"})
+   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -x -m -v -sys","xu %name%","XU - Ejecutable","//","e","/*","*/"})
+   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -l -sys","",hb_utf8tostr("XU - Librería (.lib)"),"//","e","/*","*/"})
+   AADD(LISTACOMPILA,{"xu","xuc %name%.xu -m -v -sys","",hb_utf8tostr("XU - Información de debugueo"),"//","e","/*","*/"})
+   AADD(LISTACOMPILA,{"c","gcc %name%.c -o %name%","%name%","GCC - Ejecutable","//","e","/*","*/"})
    
 else
    _v:=Memoread(PATH_XU+_fileSeparator+"laica.compiler")
@@ -16041,7 +18555,10 @@ else
                   cPAGINA:=val(_p)
                case _w=="ctrl_lz"
                   cDESPLAZAMIENTO:=val(_p)
-               
+
+               case _w=="terminal"
+                  cTERMINAL:=_p+" "
+
                case _w=="map"
                   nt:=numtoken(_p,",")
                   cMAPACOLORES:=alltrim(token(_p,",",1))
@@ -16059,8 +18576,13 @@ else
                   cEDITCOM:=val(alltrim(token(_p,",",10)))
                   cDESTACADO:=val(alltrim(token(_p,",",11)))
                   cSELECT:=val(alltrim(token(_p,",",12)))
+                  cNUMBERS:=val(alltrim(token(_p,",",13)))
+                  cSTRINGF:=val(alltrim(token(_p,",",14)))
+                  cMATF:=val(alltrim(token(_p,",",15)))
+                  cLOGICF:=val(alltrim(token(_p,",",16)))
                   aadd(cCOLORES,{cMAPACOLORES,cHELP,cTEXT,cEDITOR,cCADENA,cMENU,cBARRA,;
-                                 cCURSORMOD,cSECCION,cKEYWORD,cEDITDEF,cEDITCOM,cDESTACADO,cSELECT}) 
+                                 cCURSORMOD,cSECCION,cKEYWORD,cEDITDEF,cEDITCOM,cDESTACADO,cSELECT,cNUMBERS,cSTRINGF,;
+                                 cMATF,cLOGICF}) 
 
               /* case _w=="help"
                   cHELP:=val(_p)
@@ -16093,7 +18615,12 @@ else
                   _e:=alltrim(token(_p,",",3))
                   _d:=alltrim(token(_p,",",4))
                   _f:=alltrim(token(_p,",",5))
-                  AADD(LISTACOMPILA,{_w,_c,_e,_d,_f,_m})
+                  _inic:=""; _finc:=""
+                  if nt==7
+                      _inic:=alltrim(token(_p,",",6))
+                      _finc:=alltrim(token(_p,",",7))
+                  end
+                  AADD(LISTACOMPILA,{_w,_c,_e,_d,_f,_m,_inic,_finc})
             end
          end
       end
@@ -16105,6 +18632,7 @@ RETURN
 procedure _Carga_Configuracion()
 local _f,_v,_w,_nl,_i,_linea,_p
 local PATH_XU,OSHost
+LOCAL aCarp,nLen,i,c1,cTMP,fp
 
 public PATH_BINARY
 public PATH_SOURCE
@@ -16113,9 +18641,11 @@ public PATH_LOG
 public PATH_DEBUG
 public PATH_HELP
 public PATH_TEMP  // para archivos temporales
+public PATH_MACRO  // para macros
 
 public SW_CLEAR_LOG:=.T.
 public _fileSeparator
+public LISTAEXPRESION
 
 PATH_XU:=CURDIR()
 OSHost:=OS()
@@ -16182,6 +18712,41 @@ else
          end
       end
    next
+   PATH_MACRO:=PATH_XU+_fileSeparator+"macros"
+   if !FILE(PATH_MACRO+_fileSeparator+"*")
+      dirmake(PATH_MACRO)
+   else  // carga todas las macros que encuentre
+      clear
+      ? "Cargando macros..."
+      ? PATH_MACRO
+      aCarp := Directory(PATH_MACRO+_fileSeparator+"*.macro")  // solo carga archivos
+
+      nLen:=len(aCarp)
+      if nLen>0
+         /* ordenar el directorio */
+         //ASORT( aCarp,,, {| x, y | x[1] < y[1] } )
+         /*  */
+         //          MENUMATCH:=ARRAY(nLen+1)
+         for i=1 to nLen
+            ? "---> cargando macro:",aCarp[i][1]
+            fp:=fopen(PATH_MACRO+_fileSeparator+aCarp[i][1],0)
+            if ferror()==0
+               c1:=fseek(fp,0,2)
+               fseek(fp,0,0)
+               cTMP:=FREADSTR(fp,c1)
+               while len(cTMP)>0
+                  AADD(LISTAEXPRESION,substr(cTMP,1,at(chr(2),cTMP)-1))
+                  cTMP:=substr(cTMP,at(chr(2),cTMP)+1,len(cTMP))
+               end
+               fclose(fp)
+               ?? "... OK"
+            else
+               ? "LA MONA DICE: NO FUE POSIBLE CARGAR LA MACRO: "+aCarp[i][1]
+               wait
+            end
+         end
+      end
+   end
 end
 
 return PATH_XU
@@ -16210,14 +18775,14 @@ elseif ascVAL==206
    CX:=hb_UTF8tostr(chr(cBUFF)+tBUFF+ttBUFF+tttBUFF)
    CX:=ASC(CX)
 else
-   CX:=cBUFF
+      CX:=cBUFF
 end
 RELEASE tBUFF,ascVAL,ttBUFF,tttBUFF
 RETURN CX
 
 
-FUNCTION INPUTLINE(ENTRADA,TOPE,ROW,COL,TIPO)
-LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN
+FUNCTION INPUTLINE(ENTRADA,TOPE,ROW,COL,TIPO,SWVIEW)
+LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN,texto_local:={}
   
   /* flush */
   
@@ -16225,6 +18790,23 @@ LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN
      ;
   end */
   /**/
+  if SWVIEW   // eco en editor
+     //ARRVIEW:={@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,@MODMULTITEXT}
+     //VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+     TEXTO:=ARRVIEW[1]
+     lini:=ARRVIEW[2]
+     lfin:=ARRVIEW[3]
+     cini:=ARRVIEW[4]
+     SLINEA:=ARRVIEW[5]
+     TOPE1:=ARRVIEW[6]
+     XFIL1EDIT:=ARRVIEW[7]
+     XFIL2EDIT:=ARRVIEW[8]
+     //MODMULTITEXT:=ARRVIEW[9]
+     // rescata lineas originales, para reemplazar el texto con cada modificacion
+     for i:=1 to len(MODMULTITEXT)
+        aadd(texto_local,TEXTO[MODMULTITEXT[i][1]])
+     end
+  end
   
   INICIO:=ROW
   
@@ -16248,6 +18830,7 @@ LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN
   //hb_gcAll()  // aprovecha el inkey para GC
   while .T.
      c=inkey(0)
+
      if c==13
        exit
      elseif c==3   // CTRL-C chao!
@@ -16266,7 +18849,7 @@ LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN
            outstd(" ")
          end
          setcursor(1)
-         c:=" "
+         c:=0
          p:=1
          pt:=COL
          px:=COL
@@ -16434,11 +19017,52 @@ LOCAL INICIO,s,p,pt,px,xlen,m,c,i,CX,SW,swPto,nLEN
           end
        end
      end
+     if SWVIEW .and. c!=3  // eco en editor, si no se ha cancelado
+        //ARRVIEW:={@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT,@MODMULTITEXT}
+        //VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE,XFIL1EDIT,XFIL2EDIT)
+        m:=""
+        for i:=1 to xlen-pt-1
+           m+=s[i]
+        end
+        
+        for i:=1 to len(MODMULTITEXT)
+           TEXTO[MODMULTITEXT[i][1]]:=substr(TEXTO[MODMULTITEXT[i][1]],1,MODMULTITEXT[i][2]-1)+m+;
+                                      substr(TEXTO[MODMULTITEXT[i][1]],MODMULTITEXT[i][2],len(TEXTO[MODMULTITEXT[i][1]]))
+           
+        end
+        setcursor(0)
+        t_cini:=cini
+        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE1,XFIL1EDIT,XFIL2EDIT)
+        cini:=t_cini
+        setcursor(1)
+        ///setpos(TLINEA-1,2);outstd(alltrim(str(cini)))
+        SETCOLOR(N2COLOR(cBARRA))
+        setpos(INICIO,px)
+        for i:=1 to len(MODMULTITEXT)
+           TEXTO[MODMULTITEXT[i][1]]:=texto_local[i]
+        end
+     end
   end
   m:=""
   if c!=3
      for i:=1 to xlen-pt-1
         m+=s[i]
+     end
+     if SWVIEW
+        for i:=1 to len(MODMULTITEXT)
+           TEXTO[MODMULTITEXT[i][1]]:=substr(TEXTO[MODMULTITEXT[i][1]],1,MODMULTITEXT[i][2]-1)+m+;
+                                      substr(TEXTO[MODMULTITEXT[i][1]],MODMULTITEXT[i][2],len(TEXTO[MODMULTITEXT[i][1]]))
+        end
+     end
+  else
+     if SWVIEW
+        VISUALIZA_TEXTO(@TEXTO,lini,lfin,cini,SLINEA,TOPE1,XFIL1EDIT,XFIL2EDIT)
+        cini:=t_cini
+        setcursor(1)
+        ///setpos(TLINEA-1,2);outstd(alltrim(str(cini)))
+        SETCOLOR(N2COLOR(cBARRA))
+        setpos(INICIO,px)
+        m:="CANCEL"
      end
   end
   /* flush */
@@ -16464,6 +19088,7 @@ IF LANGUAJE=="xu" .or. LANGUAJE=="def"
              "boolean","(ref)","(*)","void","gosub","sub","back","room","rend","exitif",;
              "again","return","precision","cls","pause","flag","write","raise","true","false",;
              "break","continue","eval","case","otherwise","evend","end","if","to","in"}
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 ELSEIF LANGUAJE=="c" .or. LANGUAJE=="h"
   lDEFINE:={"#include","#define","#ifdef","#ifndef","#endif","#elif","#else","#if","#message","#undef"}
   lSECCION:={"main","return"}
@@ -16471,27 +19096,31 @@ ELSEIF LANGUAJE=="c" .or. LANGUAJE=="h"
              "char","float","long","double","short","sizeof","static","unsigned","const","signed","void","auto",;
              "volatile","typedef","struct","union","enum","goto","if","NULL",;
              "uint8_t","uint16_t","uint32_t","uint64_t","int"}
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 ELSEIF LANGUAJE=="prg" .or. LANGUAJE=="ch"
   lDEFINE:={"#define","#include","#ifdef","#ifndef","#undef","#error","#command","#xcommand","#stdout","#endif"}
   lSECCION:={"function","procedure","return"}
   lKEYWORD:={"for","while","case","exit","loop","local","memvar","public","set","@","clear","say","get","valid","read","prompt","box","menu"," to ","quit",;
              "elseif","else","end","if","static","nil",".T.",".F.",".and.",".or.","!"}
-
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 ELSEIF LANGUAJE=="py"
   lDEFINE:={"import","from"}
   lSECCION:={"def","lambda","class","return","global","new"}
   lKEYWORD:={"print","for","while","break","continue","yield","assert","except","try","finally","elif","else","raise",;
              "exec","not","and","or","is","if"}
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 ELSEIF LANGUAJE=="sh" .or. LANGUAJE=="ksh"
   lDEFINE:={"export","declare","typeset"}
   lSECCION:={"function","return","exit"}
   lKEYWORD:={"echo","for","while","select","until","done","elif","else","case","esac","continue","let","local","set","shift","then","fi","do","in","if",;
              "sudo","mkdir","cd","alias","rmdir","rm","unalias","getopts","kill","unset","printf","awk","true","false","bg","fg","umask","cp","cat","grep",;
              "tail","head"}
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 ELSE
   lDEFINE:={"<none>"}
   lSECCION:={"<none>"}
   lKEYWORD:={"<none>"}
+  lLOGFUNCS:={"none"}; lMATFUNCS:={"none"}; lSTRFUNCS:={"none"}
 END
 RELEASE i
 RETURN
@@ -16517,14 +19146,80 @@ HB_FUNC( FT_IDLE )
    hb_idleState();
 }
 
+HB_FUNC( CLEAR_TABLE_COLORS )
+{
+   int nTLINEA = hb_parni ( 1 );
+   int nSLINEA = hb_parni ( 2 );
+   int i=0,j=2;   
+   for(i = 2; i<=nTLINEA; i++){
+       printf("\033[%d;%dH",j++,nSLINEA);
+       printf("              \n");
+   }
+}
+HB_FUNC( PRINT_TABLE_COLORS )
+{
+   int nMaxLen = hb_parni ( 1 );
+   int nTLINEA = hb_parni ( 2 );
+   int nSLINEA = hb_parni ( 3 );
+   int i=0, j=2;
+   for(i=nMaxLen; i<=255; i++){
+      if (i<256 && j<nTLINEA ){
+         printf("\033[%d;%dH",j++,nSLINEA);
+         printf("\033[38;5;%dm  color # %3d \n",i,i);
+      }else{
+         break;
+      }
+   }
+/*for i:=maxLen to 255
+                 if i<256 .and. j<TLINEA-3
+                    SETCOLOR(N2COLOR(i))
+                    @ j++,SLINEA-13 SAY " color # "+padl(hb_ntos(i),3)+" "
+                 else
+                    exit
+                 end
+              end */
+}              
+HB_FUNC( PRINTMSG )
+{
+   PHB_ITEM pSTRING  = hb_param( 1, HB_IT_STRING );
+   const char * expr = hb_itemGetCPtr( pSTRING );
+   printf("%s",expr);
+}
+
+HB_FUNC ( STRPCHAR )
+{
+   const char * cCar    = hb_parc( 1 );
+   const char * cString = hb_parc( 2 );
+   int tipo = hb_parni( 3 );
+   int pos = 0,i; //,j;
+   
+   i=strlen(cString)-1;
+  // j=i;
+   
+   const char * b = cString;
+   if (tipo){  // desde principio
+      while (*cCar == *b) ++b;
+      pos = (b - cString) + 1;
+   }else{      // desde final
+      while( *cCar == cString[i] ) --i;
+      pos = i+1; //j-i+1;
+   }
+   hb_retni(pos);
+}
+
 HB_FUNC( POSCARACTER )
 {
    PHB_ITEM pTEXTO = hb_param(1, HB_IT_STRING );
    HB_SIZE nPos = hb_parni ( 2 );
    char * cRet = (char *)calloc(2,1);
    const char * szText = hb_itemGetCPtr( pTEXTO );
-   cRet[0] = szText[nPos-1];
-   cRet[1] = '\0';
+   HB_SIZE nLen = hb_itemGetCLen( pTEXTO );
+   if ( nPos <= nLen ){
+      cRet[0] = szText[nPos-1];
+      cRet[1] = '\0';
+   }else{
+      cRet[0] = '\0';
+   }
    hb_retc( cRet );
    free(cRet);
 }
@@ -16533,6 +19228,7 @@ void do_fun_xgetbit(){
    unsigned x = hb_parni(1);
    int p = hb_parni(2);
    int n = hb_parni(3);
+
    hb_retni( (x>> (p+1-n)) & ~(~0 << n) );
 }
 HB_FUNC ( XGETBIT )
@@ -16809,7 +19505,7 @@ char *strpad (const char *linea, uint16_t size, uint16_t sizel, uint16_t codeFun
    char *t,*buffer;
    const char *s, *r;
    uint16_t tsize,l1,l2,ts, lsizel;
-   int i,p,q;
+   int i,p=0,q;
    
   // acoto el string a padear, por ambos lados (evito llamar a TRIM).
  // printf("\nLinea  %s\n",linea);
@@ -17184,7 +19880,7 @@ char *fun_xmoney (double numero, const char *tipo, const char *cblanc, uint16_t 
    strcpy(cnum,tipo);
    uint16_t i;
 
-   for (i=0;i<blancos;i++) strncat(cnum,cblanc,strlen(cblanc));
+   for (i=0;i<blancos;i++)  strncat(cnum,cblanc,1);//strncat(cnum,cblanc,strlen(cblanc));
 
    if( swSign ) strcat(cnum,"-");
 
@@ -17209,7 +19905,9 @@ char *fun_xmoney (double numero, const char *tipo, const char *cblanc, uint16_t 
    }
    if (decimales>0) {
       strcat(cnum,".");
-      strncat(cnum,d,strlen(d));
+      //int lenD = strlen(d);
+      //strncat(cnum,d,lenD);
+      strcat(cnum,d);
    }
    cnum[strlen(cnum)]='\0';
    free(buf);
@@ -17405,8 +20103,8 @@ HB_FUNC( BUSCACOMPLETA )
    
    const char * t = hb_itemGetCPtr( pSTRING );
 
-   if ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || 
-        isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) ) 
+   if ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || *(t+pKey-2)=='_' ||
+        isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) || *(t+pKey+pLen-1)=='_') 
       hb_retni( 0 );
    else
       hb_retni( pKey );
@@ -17692,11 +20390,13 @@ HB_FUNC( BUSCAPARLLAVE )
    int cini    = hb_parni( 7 );  // p+cini
    long pi      = hb_parni( 8 );  // fila fisica
    int dir      = hb_parni( 9 );  // adelante=1; 0=atras
-   const char * simbolo = hb_parc( 10 );  // simbolo llave u otro
+   long BOTTOM  = hb_parni( 10 );  // tope de pagina visible
+   const char * simbolo = hb_parc( 11 );  // simbolo llave u otro
    
    int i,ipar=0;
    char npar=0,par=0;
-   long lini = py;
+  // long lini = py;
+   long nMatchy=0,nMatchx=0;
    
    hb_colorwin(py,px,py,px,32);  // colorea la primera llave.
 
@@ -17710,7 +20410,7 @@ HB_FUNC( BUSCAPARLLAVE )
    else if(*simbolo=='>') {npar='>';par='<';}
    
    if(dir) {  // adelante
-      for (i=pi; i<=TLINEA+pi; i++){
+      for (i=pi; i<=TLINEA /*+pi*/; i++){
          PHB_ITEM pAA = hb_itemArrayGet( pTexto, i);
          const char * s = hb_itemGetCPtr( pAA );
          //long nLen = hb_itemGetCLen( pAA );
@@ -17724,8 +20424,11 @@ HB_FUNC( BUSCAPARLLAVE )
             if (*t==npar) ++ipar;
             if (*t==par) --ipar;
             if (ipar==0){
-               if(xini<=SLINEA && xini>=cini)
+               if(xini<=SLINEA && xini>=cini && py<=BOTTOM){
                   hb_colorwin(py,px,py,px,32);
+               }
+               nMatchy=i;
+               nMatchx=xini+1;
                break;
             }
             ++t;
@@ -17737,7 +20440,7 @@ HB_FUNC( BUSCAPARLLAVE )
       }
    }else{  // atrás
       //++ipar;
-      for (i=pi; i>=pi-(lini+1); i--){
+      for (i=pi; i>=1 /*pi-(lini+1)*/; i--){
          PHB_ITEM pAA = hb_itemArrayGet( pTexto, i);
          const char * s = hb_itemGetCPtr( pAA );
          long nLen = hb_itemGetCLen( pAA );
@@ -17759,7 +20462,9 @@ HB_FUNC( BUSCAPARLLAVE )
                if(xini<=SLINEA && xini>=cini && py>=1){
                   hb_colorwin(py,px,py,px,32);
                   //printf("PASA... %c = %d, %d %s\n",*t,py,px,s);
-                  }
+               }
+               nMatchy=i;
+               nMatchx=xini+1;
                break;
             }
             t=s+(xini-1);
@@ -17770,7 +20475,11 @@ HB_FUNC( BUSCAPARLLAVE )
       }   
    }      
    hb_itemClear(pTexto);
-   
+   PHB_ITEM pCWM = hb_itemArrayNew( 2 );
+   hb_arraySetNL( pCWM, 1, (long) nMatchy );  // linea
+   hb_arraySetNL( pCWM, 2, (long) nMatchx ); // columna
+   hb_itemReturnRelease( pCWM );
+   ///hb_retnl( nMatch );
 }      
 
 //BUSCAPARSIMBOLO(p,SLINEA,s,py,px,cini)
@@ -17998,8 +20707,126 @@ HB_FUNC( CADBLOQUEC )
    hb_itemClear(pTexto);
 }*/
 
-/* comentarios de bloque de C */
-HB_FUNC( COMBLOQUEC )
+/* comentario de linea y strings */
+
+// COLORTEXTONORMAL(TEXTO[INI],TCOL,SLINEA,XLEN,I,SWLENGUAJE,COMENTARIOS,cCOM,cEDITCOM,cCADENA)
+HB_FUNC( COLORTEXTONORMAL )
+{
+   PHB_ITEM pText    = hb_param( 1, HB_IT_STRING );
+   unsigned int TCOL = hb_parni( 2 );
+   unsigned int SLINEA  = hb_parni( 3 );
+   unsigned int XLEN = hb_parni( 4 );
+   unsigned int I = hb_parni( 5 );
+   unsigned int SWLENGUAJE = hb_parni( 6 );
+   PHB_ITEM pCOMENTARIOS = hb_param( 7, HB_IT_STRING );
+   //PHB_ITEM pcCOM = hb_param( 8, HB_IT_STRING );
+ //  unsigned int cCOM = hb_parni( 8 );
+   unsigned int cEDITCOM = hb_parni( 8 );
+   unsigned int cCADENA = hb_parni( 9 );
+   
+   int SWBLOQUE=0,SW39=0,SW34=0;
+   unsigned int j;
+   char *acSTR;  // para el simbolo y la cadena nula.
+
+  // const char * cSTR=pTexto;
+   acSTR = (char *)calloc(2,1);
+   strcpy(acSTR," ");
+
+   const char * cSTR = hb_itemGetCPtr( pText );
+   const char * COMENTARIOS = hb_itemGetCPtr( pCOMENTARIOS );
+
+   //const char * cCOM = hb_itemGetCPtr( pcCOM );
+   
+   for(j=1; j<=XLEN; j++){
+      //        cSTR:=substr(TEXTO[INI],j,1)
+      // veo comentarios de linea aquí:
+      if ( *cSTR== COMENTARIOS[0] ){ //'/'){
+          if ( SWLENGUAJE<=2 || SWLENGUAJE==4 || SWLENGUAJE==5) { 
+             if ( *(cSTR+1)== COMENTARIOS[1] ){ //'/' ) {  //substr(TEXTO[INI],j+1,1)=="/"
+                if ( !SWBLOQUE ){    // no esta dentro de un string: clorea
+                    if ( TCOL<=1 ){
+                        hb_colorwin(I, j, I, SLINEA, cEDITCOM);
+                    }else{
+                        if ( j>=TCOL ){
+                           hb_colorwin(I, j-TCOL, I, SLINEA, cEDITCOM);
+                        }else{
+                           hb_colorwin(I, 1, I, SLINEA, cEDITCOM);
+                        }
+                    }
+                    break;
+                }
+             }
+          }
+      }else if ( *cSTR == *COMENTARIOS ) {  // por si es Matlab u otro que tenga un caracter como comentario
+          if ( !SWBLOQUE ){   // no esta dentro de un string: clorea
+             if ( TCOL<=1 ){
+                hb_colorwin(I, j, I, SLINEA, cEDITCOM);
+             }else{
+                if ( j>=TCOL ){
+                   hb_colorwin(I, j-TCOL, I, SLINEA, cEDITCOM);
+                }else{
+                   hb_colorwin(I, 1, I, SLINEA, cEDITCOM);
+                }
+             }
+             break;
+          }
+      }
+      
+      if ( (unsigned int)*cSTR == 39 || (unsigned int)*cSTR == 96 ){
+          if ( !SWBLOQUE ){   // inicia secuencia
+              SWBLOQUE=1;
+              SW39=1;
+          }else{
+              if ( SW39 ) {  // era un bloque string apostrofe.
+                 SWBLOQUE=0;
+                 SW39=0;
+                 if ( TCOL<=1 ){
+                    hb_colorwin(I, j, I, j, cCADENA);
+                 }else {
+                    if ( j>TCOL ){
+                       hb_colorwin(I, j-TCOL, I, j-TCOL, cCADENA);
+                    }
+                 }
+              }
+          }
+      }
+      if ( (unsigned int)*cSTR == 34 && acSTR[0]!='\\' ){
+          if ( !SWBLOQUE ){   // inicia secuencia
+              SWBLOQUE=1;
+              SW34=1;
+          }else{
+              if ( SW34 ) {  // era bloque comillas
+                 SWBLOQUE=0;
+                 SW34=0;
+                 if ( TCOL<=1 ){
+                    hb_colorwin(I, j, I, j, cCADENA);
+                 }else {
+                    if ( j>TCOL ){
+                       hb_colorwin(I, j-TCOL, I, j-TCOL, cCADENA);
+                    }
+                 }
+              }
+          }
+      }
+      if ( SWBLOQUE ){
+          if ( TCOL<=1 ){
+              hb_colorwin(I, j, I, j, cCADENA);
+          }else {
+              if ( j>TCOL ){
+                  hb_colorwin(I, j-TCOL, I, j-TCOL, cCADENA);
+              }
+          }
+      }
+      acSTR[0]=*cSTR;
+      acSTR[1]='\0';
+      ++cSTR;
+   }
+   free(acSTR);
+}
+
+
+/* comentarios de bloque de HTML/XML */
+HB_FUNC( COMBLOQUEHTML )
 {
    PHB_ITEM pTexto   = hb_param( 1, HB_IT_ARRAY );
    unsigned int cINI = hb_parni( 2 );
@@ -18009,6 +20836,7 @@ HB_FUNC( COMBLOQUEC )
    unsigned int cEDITCOM = hb_parni( 6 );
    
    unsigned int i,j,k=1, SWBLOQUE=0, SWSTRING=0;
+   unsigned int SW39=0,SW34=0;
    --INI;
    for(i=cINI; i<=INI; i++){
       PHB_ITEM pString = hb_itemArrayGet( pTexto, i );
@@ -18017,22 +20845,125 @@ HB_FUNC( COMBLOQUEC )
       SWSTRING=0;
       for(j=1; j<=nLen; j++){
          // veo si esta dentro de un string:
-         if( *cSTR == '"' && *(cSTR-1) != '\\') {
-            if (!SWSTRING) SWSTRING=1;
-            else SWSTRING=0;
+         if( *cSTR == '"' ) {
+            if (!SWSTRING) {
+               SWSTRING=1;
+               SW34=1;
+            }
+            else {
+               if ( SW34 ){
+                  SWSTRING=0;
+                  SW34=0;
+               }
+            }
+         }else if ( *cSTR == '\'' ){
+            if (!SWSTRING) {
+               SWSTRING=1;
+               SW39=1;
+            }
+            else {
+               if ( SW39 ){
+                  SWSTRING=0;
+                  SW39=0;
+               }
+            }
+         }
+         // hasta aquí
+         if( *cSTR == '<'){
+            if ( *(cSTR+1) == '!' && *(cSTR+2)=='-' && *(cSTR+3)=='-' ){
+               if (!SWSTRING){
+                  SWBLOQUE=1;
+               }
+            }
+         }else if ( *cSTR == '-' && *(cSTR+1)=='-'){
+            if (!SWSTRING){
+               if ( *(cSTR+2) == '>' ){
+                  if (SWBLOQUE){   // hay un bloque abierto
+                     SWBLOQUE=0;
+                     if ( i >= cLEN ){
+                        if ( tCOL <= 1 ){
+                           hb_colorwin(k, j, k, j+2, cEDITCOM);
+                        }else{
+                           hb_colorwin(k, j-tCOL, k, j-tCOL+2, cEDITCOM);
+                        }
+                     }
+                  }else{
+                     if ( i >= cLEN ){
+                        if ( tCOL <= 1 ){
+                           hb_colorwin(k, j, k, j+2, 71);
+                        }else{
+                           hb_colorwin(k, j-tCOL, k, j-tCOL+2, 71);
+                        }
+                     }
+                     
+                  }
+               }
+            }
+         }
+         if ( i >= cLEN ){
+            if ( SWBLOQUE ){
+               if ( tCOL <= 1 ){
+                  hb_colorwin(k, j, k, j+2, cEDITCOM);
+               }else{
+                  if ( j > tCOL ){
+                     hb_colorwin(k, j-tCOL, k, j-tCOL+2, cEDITCOM);
+                  }
+               }
+            }
+         }
+         
+         ++cSTR;
+      }
+      if ( i >= cLEN ) ++k;
+      hb_itemRelease(pString);
+   }
+   hb_itemClear(pTexto);
+}
+
+
+/* comentarios de bloque de C */
+HB_FUNC( COMBLOQUEC )
+{
+   PHB_ITEM pTexto   = hb_param( 1, HB_IT_ARRAY );
+   unsigned int cINI = hb_parni( 2 );
+   unsigned int INI  = hb_parni( 3 );
+   unsigned int cLEN = hb_parni( 4 );
+   unsigned int tCOL = hb_parni( 5 );
+   unsigned int cEDITCOM = hb_parni( 6 );
+   PHB_ITEM pCOMENTARIOS_I = hb_param( 7, HB_IT_STRING );
+   PHB_ITEM pCOMENTARIOS_F = hb_param( 8, HB_IT_STRING );
+   
+   unsigned int i,j,k=1, SWBLOQUE=0, SWSTRING=0;
+   --INI;
+   
+   const char * COMENTARIOS_I = hb_itemGetCPtr( pCOMENTARIOS_I );
+   const char * COMENTARIOS_F = hb_itemGetCPtr( pCOMENTARIOS_F );
+   
+   for(i=cINI; i<=INI; i++){
+      PHB_ITEM pString = hb_itemArrayGet( pTexto, i );
+      const char * cSTR = hb_itemGetCPtr( pString );
+      long nLen = ( long ) strlen( cSTR );
+      SWSTRING=0;
+      for(j=1; j<=nLen; j++){
+         // veo si esta dentro de un string:
+         if( (*cSTR == 34 && *(cSTR-1) != '\\' ) || *cSTR == 39 || *cSTR == 96 ) {
+            if (!SWSTRING) {SWSTRING=1;}
+            else {SWSTRING=0;}
          } 
          // hasta aquí
-         if( *cSTR == '/'){
-            if ( *(cSTR+1) == '*' ){
-               if (!SWSTRING)
+         if( *cSTR == COMENTARIOS_I[0] ) { //'/'){
+            if ( *(cSTR+1) == COMENTARIOS_I[1] ) { //'*' ){
+               if (!SWSTRING){
                   SWBLOQUE=1;
+               }
             }else if ( *(cSTR+1) == '/' ){
-               if (!SWSTRING) 
+               if (!SWSTRING) {
                   break;
+               }
             }
-         }else if ( *cSTR == '*' ){
+         }else if ( *cSTR == COMENTARIOS_F[0] ) { //'*' ){
             if (!SWSTRING){
-               if ( *(cSTR+1) == '/' ){
+               if ( *(cSTR+1) == COMENTARIOS_F[1] ) { //'/' ){
                   if (SWBLOQUE){   // hay un bloque abierto
                      SWBLOQUE=0;
                      if ( i >= cLEN ){
@@ -18066,7 +20997,7 @@ HB_FUNC( COMBLOQUEC )
                }
             }
          }
-         // aprovecho de analizar los {}
+         // aprovecho de analizar los #
         // if (*cSTR == '{' ){ // abre un paréntesis
             
         // }
@@ -18199,20 +21130,105 @@ HB_FUNC( COLORSTRINGS )
    }
 }*/
 
+//PONENUMBERS(STRING)
+HB_FUNC( PONENUMBERS ){
+   PHB_ITEM tSTRING = hb_param(1, HB_IT_STRING); // string a procesar
+   unsigned int nFIL = hb_parni( 2 );
+   unsigned int nColor = hb_parni( 3 );
+   const char * pString = hb_itemGetCPtr( tSTRING );
+
+   int l=1; //,el=1,sw=0;
+   //long sLen = hb_itemGetCLen( tSTRING );
+   const char * t = pString;
+   while(*t!='\0'){
+      if(isdigit(*t)){// || *t=='.'){
+         int ini=l;
+         int swD=1;
+         int swE=0;
+         int swP=0;
+         int swFin=0;
+         while(*t!='\0'){
+            if(isdigit(*t)) {
+               ++l;++t;
+            }else if(*t=='.'){
+               if(swP){ swD=0; break;} else {swP=1;}
+               ++l;++t;
+            }else if(isalpha(*t)){
+               if(*t!='e' && *t!='E'){ 
+                  swD=0;
+                  break;
+               }else{
+                  if(swE) {swD=0; break;} else { swE=1; }
+                  ++t;++l;
+                  if(*t!='\0'){
+                     if(!isdigit(*t) && (*t!='-' && *t!='+')) {
+                        swD=0;
+                        break;
+                     }else{
+                        ++l ;
+                        ++t;
+                     }
+                  }else --l;
+               }
+            }else{
+               
+               break;
+            }
+            /*if (isdigit(*t) || *t=='.'){
+               hb_colorwin(nFIL, l, nFIL, l, nColor);
+            }else{
+               break;
+            }
+            ++t;
+            ++l;*/
+         }
+
+         if (swD) hb_colorwin(nFIL, ini, nFIL, l-1, nColor);
+         if(*t=='\0') break;
+      }else{
+         //++t;++l;
+         while(*t!='\0'){
+            if (!isdigit(*t) && !isalpha(*t) && *t!='_') break;
+            ++t;++l;
+         }
+         if(*t=='\0') break;
+      }
+    /*  if(isdigit(*t)){
+         if( *(t-1)!='_' && *(t+1)!='_' && !isalpha(*(t-1)) && !isalpha(*(t-1))){
+            hb_colorwin(nFIL, l, nFIL, l, nColor);
+         }
+      }else if (*t=='.' && isdigit(*(t-1)) && isdigit(*(t+1))){
+         hb_colorwin(nFIL, l, nFIL, l, nColor);
+      }*/
+      
+
+      ++t;
+      ++l;
+   }
+   hb_itemClear( tSTRING );
+}
+
 /* busca matches para colorear. puede solapar palabras :( */
-/* PONECOLORALAHUEA(lKEYWORD,lSECCION,lDEFINE,cKEYWORD,cSECCION,cEDITDEF,FILA,@STRING) */
+/* PONECOLORALAHUEA(lKEYWORD,lSECCION,lDEFINE,cKEYWORD,cSECCION,cEDITDEF,I,STRING,SWLENGUAJE) */
 
 HB_FUNC( PONECOLORALAHUEA )
 {
    PHB_ITEM pListaK  = hb_param( 1, HB_IT_ARRAY ); // lista de comandos
    PHB_ITEM pListaS  = hb_param( 2, HB_IT_ARRAY ); // lista de comandos
    PHB_ITEM pListaD  = hb_param( 3, HB_IT_ARRAY ); // lista de comandos
-   unsigned int nColorK = hb_parni( 4 );
-   unsigned int nColorS = hb_parni( 5 );
-   unsigned int nColorD = hb_parni( 6 );
-   unsigned int nFIL = hb_parni( 7 );
-
-   PHB_ITEM tSTRING = hb_param(8, HB_IT_STRING); // string a procesar
+   PHB_ITEM pListaSTR  = hb_param( 4, HB_IT_ARRAY ); // lista de comandos
+   PHB_ITEM pListaMAT  = hb_param( 5, HB_IT_ARRAY ); // lista de comandos
+   PHB_ITEM pListaLOG  = hb_param( 6, HB_IT_ARRAY ); // lista de comandos
+   
+   unsigned int nColorK = hb_parni( 7 );
+   unsigned int nColorS = hb_parni( 8 );
+   unsigned int nColorD = hb_parni( 9 );
+   unsigned int nColorSTR = hb_parni( 10 );
+   unsigned int nColorMAT = hb_parni( 11 );
+   unsigned int nColorLOG = hb_parni( 12 );
+   unsigned int nFIL = hb_parni( 13 );
+   PHB_ITEM tSTRING = hb_param(14, HB_IT_STRING); // string a procesar
+   unsigned int SWLENG = hb_parni( 15 );
    
    unsigned int i;
    const char * pSTRING = hb_itemGetCPtr( tSTRING );
@@ -18234,16 +21250,112 @@ HB_FUNC( PONECOLORALAHUEA )
         // ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || 
         //isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) ) 
         
-         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) &&
-            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) ) ||
-            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||
-            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||
-            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||
-            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&') {
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
             l = ( t - pSTRING ) + 1;
          
-            // en vez de llenar un array, colorear de inmediato.
             hb_colorwin(nFIL, l, nFIL, l+sLen-1, nColorK);
+         }
+         r = t + sLen;
+         t = strstr(r,pElemento);
+      }
+   } 
+
+   uiArrayLen = ( long ) hb_arrayLen( pListaSTR );
+   for(i=1; i<=uiArrayLen;i++){  // para cada elemento de la lista
+      PHB_ITEM pString = hb_itemArrayGet( pListaSTR, i );
+      const char * pElemento = hb_itemGetCPtr( pString );
+      long sLen = hb_itemGetCLen( pString );
+      hb_itemRelease(pString);
+      
+      const char *t,*r;
+      int l;
+      r = pSTRING;
+      t = strstr(r,pElemento);
+       
+      while(t!=NULL){
+        // ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || 
+        //isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) ) 
+        
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
+            l = ( t - pSTRING ) + 1;
+         
+            hb_colorwin(nFIL, l, nFIL, l+sLen-1, nColorSTR);
+         }
+         r = t + sLen;
+         t = strstr(r,pElemento);
+      }
+   } 
+
+   uiArrayLen = ( long ) hb_arrayLen( pListaMAT );
+   for(i=1; i<=uiArrayLen;i++){  // para cada elemento de la lista
+      PHB_ITEM pString = hb_itemArrayGet( pListaMAT, i );
+      const char * pElemento = hb_itemGetCPtr( pString );
+      long sLen = hb_itemGetCLen( pString );
+      hb_itemRelease(pString);
+      
+      const char *t,*r;
+      int l;
+      r = pSTRING;
+      t = strstr(r,pElemento);
+       
+      while(t!=NULL){
+        // ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || 
+        //isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) ) 
+        
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
+            l = ( t - pSTRING ) + 1;
+         
+            hb_colorwin(nFIL, l, nFIL, l+sLen-1, nColorMAT);
+         }
+         r = t + sLen;
+         t = strstr(r,pElemento);
+      }
+   } 
+
+   uiArrayLen = ( long ) hb_arrayLen( pListaLOG );
+   for(i=1; i<=uiArrayLen;i++){  // para cada elemento de la lista
+      PHB_ITEM pString = hb_itemArrayGet( pListaLOG, i );
+      const char * pElemento = hb_itemGetCPtr( pString );
+      long sLen = hb_itemGetCLen( pString );
+      hb_itemRelease(pString);
+      
+      const char *t,*r;
+      int l;
+      r = pSTRING;
+      t = strstr(r,pElemento);
+       
+      while(t!=NULL){
+        // ( isalpha(*(t+pKey-2)) || isdigit(*(t+pKey-2)) || 
+        //isalpha(*(t+pKey+pLen-1)) || isdigit(*(t+pKey+pLen-1)) ) 
+        
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
+            l = ( t - pSTRING ) + 1;
+         
+            hb_colorwin(nFIL, l, nFIL, l+sLen-1, nColorLOG);
          }
          r = t + sLen;
          t = strstr(r,pElemento);
@@ -18263,12 +21375,13 @@ HB_FUNC( PONECOLORALAHUEA )
       t = strstr(r,pElemento);
        
       while(t!=NULL){
-         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) &&
-            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) ) ||
-            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||
-            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||
-            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||
-            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&') {
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1))  && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen))  && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
             l = ( t - pSTRING ) + 1;
          
             // en vez de llenar un array, colorear de inmediato.
@@ -18292,12 +21405,16 @@ HB_FUNC( PONECOLORALAHUEA )
       t = strstr(r,pElemento);
        
       while(t!=NULL){
-         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1)) &&
-            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen)) ) ||
-            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||
-            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||
-            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||
-            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&') {
+         //l = (t - pSTRING )+1;
+         
+         
+         if ( ( !isalpha(*(t-1)) && !isdigit(*(t-1))  && *(t-1)!='_' &&
+            !isalpha(*(t+sLen)) && !isdigit(*(t+sLen))  && *(t+sLen)!='_') || (SWLENG==5 && pElemento[sLen-1]=='-') ||
+            pElemento[0]==']'||pElemento[0]=='['||pElemento[0]==')'||pElemento[0]=='='||pElemento[0]=='^'||
+            pElemento[0]=='+'||pElemento[0]=='-'||pElemento[0]=='*'||pElemento[0]=='/'||pElemento[0]=='\\'||
+            pElemento[0]=='('||pElemento[0]=='}'||pElemento[0]=='{'||pElemento[0]=='>'||pElemento[sLen-1]==';'||
+            pElemento[0]=='$'||pElemento[0]=='!'||pElemento[0]=='@'||pElemento[0]=='<'||pElemento[0]=='.'||
+            pElemento[0]=='?'||pElemento[0]==':'||pElemento[0]=='|'||pElemento[0]=='&'||pElemento[0]==(char)37) {
             l = ( t - pSTRING ) + 1;
          
             // en vez de llenar un array, colorear de inmediato.
@@ -18312,6 +21429,9 @@ HB_FUNC( PONECOLORALAHUEA )
    hb_itemClear(pListaK);
    hb_itemClear(pListaS);
    hb_itemClear(pListaD);
+   hb_itemClear(pListaSTR);
+   hb_itemClear(pListaMAT);
+   hb_itemClear(pListaLOG);
 }
 
 HB_FUNC( PUSHKEYARR )
